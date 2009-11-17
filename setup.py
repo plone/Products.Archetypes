@@ -1,13 +1,14 @@
 from setuptools import setup, find_packages
 
-version = '1.6'
+version = '1.6a1'
 
 setup(name='Products.Archetypes',
       version=version,
       description="Archetypes is a developers framework for rapidly "
                   "developing and deploying rich, full featured content "
                   "types within the context of Zope/CMF and Plone.",
-      long_description=open("README.txt").read(),
+      long_description=open("README.txt").read() + "\n" +
+                       open("CHANGES.txt").read(),
       classifiers=[
         "Framework :: Plone",
         "Framework :: Zope2",
@@ -16,7 +17,7 @@ setup(name='Products.Archetypes',
       keywords='Archetypes Plone CMF Zope',
       author='Archetypes developement team',
       author_email='plone-developers@lists.sourceforge.net',
-      url='http://plone.org/',
+      url='http://svn.plone.org/svn/plone/Products.Archetypes',
       license='BSD',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['Products'],
@@ -58,11 +59,11 @@ setup(name='Products.Archetypes',
           'Products.validation',
           'plone.folder',
           'plone.app.folder',
-          # 'Acquisition',
-          # 'DateTime',
-          # 'ExtensionClass',
-          # 'transaction',
-          # 'ZODB3',
-          # 'Zope2',
+          'Acquisition',
+          'DateTime',
+          'ExtensionClass',
+          'transaction',
+          'ZODB3',
+          'Zope2',
       ],
       )

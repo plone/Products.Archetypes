@@ -1,174 +1,177 @@
-1.6 - unreleased
-================
+1.6a1 - unreleased
+==================
 
-  * Modified the auto-generated type factories for compatibility with CMF 2.2.
-    The _constructInstance method of CMF FTI objects now takes care of raising
-    object events for old-style factories, so AT factories no longer raise
-    their own events.
-    [davisagli]
+* Remove version.txt and functions that read it.
+  [hannosch]
 
-  * Restructured and restyled inandout widget to fix issue with rtl scripts.
-    http://dev.plone.org/plone/ticket/5660
-    [emanlove]
-    
-  * Replaced the css_slot with the style_slot, as the deprecated
-    css_slot is now really removed in Plone 4.
-    [maurits+maartenkling]
+* Modified the auto-generated type factories for compatibility with CMF 2.2.
+  The _constructInstance method of CMF FTI objects now takes care of raising
+  object events for old-style factories, so AT factories no longer raise
+  their own events.
+  [davisagli]
 
-  * Sanitized the log message handling. Added a simple log module based on
-    Python's logging module. The log methods in the debug module calculate
-    the entire stack frame on *every* log call.
-    [hannosch]
-
-  * "Categories" are now "Tags", in line with common usage and terminology.
-    [limi]
-
-  * Changed the test_metadata tests regarding dates to change reasonable times.
-    Times around the year 1000 had somewhat different timezones.
-    [hannosch]
-
-  * Adjust to refactoring of CMFCatalogAware and PortalFolder's use of it.
-    [davisagli]
-
-  * Fix for missing short-name field due to removal of globals. 
-    http://dev.plone.org/plone/ticket/9429
-    [esteele]
-
-  * Deprecated our own IOrderedContainer interface in favor of the version
-    from OFS. We do require Zope 2.7 for a while now ;)
-    [hannosch]
-
-  * Declare package dependencies and fixed deprecation warnings for use
-    of Globals.
-    [hannosch]
-
-  * Removed PloneCompat module and moved transaction_note to utils.
-    [hannosch]
-
-  * Removed tabindex and Iterator from the template scopes. Their use was
-    discouraged long ago.
-    [hannosch]
-
-  * Removed utils.getPkgInfo and `__pkginfo__`. We use setuptools as our
-    distribution and package information platform.
-    [hannosch]
-
-  * Removed unsupported AggregatedStorage. You can easily convert this into
-    an add-on package if you use this storage.
-    [hannosch]
-
-  * Fixed remaining test failures caused by CMFPlone dependencies. Moved
-    normalizeString method to the edit view instead of requiring plone_utils.
-    [hannosch]
-
-  * Created a separate layer for Archetypes, that does not depend on the
-    Five ZCML layer anymore. AT tests can finally be run in isolation of other
-    installed packages. Fixed a couple of test failures which now have a
-    deterministic output.
-    [hannosch]
-
-  * Removed a couple of assert statements which wouldn't help in any way.
-    [hannosch]
-
-  * Changed all references to `here` in all templates to `context`.
-    [hannosch]
-
-  * Removed reference graph visualization based on graphviz. It is
-    unmaintained and certainly not a core feature.
-    [hannosch]
-
-  * 'TextField._process_input doesn't forward **kwargs' this fix
-    https://dev.plone.org/plone/ticket/7597 [garbas]
-
-  * Traverse to ``plone_utils`` tool instead of relying on it being
-    available in global variable scope. [malthe]
+* Restructured and restyled inandout widget to fix issue with rtl scripts.
+  http://dev.plone.org/plone/ticket/5660
+  [emanlove]
   
-  * Do not add empty schemas into a CompositeSchema anymore.
-    This closes http://dev.plone.org/plone/ticket/7584.
-    [hannosch]
+* Replaced the css_slot with the style_slot, as the deprecated
+  css_slot is now really removed in Plone 4.
+  [maurits+maartenkling]
 
-  * Removed deprecated _guessPackage method. This closes
-    http://dev.plone.org/plone/ticket/7569.
-    [davisagli]
+* Sanitized the log message handling. Added a simple log module based on
+  Python's logging module. The log methods in the debug module calculate
+  the entire stack frame on *every* log call.
+  [hannosch]
 
-  * Normalizing the "id" attribute for fieldsets and fieldset legends, so
-    javascript schemata selection works for schematas that have spaces in
-    the title. This closes http://dev.plone.org/plone/ticket/7999.
-    [rsantos]
+* "Categories" are now "Tags", in line with common usage and terminology.
+  [limi]
 
-  * Added a missing alt tag to the image in the file widget. This closes
-    http://dev.plone.org/plone/ticket/7763.
-    [hannosch]
+* Changed the test_metadata tests regarding dates to change reasonable times.
+  Times around the year 1000 had somewhat different timezones.
+  [hannosch]
 
-  * Removed the rebuild catalog tab from the reference and uid catalog. The
-    method is still there and can be accessed via the URL, but you won't
-    accidentally click on a tab in the ZMI anymore and have your catalog be
-    rebuilt without a warning. This closes
-    http://dev.plone.org/plone/ticket/8093.
-    [hannosch]
+* Adjust to refactoring of CMFCatalogAware and PortalFolder's use of it.
+  [davisagli]
 
-  * Fixed the SelectionWidget view to keep the order of the passed in values
-    on output and not sort after arbitrary Python internal dict order. This
-    closes http://dev.plone.org/plone/ticket/7272.
-    [hannosch]
+* Fix for missing short-name field due to removal of globals. 
+  http://dev.plone.org/plone/ticket/9429
+  [esteele]
 
-  * Fixed a macro expansion error when customizing templates which used
-    the folderlisting macro from base.pt. This closes
-    http://dev.plone.org/plone/ticket/6672.
-    [hannosch]
+* Deprecated our own IOrderedContainer interface in favor of the version
+  from OFS. We do require Zope 2.7 for a while now ;)
+  [hannosch]
 
-  * Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
-    Consider branching before this revision if release required before Plone 4.
-    [elro]
+* Declare package dependencies and fixed deprecation warnings for use
+  of Globals.
+  [hannosch]
 
-  * Avoid a failure in addCreator when called on an object without an
-    Acquisition chain.
-    [hannosch]
+* Removed PloneCompat module and moved transaction_note to utils.
+  [hannosch]
 
-  * Remove the long long deprecated 'type' class variable, which was
-    replaced with 'schema'.
-    [wichert]
+* Removed tabindex and Iterator from the template scopes. Their use was
+  discouraged long ago.
+  [hannosch]
 
-  * Allow fields to supply their own PdataStreamIterator. This closes
-    http://dev.plone.org/plone/ticket/7572.
-    [hannosch]
+* Removed utils.getPkgInfo and `__pkginfo__`. We use setuptools as our
+  distribution and package information platform.
+  [hannosch]
 
-  * Fixed off-by-two error in transaction_note. This refs
-    http://dev.plone.org/plone/ticket/7610.
-    [hannosch]
+* Removed unsupported AggregatedStorage. You can easily convert this into
+  an add-on package if you use this storage.
+  [hannosch]
 
-  * Add a new publish traverse that exposes image fields and their scales.
-    This removes the need for content types to have a __bobo_traverse__ method.
-    [wichert]
+* Fixed remaining test failures caused by CMFPlone dependencies. Moved
+  normalizeString method to the edit view instead of requiring plone_utils.
+  [hannosch]
 
-  * Move export/import step registrations to exportimport/configure.zcml. This
-    change requires CMF trunk.
-    [stefan]
+* Created a separate layer for Archetypes, that does not depend on the
+  Five ZCML layer anymore. AT tests can finally be run in isolation of other
+  installed packages. Fixed a couple of test failures which now have a
+  deterministic output.
+  [hannosch]
 
-  * Added dependencies to GenericSetup profile.
-    [hannosch]
+* Removed a couple of assert statements which wouldn't help in any way.
+  [hannosch]
 
-  * Removed five:implements statements from ZCML, which are already done in the
-    classes themselves.
-    [hannosch]
+* Changed all references to `here` in all templates to `context`.
+  [hannosch]
 
-  * Minor tweak in the calendar widget.
-    [deo, hannosch]
+* Removed reference graph visualization based on graphviz. It is
+  unmaintained and certainly not a core feature.
+  [hannosch]
 
-  * Converted Archetypes tests to use CMFTestCase as a base again, instead of
-    PloneTestCase. Fixed all tests / code to actually work without Plone
-    installed.
-    [hannosch]
+* 'TextField._process_input doesn't forward **kwargs' this fix
+  https://dev.plone.org/plone/ticket/7597 [garbas]
 
-  * Removed Archetypes Site customization policy.
-    [hannosch]
+* Traverse to ``plone_utils`` tool instead of relying on it being
+  available in global variable scope. [malthe]
 
-  * Removed deprecated code.
-    [hannosch]
+* Do not add empty schemas into a CompositeSchema anymore.
+  This closes http://dev.plone.org/plone/ticket/7584.
+  [hannosch]
 
-  * Moved rejectAnonymous script from CMFPlone over, as it is still used
-    inside base_metadata.cpt.
-    [hannosch]
+* Removed deprecated _guessPackage method. This closes
+  http://dev.plone.org/plone/ticket/7569.
+  [davisagli]
+
+* Normalizing the "id" attribute for fieldsets and fieldset legends, so
+  javascript schemata selection works for schematas that have spaces in
+  the title. This closes http://dev.plone.org/plone/ticket/7999.
+  [rsantos]
+
+* Added a missing alt tag to the image in the file widget. This closes
+  http://dev.plone.org/plone/ticket/7763.
+  [hannosch]
+
+* Removed the rebuild catalog tab from the reference and uid catalog. The
+  method is still there and can be accessed via the URL, but you won't
+  accidentally click on a tab in the ZMI anymore and have your catalog be
+  rebuilt without a warning. This closes
+  http://dev.plone.org/plone/ticket/8093.
+  [hannosch]
+
+* Fixed the SelectionWidget view to keep the order of the passed in values
+  on output and not sort after arbitrary Python internal dict order. This
+  closes http://dev.plone.org/plone/ticket/7272.
+  [hannosch]
+
+* Fixed a macro expansion error when customizing templates which used
+  the folderlisting macro from base.pt. This closes
+  http://dev.plone.org/plone/ticket/6672.
+  [hannosch]
+
+* Purged old Zope 2 Interface interfaces for Zope 2.12 compatibility.
+  Consider branching before this revision if release required before Plone 4.
+  [elro]
+
+* Avoid a failure in addCreator when called on an object without an
+  Acquisition chain.
+  [hannosch]
+
+* Remove the long long deprecated 'type' class variable, which was
+  replaced with 'schema'.
+  [wichert]
+
+* Allow fields to supply their own PdataStreamIterator. This closes
+  http://dev.plone.org/plone/ticket/7572.
+  [hannosch]
+
+* Fixed off-by-two error in transaction_note. This refs
+  http://dev.plone.org/plone/ticket/7610.
+  [hannosch]
+
+* Add a new publish traverse that exposes image fields and their scales.
+  This removes the need for content types to have a __bobo_traverse__ method.
+  [wichert]
+
+* Move export/import step registrations to exportimport/configure.zcml. This
+  change requires CMF trunk.
+  [stefan]
+
+* Added dependencies to GenericSetup profile.
+  [hannosch]
+
+* Removed five:implements statements from ZCML, which are already done in the
+  classes themselves.
+  [hannosch]
+
+* Minor tweak in the calendar widget.
+  [deo, hannosch]
+
+* Converted Archetypes tests to use CMFTestCase as a base again, instead of
+  PloneTestCase. Fixed all tests / code to actually work without Plone
+  installed.
+  [hannosch]
+
+* Removed Archetypes Site customization policy.
+  [hannosch]
+
+* Removed deprecated code.
+  [hannosch]
+
+* Moved rejectAnonymous script from CMFPlone over, as it is still used
+  inside base_metadata.cpt.
+  [hannosch]
 
 1.5.14 - unreleased
 ===================

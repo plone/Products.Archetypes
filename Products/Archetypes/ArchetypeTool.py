@@ -59,16 +59,6 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-def getCMFVersion():
-    from os.path import join
-    from App.Common import package_home
-    from Products.CMFCore import cmfcore_globals
-    path = join(package_home(cmfcore_globals),'version.txt')
-    file = open(path, 'r')
-    _version = file.read()
-    file.close()
-    return _version.strip()
-
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
 _zmi = os.path.join(_www, 'zmi')
@@ -143,44 +133,29 @@ def fixActionsForType(portal_type, typesTool):
             else:
                 # If no standard actions are wished don't display them
                 new = []
-            try:
-                cmfver = getCMFVersion()
-            except ImportError:
-                cmfver = 'CMF-2.0'   ## rr: kind of a hack but all we
-                                     ## need to know here for now
 
             for action in portal_type.actions:
                 # DM: "Expression" derives from "Persistent" and
                 # we must not put persistent objects into class attributes.
                 # Thus, copy "action"
                 action = action.copy()
+                hits = [a for a in new if a.id == action['id']]
 
-                if cmfver[:7] >= 'CMF-1.4' or cmfver == 'Unreleased':
-                    # Then we know actions are defined new style as
-                    # ActionInformations
-                    hits = [a for a in new if a.id == action['id']]
-
-                    # Change action and condition into expressions, if
-                    # they are still strings
-                    if action.has_key('action') and \
-                           type(action['action']) in (type(''), type(u'')):
-                        action['action'] = Expression(action['action'])
-                    if action.has_key('condition') and \
-                           type(action['condition']) in (type(''), type(u'')):
-                        action['condition'] = Expression(action['condition'])
-                    if action.has_key('name'):
-                        action['title'] = action['name']
-                        del action['name']
-                    if hits:
-                        hits[0].__dict__.update(action)
-                    else:
-                        new.append(ActionInformation(**action))
+                # Change action and condition into expressions, if
+                # they are still strings
+                if action.has_key('action') and \
+                       type(action['action']) in (type(''), type(u'')):
+                    action['action'] = Expression(action['action'])
+                if action.has_key('condition') and \
+                       type(action['condition']) in (type(''), type(u'')):
+                    action['condition'] = Expression(action['condition'])
+                if action.has_key('name'):
+                    action['title'] = action['name']
+                    del action['name']
+                if hits:
+                    hits[0].__dict__.update(action)
                 else:
-                    hit = findDict(new, 'id', action['id'])
-                    if hit:
-                        hit.update(action)
-                    else:
-                        new.append(action)
+                    new.append(ActionInformation(**action))
 
             typeInfo._actions = tuple(new)
             typeInfo._p_changed = True
