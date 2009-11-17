@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6a2 - Unreleased
+1.6a2 - 2009-11-17
 ------------------
 
 - Changed the language field in ExtensibleMetadata to respect the default
