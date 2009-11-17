@@ -1,5 +1,12 @@
+Changelog
+=========
+
+1.6a2 - Unreleased
+------------------
+
+
 1.6a1 - 2009-11-17
-==================
+------------------
 
 * Remove version.txt and functions that read it.
   [hannosch]
@@ -80,7 +87,7 @@
   unmaintained and certainly not a core feature.
   [hannosch]
 
-* 'TextField._process_input doesn't forward **kwargs' this fix
+* ``TextField._process_input doesn't forward **kwargs`` this fix
   https://dev.plone.org/plone/ticket/7597 [garbas]
 
 * Traverse to ``plone_utils`` tool instead of relying on it being
@@ -174,7 +181,7 @@
   [hannosch]
 
 1.5.14 - unreleased
-===================
+-------------------
 
 * FixedPointField required validation now counts zero as a value, and the
   default default value is now None like other numeric fields, rather than
@@ -190,7 +197,7 @@
   [vincentfretin]
 
 1.5.12 - 2009-09-06
-===================
+-------------------
 
 * Replaced fti/title_or_id by fti/Title in edit_macros.pt.
   This fixes content type title translation when the i18n domain is different of plone.
@@ -208,7 +215,7 @@
 
 
 1.5.11 - 2009-03-30
-===================
+-------------------
 
 * When saving an AT object only validate the visible fields in the schema.
   (avoids hidden and invisible ones). Fixes
@@ -231,7 +238,7 @@
 
 
 1.5.10 - 2008-09-30
-===================
+-------------------
  
 * Fire WebDAVObjectInitializedEvent/WebDAVObjectEditedEvent when
   content is created/edited via PUT/MKCOL. This is part of the fix
@@ -268,7 +275,7 @@
 
 
 1.5.9 - 2008-07-02
-==================
+------------------
 
 * According to rfc1806 the header is Content-Disposition not
   Content-disposition. Case matters, at least for IE6 (and results in
@@ -289,7 +296,7 @@
   [deo]
 
 1.5.8 - 2008-04-21
-==================
+------------------
 
 * Fix code in 'Field.validate_vocabulary' that would validate a set
   of values OK if the last element was in the vocabulary, but others
@@ -326,7 +333,7 @@
   [nouri]
 
 1.5.7 - 2008-03-08
-==================
+------------------
 
 * Apply patch in http://dev.plone.org/plone/ticket/7777
   [nouri]
@@ -336,7 +343,7 @@
   [witsch]
 
 1.5.6 - 2008-02-15
-==================
+------------------
 
 * Add a plone.locking unlock subscriber for IObjectInitializedEvent. This
   ensures non portal_factory (and LinguaPlone translations) are unlocked
@@ -375,7 +382,7 @@
   [witsch]
 
 1.5.5 - 2007-12-29
-==================
+------------------
 
 * If allow_discussion is set as an attribute on a content type class,
   ExtensibleMetaData.allowDiscussion() may hit a bug in CMF 2.1.0's
@@ -396,7 +403,7 @@
   [deo]
 
 1.5.4 - 2007-11-07
-==================
+------------------
 
 * Made the getSelection method in browser/widgets.py return the selection
   in the character set of the vocabulary -- not the input value.
@@ -418,7 +425,7 @@
   [jensens, wiggy]
 
 1.5.3 - 2007-10-07
-==================
+------------------
 
 * Skip the 'metadata' schema in base_edit, like we used to do it
   pre-1.5.  Also, do not render fieldset and legend elements when
@@ -449,7 +456,7 @@
   [mj]
 
 1.5.2 - 2007-09-12
-==================
+------------------
 
 * Changed browser/configure.zcml to update unnecessarily restrictive
   permissions for two widget views. These were requiring ModifyPortalContent
@@ -469,7 +476,7 @@
   [limi]
 
 1.5.1 - 2007-09-10
-==================
+------------------
 
 * Updating the AT widget views to be rendered inline, so they can be
   invoked in View mode by KSS without any special magic. This is a
@@ -477,7 +484,7 @@
   [limi]
 
 1.5.0 - 2007-08-16
-==================
+------------------
 
 * ImageField.set used 'size' attribute instead of 'get_size' API.
 
@@ -499,14 +506,14 @@
   [nouri, drjnut]
 
 1.5.0-rc3 - 2007-07-27
-======================
+----------------------
 
 * Fixed the msgid for the description of the location field. This closes
   http://dev.plone.org/plone/ticket/6797.
   [hannosch]
 
 1.5.0-rc2 - 2007-07-13
-======================
+----------------------
 
 * Added a special fieldproperty type for reference fields, with a more
   generic base class for any field accessors/mutators that need to acquire
@@ -520,7 +527,7 @@
   [hannosch]
 
 1.5.0-rc1 - 2007-07-04
-======================
+----------------------
 
 * Removed all utility registrations.
   [hannosch, wichert]
@@ -537,7 +544,7 @@
   [hannosch]
 
 1.5.0-b5 - 2007-05-05
-=====================
+---------------------
 
 * Never validate fields that are not writeable.
   [optilude]
@@ -546,7 +553,7 @@
   [wichert]
 
 1.5.0-b4 - 2007-04-28
-=====================
+---------------------
 
 * Added an ATDateTimeFieldProperty version of the ATFieldProperty mentioned
   below. This takes care of conversion between Zope 2 DateTime's and Python
@@ -585,7 +592,7 @@
   [optilude]
 
 1.5.0-b3 - 2007-03-20
-=====================
+---------------------
 
 * Refactored installation code. This is now based on a GenericSetup extension
   profile instead of the old Extensions/Install.py way.
@@ -602,7 +609,7 @@
   [limi]
 
 1.5.0-b2 - 2007-03-05
-=====================
+---------------------
 
 * Added a new LanguageWidget that does the same as the SelectionWidget but
   does not try to translate the vocabulary using the normal translation
@@ -636,7 +643,7 @@
   [optilude]
 
 1.5.0-b1 - 2007-02-27
-=====================
+---------------------
 
 * Fixed deprecation warnings for minimalpath in skins install code.
   [hannosch]
@@ -664,7 +671,7 @@
   [hannosch]
 
 1.5.0-a2 - 2007-02-06
-=====================
+---------------------
 
 * Removed the typeDescription and typeDescMsgId attributes from all content
   classes. These were only used on the edit form which has been altered to
@@ -705,7 +712,7 @@
   [hannosch]
 
 1.5.0-a1 - 2006-10-25
-=====================
+---------------------
 
 * Cleaned up event usage: IObjectCreatedEvent is now fired during generated
   constructor, and two custom events are fired during processForm() -
@@ -812,7 +819,7 @@
   [hannosch]
 
 1.4.5 unreleased
-========================
+----------------
 
 * Encode values in Field.toString so we do not fall over fields with
   unicode default values that contain non-ASCII text.
@@ -823,7 +830,7 @@
   [hannosch]
 
 1.4.3 - Unreleased
-==================
+------------------
 
 * Add an ObjectModifiedEvent right after `initializeArchetype`,
   since that modifies the object with default values defined in the
@@ -885,7 +892,7 @@
   [hannosch]
 
 1.4.2-final - 2006-12-15
-========================
+------------------------
 
 * Fixed missing declaration of timestamp property in TextAreaWidget for
   append_only mode.
@@ -929,7 +936,7 @@
   [stefan]
 
 1.4.1-final - 2006-09-08
-========================
+------------------------
 
 * Fix #635.  Large files were truncated on `setFileName`.  In
   `setFilename` of FileField, we now set the `filename` attribute
@@ -977,14 +984,14 @@
   [nouri]
 
 1.4.0-final - 2006-06-16
-========================
+------------------------
 
 * Undeprecated 'public', there are too many products relying on it and it's
   just a name change without any real benefit.
   [hannosch]
 
 1.4.0-RC1 - 2006-06-02
-======================
+----------------------
 
 * Use zope.contenttype in favor of zope.app.content_types if available.
   [hannosch]
@@ -995,7 +1002,7 @@
   [hannosch]
 
 1.4.0-beta1 - 2006-05-12
-========================
+------------------------
 
 * Added support for <catalog> entries to be added to the GenericSetup
   profile description of portal types to enable registration w/ multiple
@@ -1062,7 +1069,7 @@
   [hannosch]
 
 1.4.0-alpha03 - 2006-03-26
-==========================
+--------------------------
 
 * Fixed some bizarro bug where the __call__ method of BaseFolder (i.e.
   render the default view) was instantiating a new CMFCore PortalFolderBase
@@ -1113,7 +1120,7 @@
   [sidnei]
 
 1.4.0-alpha02 - 2006-02-23
-==========================
+--------------------------
 
 * Added check for duplicate 'accessor', 'edit_accessor' and
   'mutator' method names on a schema's fields. Helps Joe Schmoe to
@@ -1127,13 +1134,13 @@
   [jensens]
 
 1.4.0-alpha01 - 2006-01-26
-==========================
+--------------------------
 
 * Remove BBB code for CMFBTreeFolder import location.
   [hannosch]
 
-* make import from 'Products.Archetypes.atapi import *' default and deprecate
-  'public'.
+* Make import from ``Products.Archetypes.atapi import *`` default and deprecate
+  public.
   [jensens]
 
 * Integrated 'generator' into Archetypes.
@@ -1152,7 +1159,7 @@
   [hannosch]
 
 1.3.10-final2 - 2006-09-14
-==========================
+--------------------------
 
 * Check mimetype before schema update and reapply type after. This fixes
   http://dev.plone.org/archetypes/ticket/618
@@ -1163,7 +1170,7 @@
   [hannosch]
 
 1.3.9-final - 2006-05-16
-========================
+------------------------
 
 * Add a new generateNewId method to BaseObject which is used to suggest
   a new id when automatically renaming an object after creation. This makes
@@ -1176,7 +1183,7 @@
   [optilude]
 
 1.3.8-final - 2006-04-30
-========================
+------------------------
 
 * Cleanup of CatalogMultiplex: removed superfluos code, added docstring
   and comments.
@@ -1263,13 +1270,13 @@
   [jensens]
 
 1.3.7-final - 2006-01-16
-========================
+------------------------
 
 * fixed problems with IDWidget ignore_visible_ids in some setups.
   [sidnei, rafrombrc]
 
 1.3.6-final - 2006-01-07
-========================
+------------------------
 
 * enable IDWidget to ignore global visible_ids setting and enable ids by
   adding a property ignore_visible_ids=False (default). If it is True
@@ -1298,7 +1305,7 @@
   [limi]
 
 1.3.6-RC1 - 2005-12-29
-======================
+----------------------
 
 * Make rename-after-creation resolve duplicates by appending -n, where n is
   a number, to the id when an existing object exists in the parent folder.
@@ -1343,7 +1350,7 @@
   [yenzenz]
 
 1.3.5-final - 2005-10-11
-========================
+------------------------
 
 * Fixed http://members.plone.org/collector/4709 __bobo_traverse__ calls
   will not be passing a RESPONSE argument.
@@ -1371,7 +1378,7 @@
   [elro]
 
 1.3.4-final - 2005-08-30
-========================
+------------------------
 
 * added tests if the test engine i working fine, this shows the effect
   of http://plone.org/collector/4487 verbose.
@@ -1412,7 +1419,7 @@
   [yenzenz]
 
 1.3.4-rc3 - 2005-08-07
-======================
+----------------------
 
 * import of CMFBTreeFolder changed with CMF 1.5.3, kept it backward
   compatible. thx to TresEquis.
@@ -1428,7 +1435,7 @@
   [yenzenz]
 
 1.3.4-rc2 - 2005-08-01
-======================
+----------------------
 
 * Skip image scales with a size of (0,0)
   [tiran]
@@ -1460,7 +1467,7 @@
   [alecm]
 
 1.3.4-rc1 - 2005-07-17
-======================
+----------------------
 
 * Fixed http-etag test. It now 1) refreshs etag on reindexObject and 2) also
   must update etag on metadata modification (like Title).
@@ -1503,7 +1510,7 @@
   [dpunktnpunkt]
 
 1.3.4-beta2 - 2005-07-06
-========================
+------------------------
 
 * Fixed outstanding errors with ImageField. ImageField is now using
   the same api and processing methods as FileField. Empty images are
@@ -1564,36 +1571,36 @@
 
 * Merged madduck-refactor-content-edit-1_3 branch r4283:4363 into
   release-1_3-branch:
-  - content_edit.cpy cannot be called directly by other .cpy scripts,
-    because FormController seems to bestow control upon content_edit.cpy on
-    invocation. This patch moves the code (unchaned) to content_edit_impl.py
-    and replaces content_edit.cpy with a simple call to this .py. As
-    a result, SQLWindowStorage can use AT's content_edit and needs no code
-    duplication, and AT continues to work as before.
-    For reference, please see:
-      http://thread.gmane.org/gmane.comp.web.zope.plone.archetypes.devel/4959
-      http://thread.gmane.org/gmane.comp.web.zope.plone.user/35620
- [madduck]
+  content_edit.cpy cannot be called directly by other .cpy scripts,
+  because FormController seems to bestow control upon content_edit.cpy on
+  invocation. This patch moves the code (unchaned) to content_edit_impl.py
+  and replaces content_edit.cpy with a simple call to this .py. As
+  a result, SQLWindowStorage can use AT's content_edit and needs no code
+  duplication, and AT continues to work as before.
+  For reference, please see:
+  http://thread.gmane.org/gmane.comp.web.zope.plone.archetypes.devel/4959
+  http://thread.gmane.org/gmane.comp.web.zope.plone.user/35620
+  [madduck]
 
 * Merged madduck-renderingfixes-1_3 branch r3956:4361 into
   release-1_3-branch:
-   - Reworked base_{view,edit} wrt CSS and Javascript. previously, CSS and
-     Javascript were both rendered into the javascript_head_slot and there
-     was no way to influence it really, other than on a per-field basis with
-     helper_css and helper_js. No way to do it per-type though. My patch
-     splits CSS into the css_slot and makes both templates look in the user
-     templates for optional CSS/Javascript macros ('css' and 'javascript')
-     much in the same way that the header/typedescription/body/footer parts
-     are acquired. For base_edit, this is trivial since edit_macros is
-     defined inside the css and javascript macros provided by the user (they
-     are evaluated in the context of base_edit itself, which defines
-     edit_macros). For base_view, this is not possible. Thus there is code
-     duplication, which I documented in the form of comments in the
-     templates.
-   - Added a condition to the errors span for each field in widgets/field.pt
-     such that in the absence of an error, no HTML is generated. This avoids
-     some rendering problems when multiple widgets are to be rendered on the
-     same HTML line.
+  Reworked base_{view,edit} wrt CSS and Javascript. previously, CSS and
+  Javascript were both rendered into the javascript_head_slot and there
+  was no way to influence it really, other than on a per-field basis with
+  helper_css and helper_js. No way to do it per-type though. My patch
+  splits CSS into the css_slot and makes both templates look in the user
+  templates for optional CSS/Javascript macros ('css' and 'javascript')
+  much in the same way that the header/typedescription/body/footer parts
+  are acquired. For base_edit, this is trivial since edit_macros is
+  defined inside the css and javascript macros provided by the user (they
+  are evaluated in the context of base_edit itself, which defines
+  edit_macros). For base_view, this is not possible. Thus there is code
+  duplication, which I documented in the form of comments in the
+  templates.
+  Added a condition to the errors span for each field in widgets/field.pt
+  such that in the absence of an error, no HTML is generated. This avoids
+  some rendering problems when multiple widgets are to be rendered on the
+  same HTML line.
   [madduck]
 
 * Introduced manage_afterPUT and manage_afterMKCOL hooks that are called
@@ -1608,7 +1615,7 @@
   [deo]
 
 1.3.4-beta1 - 2005-05-20
-========================
+------------------------
 
 * Fixed [ 1192453 ] Typo in Extensions/utils.py on line 117. Thanks
   to salmacis.
@@ -1637,7 +1644,7 @@
   [alecm]
 
 1.3.3-final - 2005-04-22
-========================
+------------------------
 
 * Changed default for Language metadata field to empty string (''). Also
   removed the undesired fallback magic.
@@ -1648,7 +1655,7 @@
   [yenzenz]
 
 1.3.3-rc3 - 2005-04-21
-======================
+----------------------
 
 * Added optional 'visible_only' argument to Schemata.editableFields();
   modified base_edit to use 'visible_only=True' so the edit form will
@@ -1657,15 +1664,15 @@
   [rafrombrc]
 
 * Applied two performance optimizations:
-  - BaseObject.getCharset() no longer calls the PythonScript of same name.
-    This method is called bazillions of times and using a script here is
-    enormously wasteful. The script has been kept as fallback.
-  - ExtensibleMetadata.listCreators() now calls getOwnerTuple() instead
-    of getOwner() to avoid lookup of user folder and user.
+  BaseObject.getCharset() no longer calls the PythonScript of same name.
+  This method is called bazillions of times and using a script here is
+  enormously wasteful. The script has been kept as fallback.
+  ExtensibleMetadata.listCreators() now calls getOwnerTuple() instead
+  of getOwner() to avoid lookup of user folder and user.
   [stefan]
 
 1.3.3-rc2 - 2005-04-01
-======================
+----------------------
 
 * Fixed plone bug #3959 (http://plone.org/collector/3959), made
   OrderedContainer.moveObjectsByDelta not throw an error when passed the id
@@ -1693,7 +1700,7 @@
   [tiran]
 
 1.3.3-rc1 - 2005-03-25
-======================
+----------------------
 
 * Fixed [ 1163878 ] Field.toString() always return the same thing. Thanks
   to flacoste for the patch.
@@ -1731,7 +1738,7 @@
   [deo]
 
 1.3.2-final - 2005-03-05
-========================
+------------------------
 
 * Made deprecation warnings less verbose. If someone wants them, switch
   DEBUG in config.py to True.
@@ -1746,7 +1753,7 @@
   [tiran]
 
 1.3.2-rc1 - 2005-02-26
-======================
+----------------------
 
 * Using registerType without a package name is deprecated. Explict is better
   than implicit!
@@ -1931,7 +1938,7 @@
   [deo]
 
 1.3.1-final - 2004-11-15
-========================
+------------------------
 
 * Some visual fixes to RichWidget and Field code + removed stray comments.
   [limi]
@@ -1940,7 +1947,7 @@
   [yenzenz]
 
 1.3.1-rc4 - 2004-11-06
-======================
+----------------------
 
 * reverted the patch from duncan because of too many bugs :(
   final decicion for 1.3.x: we keep the 1.3.0-final reference copy
@@ -1951,7 +1958,7 @@
   [yenzenz]
 
 1.3.1-rc3 - 2004-11-05
-======================
+----------------------
 
 * There where lots of discussions about the behaviour of references while
   copying. it ends up in 1.3.0-final with the default behaviour to do not
@@ -1977,7 +1984,7 @@
   [yenzenz]
 
 1.3.1-rc1 - 2004-10-17
-======================
+----------------------
 
 * Fixed [ 1037265 ] Bug in ArchetypeTool:getWidgets(). Thanks to Tommy from
   IBAS for the catch.
@@ -2058,14 +2065,14 @@
   [tiran]
 
 1.3.0 - 2004-09-30
-==================
+------------------
 
 * Fixed [ 1034649 ] Typo breaks catalog index creation: index_acessor ->
   index_accessori.
   [ronnix]
 
 1.3.0-rc4 - 2004-09-25
-======================
+----------------------
 
 * Fixed [ 1032587 ] Error in field.Vocabulary. Thanks to Danny Bloemendaal
   for the catch.
@@ -2081,7 +2088,7 @@
   [tiran]
 
 1.3.0-rc3 - 2004-09-18
-======================
+----------------------
 
 * Fixed misc unit tests that where broken or relied on a broken behavior.
   [dreamcatcher]
@@ -2120,10 +2127,9 @@
   [tiran]
 
 * Cleaned up and fixed ExtensibleMetadata class:
-    o no more direct attribute access or attribute storage
-    o rearranged some lines
-    o use 'date is None and fallback or date' because testing for is None is
-      much faster than testing a DateTime instance for not None.
+  no more direct attribute access or attribute storage, rearranged some lines,
+  use 'date is None and fallback or date' because testing for is None is,
+  much faster than testing a DateTime instance for not None.
   [tiran]
 
 * Added SQL* and VariableSchemaSupport to public.py. Please import only from
@@ -2158,7 +2164,7 @@
   [tiran]
 
 1.3.0-rc2 - 2004-09-04
-======================
+----------------------
 
 * Removed class="error" from field.pt error message. It caused some ui
   glitches.
@@ -2323,7 +2329,7 @@
   [tiran]
 
 1.3.0-rc1 - 2004-08-16
-======================
+----------------------
 
 * Try to use BaseUnit for schema migration to keep the mimetype and the
   filename of a BaseUnit based field. Without the changes the mimetype of
@@ -2501,7 +2507,7 @@
   [jensens]
 
 1.30beta5 - 2004-08-06
-========================
+----------------------
 
 * Fixed forbidden access to schema methods when the schema was
   acccessed using archetype_tool.lookupType().
@@ -2596,7 +2602,7 @@
   [tiran]
 
 1.3.0-beta4 - 2004-07-09
-========================
+------------------------
 
 * Fix bug on image deletion [clebeaupin]
 
@@ -2649,7 +2655,7 @@
   [tiran]
 
 * Fixed [ 972091 ] base widget doesn't support visble attribute for view
- [tiran]
+  [tiran]
 
 * Added better traceback information to fixAfterRenameType
   [tiran]
