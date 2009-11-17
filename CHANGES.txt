@@ -1,4 +1,4 @@
-1.6a1 - unreleased
+1.6a1 - 2009-11-17
 ==================
 
 * Remove version.txt and functions that read it.

@@ -5,7 +5,7 @@ from DateTime import DateTime
 from datetime import datetime
 from zope.datetime import parseDatetimetz
 
-from zope.app.component.hooks import getSite
+from zope.site.hooks import getSite
 
 class ATFieldProperty(object):
     """Field properties based on Archetypes schema
