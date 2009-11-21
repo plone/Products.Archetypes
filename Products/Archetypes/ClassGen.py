@@ -194,6 +194,7 @@ def add%(name)s(self, id, **kwargs):
     obj = %(name)s(id)
     self._setObject(id, obj, suppress_events=True)
     obj = self._getOb(id)
+    obj.manage_afterAdd(obj, self)
     obj.initializeArchetype(**kwargs)
     return obj.getId()
 """ % {'name' : name}

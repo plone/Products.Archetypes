@@ -137,7 +137,7 @@ class RenameTests(ATSiteTestCase):
         uid = UID(doc)
         # Should call afterAdd twice, one for the object
         # creation and another for the rename
-        self.assertEquals(ADD_COUNTER.get(uid), 2)
+        self.assertEquals(ADD_COUNTER.get(uid), 3)
         # Should call beforeDelete once, when renaming the object
         self.assertEquals(DELETE_COUNTER.get(uid), 1)
         # Should never call afterClone
@@ -156,7 +156,7 @@ class RenameTests(ATSiteTestCase):
         d = self.folder.folder2.folder22.folder221.doc2211
         uid = UID(d)
         # Called afterAdd once
-        self.assertEquals(ADD_COUNTER.get(uid), 1)
+        self.assertEquals(ADD_COUNTER.get(uid), 2)
         # Never called beforeDelete or afterClone
         self.assertEquals(DELETE_COUNTER.get(uid), 0)
         self.assertEquals(CLONE_COUNTER.get(uid), 0)

@@ -91,6 +91,9 @@ setting:
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc1 []
+  ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
@@ -110,6 +113,9 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_doc2',
   ...                               title='Title',
   ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_doc2 []
+  ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
@@ -190,6 +196,9 @@ setting:
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder1 []
+  ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
@@ -209,6 +218,9 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_folder2',
   ...                               title='Title',
   ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_folder2 []
+  ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
@@ -290,6 +302,9 @@ setting:
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder1 []
+  ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
@@ -309,6 +324,9 @@ More complex invokeFactory call, setting title and description:
   ...                               id='new_btree_folder2',
   ...                               title='Title',
   ...                               description='Description')
+  Catalog:  uid_catalog
+  Indexing: Members/test_user_1_/new_btree_folder2 []
+  ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
