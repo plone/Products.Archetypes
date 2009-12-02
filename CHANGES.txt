@@ -1,12 +1,11 @@
 Changelog
 =========
 
-1.6a3 - Unreleased
+1.6a3 - 2009-12-02
 ------------------
 
 - Fix a regression from my adjustments to AT factories, to make sure that the
-  reference engine still gets initialized before initializeArchetype
-  is called.
+  reference engine still gets initialized before initializeArchetype is called.
   [davisagli]
 
 1.6a2 - 2009-11-17
