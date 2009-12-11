@@ -1,6 +1,11 @@
 1.5.14 - unreleased
 ===================
 
+* Avoid needless zodb writes while creating content in the
+  portal_factory.  Patch by hazmat.
+  Fixes http://dev.plone.org/plone/ticket/9672
+  [maurits]
+
 * FixedPointField required validation now counts zero as a value, and the
   default default value is now None like other numeric fields, rather than
   0.00.  This closes http://dev.plone.org/old/plone/ticket/9414.

@@ -10,7 +10,8 @@ from Products.CMFCore.permissions import ModifyPortalContent
 from Products.CMFCore.CMFCatalogAware import CMFCatalogAware
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import shasattr, isFactoryContained
+
 
 class CatalogMultiplex(CMFCatalogAware):
     security = ClassSecurityInfo()
@@ -30,6 +31,8 @@ class CatalogMultiplex(CMFCatalogAware):
 
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
+        if isFactoryContained(self):
+            return
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
@@ -37,6 +40,8 @@ class CatalogMultiplex(CMFCatalogAware):
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
+        if isFactoryContained(self):
+            return
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
@@ -47,6 +52,8 @@ class CatalogMultiplex(CMFCatalogAware):
     def reindexObjectSecurity(self, skip_self=False):
         """update security information in all registered catalogs.
         """
+        if isFactoryContained(self):
+            return
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
             return
@@ -91,6 +98,8 @@ class CatalogMultiplex(CMFCatalogAware):
         indexes are refreshed. If a index does not exist in catalog its
         silently ignored.
         """
+        if isFactoryContained(self):
+            return
         if idxs == [] and shasattr(self, 'notifyModified'):
             # Archetypes default setup has this defined in ExtensibleMetadata
             # mixin. note: this refreshes the 'etag ' too.

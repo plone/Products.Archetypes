@@ -12,7 +12,7 @@ from UserDict import UserDict as BaseDict
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_inner, aq_parent
 from ExtensionClass import ExtensionClass
 from Globals import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -975,3 +975,9 @@ def addStatusMessage(request, message, type='info'):
     """Add a status message to the request.
     """
     IStatusMessage(request).addStatusMessage(message, type=type)
+
+
+def isFactoryContained(obj):
+    """Are we inside the portal_factory?
+    """
+    return aq_parent(aq_inner(obj)).meta_type == 'TempFolder'
