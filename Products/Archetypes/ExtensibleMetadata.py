@@ -304,6 +304,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         """Vocabulary method for the language field
         """
         util = None
+        lt = getToolByName(self,'portal_languages')
+        use_combined = lt.use_combined_language_codes
         # Try the utility first
         if HAS_PLONE_I18N:
             util = queryUtility(IMetadataLanguageAvailability)
@@ -318,7 +320,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                     (('en','English'), ('fr','French'), ('es','Spanish'),
                      ('pt','Portuguese'), ('ru','Russian')))
         else:
-            languages = util.getLanguageListing()
+            languages = util.getLanguageListing(combined=use_combined)
             languages.sort(lambda x,y:cmp(x[1], y[1]))
             # Put language neutral at the top.
             languages.insert(0,(u'',_(u'Language neutral (site default)')))
