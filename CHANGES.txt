@@ -4,6 +4,8 @@ Changelog
 1.6a4 - Unreleased
 ------------------
 
+- Fixed package dependencies.
+  [hannosch]
 
 1.6a3 - 2009-12-02
 ------------------
