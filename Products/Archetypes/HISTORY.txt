@@ -1,6 +1,11 @@
 1.5.14 - unreleased
 ===================
 
+* Redirect to the object absolute URL when the user is coming from the
+  edit view of the object and clicks the Cancel button.
+  This closes http://dev.plone.org/plone/ticket/8853
+  [dukebody]
+
 * Avoid needless zodb writes while creating content in the
   portal_factory.  Patch by hazmat.
   Fixes http://dev.plone.org/plone/ticket/9672
