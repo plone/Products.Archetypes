@@ -4,6 +4,11 @@ Changelog
 1.6a4 - Unreleased
 ------------------
 
+- Redirect to the object absolute URL when the user is coming from the
+  edit view of the object and clicks the Cancel button.
+  This closes http://dev.plone.org/plone/ticket/8853
+  [dukebody]
+
 - Fixed package dependencies.
   [hannosch]
 

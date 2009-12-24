@@ -34,6 +34,11 @@ if context.isTemporary():
 ##    context.aq_parent.manage_delObjects([old_id])
 ##    message=_(u'message_edit_item_cancelled',
 ##        default='Add new item operation was cancelled, object was removed.')
+elif last_referer == '%s/edit' % context.absolute_url(): # coming from the edit page
+    # XXX: This will only work if the edit view is named 'edit'
+    redirect_to = context.absolute_url()
+    message=_(u'message_edit_item_cancelled',
+        default='Edit cancelled.')
 else:
     redirect_to = last_referer
     message=_(u'message_edit_item_cancelled',
