@@ -36,8 +36,7 @@ if context.isTemporary():
 ##        default='Add new item operation was cancelled, object was removed.')
 elif last_referer == '%s/edit' % context.absolute_url(): # coming from the edit page
     # XXX: This will only work if the edit view is named 'edit'
-    context_state = context.restrictedTraverse('@@plone_context_state')
-    redirect_to = context_state.view_url()
+    redirect_to = '%s/view' % context.absolute_url()
     message=_(u'message_edit_item_cancelled',
         default='Edit cancelled.')
 else:
