@@ -4,6 +4,8 @@ Changelog
 1.6a4 - Unreleased
 ------------------
 
+- Let content_types.css.dtml no longer rely on content_icon.
+
 - Redirect to the object view URL when the user is coming from the
   edit view of the object and clicks the Cancel button.
   This closes http://dev.plone.org/plone/ticket/8853
