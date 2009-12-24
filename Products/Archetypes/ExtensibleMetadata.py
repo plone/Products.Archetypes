@@ -305,8 +305,13 @@ class ExtensibleMetadata(Persistence.Persistent):
         """Vocabulary method for the language field
         """
         util = None
-        lt = getToolByName(self,'portal_languages')
-        use_combined = lt.use_combined_language_codes
+
+        use_combined = False
+        # Respect the combined language code setting from PloneLanguageTool
+        lt = getToolByName(self, 'portal_languages', None)
+        if lt is not None:
+            use_combined = lt.use_combined_language_codes
+
         # Try the utility first
         if HAS_PLONE_I18N:
             util = queryUtility(IMetadataLanguageAvailability)

@@ -4,11 +4,16 @@ Changelog
 1.6a4 - Unreleased
 ------------------
 
-- Let content_types.css.dtml no longer rely on content_icon.
+- Respect the use_combined_language_codes setting from portal_languages if
+  PloneLanguageTool is installed. Fixes http://dev.plone.org/plone/ticket/8907.
+  [erico_andrei, hannosch]
 
-- Redirect to the object view URL when the user is coming from the
-  edit view of the object and clicks the Cancel button.
-  This closes http://dev.plone.org/plone/ticket/8853
+- Let content_types.css.dtml no longer rely on content_icon.
+  [hannosch]
+
+- Redirect to the object view URL when the user is coming from the edit view of
+  the object and clicks the Cancel button. This closes
+  http://dev.plone.org/plone/ticket/8853.
   [dukebody, thanks hannosch and wichert]
 
 - Fixed package dependencies.
