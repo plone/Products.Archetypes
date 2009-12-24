@@ -4,8 +4,6 @@ from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.interfaces import IBaseContent
 from Products.Archetypes.interfaces import IReferenceable
 from Products.Archetypes.interfaces import IExtensibleMetadata
-from Products.Archetypes.interfaces.base import IBaseContent as z2IBaseContent
-from Products.Archetypes.interfaces.referenceable import IReferenceable as z2IReferenceable
 from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
 from AccessControl import ClassSecurityInfo
@@ -17,6 +15,13 @@ from OFS.PropertyManager import PropertyManager
 
 from zope.interface import implements
 
+CONTENT_MANAGE_OPTIONS = (
+ {'action': 'manage_change_history_page', 'label': 'History'},
+ {'action': 'view', 'label': 'View'},
+ {'action': 'manage_interfaces', 'label': 'Interfaces'},
+)
+
+
 class BaseContentMixin(CatalogMultiplex,
                        BaseObject,
                        PortalContent,
@@ -27,7 +32,7 @@ class BaseContentMixin(CatalogMultiplex,
     implements(IBaseContent, IReferenceable)
 
     security = ClassSecurityInfo()
-    manage_options = PortalContent.manage_options + Historical.manage_options
+    manage_options = CONTENT_MANAGE_OPTIONS
 
     isPrincipiaFolderish = 0
     isAnObjectManager = 0
@@ -76,9 +81,6 @@ class BaseContent(BaseContentMixin,
     implements(IBaseContent, IReferenceable, IExtensibleMetadata)
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
-
-    manage_options = BaseContentMixin.manage_options + \
-        PropertyManager.manage_options
 
     def __init__(self, oid, **kwargs):
         BaseContentMixin.__init__(self, oid, **kwargs)

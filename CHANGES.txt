@@ -4,6 +4,11 @@ Changelog
 1.6a4 - Unreleased
 ------------------
 
+- Cleaned up manage_options for base types. No longer show unsupported ZMI
+  screens. The functionality is still present for those that know its use and
+  limitations.
+  [hannosch]
+
 - Respect the use_combined_language_codes setting from portal_languages if
   PloneLanguageTool is installed. Fixes http://dev.plone.org/plone/ticket/8907.
   [erico_andrei, hannosch]

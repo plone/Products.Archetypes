@@ -13,13 +13,19 @@ from AccessControl import Unauthorized
 from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.interfaces import IContentish
-from Products.CMFCore.CMFCatalogAware import WorkflowAware
 from Products.CMFCore.PortalFolder import PortalFolderBase as PortalFolder
 from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import _checkPermission
 
 from zope import event
 from zope.interface import implements
+
+FOLDER_MANAGE_OPTIONS = (
+ {'action': 'manage_main', 'label': 'Contents'},
+ {'action': 'manage_access', 'label': 'Security'},
+ {'action': 'manage_interfaces', 'label': 'Interfaces'},
+)
+
 
 class BaseFolderMixin(CatalogMultiplex,
                       BaseObject,
@@ -40,7 +46,7 @@ class BaseFolderMixin(CatalogMultiplex,
         )
     security.declareProtected('Copy or Move', 'manage_copyObjects')
 
-    manage_options = PortalFolder.manage_options + WorkflowAware.manage_options
+    manage_options = FOLDER_MANAGE_OPTIONS
     content_icon = "folder_icon.gif"
     use_folder_tabs = 1
     isPrincipiaFolderish = 1
