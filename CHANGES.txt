@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6a4 - Unreleased
+1.6a4 - 2009-12-27
 ------------------
 
 - Cleaned up manage_options for base types. No longer show unsupported ZMI
