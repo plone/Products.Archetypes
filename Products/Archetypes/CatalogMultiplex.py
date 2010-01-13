@@ -10,7 +10,7 @@ from Products.CMFCore.CMFCatalogAware import CatalogAware, WorkflowAware, Opaque
 from Products.Archetypes.config import CATALOGMAP_USES_PORTALTYPE, TOOL_NAME
 from Products.Archetypes.log import log
 from Products.Archetypes.Referenceable import Referenceable
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import shasattr, isFactoryContained
 
 class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
     security = ClassSecurityInfo()
@@ -30,6 +30,8 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
     security.declareProtected(ModifyPortalContent, 'indexObject')
     def indexObject(self):
+        if isFactoryContained(self):
+            return
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
@@ -37,6 +39,8 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
     def unindexObject(self):
+        if isFactoryContained(self):
+            return
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
@@ -47,6 +51,8 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
     def reindexObjectSecurity(self, skip_self=False):
         """update security information in all registered catalogs.
         """
+        if isFactoryContained(self):
+            return
         at = getToolByName(self, TOOL_NAME, None)
         if at is None:
             return
@@ -91,6 +97,8 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         indexes are refreshed. If a index does not exist in catalog its
         silently ignored.
         """
+        if isFactoryContained(self):
+            return
         if idxs == [] and shasattr(self, 'notifyModified'):
             # Archetypes default setup has this defined in ExtensibleMetadata
             # mixin. note: this refreshes the 'etag ' too.

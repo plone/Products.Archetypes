@@ -4,6 +4,11 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- Avoid needless zodb writes while creating content in the
+  portal_factory.  Patch by hazmat.  Merged from 1.5 branch.
+  Fixes http://dev.plone.org/plone/ticket/9672
+  [maurits]
+
 - Actually use IImageField, and add markers for other field types just to be
   consistent.
   [optilude]

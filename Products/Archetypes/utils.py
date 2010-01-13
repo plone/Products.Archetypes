@@ -20,7 +20,7 @@ from zope.i18nmessageid import Message
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 
-from Acquisition import aq_base
+from Acquisition import aq_base, aq_inner, aq_parent
 from ExtensionClass import ExtensionClass
 from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -893,3 +893,9 @@ def transaction_note(note):
         logger.warning('Transaction note too large omitting %s' % str(note))
     else:
         T.note(str(note))
+
+
+def isFactoryContained(obj):
+    """Are we inside the portal_factory?
+    """
+    return aq_parent(aq_inner(obj)).meta_type == 'TempFolder'

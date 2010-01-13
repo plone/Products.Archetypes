@@ -3,7 +3,7 @@ from zope.interface import implements
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.interfaces import IReferenceable
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils import shasattr, isFactoryContained
 
 from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
@@ -201,6 +201,8 @@ class Referenceable(CopySource):
         Get a UID
         (Called when the object is created or moved.)
         """
+        if isFactoryContained(self):
+            return
         isCopy = getattr(item, '_v_is_cp', None)
         # Before copying we take a copy of the references that are to be copied 
         # on the new copy
@@ -295,6 +297,8 @@ class Referenceable(CopySource):
         uc.catalog_object(self, url)
 
     def _uncatalogUID(self, aq, uc=None):
+        if isFactoryContained(self):
+            return
         if not uc:
             uc = getToolByName(self, config.UID_CATALOG)
         url = self._getURL()
@@ -319,6 +323,8 @@ class Referenceable(CopySource):
                 ref._catalogRefs(uc, uc, rc)
 
     def _uncatalogRefs(self, aq, uc=None, rc=None):
+        if isFactoryContained(self):
+            return
         annotations = self._getReferenceAnnotations()
         if annotations:
             if not uc:
