@@ -248,6 +248,46 @@ class IFileField(IObjectField):
         Writes data including file name and content type to RESPONSE
         """
 
+class IStringField(IField):
+    """Marker interface for string fields
+    """
+
+class ITextField(IFileField):
+    """Marker interface for text fields
+    """
+
+class IDateTimeField(IField):
+    """Marker interface for date/time field
+    """
+
+class ILinesField(IField):
+    """Marker interface for lines fields
+    """
+
+class IIntegerField(IField):
+    """Marker interface for integer fields
+    """
+
+class IFloatField(IField):
+    """Marker interface for float fields
+    """
+
+class IFixedPointField(IField):
+    """Marker interface for fixed point fields
+    """
+
+class IReferenceField(IField):
+    """Marker interface for reference fields
+    """
+    
+class IComputedField(IField):
+    """Marker interface for computed fields
+    """
+
+class IBooleanField(IField):
+    """Marker interface for boolean fields
+    """
+
 class IImageField(IFileField):
     """ Marker interface for detecting an image field """
 

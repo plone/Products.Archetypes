@@ -37,7 +37,18 @@ from Products.Archetypes.interfaces.storage import IStorage
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.interfaces.field import IStringField
+from Products.Archetypes.interfaces.field import ITextField
+from Products.Archetypes.interfaces.field import IDateTimeField
+from Products.Archetypes.interfaces.field import ILinesField
+from Products.Archetypes.interfaces.field import IIntegerField
+from Products.Archetypes.interfaces.field import IFloatField
 from Products.Archetypes.interfaces.field import IFileField
+from Products.Archetypes.interfaces.field import IImageField
+from Products.Archetypes.interfaces.field import IFixedPointField
+from Products.Archetypes.interfaces.field import IReferenceField
+from Products.Archetypes.interfaces.field import IComputedField
+from Products.Archetypes.interfaces.field import IBooleanField
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.Archetypes.interfaces import IVocabulary
 from Products.Archetypes.exceptions import ObjectFieldException
@@ -816,7 +827,9 @@ class StringField(ObjectField):
         'default': '',
         'default_content_type' : 'text/plain',
         })
-
+    
+    implements(IStringField)
+    
     security  = ClassSecurityInfo()
 
     security.declarePrivate('get')
@@ -1210,6 +1223,8 @@ class TextField(FileField):
         'primary' : False,
         'content_class': BaseUnit,
         })
+        
+    implements(ITextField)
 
     security  = ClassSecurityInfo()
 
@@ -1397,7 +1412,9 @@ class DateTimeField(ObjectField):
         'type' : 'datetime',
         'widget' : CalendarWidget,
         })
-
+    
+    implements(IDateTimeField)
+    
     security  = ClassSecurityInfo()
     
     security.declarePrivate('validate_required')
@@ -1439,7 +1456,9 @@ class LinesField(ObjectField):
         'default' : (),
         'widget' : LinesWidget,
         })
-
+    
+    implements(ILinesField)
+    
     security  = ClassSecurityInfo()
 
     security.declarePrivate('set')
@@ -1491,6 +1510,8 @@ class IntegerField(ObjectField):
         'widget' : IntegerWidget,
         'default' : None,
         })
+    
+    implements(IIntegerField)
 
     security  = ClassSecurityInfo()
 
@@ -1522,6 +1543,8 @@ class FloatField(ObjectField):
         'type' : 'float',
         'default': None
         })
+        
+    implements(IFloatField)
 
     security  = ClassSecurityInfo()
 
@@ -1569,6 +1592,8 @@ class FixedPointField(ObjectField):
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
+    
+    implements(IFixedPointField)
 
     security  = ClassSecurityInfo()
 
@@ -1711,6 +1736,8 @@ class ReferenceField(ObjectField):
         'callStorageOnSet': False,
         'index_method' : '_at_edit_accessor',
         })
+        
+    implements(IReferenceField)
 
     security  = ClassSecurityInfo()
 
@@ -1960,6 +1987,8 @@ class ComputedField(Field):
         'mode' : 'r',
         'storage': ReadOnlyStorage(),
         })
+    
+    implements(IComputedField)
 
     security = ClassSecurityInfo()
 
@@ -1989,6 +2018,8 @@ class BooleanField(ObjectField):
         'vocabulary': (('True','Yes', 'yes'),('False','No', 'no')),
         'widget' : BooleanWidget,        
         })
+        
+    implements(IBooleanField)
 
     security  = ClassSecurityInfo()
 
@@ -2207,7 +2238,9 @@ class ImageField(FileField):
         'storage': AttributeStorage(),
         'content_class': Image,
         })
-
+    
+    implements(IImageField)
+    
     security  = ClassSecurityInfo()
 
     default_view = "view"
