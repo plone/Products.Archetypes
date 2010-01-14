@@ -27,6 +27,6 @@ setup(name='Products.Archetypes',
           'Products.Marshall',
           'Products.MimetypesRegistry',
           'Products.PortalTransforms',
-          'Products.validation',
+          'Products.validation>=1.6.4',
       ],
       )
