@@ -1,4 +1,10 @@
-1.5.14 - unreleased
+1.5.15 - unreleased
+===================
+
+* ...
+
+
+1.5.14 - 2010-01-14
 ===================
 
 * Redirect to the object view URL when the user is coming from the
