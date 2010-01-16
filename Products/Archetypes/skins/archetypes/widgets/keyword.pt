@@ -49,7 +49,7 @@
         </div>
       </tal:condition>
 
-      <div style="width: 45%">
+      <div style="width: 45%" tal:condition="allowedKeywords">
         <span i18n:translate="label_existing_tags">
             Existing tags
         </span>

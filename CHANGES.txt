@@ -4,6 +4,10 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- Don't render an empty select tag when there are no keywords defined.
+  This references http://dev.plone.org/plone/ticket/9222
+  [limi]
+
 - There's no attribute wrap=off for textareas in keywords. Removed. References
   http://dev.plone.org/plone/ticket/9222
   [limi]
