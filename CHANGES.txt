@@ -4,6 +4,10 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- There's no attribute wrap=off for textareas in keywords. Removed. References
+  http://dev.plone.org/plone/ticket/9222
+  [limi]
+
 - Avoid needless zodb writes while creating content in the
   portal_factory.  Patch by hazmat.  Merged from 1.5 branch.
   Fixes http://dev.plone.org/plone/ticket/9672

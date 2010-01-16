@@ -39,7 +39,6 @@
             name="subject:lines"
             rows="11"
             cols="15"
-            wrap="off"
             tal:attributes="id string:${fieldName}_keywords;
                             name string:${fieldName}_keywords:lines;"
             tal:define="subject python:[item for item in value if item not in allowedKeywords]"
