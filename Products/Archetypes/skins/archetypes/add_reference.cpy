@@ -36,8 +36,6 @@ if (not state.kwargs.get('reference_source_url') and
         status='success',
         context=context)
 
-context.session_save_form()
-
 fieldset = REQUEST.get('fieldset', 'default')
 
 field = context.Schemata()[fieldset][add_reference['field']]

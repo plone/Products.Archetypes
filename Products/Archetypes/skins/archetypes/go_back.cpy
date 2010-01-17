@@ -8,14 +8,9 @@
 ##parameters=last_referer=None
 ##title=Go Back
 
-#SESSION = context.REQUEST.SESSION
-#old_id = context.getId()
-#cflag = SESSION.get('__creation_flag__', {})
-
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.utils import addStatusMessage
 from Products.CMFCore.utils import getToolByName
-
 
 REQUEST = context.REQUEST
 
@@ -28,12 +23,6 @@ if context.isTemporary():
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
     message=_(u'message_add_new_item_cancelled',
         default='Add New Item operation was cancelled.')
-##elif old_id in cflag.keys():
-##    redirect_to = last_referer
-##    context.remove_creation_mark()
-##    context.aq_parent.manage_delObjects([old_id])
-##    message=_(u'message_edit_item_cancelled',
-##        default='Add new item operation was cancelled, object was removed.')
 elif last_referer == '%s/edit' % context.absolute_url(): # coming from the edit page
     # XXX: This will only work if the edit view is named 'edit'
     redirect_to = '%s/view' % context.absolute_url()

@@ -31,7 +31,6 @@ from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.attestcase import default_user
 from Products.Archetypes.tests.atsitetestcase import portal_owner
-from Products.Archetypes.tests.utils import DummySessionDataManager
 
 from StringIO import StringIO
 
@@ -47,14 +46,6 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
     def afterSetUp(self):
         # basic data
-        # Put dummy sdm and dummy SESSION object into REQUEST
-        if 'session_data_manager' in self.app.objectIds():
-            self.app._delObject('session_data_manager')
-        self.app._setObject('session_data_manager', DummySessionDataManager())
-        sdm = self.app.session_data_manager
-        request = self.app.REQUEST
-        request.set('SESSION', sdm.getSessionData())
-
         self.folder_url = self.folder.absolute_url()
         self.folder_path = '/%s' % self.folder.absolute_url(1)
         self.basic_auth = '%s:secret' % default_user
