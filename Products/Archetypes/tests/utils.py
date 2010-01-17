@@ -44,20 +44,6 @@ logger = logging.getLogger('Archetypes')
 
 PACKAGE_HOME = package_home(globals())
 
-try:
-    import Zope2
-except ImportError:
-    ZOPE28 = False
-else:
-    ZOPE28 = True
-
-try:
-    from OFS import subscribers
-except ImportError:
-    ZOPE29 = False
-else:
-    ZOPE29 = True
-
 
 def gen_class(klass, schema=None):
     """generats and registers the klass

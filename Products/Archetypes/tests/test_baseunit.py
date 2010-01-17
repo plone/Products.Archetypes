@@ -31,7 +31,6 @@ import glob
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import normalize_html
-from Products.Archetypes.tests.utils import ZOPE28
 from Products.Archetypes.atapi import *
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
@@ -65,13 +64,8 @@ class BaseUnitTest( ATSiteTestCase ):
         output = open(self.output)
         expected = normalize_html(output.read())
         output.close()
-    
-        try:
-            self.assertEqual(got, expected)
-        except self.failureException:
-            # Zope < 2.8 has a buggy reStructuredText package, don't bother
-            if ZOPE28:
-                raise
+
+        self.assertEqual(got, expected)
 
 tests = []
 

@@ -4,6 +4,9 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- Removed some test helper constants, support for Zope 2.9 has long gone.
+  [hannosch]
+
 - Stop using the session_restore_value script. We never create a session in the
   first place, so looking for one is pointless.
   [hannosch]
