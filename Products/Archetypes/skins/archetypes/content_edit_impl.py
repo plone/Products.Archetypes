@@ -77,32 +77,6 @@ if reference_source_url is not None:
     edited_reference_message = _(u'message_reference_edited',
                                  default=u'Reference edited.')
 
-    # Avoid implicitly creating a session if one doesn't exists
-    session = None
-    sdm = getToolByName(context, 'session_data_manager', None)
-    if sdm is not None:
-        session = sdm.getSessionData(create=0)
-
-    # update session saved data, if session exists.
-    uid = new_context.UID()
-    if session is not None:
-        saved_dic = session.get(reference_obj.getId(), None)
-        if saved_dic:
-            saved_value = saved_dic.get(reference_source_field, None)
-            if same_type(saved_value, []):
-                # reference_source_field is a multiValued field, right!?
-                if uid in saved_value:
-                    portal_status_message = edited_reference_message
-                else:
-                    saved_value.append(uid)
-            else:
-                if uid == saved_value:
-                    portal_status_message = edited_reference_message
-                else:
-                    saved_value = uid
-            saved_dic[reference_source_field] = saved_value
-            session.set(reference_obj.getId(), saved_dic)
-
     kwargs = {
         'status':'success_add_reference',
         'context':reference_obj,
