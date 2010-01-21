@@ -4,6 +4,10 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- Inserted explicit i18n:translate for the form tabs to make sure Chameleon
+  does the right thing. This fixes http://dev.plone.org/plone/ticket/9224
+  [limi]
+
 - Removed some test helper constants, support for Zope 2.9 has long gone.
   [hannosch]
 
