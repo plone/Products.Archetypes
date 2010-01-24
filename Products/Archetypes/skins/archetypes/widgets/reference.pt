@@ -9,7 +9,8 @@
   <body>
 
     <metal:view_macro define-macro="view">
-      <tal:define define="refs python:context.getReferenceImpl(field.relationship)"
+      <tal:define define="refs python:context.getReferenceImpl(field.relationship);
+                          portal python:context.portal_url.getPortalObject();"
                   condition="refs">
 
         <tal:block tal:condition="not:field/multiValued"
