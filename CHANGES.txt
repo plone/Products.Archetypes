@@ -4,6 +4,10 @@ Changelog
 1.6b1 - unreleased
 ------------------
 
+- Portal variable no longer available via global definitions - fixed in skin
+  widgets/reference.pt.
+  [thet]
+
 - Inserted explicit i18n:translate for the form tabs to make sure Chameleon
   does the right thing. This fixes http://dev.plone.org/plone/ticket/9224
   [limi]
