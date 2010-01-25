@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b1 - unreleased
+1.6b1 - 2010-01-25
 ------------------
 
 - Portal variable no longer available via global definitions - fixed in skin
