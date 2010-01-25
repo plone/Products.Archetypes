@@ -252,6 +252,13 @@ Changelog
   inside base_metadata.cpt.
   [hannosch]
 
+1.5.15 - 2010-01-25
+-------------------
+
+* Be more defensive in our assumptions about the Acquisition context of new
+  items. This closes http://dev.plone.org/plone/ticket/10088.
+  [hannosch]
+
 1.5.14 - unreleased
 -------------------
 
