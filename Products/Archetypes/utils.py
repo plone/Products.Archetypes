@@ -971,6 +971,7 @@ def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     m.add_header('content-disposition', disposition, **kw)
     return m['content-disposition']
 
+
 def addStatusMessage(request, message, type='info'):
     """Add a status message to the request.
     """
@@ -980,4 +981,9 @@ def addStatusMessage(request, message, type='info'):
 def isFactoryContained(obj):
     """Are we inside the portal_factory?
     """
-    return aq_parent(aq_inner(obj)).meta_type == 'TempFolder'
+    parent = aq_parent(aq_inner(obj))
+    if parent is None:
+        # We don't have enough context to know where we are
+        return False
+    meta_type = getattr(aq_base(parent), 'meta_type', '')
+    return meta_type == 'TempFolder'
