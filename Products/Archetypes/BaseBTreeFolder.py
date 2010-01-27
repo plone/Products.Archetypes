@@ -14,7 +14,13 @@ from webdav.NullResource import NullResource
 from OFS.ObjectManager import REPLACEABLE
 from ComputedAttribute import ComputedAttribute
 
-from plone.app.folder.base import BaseBTreeFolder
+from plone.app.folder.base import BaseBTreeFolder as Base
+
+
+class BaseBTreeFolder(Base):
+
+    _ordering = 'unordered'     # old large folder remain unordered at first
+
 
 class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
