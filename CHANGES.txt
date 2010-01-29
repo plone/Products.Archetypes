@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.6b3 - Unreleased
+------------------
+
 1.6b2 - 2010-01-29
 ------------------
 - Use the http://dev.plone.org/plone/changeset/33504 "unordered" ordering
