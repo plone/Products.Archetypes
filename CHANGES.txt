@@ -3,7 +3,10 @@ Changelog
 
 1.6b2 - unreleased
 ------------------
-
+- use the http://dev.plone.org/plone/changeset/33504 "unordered" ordering
+  adapter for former "Large Plone Folder" content. This references
+  http://dev.plone.org/plone/ticket/9791
+  [witsch]
 
 1.6b1 - 2010-01-25
 ------------------
