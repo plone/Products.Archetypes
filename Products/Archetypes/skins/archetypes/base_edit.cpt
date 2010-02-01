@@ -7,17 +7,17 @@
                    errors options/state/getErrors | nothing;
                    schematas context/Schemata;
                    allow_tabbing python: not view.isMultiPageSchema();
-                   fieldsets python:[key for key in schematas.keys() if (schematas[key].editableFields(here, visible_only=True))];
+                   fieldsets python: view.fieldsets();
                    default_fieldset python:'default' in fieldsets and 'default' or fieldsets and fieldsets[0] or None;
                    fieldset request/fieldset|options/fieldset|default_fieldset;
-                   fields python:[f for key in fieldsets for f in schematas[key].editableFields(here)];
+                   fields python: view.fields(fieldsets);
                    dummy python:context.at_isEditable(fields);
                    portal_type python:context.getPortalTypeName().lower().replace(' ', '_');
                    portal_url nocall:context/portal_url;
                    portal portal_url/getPortalObject;
                    type_name context/getPortalTypeName|context/archetype_name;
                    base_macros context/edit_macros/macros;
-                   edit_template python:'%s_edit' % portal_type;
+                   edit_template string:${portal_type}_edit;
                    edit_macros python:path('context/%s/macros | nothing' % edit_template);
                    header_macro edit_macros/header | header_macro | base_macros/header;
                    typedescription_macro edit_macros/typedescription | typedescription_macro | base_macros/typedescription;
@@ -42,7 +42,7 @@
       <metal:block use-macro="macro" />
     </tal:block>
   </metal:head>
-  
+
   <metal:javascript_head fill-slot="javascript_head_slot">
     <tal:block define="macro context/archetypes_custom_js/macros/javascript_head | nothing"
                condition="macro">
@@ -76,7 +76,7 @@
       <metal:block use-macro="macro" />
     </tal:block>
   </metal:css>
-    
+
   <body>
 
     <metal:fill fill-slot="main">

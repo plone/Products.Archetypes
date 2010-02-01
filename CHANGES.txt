@@ -4,6 +4,11 @@ Changelog
 1.6b3 - Unreleased
 ------------------
 
+- Move the fields and fieldsets calculations from base_edit to the view class.
+  There's no good reason why we need to do nested list comprehensions in a
+  template.
+  [hannosch]
+
 1.6b2 - 2010-01-29
 ------------------
 - Use the http://dev.plone.org/plone/changeset/33504 "unordered" ordering

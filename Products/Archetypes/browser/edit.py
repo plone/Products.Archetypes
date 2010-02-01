@@ -22,15 +22,27 @@ class Edit(BrowserView):
     implements(IEditForm)
 
     def isTemporaryObject(self):
-        factory = getToolByName(aq_inner(self.context), 'portal_factory',
-                                None)
+        factory = getToolByName(aq_inner(self.context), 'portal_factory', None)
         if factory is not None:
             return factory.isTemporary(aq_inner(self.context))
-        else:
-            return False
+        return False
 
     def isMultiPageSchema(self):
         return IMultiPageSchema.providedBy(self.context)
+
+    def fieldsets(self):
+        context = aq_inner(self.context)
+        schematas = context.Schemata()
+        return [
+            key for key in schematas.keys()
+            if (schematas[key].editableFields(context, visible_only=True))
+            ]
+
+    def fields(self, fieldsets):
+        context = aq_inner(self.context)
+        schematas = context.Schemata()
+        return [f for key in fieldsets
+                  for f in schematas[key].editableFields(context)]
 
     def getTranslatedSchemaLabel(self, schema):
         label = u"label_schema_%s" % schema
