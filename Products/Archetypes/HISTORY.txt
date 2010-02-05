@@ -1,6 +1,11 @@
 1.5.16 - unreleased
 ===================
 
+* Fix the ImageWidget's preview_tag method to fetch the available scale
+  sizes correctly using the field's getAvailableSizes method, rather than
+  assuming its sizes attribute is a dictionary, since callables are allowed.
+  [davisagli]
+
 * Sanitize the behaviour of the 'alt' and 'title' attributes for the
   image_field.tag function.
   This closes http://dev.plone.org/plone/ticket/8756.

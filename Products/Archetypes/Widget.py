@@ -707,7 +707,7 @@ class ImageWidget(FileWidget):
         if not img:
             return None
 
-        if self.preview_scale in field.sizes:
+        if self.preview_scale in field.getAvailableSizes(instance):
             return field.tag(instance, scale=self.preview_scale)
 
         if img.getSize()<=self.display_threshold:
