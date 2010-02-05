@@ -32,7 +32,7 @@
               </span>
           </tal:link>
           <span tal:condition="not:showLink">
-              <img tal:condition="icon" src=""
+              <img tal:condition="icon" src="" alt=""
                    tal:attributes="src string:${context/portal_url}/$icon"/>
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">

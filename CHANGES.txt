@@ -4,6 +4,10 @@ Changelog
 1.6b3 - Unreleased
 ------------------
 
+- Let the file widget produce valid HTML. This closes
+  http://dev.plone.org/plone/ticket/9948.
+  [hannosch]
+
 - Ported the GenericSetup handlers for the reference and uid catalog from
   LinguaPlone into this package.
   [hannosch]
