@@ -195,6 +195,22 @@ class ProcessingTest(ATSiteTestCase):
             self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
+    def test_image_tag(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        dummy.processForm()
+
+        image_field = dummy.getField('imagefield')
+        self.assertEquals(image_field.tag(dummy), 
+                          '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
+        self.assertEquals(image_field.tag(dummy, alt=''), 
+                          '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
+        self.assertEquals(image_field.tag(dummy, alt='', title=''), 
+                          '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)        
+
     def test_get_size(self):
         dummy = self.makeDummy()
         request = FakeRequest()
