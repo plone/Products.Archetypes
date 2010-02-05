@@ -4,6 +4,10 @@ Changelog
 1.6b3 - Unreleased
 ------------------
 
+- Ported the GenericSetup handlers for the reference and uid catalog from
+  LinguaPlone into this package.
+  [hannosch]
+
 - Move the fields and fieldsets calculations from base_edit to the view class.
   There's no good reason why we need to do nested list comprehensions in a
   template.

@@ -4,12 +4,9 @@
    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
    i18n_domain="plone">
 
-  <adapter
-      factory=".archetypetool.ArchetypeToolXMLAdapter"
-      provides="Products.GenericSetup.interfaces.IBody"
-      for="Products.Archetypes.interfaces.IArchetypeTool
-           Products.GenericSetup.interfaces.ISetupEnviron"
-      />
+  <adapter factory=".archetypetool.ArchetypeToolXMLAdapter" />
+  <adapter factory=".reference.ReferenceCatalogXMLAdapter"/>
+  <adapter factory=".uid.UIDCatalogXMLAdapter"/>
 
   <genericsetup:importStep
       name="archetypes-various"
@@ -33,5 +30,35 @@
       description="Export Archetype Tool."
       handler="Products.Archetypes.exportimport.archetypetool.exportArchetypeTool">
   </genericsetup:exportStep>
+
+  <genericsetup:importStep
+      name="reference_catalog"
+      title="Reference Catalog"
+      description="Import reference catalog."
+      handler=".reference.importCatalogTool">
+    <depends name="toolset" />
+  </genericsetup:importStep>
+
+  <genericsetup:exportStep
+      name="reference_catalog"
+      title="Reference Catalog"
+      description="Export reference catalog."
+      handler=".reference.exportCatalogTool"
+      />
+
+  <genericsetup:importStep
+      name="uid_catalog"
+      title="UID Catalog"
+      description="Import uid catalog."
+      handler=".uid.importCatalogTool">
+    <depends name="toolset" />
+  </genericsetup:importStep>
+
+  <genericsetup:exportStep
+      name="uid_catalog"
+      title="UID Catalog"
+      description="Export uid catalog."
+      handler=".uid.exportCatalogTool"
+      />
 
 </configure>
