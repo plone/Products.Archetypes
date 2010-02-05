@@ -267,6 +267,14 @@ Changelog
   inside base_metadata.cpt.
   [hannosch]
 
+1.5.16 - unreleased
+--------------------
+
+* Sanitize the behaviour of the 'alt' and 'title' attributes for the
+  image_field.tag function.
+  This closes http://dev.plone.org/plone/ticket/8756.
+  [dukebody]
+
 1.5.15 - 2010-01-25
 -------------------
 
@@ -274,7 +282,7 @@ Changelog
   items. This closes http://dev.plone.org/plone/ticket/10088.
   [hannosch]
 
-1.5.14 - unreleased
+1.5.14 - 2010-01-14
 -------------------
 
 * FixedPointField required validation now counts zero as a value, and the

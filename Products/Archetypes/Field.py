@@ -2540,9 +2540,14 @@ class ImageField(FileField):
         else:
             url+= '/' + self.getName()
 
+        if alt is None:
+            alt = instance.Title()
+        if title is None:
+            title = instance.Title()
+
         values = {'src' : url,
-                  'alt' : escape(alt and alt or instance.Title(), 1),
-                  'title' : escape(title and title or instance.Title(), 1),
+                  'alt' : escape(alt, quote=True),
+                  'title' : escape(title, quote=True),
                   'height' : height,
                   'width' : width,
                  }
