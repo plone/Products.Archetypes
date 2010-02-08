@@ -48,58 +48,62 @@
 
   <body>
 
-    <div metal:fill-slot="main">
-      <div metal:define-macro="main">
+    <metal:main fill-slot="main">
+      <metal:block define-macro="main">
 
-  <h1 tal:content="context/title_or_id"
+  <h1 class="documentFirstHeading" 
+      tal:content="context/title_or_id"
       metal:use-macro="metadata_macros/header|default" />
+      
+  <div id="content-core">
+      <form name="edit_form"
+            method="post"
+            enctype="multipart/form-data"
+            class="enableUnloadProtection"
+            tal:attributes="action python:context.absolute_url()+'/'+template.id">
 
-  <form name="edit_form"
-        method="post"
-        enctype="multipart/form-data"
-        class="enableUnloadProtection"
-        tal:attributes="action python:context.absolute_url()+'/'+template.id">
+          <tal:fields repeat="field fields">
+            <metal:fieldMacro use-macro="python: context.widget(field.getName(), mode='edit')"/>
+          </tal:fields>
 
-      <tal:fields repeat="field fields">
-        <metal:fieldMacro use-macro="python: context.widget(field.getName(), mode='edit')"/>
-      </tal:fields>
+          <input type="hidden" name="form.submitted" value="1" />
 
-      <input type="hidden" name="form.submitted" value="1" />
+          <input type="hidden" name="fieldset" value="metadata"
+           tal:attributes="value fieldset|string:metadata" />
 
-      <input type="hidden" name="fieldset" value="metadata"
-       tal:attributes="value fieldset|string:metadata" />
+          <input type="hidden" name="current_lang" value=""
+           tal:attributes="value request/LANGUAGE|default_language|default" />
 
-      <input type="hidden" name="current_lang" value=""
-       tal:attributes="value request/LANGUAGE|default_language|default" />
-
-        <tal:comment replace="nothing">
-        This comes from edit_macros, which is somehow used by base_edit.  it seems
-        base_metadata and base_edit are NOT generated the same way ;-(
-        </tal:comment>
-            <input type="hidden"
-                   name="add_reference.field:record"
-                   value=""
-                   />
-            <input type="hidden"
-                   name="add_reference.type:record"
-                   value=""
-                   />
-            <input type="hidden"
-                   name="add_reference.destination:record"
-                   value=""
-                   />
+            <tal:comment replace="nothing">
+            This comes from edit_macros, which is somehow used by base_edit.  it seems
+            base_metadata and base_edit are NOT generated the same way ;-(
+            </tal:comment>
+                <input type="hidden"
+                       name="add_reference.field:record"
+                       value=""
+                       />
+                <input type="hidden"
+                       name="add_reference.type:record"
+                       value=""
+                       />
+                <input type="hidden"
+                       name="add_reference.destination:record"
+                       value=""
+                       />
        
-      <div class="field">
-        <label>&nbsp;</label>
-        <input class="context"
-         type="submit"
-         name="Change"
-         i18n:attributes="value label_save;"
-         value="Save" />
-      </div>
-  </form>
-      </div>
-    </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <input class="context"
+             type="submit"
+             name="Change"
+             i18n:attributes="value label_save;"
+             value="Save" />
+          </div>
+      </form>
+  </div>
+  
+  </metal:block>
+  </metal:main>
 
   </body>
 </html>

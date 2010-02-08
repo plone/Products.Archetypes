@@ -9,30 +9,9 @@
 
   <body>
 
-    <div metal:fill-slot="main">
-
-      <metal:main_macro define-macro="main">
-
-        <metal:header_macro define-macro="header"
-                            tal:define="kssClassesView context/@@kss_field_decorator_view;
-                       getKssClasses nocall:kssClassesView/getKssClassesInlineEditable">
-
-          <div tal:replace="structure provider:plone.abovecontenttitle"
-               tal:on-error="nothing"/>
-
-          <h1 metal:use-macro="here/kss_generic_macros/macros/generic_title_view|default">
-              <tal:title tal:replace="here/title_or_id">
-                  Title or id
-              </tal:title>
-          </h1>
-    
-          <div tal:replace="structure provider:plone.belowcontenttitle"
-               tal:on-error="nothing"/>
-        </metal:header_macro>
+     <metal:content-core metal:fill-slot="content-core">         
 
         <metal:body_macro metal:define-macro="body">
-          <div tal:replace="structure provider:plone.abovecontentbody"
-               tal:on-error="nothing"/>
 
           <tal:fields tal:define="field_macro field_macro | context/widgets/field/macros/view"
                       tal:repeat="field python:context.Schema().filterFields(isMetadata=0)">
@@ -56,18 +35,7 @@
             </tal:if_folderlisting>
         </metal:folderlisting_macro>
 
-        <metal:footer_macro define-macro="footer">
-            <div metal:use-macro="here/document_relateditems/macros/relatedItems|default">
-                <!-- show related items if they exist -->
-            </div>
-    
-            <div tal:replace="structure provider:plone.belowcontentbody"
-                 tal:on-error="nothing"/>
-        </metal:footer_macro>
-
-      </metal:main_macro>
-
-    </div>
+    </metal:content-core>
 
   </body>
 

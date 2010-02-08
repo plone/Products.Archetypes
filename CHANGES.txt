@@ -4,6 +4,10 @@ Changelog
 1.6b3 - Unreleased
 ------------------
 
+- Updated templates to follow recent markup conventions.
+  References http://dev.plone.org/plone/ticket/9981
+  [spliter]
+
 - Let the file widget produce valid HTML. This closes
   http://dev.plone.org/plone/ticket/9948.
   [hannosch]
