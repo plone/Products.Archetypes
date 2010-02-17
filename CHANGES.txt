@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.6b3 - Unreleased
+1.6b3 - 2010-02-17
 ------------------
 
 - Updated templates to follow recent markup conventions.
-  References http://dev.plone.org/plone/ticket/9981
+  References http://dev.plone.org/plone/ticket/9981.
   [spliter]
 
 - Let the file widget produce valid HTML. This closes
@@ -16,6 +16,10 @@ Changelog
   LinguaPlone into this package.
   [hannosch]
 
+- Sanitize the behavior of the 'alt' and 'title' attributes for the
+  image_field.tag function. This closes http://dev.plone.org/plone/ticket/8756.
+  [dukebody]
+
 - Move the fields and fieldsets calculations from base_edit to the view class.
   There's no good reason why we need to do nested list comprehensions in a
   template.
@@ -23,6 +27,7 @@ Changelog
 
 1.6b2 - 2010-01-29
 ------------------
+
 - Use the http://dev.plone.org/plone/changeset/33504 "unordered" ordering
   adapter for former "Large Plone Folder" content. This references
   http://dev.plone.org/plone/ticket/9791
