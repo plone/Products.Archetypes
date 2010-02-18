@@ -92,7 +92,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             widget=TextAreaWidget(
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
-                              default=u'A short summary of the content.'),
+                              default=u'Used in item listings and search results.'),
                 ),
         ),
         # Location, also known as Coverage in the DC metadata standard, but we
