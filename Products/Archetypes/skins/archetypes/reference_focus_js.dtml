@@ -1,7 +1,7 @@
-<dtml-if "field.getName() == REQUEST.get('reference_focus', None)">
+<dtml-if "fieldName == REQUEST.get('reference_focus', None)">
 <!--
 function focusOnReferenceField() {
-  document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link').focus();
+  document.getElementById('<dtml-var fieldName>_link').focus();
 }
 
 // I think "unRegisterPloneFunction" should live in plone_ecmascripts/plone_javascripts.js. what do you think?

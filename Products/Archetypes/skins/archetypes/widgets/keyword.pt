@@ -61,7 +61,7 @@
             size="14"
             multiple="multiple"
             tal:condition="python:format!='checkbox'"
-            tal:attributes="id string:${fieldName}_existing_keywords;
+            tal:attributes="id string:${fieldName};
                             name string:${fieldName}_existing_keywords:list;">
           <option value="#" tal:repeat="keyword allowedKeywords"
               tal:content="keyword" tal:attributes="value keyword;

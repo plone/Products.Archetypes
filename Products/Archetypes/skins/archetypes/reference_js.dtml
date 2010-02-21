@@ -1,23 +1,23 @@
 <!--
-function <dtml-with field><dtml-var getName></dtml-with>_show() {
-    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+function <dtml-var fieldName>_show() {
+    with(document.getElementById('<dtml-var fieldName>_link')) {
         value = 'Hide Add Form';
-        onclick = <dtml-with field><dtml-var getName></dtml-with>_hide;
+        onclick = <dtml-var fieldName>_hide;
     }
-    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='block';
+    document.getElementById('<dtml-var fieldName>_fieldset').style.display='block';
 }
 
-function <dtml-with field><dtml-var getName></dtml-with>_hide() {
-    with(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_link')) {
+function <dtml-var fieldName>_hide() {
+    with(document.getElementById('<dtml-var fieldName>_link')) {
         value = 'Add New <dtml-var "widget.label">';
-        onclick = <dtml-with field><dtml-var getName></dtml-with>_show;
+        onclick = <dtml-var fieldName>_show;
     }
-    document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_fieldset').style.display='none';
+    document.getElementById('<dtml-var fieldName>_fieldset').style.display='none';
 }
 
-function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
+function <dtml-var fieldName>_update(elm) {
     selected = elm.options[elm.selectedIndex].value;
-    detail = document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_destinations');
+    detail = document.getElementById('<dtml-var fieldName>_destinations');
     for (var i=detail.childNodes.length-1; i >= 0; i--)
         detail.removeChild(detail.childNodes[i]);
 
@@ -34,6 +34,6 @@ function <dtml-with field><dtml-var getName></dtml-with>_update(elm) {
 </dtml-in>
 }
 
-<dtml-with field><dtml-var getName></dtml-with>_update(document.getElementById('<dtml-with field><dtml-var getName></dtml-with>_types'));
+<dtml-var fieldName>_update(document.getElementById('<dtml-var fieldName>_types'));
 -->
 <dtml-var reference_focus_js>

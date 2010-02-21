@@ -39,7 +39,8 @@
                                     selection python:selectionview.getSelected(vocab, value);
                                     format python:widget.format">
 
-                <tal:shortVocab condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')">
+                <span tal:condition="python:(vlen &lt; 4 and format == 'flex') or (format == 'radio')"
+                      tal:attributes="id fieldName;">
 
                     <!-- Radio when the vocab is short < 4 -->
 
@@ -61,7 +62,7 @@
 
                     </tal:radios>
 
-                </tal:shortVocab>
+                </span>
 
                 <tal:longVocab condition="python:(vlen >= 4 and format == 'flex') or (format in ('select', 'pulldown'))">
 

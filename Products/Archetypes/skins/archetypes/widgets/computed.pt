@@ -23,7 +23,7 @@
              tal:condition="python:visState == 'visible' and visCondition">
           <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"
-                 tal:attributes="for python:field.getName()">
+                 tal:attributes="for python:fieldName">
           </label>
           <div class="formHelp"
                tal:define="description python:widget.Description(here)"

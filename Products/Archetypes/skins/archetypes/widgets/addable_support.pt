@@ -20,8 +20,8 @@
                      name="form.button.form_add"
                      tal:define="cid content/id;
                                  cdestination python:content['destinations'][0];"
-                     tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;this.form['add_reference.type:record'].value='${cid}';;this.form['add_reference.destination:record'].value='${cdestination}';
-                                     id string:${field/getName}_link;
+                     tal:attributes="onclick string:this.form['add_reference.field:record'].value='${fieldName}';;this.form['add_reference.type:record'].value='${cid}';;this.form['add_reference.destination:record'].value='${cdestination}';
+                                     id string:${fieldName}_link;
                                      value string:Add ${content/name};"
                      i18n:attributes="value"
                      />
@@ -31,11 +31,11 @@
 
           <div tal:condition="thereAreMoreThanOneDestination">
             <input type="button" class="context"
-              tal:attributes="id string:${field/getName}_link;
-                              onclick string:${field/getName}_show();;return false;
+              tal:attributes="id string:${fieldName}_link;
+                              onclick string:${fieldName}_show();;return false;
                               value string:Add New ${widget/label};" />
 
-            <div tal:attributes="id string:${field/getName}_fieldset"
+            <div tal:attributes="id string:${fieldName}_fieldset"
                style="display:none">
 
               <fieldset>
@@ -47,9 +47,9 @@
                     Select what content type you wish to create.
                   </div>
                   <div>
-                    <select tal:define="id string:${field/getName}_types"
+                    <select tal:define="id string:${fieldName}_types"
                             tal:attributes="id id;
-                                            onchange string:${field/getName}_update(this)" >
+                                            onchange string:${fieldName}_update(this)" >
                       <option tal:repeat="type types"
                               tal:attributes="value type/id"
                               tal:content="type/name" />
@@ -64,8 +64,8 @@
                   </div>
                   <div>
                     <select name="add_reference.destination:record"
-                            tal:attributes="id string:${field/getName}_destinations;
-                                            name string:${field/getName}_destination;"></select>
+                            tal:attributes="id string:${fieldName}_destinations;
+                                            name string:${fieldName}_destination;"></select>
                   </div>
                 </div>
                 <div class="field">
@@ -76,7 +76,7 @@
                       type="submit"
                       value="Add"
                       name="form.button.form_add"
-                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${field/getName}';;with(document.getElementById('${field/getName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${field/getName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};"
+                      tal:attributes="onclick string:this.form['add_reference.field:record'].value='${fieldName}';;with(document.getElementById('${fieldName}_types')){this.form['add_reference.type:record'].value=options[selectedIndex].value};;with(document.getElementById('${fieldName}_destinations')){this.form['add_reference.destination:record'].value=options[selectedIndex].value};"
                       i18n:attributes="value"
                       />
                   </div>

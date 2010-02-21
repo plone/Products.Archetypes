@@ -11,7 +11,7 @@
     <!-- Base Field Widgets -->
     <metal:base_view_macro
         define-macro="base_view"
-        tal:define="widget_view python:context.widget(field.getName(), mode=mode, use_label=1);
+        tal:define="widget_view python:context.widget(fieldName, mode=mode, use_label=1);
                     field_macros context/widgets/field/macros;
                     label_macro view_macros/label | label_macro | field_macros/label;
                     data_macro view_macros/data | data_macro | field_macros/data;
@@ -55,7 +55,7 @@
 
     <div metal:define-macro="view" tal:define="fieldtypename python:field.getType().split('.')[-1];"
         tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                        id string:archetypes-fieldname-${field/getName}">
+                        id string:archetypes-fieldname-${fieldName}">
           <metal:use_base_view use-macro="context/widgets/field/macros/base_view" />
     </div>
 
@@ -74,15 +74,15 @@
         <div class="field"
              tal:define="kssClassesView context/@@kss_field_decorator_view;
                          getKssClasses nocall:kssClassesView/getKssClasses;
-                         kss_class python:getKssClasses(field.getName());"
+                         kss_class python:getKssClasses(fieldName);"
              tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
              tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class; 
-                             id python: 'archetypes-fieldname-' + field.getName()">
+                             id python: 'archetypes-fieldname-' + fieldName">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"
-                 tal:attributes="for python:field.getName()">
+                 tal:attributes="for python:fieldName">
           </label>
           <span class="fieldRequired"
                 tal:condition="field/required"

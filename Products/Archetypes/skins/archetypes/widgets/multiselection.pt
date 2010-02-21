@@ -26,7 +26,8 @@
       <input type="hidden"
              value=""
              tal:condition="not:field/required|nothing"
-             tal:attributes="name string:$fieldName:default:list;" />
+             tal:attributes="name string:$fieldName:default:list;
+                             id fieldName;" />
 
       <span tal:repeat="item vocab" tal:omit-tag=""
             tal:condition="python:format=='checkbox'">
