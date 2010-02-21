@@ -26,11 +26,11 @@
       <input type="hidden"
              value=""
              tal:condition="not:field/required|nothing"
-             tal:attributes="name string:$fieldName:default:list;
-                             id fieldName;" />
+             tal:attributes="name string:$fieldName:default:list;" />
 
-      <span tal:repeat="item vocab" tal:omit-tag=""
-            tal:condition="python:format=='checkbox'">
+      <div tal:condition="python:format=='checkbox'"
+            tal:attributes="id fieldName;">
+        <tal:item repeat="item vocab"> 
           <div class="ArchetypesMultiSelectionValue" id=""
                tal:attributes="id string:archetypes-value-${fieldName}_${repeat/item/number}">
             <input class="blurrable"
@@ -43,7 +43,8 @@
                    i18n:translate=""
                    tal:attributes="for string:${fieldName}_${repeat/item/number}" />
           </div>
-      </span>
+        </tal:item>
+      </div>
 
       <select multiple="multiple"
               class="blurrable"
