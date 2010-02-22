@@ -791,6 +791,10 @@ class ObjectField(Field):
             if callable(getCT):
                 mimetype = getCT()
         # try to guess
+        # guess_content_type can only handly ordinary strings, not unicode strings.
+        # recode in utf-8 if the binary(!) content is handed over to it.
+        if type(raw)==type(u'unicode'):
+            raw=raw.encode('utf-8')
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(raw), None)
         else:
