@@ -9,7 +9,7 @@
 
   <body>
 
-     <metal:content-core metal:fill-slot="content-core">         
+     <metal:content-core metal:fill-slot="content-core">
 
         <metal:body_macro metal:define-macro="body">
 
@@ -20,7 +20,7 @@
                                     portal purl/getPortalObject;
                                     mode string:view;
                                     visState python:field.widget.isVisible(here, mode);
-                                    visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
+                                    visCondition python:field.widget.testCondition(None, portal, context);"
                             condition="python:visState == 'visible' and visCondition">
               <metal:use_field use-macro="field_macro" />
             </tal:if_visible>

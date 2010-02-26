@@ -4,6 +4,9 @@ Changelog
 1.6b4 - unreleased
 ------------------
 
+- Made base_view work for public items in private folders. This closes
+  http://dev.plone.org/plone/ticket/9040.
+  [hannosch]
 
 1.6b3 - 2010-02-17
 ------------------

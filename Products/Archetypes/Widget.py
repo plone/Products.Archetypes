@@ -1,5 +1,7 @@
 from copy import deepcopy
 from types import DictType, FileType, ListType, StringTypes
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from DateTime import DateTime
 
 from Products.CMFCore.utils import getToolByName
@@ -107,6 +109,8 @@ class TypesWidget(macrowidget, Base):
         """Test the widget condition."""
         try:
             if self.condition:
+                if folder is None and object is not None:
+                    folder = aq_parent(aq_inner(object))
                 __traceback_info__ = (folder, portal, object, self.condition)
                 ec = createExprContext(folder, portal, object)
                 return Expression(self.condition)(ec)
