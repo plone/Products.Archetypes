@@ -99,7 +99,7 @@ except ImportError:
 
 try:
     try:
-        import Image as PILImage# PIL 1.1.7
+        import Image as PILImage # PIL 1.1.7
     except ImportError:
         from PIL import Image as PILImage
 except ImportError:
