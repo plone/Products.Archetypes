@@ -98,16 +98,19 @@ except ImportError:
     FILE_NORMALIZER = False
 
 try:
-    import PIL.Image
+    try:
+        import Image as PILImage# PIL 1.1.7
+    except ImportError:
+        from PIL import Image as PILImage
 except ImportError:
     # no PIL, no scaled versions!
     log("Warning: no Python Imaging Libraries (PIL) found. "
         "Archetypes based ImageField's don't scale if neccessary.")
-    HAS_PIL=False
+    HAS_PIL = False
     PIL_ALGO = None
 else:
-    HAS_PIL=True
-    PIL_ALGO = PIL.Image.ANTIALIAS
+    HAS_PIL = True
+    PIL_ALGO = PILImage.ANTIALIAS
 
 STRING_TYPES = [StringType, UnicodeType]
 
@@ -233,7 +236,6 @@ class Field(DefaultLayerContainer):
         name = name is not None and name or self.getName()
         return self.__class__(name, **properties)
 
-    
     def __repr__(self):
         """
         Return a string representation consisting of name, type and permissions.
@@ -438,17 +440,17 @@ class Field(DefaultLayerContainer):
                 the "getDisplayList" method of the class will be called.
 
         3) Zope 3 vocabulary factory vocabulary
-        
+
             - precondition: a content_instance is given
-            
+
             - self.vocabulary_factory is given
-            
-            - a named utility providing zope.schema.interfaces.IVocbularyFactory 
+
+            - a named utility providing zope.schema.interfaces.IVocbularyFactory
               exists for the name self.vocabulary_factory.
 
         """
         value = self.vocabulary
-        
+
         # Attempt to get the value from a a vocabulary factory if one was given
         # and no explicit vocabulary was set
         if not isinstance(value, DisplayList) and not value:
@@ -459,7 +461,7 @@ class Field(DefaultLayerContainer):
                 if factory_context is None:
                     factory_context = self
                 value = DisplayList([(t.value, t.title or t.token) for t in factory(factory_context)])
-                    
+
         if not isinstance(value, DisplayList):
 
             if content_instance is not None and isinstance(value, basestring):
@@ -593,7 +595,7 @@ class Field(DefaultLayerContainer):
             default_adapter = component.queryAdapter(instance, IFieldDefaultProvider, name=self.__name__)
             if default_adapter is not None:
                 return default_adapter()
-                
+
         return self.default
 
     security.declarePublic('getAccessor')
@@ -831,16 +833,16 @@ class StringField(ObjectField):
         'default': '',
         'default_content_type' : 'text/plain',
         })
-    
+
     implements(IStringField)
-    
+
     security  = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        value = ObjectField.get(self, instance, **kwargs) 
-        if getattr(self, 'raw', False): 
-            return value 
+        value = ObjectField.get(self, instance, **kwargs)
+        if getattr(self, 'raw', False):
+            return value
         return encode(value, instance, **kwargs)
 
     security.declarePrivate('set')
@@ -1227,7 +1229,7 @@ class TextField(FileField):
         'primary' : False,
         'content_class': BaseUnit,
         })
-        
+
     implements(ITextField)
 
     security  = ClassSecurityInfo()
@@ -1258,7 +1260,7 @@ class TextField(FileField):
         """
         act_attribute = getattr(self, 'allowable_content_types', None)
         if act_attribute is None:
-            return getAllowedContentTypesProperty(instance) 
+            return getAllowedContentTypesProperty(instance)
         else:
             return act_attribute
 
@@ -1416,11 +1418,11 @@ class DateTimeField(ObjectField):
         'type' : 'datetime',
         'widget' : CalendarWidget,
         })
-    
+
     implements(IDateTimeField)
-    
+
     security  = ClassSecurityInfo()
-    
+
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
         try:
@@ -1460,9 +1462,9 @@ class LinesField(ObjectField):
         'default' : (),
         'widget' : LinesWidget,
         })
-    
+
     implements(ILinesField)
-    
+
     security  = ClassSecurityInfo()
 
     security.declarePrivate('set')
@@ -1514,7 +1516,7 @@ class IntegerField(ObjectField):
         'widget' : IntegerWidget,
         'default' : None,
         })
-    
+
     implements(IIntegerField)
 
     security  = ClassSecurityInfo()
@@ -1547,7 +1549,7 @@ class FloatField(ObjectField):
         'type' : 'float',
         'default': None
         })
-        
+
     implements(IFloatField)
 
     security  = ClassSecurityInfo()
@@ -1577,12 +1579,12 @@ class FloatField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 class FixedPointField(ObjectField):
-    """A field for storing numerical data with fixed points 
-    
+    """A field for storing numerical data with fixed points
+
     Test for fix for Plone issue #9414: '0' and '0.0' should count as values
     when validating required fields.  (A return value of None means validation
     passed.)
-    
+
     >>> f = FixedPointField()
     >>> f.validate_required(None, '0', [])
     >>> f.validate_required(None, '0.0', [])
@@ -1596,7 +1598,7 @@ class FixedPointField(ObjectField):
         'widget' : DecimalWidget,
         'validators' : ('isDecimal'),
         })
-    
+
     implements(IFixedPointField)
 
     security  = ClassSecurityInfo()
@@ -1679,7 +1681,7 @@ class FixedPointField(ObjectField):
                 value[0] += '0'
             front = int(value[0])
             fra = int(fra)
-            # Handle values between -1 and 0. 
+            # Handle values between -1 and 0.
             if front == 0 and value[0].startswith('-'):
                 fra = -1 * fra
             value = (front, fra)
@@ -1707,7 +1709,7 @@ class FixedPointField(ObjectField):
             sign = '-'
             fra = abs(fra)
         return template % (sign, front, fra)
-    
+
 
 class ReferenceField(ObjectField):
     """A field for creating references between objects.
@@ -1740,7 +1742,7 @@ class ReferenceField(ObjectField):
         'callStorageOnSet': False,
         'index_method' : '_at_edit_accessor',
         })
-        
+
     implements(IReferenceField)
 
     security  = ClassSecurityInfo()
@@ -1753,7 +1755,7 @@ class ReferenceField(ObjectField):
 
         # singlevalued ref fields return only the object, not a list,
         # unless explicitely specified by the aslist option
-   
+
         if not self.multiValued:
             if len(res) > 1:
                 log("%s references for non multivalued field %s of %s" % (len(res),
@@ -1792,7 +1794,7 @@ class ReferenceField(ObjectField):
         []
 
         Use a list of UIDs to set:
-        
+
         >>> nodes[0].setLinks([n.UID() for n in nodes[1:]])
         >>> nodes[0].getLinks()
         [<Refnode...>, <Refnode...>]
@@ -1801,7 +1803,7 @@ class ReferenceField(ObjectField):
         []
 
         Setting multiple values for a non multivalued field will fail:
-        
+
         >>> nodes[1].setLink(nodes)
         Traceback (most recent call last):
         ...
@@ -1809,7 +1811,7 @@ class ReferenceField(ObjectField):
 
         Keyword arguments may be passed directly to addReference(),
         thereby creating properties on the reference objects:
-        
+
         >>> nodes[1].setLink(nodes[0].UID(), foo='bar', spam=1)
         >>> ref = nodes[1].getReferenceImpl()[0]
         >>> ref.foo, ref.spam
@@ -1899,7 +1901,7 @@ class ReferenceField(ObjectField):
 
         if title is not None and isinstance(title, basestring):
             return decode(title, instance)
-        
+
         raise AttributeError, "Brain has no title or id"
 
     def _Vocabulary(self, content_instance):
@@ -1991,7 +1993,7 @@ class ComputedField(Field):
         'mode' : 'r',
         'storage': ReadOnlyStorage(),
         })
-    
+
     implements(IComputedField)
 
     security = ClassSecurityInfo()
@@ -2020,16 +2022,16 @@ class BooleanField(ObjectField):
         'type' : 'boolean',
         'default': None,
         'vocabulary': (('True','Yes', 'yes'),('False','No', 'no')),
-        'widget' : BooleanWidget,        
+        'widget' : BooleanWidget,
         })
-        
+
     implements(IBooleanField)
 
     security  = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
-        value = super(BooleanField, self).get(instance, **kwargs) 
+        value = super(BooleanField, self).get(instance, **kwargs)
         if value is None:
             return value
         return bool(value)
@@ -2214,7 +2216,7 @@ class ImageField(FileField):
 
         sizes may be the name of a method in the instance or a callable which
         returns a dict.
-        
+
         Don't remove scales once they exist! Instead of removing a scale
         from the list of sizes you should set the size to (0,0). Thus
         removeScales method is able to find the scales to delete the
@@ -2235,16 +2237,16 @@ class ImageField(FileField):
         'sizes' : {'thumb':(80,80)},
         'swallowResizeExceptions' : False,
         'pil_quality' : 88,
-        'pil_resize_algo' : PIL_ALGO, 
+        'pil_resize_algo' : PIL_ALGO,
         'default_content_type' : 'image/png',
         'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'content_class': Image,
         })
-    
+
     implements(IImageField)
-    
+
     security  = ClassSecurityInfo()
 
     default_view = "view"
@@ -2269,7 +2271,7 @@ class ImageField(FileField):
         get_size = getattr(value, 'get_size', None)
         if get_size is not None and get_size() == 0:
             return
-        
+
         kwargs['mimetype'] = mimetype
         kwargs['filename'] = filename
 
@@ -2314,15 +2316,15 @@ class ImageField(FileField):
         """rescales the original image and sets the data
 
         for self.original_size or self.max_size
-        
+
         value must be an OFS.Image.Image instance
         """
         data = str(value.data)
         if not HAS_PIL:
             return data
-        
+
         mimetype = kwargs.get('mimetype', self.default_content_type)
-        
+
         if self.original_size or self.max_size:
             if not value:
                 return self.default
@@ -2342,7 +2344,7 @@ class ImageField(FileField):
                 data = fvalue.read()
         else:
             data = str(value.data)
-            
+
         return data
 
     security.declarePrivate('createOriginal')
@@ -2440,7 +2442,7 @@ class ImageField(FileField):
         size = int(w), int(h)
 
         original_file=StringIO(data)
-        image = PIL.Image.open(original_file)
+        image = PILImage.open(original_file)
         # consider image mode when scaling
         # source images can be mode '1','L,','P','RGB(A)'
         # convert to greyscale or RGBA before scaling
@@ -2503,7 +2505,7 @@ class ImageField(FileField):
     security.declarePublic('get_size')
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
-        
+
         TODO: We should only return the size of the original image
         """
         sizes = self.getAvailableSizes(instance)
