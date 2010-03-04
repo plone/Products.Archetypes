@@ -8,6 +8,9 @@ Changelog
   http://dev.plone.org/plone/ticket/9040.
   [hannosch]
 
+- Changed PIL imports to be compatible with version 1.1.7 of PIL
+  [tom_gross]
+
 1.6b3 - 2010-02-17
 ------------------
 
