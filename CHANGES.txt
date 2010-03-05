@@ -13,6 +13,26 @@ Changelog
   http://dev.plone.org/plone/ticket/9040.
   [hannosch]
 
+- Avoid str() on unicode objects before passing them to guess_content_type.
+  [deichi]
+
+- More HTML validity fixes.  The checkbox widget needs an element with
+  an id for the label to attach to.
+  [rossp]
+
+- Tolerate some cases where fieldName isn't defined yet.
+  [rossp]
+
+- The AT widget renderer has potentially very useful support for rendering a
+  widget for a field under a different name than the field name. But this
+  support has never been fully integrated into the rest of the AT widget
+  machinery. Also fixes validation errors with duplicate element ID's with
+  widget uses such as the Topic criterion edit form.
+  [rossp]
+
+- More useful description of what the description/summary is actually good for.
+  [limi]
+
 1.6b3 - 2010-02-17
 ------------------
 
