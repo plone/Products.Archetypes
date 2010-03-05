@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b4 - unreleased
+1.6b4 - 2010-03-05
 ------------------
 
 - Fix issues with sliding modification/publishing dates by using `DateTime`'s
