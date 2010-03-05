@@ -202,8 +202,8 @@ class ATDateTimeFieldProperty(ATFieldProperty):
         >>> foo.date_field
         datetime.datetime(2007, 4, 9, 12, 3, 12, ...)
 
-        >>> foo.getDate_field().ISO()
-        '2007-04-09 12:03:12'
+        >>> foo.getDate_field().ISO8601()
+        '2007-04-09T12:03:12'
 
         >>> foo.setDate_field(DateTime('2007-04-10 13:11:01'))
         >>> foo.date_field

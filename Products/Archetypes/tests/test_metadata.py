@@ -89,9 +89,9 @@ def compareMetadataOf(test, obj, data='default',
                     'Subject: %s, %s' % (obj.Subject(), l_data))
     test.failUnless(obj.Description() == data, 'Description')
     test.failUnless(obj.Contributors() == l_data, 'Contributors')
-    test.failUnless(obj.EffectiveDate() == DateTime(time, 1).ISO(),
+    test.failUnless(obj.EffectiveDate() == DateTime(time, 1).ISO8601(),
                     'effective date')
-    test.failUnless(obj.ExpirationDate() == DateTime(time, 1).ISO(),
+    test.failUnless(obj.ExpirationDate() == DateTime(time, 1).ISO8601(),
                     'expiration date')
     if aq_base(obj) is obj:
         # If the object is not acquisition wrapped, then those
@@ -363,31 +363,31 @@ class TimeZoneTest(ATSiteTestCase):
         item = self._makeDummyContent('item')
         item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.Date('US/Eastern'),
-                         '2007-01-01 07:00:00')
+                         '2007-01-01T07:00:00-05:00')
 
     def test_CreationDate_with_explicit_timezone(self):
         item = self._makeDummyContent('item')
         item.setCreationDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.CreationDate('US/Eastern'),
-                         '2007-01-01 07:00:00')
+                         '2007-01-01T07:00:00-05:00')
 
     def test_ModificationDate_with_explicit_timezone(self):
         item = self._makeDummyContent('item')
         item.setModificationDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.ModificationDate('US/Eastern'),
-                         '2007-01-01 07:00:00')
+                         '2007-01-01T07:00:00-05:00')
 
     def test_EffectiveDate_with_explicit_timezone(self):
         item = self._makeDummyContent('item')
         item.setEffectiveDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.EffectiveDate('US/Eastern'),
-                         '2007-01-01 07:00:00')
+                         '2007-01-01T07:00:00-05:00')
 
     def test_ExpirationDate_with_explicit_timezone(self):
         item = self._makeDummyContent('item')
         item.setExpirationDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.ExpirationDate('US/Eastern'),
-                         '2007-01-01 07:00:00')
+                         '2007-01-01T07:00:00-05:00')
 
 def test_suite():
     from unittest import TestSuite, makeSuite

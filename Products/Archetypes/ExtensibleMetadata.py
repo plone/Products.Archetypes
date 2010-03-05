@@ -342,7 +342,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             zone = _zone
         creation = self.getField('creation_date').get(self)
         # return unknown if never set properly
-        return creation is None and 'Unknown' or creation.toZone(zone).ISO()
+        return creation is None and 'Unknown' or creation.toZone(zone).ISO8601()
 
     security.declareProtected( permissions.View, 'EffectiveDate')
     def EffectiveDate(self, zone=None):
@@ -351,7 +351,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         if zone is None:
             zone = _zone
         effective = self.getField('effectiveDate').get(self)
-        return effective is None and 'None' or effective.toZone(zone).ISO()
+        return effective is None and 'None' or effective.toZone(zone).ISO8601()
 
     def _effective_date(self):
         """Computed attribute accessor
@@ -369,7 +369,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         if zone is None:
             zone = _zone
         expires = self.getField('expirationDate').get(self)
-        return expires is None and 'None' or expires.toZone(zone).ISO()
+        return expires is None and 'None' or expires.toZone(zone).ISO8601()
 
     def _expiration_date(self):
         """Computed attribute accessor
@@ -392,7 +392,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         if effective is None:
             effective = self.modified()
         return (effective is None and DateTime().toZone(zone) or
-                effective.toZone(zone).ISO())
+                effective.toZone(zone).ISO8601())
 
     security.declareProtected(permissions.View, 'Format')
     def Format(self):
@@ -555,7 +555,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             zone = _zone
         modified = self.modified()
         return (modified is None and DateTime().toZone(zone)
-                or modified.toZone(zone).ISO())
+                or modified.toZone(zone).ISO8601())
 
     security.declareProtected(permissions.View, 'Type')
     def Type(self):

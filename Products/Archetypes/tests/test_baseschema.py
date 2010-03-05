@@ -353,14 +353,14 @@ class BaseSchemaTest(ATSiteTestCase):
         self.failUnless(dummy.EffectiveDate() == 'None')
         now = DateTime()
         dummy.setEffectiveDate(now)
-        self.failUnless(dummy.EffectiveDate() == now.ISO())
+        self.failUnless(dummy.EffectiveDate() == now.ISO8601())
 
     def test_ExpiresDate(self):
         dummy = self._dummy
         self.failUnless(dummy.ExpirationDate() == 'None')
         now = DateTime()
         dummy.setExpirationDate(now)
-        self.failUnless(dummy.ExpirationDate() == now.ISO())
+        self.failUnless(dummy.ExpirationDate() == now.ISO8601())
 
     def test_Date(self):
         dummy = self._dummy
