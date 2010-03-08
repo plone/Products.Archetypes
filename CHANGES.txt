@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b5 - unreleased
+1.6b5 - 2010-03-08
 ------------------
 
 - Also treat effective/expiry dates specified via the `DateTimeField` widget
