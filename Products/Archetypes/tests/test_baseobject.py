@@ -51,7 +51,7 @@ schema = BaseSchema + Schema((
         widget = MultiSelectionWidget(
             i18n_domain = 'plone',
             ),
-        ), 
+        ),
     TextField(
         'TEXTFIELD',
         primary=True,
@@ -59,19 +59,19 @@ schema = BaseSchema + Schema((
 ))
 
 class Dummy(BaseContent):
-   
+
     portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
-         return 'utf-8'
-         
+        return 'utf-8'
+
 class BaseObjectTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
                                       schema=schema)
-    
+
     def test_searchableText(self):
         """
         Fix bug [ 951955 ] BaseObject/SearchableText and list of Unicode stuffs
@@ -100,7 +100,7 @@ class BaseObjectTest(ATSiteTestCase):
         while gathering values.
         """
         dummy = self._dummy
-        
+
         # This is where we left off in the previous test
         dummy.setMULTIPLEFIELD(['1','2'])
         searchable = dummy.SearchableText()
@@ -114,29 +114,29 @@ class BaseObjectTest(ATSiteTestCase):
         searchable = dummy.SearchableText()
         self.failUnless(searchable.startswith("What do you expect of a Dummy"))
         del Dummy.myMethod
-        
+
     def test_authenticatedContentType(self):
         """See https://dev.plone.org/archetypes/ticket/712
-        
+
         content_type should not be protected by a security declaration, as
         it is usually an attribute. If a security declaration *is* set (in
         BaseObject or one of it's base classes) non-anonymous access from
         protected code (guarded_getattr) will fail.
-        
+
         """
         from AccessControl.unauthorized import Unauthorized
         from AccessControl.Permissions import view
         from AccessControl.ZopeGuards import guarded_getattr
-        
+
         dummy = self._dummy
         dummy.manage_permission(view, ('Manager',), False)
         # dummy.content_type in a Python Script
         self.assertRaises(Unauthorized, guarded_getattr, dummy, 'content_type')
-        
+
         self.setRoles(('Manager',))
         # dummy.content_type in a Python Script
         self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
-        
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
