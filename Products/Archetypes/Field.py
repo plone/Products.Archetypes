@@ -1448,8 +1448,11 @@ class DateTimeField(ObjectField):
                 # strings returned from the widget need a time zone,
                 # which is assumed to be the local one
                 # see http://dev.plone.org/plone/ticket/10141
-                value +=  ' ' + DateTime().timezone()
+                original = value
                 value = DateTime(value)
+                local = DateTime()
+                if value.tzoffset() == 0 and local.tzoffset() != 0:
+                    value = DateTime(original + ' ' + local.timezone())
             except DateTime.DateTimeError:
                 value = None
 

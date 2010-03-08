@@ -4,6 +4,11 @@ Changelog
 1.6b6 - Unreleased
 ------------------
 
+- Update `DateTimeField` mutator to also accept value with a time zone, but
+  still add the local zone if none was given.
+  Refs http://dev.plone.org/plone/ticket/10141
+  [witsch]
+
 1.6b5 - 2010-03-08
 ------------------
 
