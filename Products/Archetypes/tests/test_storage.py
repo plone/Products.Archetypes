@@ -54,7 +54,7 @@ class ChangeStorageTest(ATSiteTestCase):
         out = ('bla','bla','bla')
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
+        self.failUnless(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
         self.failUnlessEqual(dummy.getAlinesfield(), out)
         self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 
@@ -67,7 +67,7 @@ class ChangeStorageTest(ATSiteTestCase):
                 self.failUnlessEqual(field.getStorage().getName(), 'MetadataStorage')
 
         self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnlessEqual(dummy.getAdatefield(), DateTime('2003-01-01'))
+        self.failUnless(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
         self.failUnlessEqual(dummy.getAlinesfield(), out)
         self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
 

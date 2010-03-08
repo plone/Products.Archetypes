@@ -1445,6 +1445,10 @@ class DateTimeField(ObjectField):
             value = None
         elif not isinstance(value, DateTime):
             try:
+                # strings returned from the widget need a time zone,
+                # which is assumed to be the local one
+                # see http://dev.plone.org/plone/ticket/10141
+                value +=  ' ' + DateTime().timezone()
                 value = DateTime(value)
             except DateTime.DateTimeError:
                 value = None

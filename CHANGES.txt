@@ -4,6 +4,10 @@ Changelog
 1.6b5 - unreleased
 ------------------
 
+- Also treat effective/expiry dates specified via the `DateTimeField` widget
+  to be from the local time zone.
+  Refs http://dev.plone.org/plone/ticket/10141
+  [witsch]
 
 1.6b4 - 2010-03-05
 ------------------
