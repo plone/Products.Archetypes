@@ -4,6 +4,10 @@ Changelog
 1.6b6 - Unreleased
 ------------------
 
+- Replace the required field indicator image with a unicode box.
+  Refs http://dev.plone.org/plone/ticket/10352
+  [davisagli, limi]
+
 - Update `DateTimeField` mutator to also accept value with a time zone, but
   still add the local zone if none was given.
   Refs http://dev.plone.org/plone/ticket/10141

@@ -85,12 +85,12 @@
                  tal:content="python:widget.Label(here)"
                  tal:attributes="for python:fieldName">
           </label>
-          <span class="fieldRequired"
+          <span class="required"
                 tal:condition="field/required"
                 title="Required"
-                i18n:translate="label_required"
-                i18n:attributes="title title_required;">
-            (Required)
+                i18n:attributes="title title_required;"
+                style="color: #f00;">
+            &#x25a0;
           </span>
           <div class="formHelp"
                tal:define="description python:widget.Description(here)"
