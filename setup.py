@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.5.16'
+version = '1.5.17'
 
 setup(name='Products.Archetypes',
       version=version,
