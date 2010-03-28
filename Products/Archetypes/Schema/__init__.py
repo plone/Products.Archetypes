@@ -436,7 +436,7 @@ class BasicSchema(Schemata):
                 level = 3
                 if self.__class__ is not BasicSchema:
                     level = 4
-                warn(msg, UserWarning, level=level)
+                warn(msg, UserWarning, stacklevel=level)
                 for field in args:
                     self.addField(args[0])
 

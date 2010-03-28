@@ -13,6 +13,9 @@ Changelog
   Refs http://dev.plone.org/plone/ticket/10141
   [witsch]
 
+- fixed broken warnings.warn() parameters in Schema/_init__.py
+  [ajung]
+
 1.6b5 - 2010-03-08
 ------------------
 
