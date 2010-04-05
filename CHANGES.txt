@@ -4,6 +4,13 @@ Changelog
 1.6b6 - Unreleased
 ------------------
 
+- Products.Archetypes.Field.DateTimeField.set: DateTime 2.12 changed the
+  ISO-string behavior. Convert date values to a non-ISO8601 representation, so
+  that DateTime respects the server's timezone and the date's "Daylight Saving
+  Time" (DST) instead of assuming naive timezones.
+  Refs http://dev.plone.org/plone/ticket/10141
+  [thet]
+
 - Replace the required field indicator image with a unicode box.
   Refs http://dev.plone.org/plone/ticket/10352
   [davisagli, limi]
