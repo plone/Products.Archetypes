@@ -390,6 +390,17 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy.setExpirationDate(now)
         self.failUnless(dummy.contentExpired())
 
+    def testRespectDaylightSavingTime(self):
+        """ When saving dates, the date's timezone with Daylight Saving Time
+            has to be respected.
+            See Products.Archetypes.Field.DateTimeField.set
+        """
+        dummy = self._dummy
+        dummy.setEffectiveDate('2010-01-01 10:00 Europe/Belgrade')
+        dummy.setExpirationDate('2010-06-01 10:00 Europe/Belgrade')
+        self.failUnless(dummy.effective_date.tzoffset() == 3600)
+        self.failUnless(dummy.expiration_date.tzoffset() == 7200)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
