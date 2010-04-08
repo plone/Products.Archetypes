@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b6 - Unreleased
+1.6b6 - 2010-04-08
 ------------------
 
 - Products.Archetypes.Field.DateTimeField.set: DateTime 2.12 changed the
