@@ -437,9 +437,9 @@ class CalendarWidget(TypesWidget):
         minute = form.get('%s_minute' % fname, '00')
         ampm = form.get('%s_ampm' % fname, '')
         if (year != '0000') and (day != '00') and (month != '00'):
+            if ampm and ampm == 'PM' and hour != '12':
+                hour = int(hour) + 12
             value = "%s-%s-%s %s:%s" % (year, month, day, hour, minute)
-            if ampm:
-                value = '%s %s' % (value, ampm)
         else:
             value = ''
         if emptyReturnsMarker and value == '':

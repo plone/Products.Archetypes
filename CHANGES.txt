@@ -4,6 +4,11 @@ Changelog
 1.6b7 - Unreleased
 ------------------
 
+- Make sure the CalendarWidget returns string representations of datetimes in
+  a format that will be treated by the DateTimeField setter as being in the
+  local timezone.
+  [davisagli]
+
 1.6b6 - 2010-04-08
 ------------------
 
