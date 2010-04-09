@@ -4,6 +4,9 @@ Changelog
 1.6b8 - unreleased
 ------------------
 
+- Fix a regression in my CalendarWidget fix, to make it handle hour '12'
+  correctly when using a 12-hour clock.
+  [davisagli]
 
 1.6b7 - 2010-04-10
 ------------------
