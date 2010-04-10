@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b8 - unreleased
+1.6b8 - 2010-04-10
 ------------------
 
 - Fix a regression in my CalendarWidget fix, to make it handle hour '12'
