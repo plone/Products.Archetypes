@@ -4,6 +4,8 @@ Changelog
 1.6b9 - unreleased
 ------------------
 
+- Allow ReferenceFields to be sortable when referencesSortable is set True.
+  [cah190,esteele]
 
 1.6b8 - 2010-04-10
 ------------------

@@ -19,6 +19,12 @@ schema = BaseSchema + Schema((
                    required=1,
                    ),
 
+    ReferenceField('sortedlinks',
+                   multiValued=1,
+                   referencesSortable=True,
+                   relationship="D"
+                   ),
+
     ))
 
 
