@@ -1781,13 +1781,13 @@ class ReferenceField(ObjectField):
 
         if not self.referencesSortable or not hasattr( aq_base(instance), 'at_ordered_refs'):
             return res
-        
+
         rd = {}
         [rd.__setitem__(r.UID(), r) for r in res]
-        
+
         refs = instance.at_ordered_refs
         order = refs[self.relationship]
-        
+
         return [rd[uid] for uid in order if uid in rd.keys()]
 
     security.declarePrivate('set')
@@ -1882,12 +1882,12 @@ class ReferenceField(ObjectField):
         for uid in sub:
             tool.deleteReference(instance, uid, self.relationship)
 
-	if self.referencesSortable:
-	    if not hasattr( aq_base(instance), 'at_ordered_refs'):
-		instance.at_ordered_refs = {}
-	       
-	    instance.at_ordered_refs[self.relationship] = tuple( filter(None, uids) )
-		
+        if self.referencesSortable:
+            if not hasattr( aq_base(instance), 'at_ordered_refs'):
+                instance.at_ordered_refs = {}
+
+            instance.at_ordered_refs[self.relationship] = tuple( filter(None, uids) )
+
         if self.callStorageOnSet:
             #if this option is set the reference fields's values get written
             #to the storage even if the reference field never use the storage
@@ -1908,10 +1908,10 @@ class ReferenceField(ObjectField):
                 res = res[0]
             else:
                 res = None
-		
-	if not self.multiValued or not self.referencesSortable or not hasattr(aq_base(instance), 'at_ordered_refs'):
+
+        if not self.multiValued or not self.referencesSortable or not hasattr(aq_base(instance), 'at_ordered_refs'):
             return res       
-        
+
         refs = instance.at_ordered_refs
         order = refs[self.relationship] 
         return [r for r in order if r in res]
