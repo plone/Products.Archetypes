@@ -4,6 +4,10 @@ Changelog
 1.6b9 - unreleased
 ------------------
 
+- Simplify conversion of `DateTime` instances to non-ISO8601 representation.
+  Refs http://dev.plone.org/plone/ticket/10141
+  [witsch]
+
 - Allow ReferenceFields to be sortable when referencesSortable is set True.
   [cah190,esteele]
 

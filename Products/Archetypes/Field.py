@@ -1,5 +1,3 @@
-import re
-
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
@@ -1447,18 +1445,11 @@ class DateTimeField(ObjectField):
             value = None
         elif not isinstance(value, DateTime):
             try:
-                # Convert value to non-ISO8601 representation.
+                # Convert value to non-ISO8601 representation (YYYY/MM/DD).
                 # DateTime uses local timezone for non-ISO8601 strings,
                 # otherwise it uses timezone naive conversion.
                 # see http://dev.plone.org/plone/ticket/10141
-                date_re = re.match('(?P<YEAR>[0-9]{4})-(?P<MONTH>[0-9]{1,2})-'+
-                                   '(?P<DAY>[0-9]{1,2})(?P<OTHER>.*)', value)
-                if date_re:
-                    value = date_re.group('YEAR') + '/' + \
-                            date_re.group('MONTH') + '/' + \
-                            date_re.group('DAY') + \
-                            date_re.group('OTHER')
-                value = DateTime(value)
+                value = DateTime(value.replace('-', '/', 2))
             except DateTime.DateTimeError:
                 value = None
 
