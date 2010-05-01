@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b9 - unreleased
+1.6b9 - 2010-05-01
 ------------------
 
 - Simplify conversion of `DateTime` instances to non-ISO8601 representation.
