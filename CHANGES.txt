@@ -7,6 +7,11 @@ Changelog
 1.6b9 - 2010-05-01
 ------------------
 
+- Fix another regression in my CalendarWidget fix, to make it handle 12 p.m.
+  correctly when using a 12-hour clock. Fixes
+  http://dev.plone.org/plone/ticket/10487
+  [davisagli]
+
 - Simplify conversion of `DateTime` instances to non-ISO8601 representation.
   Refs http://dev.plone.org/plone/ticket/10141
   [witsch]
