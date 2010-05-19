@@ -4,6 +4,9 @@ Changelog
 1.6b10 - Unreleased
 -------------------
 
+- Fixed invalid XHTML in base_view.
+  [hannosch]
+
 1.6b9 - 2010-05-01
 ------------------
 
