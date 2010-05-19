@@ -34,8 +34,8 @@
                type="checkbox"
                value="on"
                tal:attributes="name string:${fieldName}:boolean;
-               id fieldName;
-               checked python:value;"
+                               id fieldName;
+                               checked python:test(value, 'checked', None);"
                />
         <input type="hidden"
                value=""

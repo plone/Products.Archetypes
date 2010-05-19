@@ -4,6 +4,9 @@ Changelog
 1.6b10 - Unreleased
 -------------------
 
+- Fixed Chameleon compatibility of boolean widget.
+  [hannosch]
+
 - Fixed invalid XHTML in base_view.
   [hannosch]
 
