@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6b10 - Unreleased
+1.6b10 - 2010-05-31
 -------------------
 
 - Fixed Chameleon compatibility of boolean widget.
