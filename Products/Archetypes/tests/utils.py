@@ -169,7 +169,7 @@ def unwrap_method(klass, name):
     setattr(klass, name, new_method)
 
 
-from Products.Five import BrowserView
+from zope.publisher.browser import BrowserView
 class SimpleView(BrowserView):
     def __call__(self):
         return 'SimpleView simple output'

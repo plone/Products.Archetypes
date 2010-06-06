@@ -169,7 +169,7 @@ method instead.
   HTTP/1.0 200 OK
   ...Root Document...
 
-Lets make sure zope3 view lookup takes precedence over acquired views.
+Lets make sure zope view lookup takes precedence over acquired views.
 
   >>> from Products.Five import zcml
   >>> zcml.load_string('''<configure xmlns="http://namespaces.zope.org/browser">

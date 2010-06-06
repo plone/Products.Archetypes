@@ -4,6 +4,8 @@ Changelog
 1.6b11 - unreleased
 -------------------
 
+- Avoid testing dependency on zope.app.testing.
+  [hannosch]
 
 1.6b10 - 2010-05-31
 -------------------

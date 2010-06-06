@@ -28,7 +28,6 @@ setup(name='Products.Archetypes',
             'zope.annotation',
             'zope.publisher',
             'zope.testing',
-            'zope.app.testing',
             'Products.CMFTestCase',
         ]
       ),
