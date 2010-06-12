@@ -169,9 +169,21 @@ method instead.
   HTTP/1.0 200 OK
   ...Root Document...
 
-Lets make sure zope view lookup takes precedence over acquired views.
+Lets make sure view lookup takes precedence over acquired views.
 
-  >>> from Products.Five import zcml
+We need to do some site magic, or our we end up with the SimpleView class
+being persisted in the local component registry. We really shouldn't do
+ZCML registrations in function tests.
+
+  >>> from zope.site.hooks import getSite, setSite
+  >>> site = getSite()
+
+  >>> setSite(None)
+  >>> try:
+  ...     from Zope2.App import zcml
+  ... except ImportError:
+  ...     from Products.Five import zcml
+
   >>> zcml.load_string('''<configure xmlns="http://namespaces.zope.org/browser">
   ... <page
   ...     name="document_view"
@@ -180,6 +192,7 @@ Lets make sure zope view lookup takes precedence over acquired views.
   ...     class="Products.Archetypes.tests.utils.SimpleView"
   ...     />
   ... </configure>''')
+  >>> setSite(site)
 
   >>> print http(r"""
   ... GET /%s/simple_btree_folder/test_document/document_view HTTP/1.0
