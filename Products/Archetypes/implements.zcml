@@ -1,11 +1,10 @@
-<configure xmlns="http://namespaces.zope.org/five"
+<configure xmlns="http://namespaces.zope.org/zope"
            xmlns:zcml="http://namespaces.zope.org/zcml">
 
   <!-- Make all AT objects lockable by default -->
-  <implements
-      zcml:condition="installed plone.locking"
-      class=".BaseObject.BaseObject"
-      interface="plone.locking.interfaces.ITTWLockable"
-      />
+  <class class=".BaseObject.BaseObject"
+         zcml:condition="installed plone.locking">
+    <implements interface="plone.locking.interfaces.ITTWLockable" />
+  </class>
 
 </configure>
