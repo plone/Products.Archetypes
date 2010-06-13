@@ -222,9 +222,8 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         self.app.REQUEST.set('REQUEST_METHOD','GET')
 
 
-from zope.testing import doctest
-OPTIONFLAGS = (doctest.ELLIPSIS |
-               doctest.NORMALIZE_WHITESPACE)
+import doctest
+OPTIONFLAGS = (doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
 
 
 def test_suite():

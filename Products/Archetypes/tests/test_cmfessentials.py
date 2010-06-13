@@ -23,16 +23,19 @@
 #
 ################################################################################
 
+from Products.CMFCore.utils import _checkPermission as checkPerm
+from Products.CMFCore import permissions
 from Testing.ZopeTestCase import user_password
-from Products.Five.testbrowser import Browser
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-
-from Products.CMFCore.utils import _checkPermission as checkPerm
-from Products.CMFCore import permissions
+# BBB Zope 2.12
+try:
+    from Testing.testbrowser import Browser
+except ImportError:
+    from Products.Five.testbrowser import Browser
 
 
 class TestPermissions(ATSiteTestCase):

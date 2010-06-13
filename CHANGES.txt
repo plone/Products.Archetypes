@@ -4,6 +4,9 @@ Changelog
 1.6b11 - unreleased
 -------------------
 
+- Avoid deprecation warnings under Zope 2.13.
+  [hannosch]
+
 - Avoid testing dependency on zope.app.testing.
   [hannosch]
 

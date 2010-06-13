@@ -45,12 +45,13 @@ __docformat__ = 'restructuredtext'
 ##
 # ZopeDocTestSuite
 ##
-import warnings
+import doctest
 import unittest
+import warnings
 
 from Testing.ZopeTestCase import TestCase
 from Testing.ZopeTestCase import ZopeTestCase
-from Testing.ZopeTestCase import doctest
+
 
 # assign __module__ var to ExtensionClass - otherwise doctest import may fail
 import ExtensionClass

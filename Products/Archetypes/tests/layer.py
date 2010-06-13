@@ -4,7 +4,12 @@ from zope.testing.cleanup import cleanUp
 
 from Products.CMFCore.testing import FunctionalZCMLLayer
 from Products.CMFTestCase import layer as cmf_layer
-from Products.Five import zcml
+
+# BBB Zope 2.12
+try:
+    from Zope2.App import zcml
+except ImportError:
+    from Products.Five import zcml
 
 
 class ZCML(FunctionalZCMLLayer):
