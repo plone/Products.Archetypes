@@ -1750,6 +1750,8 @@ class ReferenceField(ObjectField):
 
     security  = ClassSecurityInfo()
 
+    referencesSortable = False
+
     security.declarePrivate('get')
     def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
@@ -1769,9 +1771,6 @@ class ReferenceField(ObjectField):
                     res = res[0]
                 else:
                     res = None
-
-        if getattr(self, 'referencesSortable', None) == None:
-            self.referencesSortable = False
 
         if not self.referencesSortable or not hasattr( aq_base(instance), 'at_ordered_refs'):
             return res
@@ -1876,9 +1875,6 @@ class ReferenceField(ObjectField):
         for uid in sub:
             tool.deleteReference(instance, uid, self.relationship)
 
-        if getattr(self, 'referencesSortable', None) == None:
-            self.referencesSortable = False
-
         if self.referencesSortable:
             if not hasattr( aq_base(instance), 'at_ordered_refs'):
                 instance.at_ordered_refs = {}
@@ -1905,9 +1901,6 @@ class ReferenceField(ObjectField):
                 res = res[0]
             else:
                 res = None
-
-        if getattr(self, 'referencesSortable', None) == None:
-            self.referencesSortable = False
 
         if not self.multiValued or not self.referencesSortable or not hasattr(aq_base(instance), 'at_ordered_refs'):
             return res       
