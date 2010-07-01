@@ -1,9 +1,11 @@
 Changelog
 =========
 
-1.6b12 - unreleased
--------------------
+1.6 - 2010-07-01
+----------------
 
+- Provide class default for new referencesSortable property.
+  [sureshvv]
 
 1.6b11 - 2010-06-13
 -------------------
