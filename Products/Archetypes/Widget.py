@@ -197,7 +197,6 @@ class ReferenceWidget(TypesWidget):
                               # - a dict, where
                               #   {portal_type:<combination of the items above>}
                               # destination is relative to portal root
-        'helper_css' : ('content_types.css',),
         })
 
     security = ClassSecurityInfo()

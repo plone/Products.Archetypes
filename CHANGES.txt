@@ -4,6 +4,8 @@ Changelog
 1.6.1 - unreleased
 ------------------
 
+- Removed outdated ``content_types.css`` used in the standard reference widget.
+  [hannosch]
 
 1.6 - 2010-07-01
 ----------------
