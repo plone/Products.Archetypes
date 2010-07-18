@@ -4,6 +4,10 @@ Changelog
 1.6.1 - unreleased
 ------------------
 
+- Downgrade a user warning to a debug message about explicit permissions set
+  on custom accessor and mutator methods.
+  [hannosch]
+
 - Removed outdated ``content_types.css`` used in the standard reference widget.
   [hannosch]
 

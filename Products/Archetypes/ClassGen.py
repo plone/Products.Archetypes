@@ -1,10 +1,11 @@
+import logging
 import re
 from types import FunctionType as function
-from warnings import warn
 
+from App.class_init import InitializeClass
+from Products.Archetypes.log import log
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.utils import _getSecurity
-from App.class_init import InitializeClass
 
 # marker that AT should generate a method -- used to discard unwanted
 #  inherited methods
@@ -24,11 +25,12 @@ _modes = {
             'attr'     : 'mutator',
             'security' : 'write_permission',
             },
-
     }
+
 
 class GeneratorError(Exception):
     pass
+
 
 class Generator:
     def computeMethodName(self, field, mode):
@@ -104,12 +106,12 @@ class ClassGenerator:
         # Check copied from SecurityInfo to avoid stomping over
         # existing permissions.
         if security.names.get(methodName, perm) != perm:
-            warn('The method \'%s\' was already protected by a '
-                 'different permission than the one declared '
-                 'on the field. Assuming that the explicit '
-                 'permission declared is the correct one and '
-                 'has preference over the permission declared '
-                 'on the field.' % methodName, UserWarning, 3)
+            log('The method \'%s\' was already protected by a '
+                'different permission than the one declared '
+                'on the field. Assuming that the explicit '
+                'permission declared is the correct one and '
+                'has preference over the permission declared '
+                'on the field.' % methodName, level=logging.DEBUG)
         elif method__roles__ is None:
             security.declarePublic(methodName)
         elif method__roles__ == ():
