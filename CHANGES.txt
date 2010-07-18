@@ -4,6 +4,10 @@ Changelog
 1.6.1 - unreleased
 ------------------
 
+- Avoid duplicated import in `OrderedBaseFolder.py`. This closes
+  http://dev.plone.org/plone/ticket/10425.
+  [hannosch]
+
 - Downgrade a user warning to a debug message about explicit permissions set
   on custom accessor and mutator methods.
   [hannosch]

@@ -2,23 +2,20 @@
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
-from zope.interface import implements
-from types import StringType
-from zope.interface import implements
 
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
-from DocumentTemplate import sequence
+from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
+from DocumentTemplate import sequence
 from OFS.interfaces import IOrderedContainer
-
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IDynamicType
 from Products.CMFCore import permissions
-
 from zExceptions import NotFound
+
+from Products.Archetypes.BaseFolder import BaseFolder
+from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 
 
 class OrderedContainer:
@@ -48,7 +45,7 @@ class OrderedContainer:
     def moveObjectsByDelta(self, ids, delta, subset_ids=None):
         """ Move specified sub-objects by delta.
         """
-        if type(ids) is StringType:
+        if isinstance(ids, basestring):
             ids = (ids,)
         min_position = 0
         objects = list(self._objects)
