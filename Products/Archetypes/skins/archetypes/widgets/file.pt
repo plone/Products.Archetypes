@@ -16,7 +16,11 @@
                           showLink showLink|python:1">
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
-                           filename unit/filename | nothing"
+                           filename unit/filename | nothing
+                           size_kb python:size/1024;
+						   display_size_kb python:'{0:n} kB'.format(size_kb) if size_kb > 0 else '';
+						   display_size_bytes python:' ({0:n} bytes)'.format(size) if display_size_kb else '{0:n} bytes'.format(size);
+						   display_size python:'{0}{1}'.format(display_size_kb, display_size_bytes)"
                    condition="python:size &gt; 0">
 
           <tal:link condition="showLink">
@@ -28,7 +32,7 @@
               <span class="discreet">
                   &mdash;
                   <span tal:replace="python:context.lookupMime(field.getContentType(here))">ContentType</span>,
-                  <tal:size content="python:'%s kB' % (size / 1024)">? kB</tal:size>
+                  <tal:size content="display_size">?</tal:size>
               </span>
           </tal:link>
           <span tal:condition="not:showLink">
@@ -37,7 +41,7 @@
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">
                   <span tal:content="python:context.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
-                  <tal:size content="python:'%s kB' % (size / 1024)">? kB</tal:size>
+                  <tal:size content="display_size">?</tal:size>
               </span>
           </span>
 
