@@ -3,7 +3,7 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       i18n:domain="plone">
- 
+
   <head><title></title></head>
 
   <body>
@@ -28,7 +28,7 @@
               <span class="discreet">
                   &mdash;
                   <span tal:replace="python:context.lookupMime(field.getContentType(here))">ContentType</span>,
-                  <tal:size content="python:'%sKb' % (size / 1024)">0Kb</tal:size>
+                  <tal:size content="python:'%s kB' % (size / 1024)">? kB</tal:size>
               </span>
           </tal:link>
           <span tal:condition="not:showLink">
@@ -37,7 +37,7 @@
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">
                   <span tal:content="python:context.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
-                  <tal:size content="python:'%s KB' % (size / 1024)">0 KB</tal:size>
+                  <tal:size content="python:'%s kB' % (size / 1024)">? kB</tal:size>
               </span>
           </span>
 
@@ -114,7 +114,7 @@
                size="30"
                tal:attributes="name string:${fieldName}_file;
                                id string:${fieldName}_file;" />
-        <script type="text/javascript" 
+        <script type="text/javascript"
 	        tal:define="isDisabled python:test(accessor() and size!=0, 'true', 'false')"
                 tal:content="string:document.getElementById('${fieldName}_file').disabled=$isDisabled;">
         </script>
