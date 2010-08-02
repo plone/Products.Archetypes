@@ -16,7 +16,7 @@
                           showLink showLink|python:1">
         <tal:block define="size unit/get_size | python:unit and len(unit) or 0;
                            icon unit/getBestIcon | nothing;
-                           filename unit/filename | nothing
+                           filename unit/filename | nothing;
                            size_kb python:size/1024;
 						   display_size_kb python:'{0:n} kB'.format(size_kb) if size_kb > 0 else '';
 						   display_size_bytes python:' ({0:n} bytes)'.format(size) if display_size_kb else '{0:n} bytes'.format(size);
