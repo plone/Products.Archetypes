@@ -99,6 +99,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # keep the term Location here for historical reasons.
         StringField(
             'location',
+            # why no accessor? http://dev.plone.org/plone/ticket/6424
             searchable=True,
             widget = StringWidget(
                 label = _(u'label_location', default=u'Location'),
@@ -212,8 +213,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     def __init__(self):
         pass
 
-    security.declarePrivate('defaultLanguage') 
-    def defaultLanguage(self): 
+    security.declarePrivate('defaultLanguage')
+    def defaultLanguage(self):
         """Retrieve the default language"""
         tool = getToolByName(self, 'portal_languages', None)
         if tool is not None:
@@ -230,7 +231,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             for pid, policy in schema.listPolicies(typ=self.Type()):
                 if pid != 'Rights' and not policy.supply_default:
                     continue
-                return policy.default_value                    
+                return policy.default_value
         return ''
 
     security.declareProtected(permissions.View, 'isDiscussable')
