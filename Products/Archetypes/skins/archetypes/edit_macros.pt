@@ -182,17 +182,17 @@
             <tal:comment replace="nothing">
               Turn 'persistent_' variables from forms (GET/POST) persistent
             </tal:comment>
-            <tal:env repeat="env request/form">
+            <tal:key repeat="key request/form">
+              <tal:persistent condition="python:key.startswith('persistent_')" >
               <input type="hidden"
                      name="key"
                      value="value"
-                     tal:define="key env;
-                                 value request/?env"
-                     tal:condition="python:key.startswith('persistent_')"
+                     tal:define="value request/?key"
                      tal:attributes="name string:form_env.${key}:record;
                                      value value"
                      />
-            </tal:env>
+              </tal:persistent>
+            </tal:key>
 
             <tal:comment replace="nothing">
               Store referrer to remember where to go back
