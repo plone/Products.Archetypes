@@ -6,5 +6,11 @@
          zcml:condition="installed plone.locking">
     <implements interface="plone.locking.interfaces.ITTWLockable" />
   </class>
+  
+  <!-- Let all AT objects support the IUUID protocol and associated views -->
+  <class class=".BaseObject.BaseObject"
+         zcml:condition="installed plone.uuid">
+      <implements interface="plone.uuid.interfaces.IUUIDAware" />
+  </class>
 
 </configure>
