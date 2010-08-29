@@ -5,10 +5,12 @@ Changelog
 ------------------
 
 - Use the new `plone.uuid` package to generate UUIDs. The UID() method is now
-  an alias for ``IUUID(obj)``; Archetypes provides an IUUID() adapter that
-  returns the value stored in the Archetypes UID attribute; for new content,
-  UUIDs are generated using `plone.uuid.interfaces.IUUIDGenerator`, although
-  old content will not (and need not) be migrated.
+  an alias for ``IUUID(obj)``, which is the new preferred means of looking up
+  a UUID, since this can also work for non-Archetypes content. Archetypes
+  provides an IUUID() adapter that returns the value stored in the Archetypes
+  UID attribute. For new content, UUIDs are generated using
+  `plone.uuid.interfaces.IUUIDGenerator`, although old content will not (and
+  need not) be migrated.
   [optilude]
 
 1.6.1 - 2010-07-18
