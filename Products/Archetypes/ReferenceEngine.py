@@ -31,6 +31,7 @@ from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
 from Products import CMFCore
 
+from plone.uuid.interfaces import IUUID
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
@@ -84,7 +85,7 @@ class Reference(Referenceable, SimpleItem):
 
     def UID(self):
         """the uid method for compat"""
-        return getattr(aq_base(self), UUID_ATTR)
+        return IUUID(self, None)
 
     ###
     # Convenience methods
@@ -652,4 +653,3 @@ def manage_addReferenceCatalog(self, id, title,
     self._setObject(id, c)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST,update_menu=1)
-

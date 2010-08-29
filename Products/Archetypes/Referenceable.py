@@ -1,5 +1,7 @@
 from zope.interface import implements
 
+from plone.uuid.interfaces import IUUID
+
 from Products.Archetypes import config
 from Products.Archetypes.exceptions import ReferenceException
 from Products.Archetypes.interfaces import IReferenceable
@@ -142,7 +144,7 @@ class Referenceable(CopySource):
             delattr(self, config.REFERENCE_ANNOTATION)
 
     def UID(self):
-        return getattr(self, config.UUID_ATTR, None)
+        return IUUID(self, None)
 
     def _setUID(self, uid):
         old_uid = self.UID()

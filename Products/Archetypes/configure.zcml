@@ -10,6 +10,7 @@
       package="plone.i18n" />
   
   <include package="plone.folder"/>
+  <include package="plone.uuid" />
 
   <include package="Products.CMFFormController" />
   <include package="Products.CMFQuickInstallerTool" />
@@ -33,6 +34,9 @@
 
   <adapter
       factory=".traverse.ImageTraverser" />
+
+  <adapter
+      factory=".uuid.referenceableUUID" />
 
   <five:deprecatedManageAddDelete
       class=".ReferenceEngine.Reference" />
