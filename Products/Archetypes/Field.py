@@ -90,6 +90,8 @@ from Products.validation.interfaces.IValidator import IValidator, IValidationCha
 
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 
+from plone.uuid.interfaces import IUUID
+
 # Import conditionally, so we don't introduce a hard depdendency
 try:
     from plone.i18n.normalizer.interfaces import IUserPreferredFileNameNormalizer
@@ -1776,7 +1778,7 @@ class ReferenceField(ObjectField):
             return res
 
         rd = {}
-        [rd.__setitem__(r.UID(), r) for r in res]
+        [rd.__setitem__(IUUID(r, None), r) for r in res]
 
         refs = instance.at_ordered_refs
         order = refs[self.relationship]
@@ -1857,7 +1859,7 @@ class ReferenceField(ObjectField):
             if isinstance(v, basestring):
                 uids.append(v)
             else:
-                uids.append(v.UID())
+                uids.append(IUUID(v, None))
 
         add = [v for v in uids if v and v not in targetUIDs]
         sub = [t for t in targetUIDs if t not in uids]
@@ -1893,7 +1895,7 @@ class ReferenceField(ObjectField):
         relationship
         """
         rc = getToolByName(instance, REFERENCE_CATALOG)
-        brains = rc(sourceUID=instance.UID(),
+        brains = rc(sourceUID=IUUID(instance, None),
                     relationship=self.relationship)
         res = [b.targetUID for b in brains]
         if not self.multiValued and not aslist:

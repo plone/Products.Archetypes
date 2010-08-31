@@ -115,7 +115,7 @@ class Referenceable(CopySource):
 
     def _register(self, reference_manager=None):
         """register with the archetype tool for a unique id"""
-        if self.UID() is not None:
+        if IUUID(self, None) is not None:
             return
 
         if reference_manager is None:
@@ -147,7 +147,7 @@ class Referenceable(CopySource):
         return IUUID(self, None)
 
     def _setUID(self, uid):
-        old_uid = self.UID()
+        old_uid = IUUID(self, None)
         if old_uid is None:
             # Nothing to be done.
             return
@@ -245,8 +245,11 @@ class Referenceable(CopySource):
         # TODO Should we ever get here after the isCopy flag addition??
         # If the object has no UID or the UID already exists, then
         # we should get a new one
-        if (not shasattr(self,config.UUID_ATTR) or
-            len(uc(UID=self.UID()))):
+        
+        uuid = IUUID(self, None)
+        
+        if (uuid is None or
+            len(uc(UID=uuid))):
             setattr(self, config.UUID_ATTR, None)
 
         self._register()

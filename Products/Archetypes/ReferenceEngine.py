@@ -495,11 +495,10 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             if not self.isReferenceable(uobject):
                 raise ReferenceException, "%r not referenceable" % uobject
 
-            # shasattr() doesn't work here
-            if not getattr(aq_base(uobject), UUID_ATTR, None):
+            uuid = IUUID(uobject, None)
+            if uuid is None:
                 uuid = self._getUUIDFor(uobject)
-            else:
-                uuid = getattr(uobject, UUID_ATTR)
+                
         else:
             uuid = obj
             obj = None
@@ -529,7 +528,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         else:
             annotation = sobj._getReferenceAnnotations()
             try:
-                annotation._delObject(referenceObject.UID())
+                annotation._delObject(IUUID(referenceObject, None))
             except (AttributeError, KeyError):
                 pass
 
