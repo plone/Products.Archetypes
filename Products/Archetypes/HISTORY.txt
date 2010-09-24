@@ -1,6 +1,13 @@
 1.5.17 - unreleased
 ===================
 
+- Fixed error in the at_selection_widget view of a SelectionWidget if
+  the vocabulary has integer keys (usually with an IntDisplayList).
+  When a value has been filled in and the form is redisplayed
+  (e.g. due to missing required input on a different field) you would
+  loose the filled in value as it is submitted as a string, which is
+  not in the vocabulary.
+  [maurits]
 
 1.5.16 - 2010-03-23
 ===================

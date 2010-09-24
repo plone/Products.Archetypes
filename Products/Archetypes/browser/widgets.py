@@ -1,3 +1,4 @@
+from pprint import pprint
 from Acquisition import aq_inner
 from Products.Five import BrowserView
 
@@ -66,7 +67,7 @@ class SelectionWidget(BrowserView):
     >>> widget.getSelected(quarter_vocabulary, 15)
     [15]
     >>> widget.getSelected(quarter_vocabulary, '15')
-    []
+    [15]
 
     """
 
@@ -79,12 +80,15 @@ class SelectionWidget(BrowserView):
         # compile a dictionary from the vocabulary of
         # items in {encodedvalue : originalvalue} format
         vocabKeys = {}
+        # Also keep a list of integer keys, if available.
+        integerKeys = {}
         for key in vocab:
             # vocabulary keys can only be strings or integers
             if isinstance(key, str):
                 vocabKeys[key.decode(site_charset)] = key
             else:
                 vocabKeys[key] = key
+                integerKeys[key] = key
         
         # compile a dictonary of {encodedvalue : oldvalue} items
         # from value -- which may be a sequence, string or integer.
@@ -113,7 +117,20 @@ class SelectionWidget(BrowserView):
             ov = vocabKeys.get(v)
             if ov:
                 selected.append(ov)
-
+            elif integerKeys:
+                # Submitting a string '5' where the vocabulary has
+                # only integer keys works fine when the edit succeeds.
+                # But when the edit form gets redisplayed (e.g. due to
+                # a missing required field), the string '5' means
+                # nothing is selected here, so you loose what you
+                # filled in.  This gets fixed right here.
+                try:
+                    int_value = int(value)
+                except ValueError:
+                    continue
+                ov = integerKeys.get(int_value)
+                if ov:
+                    selected.append(ov)
         return selected
 
 
