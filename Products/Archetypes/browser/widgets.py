@@ -1,12 +1,11 @@
-from pprint import pprint
 from Acquisition import aq_inner
 from Products.Five import BrowserView
 
 
-# map from mimetypes used in allowable_content_types to mimetypes that are stored
-# in the base unit
+# map from mimetypes used in allowable_content_types to mimetypes that
+# are stored in the base unit
 MIMETYPES_MAPPING = {
-    'text/x-python' : 'text/python-source',
+    'text/x-python': 'text/python-source',
     'text/restructured': 'text/x-rst',
 }
 
@@ -36,7 +35,8 @@ class SelectionWidget(BrowserView):
     Test with a DisplayList
 
     >>> from Products.Archetypes.utils import DisplayList
-    >>> friends = DisplayList([('Monty Python', u'monty'), (u'Guido van Rossum', u'guido')])
+    >>> friends = DisplayList([('Monty Python', u'monty'),
+    ...                        (u'Guido van Rossum', u'guido')])
     >>> widget.getSelected(friends, 'monty')
     []
     >>> widget.getSelected(friends, u'guido')
@@ -46,7 +46,7 @@ class SelectionWidget(BrowserView):
 
     getSelected is used to get a list of selected vocabulary items.
     In the widget, we repeat on the vocabulary, comparing
-    its values with those returned by getSelected. So,    
+    its values with those returned by getSelected. So,
     we always return the same encoding as in the vocabulary.
 
     >>> widget.getSelected(friends, u'Monty Python')
@@ -61,7 +61,8 @@ class SelectionWidget(BrowserView):
     Test with an IntDisplayList:
 
     >>> from Products.Archetypes.utils import IntDisplayList
-    >>> quarter_vocabulary = IntDisplayList([(0, '0'), (15, '15'), (30, '30'), (45, '45')])
+    >>> quarter_vocabulary = IntDisplayList([(0, '0'), (15, '15'),
+    ...                                      (30, '30'), (45, '45')])
     >>> widget.getSelected(quarter_vocabulary, 5)
     []
     >>> widget.getSelected(quarter_vocabulary, 15)
@@ -72,7 +73,7 @@ class SelectionWidget(BrowserView):
     """
 
     def getSelected(self, vocab, value):
-        
+
         context = aq_inner(self.context)
 
         site_charset = context.getCharset()
@@ -89,7 +90,7 @@ class SelectionWidget(BrowserView):
             else:
                 vocabKeys[key] = key
                 integerKeys[key] = key
-        
+
         # compile a dictonary of {encodedvalue : oldvalue} items
         # from value -- which may be a sequence, string or integer.
         values = {}
