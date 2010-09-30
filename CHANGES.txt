@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.3 - Unreleased
+1.6.3 - 2010-09-30
 ------------------
 
 - Fixed TypeError introduced in the previous fix for the selection
