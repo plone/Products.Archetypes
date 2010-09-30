@@ -127,7 +127,7 @@ class SelectionWidget(BrowserView):
                 # filled in.  This gets fixed right here.
                 try:
                     int_value = int(value)
-                except ValueError:
+                except (ValueError, TypeError):
                     continue
                 ov = integerKeys.get(int_value)
                 if ov:

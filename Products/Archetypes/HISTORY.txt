@@ -1,6 +1,10 @@
 1.5.17 - unreleased
 ===================
 
+- Fixed TypeError introduced in the previous fix for the selection
+  widget when the passed value was None.
+  [maurits]
+
 - Fixed error in the at_selection_widget view of a SelectionWidget if
   the vocabulary has integer keys (usually with an IntDisplayList).
   When a value has been filled in and the form is redisplayed
