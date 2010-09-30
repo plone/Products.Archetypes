@@ -69,6 +69,10 @@ class SelectionWidget(BrowserView):
     [15]
     >>> widget.getSelected(quarter_vocabulary, '15')
     [15]
+    >>> widget.getSelected(quarter_vocabulary, 'wrongdata')
+    []
+    >>> widget.getSelected(quarter_vocabulary, None)
+    []
 
     """
 
