@@ -73,6 +73,10 @@ class SelectionWidget(BrowserView):
     [15]
     >>> widget.getSelected(quarter_vocabulary, '15')
     [15]
+    >>> widget.getSelected(quarter_vocabulary, 'wrongdata')
+    []
+    >>> widget.getSelected(quarter_vocabulary, None)
+    []
 
     """
 
@@ -133,7 +137,7 @@ class SelectionWidget(BrowserView):
                 # filled in.  This gets fixed right here.
                 try:
                     int_value = int(value)
-                except ValueError:
+                except (ValueError, TypeError):
                     continue
                 ov = integerKeys.get(int_value)
                 if ov:

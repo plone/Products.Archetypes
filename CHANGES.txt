@@ -4,6 +4,10 @@ Changelog
 1.6.3 - Unreleased
 ------------------
 
+- Fixed TypeError introduced in the previous fix for the selection
+  widget when the passed value was None.
+  [maurits]
+
 1.6.2 - 2010-09-28
 ------------------
 
