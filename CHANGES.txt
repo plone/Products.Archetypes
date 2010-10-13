@@ -4,6 +4,9 @@ Changelog
 1.6.4 - Unreleased
 ------------------
 
+- Fixed chameleon incompatibilities.
+  [swampmonkey]
+
 1.6.3 - 2010-09-30
 ------------------
 

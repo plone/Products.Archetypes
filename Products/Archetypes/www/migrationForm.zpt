@@ -10,7 +10,7 @@
 <li><strong><span style="color: red;">Backup</span> your database before!!!</strong> 
     Theres no guaranty that it works in smoothly every situation and environment.</li>
 <li>Please read the <code>docs/migration.txt</code>. 
-    <a href="http://sourceforge.net/tracker/?group_id=75272&atid=543430">Bug-reports</a> 
+    <a href="http://sourceforge.net/tracker/?group_id=75272&amp;atid=543430">Bug-reports</a> 
     and patches are welcome.</li>
 
 <li><em>This may take a while.</em></li>
