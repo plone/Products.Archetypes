@@ -31,7 +31,7 @@
             format widget/format | string:select;
             allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
 
-      <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(here) if role in allowRolesToAddKeywords])">
+      <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
         <div style="width: 45%; float: right;">
           <span i18n:translate="label_new_tags">New tags</span>
           <br />
@@ -41,7 +41,7 @@
             cols="15"
             tal:attributes="id string:${fieldName}_keywords;
                             name string:${fieldName}_keywords:lines;"
-            tal:define="subject python:[item for item in value if item not in allowedKeywords]"
+            tal:define="subject python:[item for item in value if not context.unicodeTestIn(item,allowedKeywords)]"
             tal:content="python:'\n'.join(subject)">
               Selected tags
           </textarea>
