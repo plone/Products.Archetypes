@@ -1,6 +1,9 @@
 1.5.17 - unreleased
 ===================
 
+- Speed up the unicodeTestIn skin script.
+  [maurits]
+
 - Fixed TypeError introduced in the previous fix for the selection
   widget when the passed value was None.
   [maurits]

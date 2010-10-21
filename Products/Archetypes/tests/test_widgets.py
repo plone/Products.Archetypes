@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -126,6 +127,31 @@ class WidgetTests(ATSiteTestCase):
         expected = empty_marker
         result = widget.process_form(doc, field, form, empty_marker)
         self.assertEqual(expected, result)
+
+    def test_unicodeTestIn(self):
+        # Test the unicodeTestIn skin script.
+        vocab = ['\xc3\xab', u'\xeb', 'maurits']
+        self.assertEqual(self.portal.unicodeTestIn('maurits', vocab), True)
+        self.assertEqual(self.portal.unicodeTestIn(u'maurits', vocab), True)
+        # There is no spoon:
+        self.assertEqual(self.portal.unicodeTestIn('spoon', vocab), False)
+
+        # This is the most tricky one, as it runs the danger of
+        # raising a UnicodeDecodeError (python2.4) or giving a
+        # UnicodeWarning (python2.6) which again might raise an
+        # Unauthorized error due to guarded_import restrictions.
+        self.assertEqual(self.portal.unicodeTestIn(u'\xeb', vocab), True)
+
+        # The unicodeTestIn script can be called very often on edit
+        # forms when you have lots of keywords (Subject) in your site.
+        # So an interesting test here is: how fast is this?  For a
+        # speed test, uncomment the next few lines.  It basically
+        # tests having 3000 keywords, of which 50 are selected on a
+        # page.  The related change in unicodeTestIn speeds this up
+        # from 42 to 15 seconds.
+        #vocab += [str(x) for x in range(3000)]
+        #for x in range(1000, 1050):
+        #    self.assertEqual(self.portal.unicodeTestIn(str(x), vocab), True)
 
     def _test_widgets(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
