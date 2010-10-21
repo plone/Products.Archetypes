@@ -4,6 +4,9 @@ Changelog
 1.6.4 - Unreleased
 ------------------
 
+- Speed up the unicodeTestIn skin script.
+  [maurits]
+
 - Fixed chameleon incompatibilities.
   [swampmonkey]
 

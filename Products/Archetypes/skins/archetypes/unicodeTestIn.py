@@ -11,6 +11,8 @@ if vocab is None or len(vocab) == 0:
     return 0
 
 value = context.unicodeEncode(value)
-vocab = [context.unicodeEncode(v) for v in vocab]
+for v in vocab:
+    if context.unicodeEncode(v) == value:
+        return True
 
-return value in vocab
+return False
