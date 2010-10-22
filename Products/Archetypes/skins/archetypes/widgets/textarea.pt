@@ -18,7 +18,7 @@
                               templateId='widgets/textarea', macro='textarea-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                   tal:replace="accessor">textarea</span>
         </span>
     </metal:view_macro>
@@ -41,7 +41,7 @@
                             cols widget/cols;
                             rows widget/rows;
                             onkeydown python:test(maxlength, keypress, None);
-                            onkeyup python:test(maxlength, keypress, None);"                            
+                            onkeyup python:test(maxlength, keypress, None);"
             tal:define="content python:not append_only and content or '';"
             tal:content="content">content</textarea>
 

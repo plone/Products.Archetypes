@@ -90,7 +90,7 @@ def ZopeDocTestSuite(*modules, **kw):
             name = 'ZDT%s' % name
         test_class = type(name, (TestCase, test_class), {})
 
-    # If the test_class does not have a runTest attribute, 
+    # If the test_class does not have a runTest attribute,
     # we add one.
     #if not hasattr(test_class, 'runTest'):
     setattr(test_class, 'runTest', None)
@@ -113,7 +113,7 @@ def ZopeDocTestSuite(*modules, **kw):
             kwsetUp(test_instance)
 
     kw['setUp'] = setUp
-    
+
     # tearDown
     kwtearDown = kw.get('tearDown')
     def tearDown(test):
@@ -122,7 +122,7 @@ def ZopeDocTestSuite(*modules, **kw):
         test_instance.tearDown()
 
     kw['tearDown'] = tearDown
-    
+
     # other options
     if 'optionflags' not in kw:
         kw['optionflags'] = (doctest.ELLIPSIS

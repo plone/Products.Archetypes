@@ -94,7 +94,7 @@ class ClassLog(Log):
         return frame
 
     def generateFrames(self, start=None, end=None):
-        try: 
+        try:
             return inspect.stack()[start:end]
         except IndexError:
             # NOTE: this is required for OS-X Tiger somehow

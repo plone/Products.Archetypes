@@ -30,7 +30,7 @@
 
       <div tal:condition="python:format=='checkbox'"
             tal:attributes="id fieldName;">
-        <tal:item repeat="item vocab"> 
+        <tal:item repeat="item vocab">
           <div class="ArchetypesMultiSelectionValue" id=""
                tal:attributes="id string:archetypes-value-${fieldName}_${repeat/item/number}">
             <input class="blurrable"

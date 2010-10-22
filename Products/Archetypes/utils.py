@@ -352,7 +352,7 @@ class DisplayList:
         return  a[0] - b[0]
 
     def add(self, key, value, msgid=None):
-        if not isinstance(key, basestring): 
+        if not isinstance(key, basestring):
             raise TypeError('DisplayList keys must be strings, got %s' %
                             type(key))
         if not isinstance(value, basestring) and not isinstance(value, int):
@@ -559,7 +559,7 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if not isinstance(key, basestring) and not isinstance(key, int): 
+        if not isinstance(key, basestring) and not isinstance(key, int):
             raise TypeError('DisplayList keys must be strings or ints, got %s' %
                             type(key))
         v = self._keys.get(key, None)

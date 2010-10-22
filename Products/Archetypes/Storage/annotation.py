@@ -46,15 +46,15 @@ class BaseAnnotationStorage(Storage):
     security = ClassSecurityInfo()
 
     _key = None
-    
+
     def __init__(self, migrate=False):
         self._migrate = migrate
-        
+
     def _migration(self, name, instance, **kwargs):
         """Migrates data from the original storage
         """
         raise NotImplementedError
-        
+
     def _cleanup(self, name, instance, value, **kwargs):
         """Clean up data in set method
         """
@@ -78,7 +78,7 @@ class BaseAnnotationStorage(Storage):
         ann = getAnnotation(instance)
         ann.setSubkey(self._key, value, subkey=name)
         if self._migrate:
-            self._cleanup(name, instance, value, **kwargs) 
+            self._cleanup(name, instance, value, **kwargs)
 
     security.declarePrivate('unset')
     def unset(self, name, instance, **kwargs):
@@ -97,7 +97,7 @@ class AnnotationStorage(BaseAnnotationStorage):
     _key = AT_ANN_STORAGE
 
     security = ClassSecurityInfo()
-    
+
     def _migration(self, name, instance, **kwargs):
         """Migrates data from the original storage
         """
@@ -107,7 +107,7 @@ class AnnotationStorage(BaseAnnotationStorage):
         delattr(instance, name) # explicit del althought set would do the job, too
         self.set(name, instance, value, **kwargs)
         return value
-    
+
     def _cleanup(self, name, instance, value, **kwargs):
         if shasattr(instance, name):
             delattr(instance, name)
@@ -121,7 +121,7 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
     _key = AT_MD_STORAGE
 
     security = ClassSecurityInfo()
-    
+
     def _migration(self, name, instance, **kwargs):
         """Migrates data from the original storage
         """
@@ -135,7 +135,7 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
         self.set(name, instance, value, **kwargs)
         del md[name]
         return value
-        
+
     def _cleanup(self, name, instance, value, **kwargs):
         md = aq_base(instance)._md
         try:
@@ -173,39 +173,39 @@ registerStorage(MetadataAnnotationStorage)
 
 def migrateStorageOfType(portal, portal_type, schema):
     """Migrate storage from attribute to annotation storage
-    
+
     portal - portal
     portal_type - portal type name to migrate
     schema - schema of the type
-    
+
     The schema is used to detect annotation and metadata annotation stored field for
     migration.
     """
     catalog = getToolByName(portal, 'portal_catalog')
     brains = catalog(Type = portal_type)
-    
+
     fields = [ field.getName()
-        for field in schema.fields() 
+        for field in schema.fields()
         if field.storage.__class__ == AnnotationStorage
         ]
     md_fields = [ field.getName()
-        for field in schema.fields() 
+        for field in schema.fields()
         if field.storage.__class__ == MetadataAnnotationStorage
         ]
-    
+
     for brain in brains:
         obj = brain.getObject()
         if obj is None:
             continue
-        
+
         try: state = obj._p_changed
         except: state = 0
-        
+
         ann = getAnnotation(obj)
         clean_obj = aq_base(obj)
         _attr2ann(clean_obj, ann, fields)
         _meta2ann(clean_obj, ann, md_fields)
-        
+
         if state is None: obj._p_deactivate()
 
 def _attr2ann(clean_obj, ann, fields):
@@ -221,7 +221,7 @@ def _attr2ann(clean_obj, ann, fields):
             value = getattr(clean_obj, field, _marker)
             if value is not _marker:
                 delattr(clean_obj, field)
-    
+
 def _meta2ann(clean_obj, ann, fields):
     """metadata 2 annotation
     """

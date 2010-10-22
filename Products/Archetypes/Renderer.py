@@ -6,10 +6,10 @@ from Acquisition import ImplicitAcquisitionWrapper
 _marker = []
 
 class ArchetypesRenderer:
-    
+
     security = ClassSecurityInfo()
     # TODO: more security
-    
+
     def render(self, field_name, mode, widget, instance=None,
                field=None, accessor=None, **kwargs):
         if field is None:
@@ -24,8 +24,8 @@ class ArchetypesRenderer:
         result = widget(mode, instance, context)
 
         del context
-        return result    
-    
+        return result
+
     def setupContext(self, field_name, mode, widget, instance, field, \
                      accessor, **kwargs):
 
@@ -37,8 +37,8 @@ class ArchetypesRenderer:
             frame = frame.f_back
         if context is _marker:
             raise RuntimeError, 'Context not found'
-        
-        # for editing of multiple AT-based content at once we might want to 
+
+        # for editing of multiple AT-based content at once we might want to
         # prefix the field-name.
         if 'fieldprefix' in kwargs:
             field_name = '%s%s' % (kwargs['fieldprefix'], field_name)

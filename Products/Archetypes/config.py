@@ -8,7 +8,7 @@ REGISTER_DEMO_TYPES = True ##Initialize the demo types
 DEBUG =  False ## Hide debug messages
 #DEBUG = True  ## See debug messages
 
-RENAME_AFTER_CREATION_ATTEMPTS = 100 
+RENAME_AFTER_CREATION_ATTEMPTS = 100
 ## Try up to -100 at the end of the id when doing title-to-id renaming
 
 

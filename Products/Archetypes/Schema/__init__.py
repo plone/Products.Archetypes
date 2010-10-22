@@ -492,7 +492,7 @@ class BasicSchema(Schemata):
             if shasattr(field, 'default_content_type'):
                 # specify a mimetype if the mutator takes a
                 # mimetype argument
-                # if the schema supplies a default, we honour that, 
+                # if the schema supplies a default, we honour that,
                 # otherwise we use the site property
                 default_content_type = field.default_content_type
                 if default_content_type is None:
@@ -557,11 +557,11 @@ class BasicSchema(Schemata):
             schemata = instance.Schemata()
             for fieldset in fieldsets:
                 fields += [(field.getName(), field)
-                           for field in schemata[fieldset].fields()]            
+                           for field in schemata[fieldset].fields()]
         elif fieldset is not None:
             schemata = instance.Schemata()
             fields = [(field.getName(), field)
-                      for field in schemata[fieldset].fields()]            
+                      for field in schemata[fieldset].fields()]
         else:
             if data:
                 fields.extend([(field.getName(), field)
@@ -574,20 +574,20 @@ class BasicSchema(Schemata):
             form = REQUEST.form
         else:
             form = None
-            
+
         for name, field in fields:
-            
+
             # Should not validate something we can't write to anyway
             if not field.writeable(instance):
                 continue
-            
+
             error = 0
             value = None
             widget = field.widget
-            
+
             if widget.isVisible(widget, 'edit') != 'visible':
                 continue
-            
+
             if form:
                 result = widget.process_form(instance, field, form,
                                              empty_marker=_marker)

@@ -412,7 +412,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, 'Flogs')
         self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
         self.assertEquals(len(a.getRefs()), 3)
-        
+
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again

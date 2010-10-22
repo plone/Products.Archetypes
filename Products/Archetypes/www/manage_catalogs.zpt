@@ -6,17 +6,17 @@
 	  div.row {
 	  padding-top: 2px;
 	  }
-	  
+	
 	  .cell {
 	  margin-right:1em;
 	  width: 33%;
-	  }	    
-	  
+	  }	
+	
 	  .content_type {
 	  border: 1px solid black;
 	  margin: 4px;
 	  }
-	    
+	
 	  .main td {
 	    text-align: left;
 	    }
@@ -32,7 +32,7 @@
 
 	</style>
 	
-	<form action="manage_updateCatalogs" method="POST" 
+	<form action="manage_updateCatalogs" method="POST"
 	      tal:define="at context/archetype_tool;
 	                  catalogs at/listCatalogs;
 	                  vocab at/getCatalogsInSite;">
@@ -56,10 +56,10 @@
           </td>
 	</tr>
       </table>
-      
+
       <input type="submit" name="submit" value="Update Catalogs"/>
-      
+
     </form>
-      
+
     </body>
   </html>

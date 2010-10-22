@@ -13,7 +13,7 @@ class IArchetypeTool(Interface):
 
     def setCatalogsByType(meta_type, catalogList):
         """ associate catalogList with meta_type. (unfortunally not portal_type).
-        
+
             catalogList is a list of strings with the ids of the catalogs.
             Each catalog is has to be a tool, means unique in site root.
         """

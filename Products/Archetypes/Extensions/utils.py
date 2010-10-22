@@ -24,7 +24,7 @@ def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
     at = getToolByName(self, 'archetype_tool')
-    
+
     for t in types:
         klass = t['klass']
         if ITemplateMixin.implementedBy(klass):
@@ -126,7 +126,7 @@ def install_types(self, out, types, package_name):
             t.manage_changeProperties(**fti)
             if fti.has_key('aliases'):
                 t.setMethodAliases(fti['aliases'])
-        
+
         # Set the human readable title explicitly
         if t:
             t.title = klass.archetype_name
@@ -170,7 +170,7 @@ def _getFtiAndDataFor(tool, typename, klassname, package_name):
             fti['content_meta_type'] = fti['meta_type']
             return t, fti
     return t, None
-    
+
 
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
@@ -219,15 +219,15 @@ def install_indexes(self, out, types):
                     catalog = getToolByName(self, catalog_name)
                 else:
                     catalog = portal_catalog
-                
+
                 #####################
-                # add metadata column 
-                
+                # add metadata column
+
                 # lets see if the catalog is itself an Archetype:
                 isArchetype = IBaseObject.providedBy(catalog)
-                # archetypes based zcatalogs need to provide a different method 
-                # to list its schema-columns to not conflict with archetypes 
-                # schema                
+                # archetypes based zcatalogs need to provide a different method
+                # to list its schema-columns to not conflict with archetypes
+                # schema
                 hasNewWayMethod = hasattr(catalog, 'zcschema')
                 hasOldWayMethod = not isArchetype and hasattr(catalog, 'schema')
                 notInNewWayResults = hasNewWayMethod and accessor not in catalog.zcschema()
@@ -241,7 +241,7 @@ def install_indexes(self, out, types):
 
                 ###########
                 # add index
-                
+
                 # if you want to add a schema field without an index
                 #if not parts[0]:
                 #    continue
@@ -373,7 +373,7 @@ def doubleCheckDefaultTypeActions(self, ftypes):
                 prepend.append(a.clone())
         if prepend:
             fti._actions = tuple(prepend + actions)
-    
+
 
 ## The master installer
 def installTypes(self, out, types, package_name,
@@ -396,7 +396,7 @@ def installTypes(self, out, types, package_name,
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a
     AT based product.
-    
+
     This may take a very long time but it seems to be required under some
     circumstances.
     """
@@ -411,7 +411,7 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
 
     rc = getToolByName(self, REFERENCE_CATALOG)
     mt = tuple([t.meta_type for t in ftypes])
-    
+
     # because manage_catalogFoundItems sucks we have to do it on our own ...
     func    = rc.catalog_object
     obj     = self

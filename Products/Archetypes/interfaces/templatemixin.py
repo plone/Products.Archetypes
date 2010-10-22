@@ -9,7 +9,7 @@ class ITemplateMixin(Interface):
 
     def getLayout():
         """
-        @return string for current layout 
+        @return string for current layout
         """
 
     def getDefaultLayout():

@@ -24,7 +24,7 @@
                        result python:(format and formatted) or (d and tlt and tlt(d, long_format=1)) or None;"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                   tal:replace="structure result">calendar</span>
         </div>
     </metal:view_macro>

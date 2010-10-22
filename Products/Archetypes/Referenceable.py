@@ -204,9 +204,9 @@ class Referenceable(CopySource):
         if isFactoryContained(self):
             return
         isCopy = getattr(item, '_v_is_cp', None)
-        # Before copying we take a copy of the references that are to be copied 
+        # Before copying we take a copy of the references that are to be copied
         # on the new copy
-        rfields=self.Schema().filterFields(type="reference", keepReferencesOnCopy=1) 
+        rfields=self.Schema().filterFields(type="reference", keepReferencesOnCopy=1)
         rrefs={}
         if isCopy:
             # If the object is a copy of a existing object we
@@ -221,11 +221,11 @@ class Referenceable(CopySource):
         self._register(reference_manager=ct)
         self._updateCatalog(container)
         self._referenceApply('manage_afterAdd', item, container)
-        # copy the references 
+        # copy the references
         if isCopy:
             for r in rfields:
                 r.set(self,rrefs[r.getName()])
-                 
+
 
     def manage_afterClone(self, item):
         """
@@ -304,7 +304,7 @@ class Referenceable(CopySource):
         url = self._getURL()
         # XXX This is an ugly workaround. This method shouldn't be called
         # twice for an object in the first place, so we don't have to check
-        # if it is still cataloged. 
+        # if it is still cataloged.
         rid = uc.getrid(url)
         if rid is not None:
             uc.uncatalog_object(url)
@@ -335,7 +335,7 @@ class Referenceable(CopySource):
                 url = getRelURL(uc, ref.getPhysicalPath())
                 # XXX This is an ugly workaround. This method shouldn't be
                 # called twice for an object in the first place, so we don't
-                # have to check if it is still cataloged. 
+                # have to check if it is still cataloged.
                 uc_rid = uc.getrid(url)
                 if uc_rid is not None:
                     uc.uncatalog_object(url)

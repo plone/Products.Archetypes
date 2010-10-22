@@ -86,7 +86,7 @@ class AllowedTypesByIfaceMixin:
     ... except ValueError:
     ...     print 'Right'
     Right
-    
+
     """
 
     # XXX: This class depends heavily on implementation details in CMF's
@@ -110,7 +110,7 @@ class AllowedTypesByIfaceMixin:
             if t['portal_type'] == type_name:
                 fti = t
                 break
-        
+
         if fti is None:
             raise ValueError, "Type %r not available." % type_name
 

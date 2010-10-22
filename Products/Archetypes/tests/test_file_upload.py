@@ -317,7 +317,7 @@ class FileFieldTest(ATSiteTestCase):
         # compatibility.
         self.failUnless(isinstance(result, self.factory),
                         (type(result), self.factory))
-                        
+
     def test_delete_file_via_set(self):
         sample = 'a sample text file to be deleted ............................'
         self.field.set(self.instance, sample)

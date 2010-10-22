@@ -127,7 +127,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
         event.notify(WebDAVObjectInitializedEvent(self))
     else:
         event.notify(WebDAVObjectEditedEvent(self))
-    
+
     RESPONSE.setStatus(204)
     return RESPONSE
 

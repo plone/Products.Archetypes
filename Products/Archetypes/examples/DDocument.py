@@ -37,7 +37,7 @@ schema = BaseSchema + Schema((
                default_output_type='image/jpeg',
                allowable_content_types=('image/*',),
                widget=ImageWidget()),
-    
+
     ReferenceField('related',
                    relationship = 'related',
                    multiValued = False,

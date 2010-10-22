@@ -44,22 +44,22 @@ from zope.interface import implements
 # Archetypes now stores field data in a __annotations__ BTree, and many (if not
 # all) of these field data objects are persistent themselves. This means that
 # each of these objects will get it's own revisions in the ZODB, and retrieving
-# an object's historic revision will not retrieve historic revisions of 
+# an object's historic revision will not retrieve historic revisions of
 # subobjects.
 #
 # The following implementation will merge the histories for the main object,
-# the __annotations__ BTree, and any persistent annotition that uses an 
+# the __annotations__ BTree, and any persistent annotition that uses an
 # Archetypes key. It does not recurse into those objects though (which would
 # make the implementation far more complex), so fields like File and Image will
 # not be correctly reconstructed.
 #
-# When an edit is made to an archetype, it may be that only one field is 
+# When an edit is made to an archetype, it may be that only one field is
 # altered and only that field is then recorded in a transaction. Adding or
 # removing a field from the annotations will result in a new revision of the
-# __annotations__ BTree, but the main object remains unaffected. Editing a 
-# title will affect self, and no fields stored in annotations are altered. 
+# __annotations__ BTree, but the main object remains unaffected. Editing a
+# title will affect self, and no fields stored in annotations are altered.
 #
-# The following table illustrates a series of such transactions 
+# The following table illustrates a series of such transactions
 # (__annotations__ is shortened to 'ann', crosses mark comitted revisions,
 # a slash marks a removed object):
 #
@@ -73,8 +73,8 @@ from zope.interface import implements
 #
 # Now, to construct the last 3 historic revisions, one has to pull together
 # various object revisions. For tid 5, to construct the full object, one has to
-# take tid 4 for __annotations__ and field 2, and no revision for field 3. 
-# Tid 3 combines tid 2 for self and field 1, tid 1 for field 2 with tid 3 
+# take tid 4 for __annotations__ and field 2, and no revision for field 3.
+# Tid 3 combines tid 2 for self and field 1, tid 1 for field 2 with tid 3
 # versions of __annotations__ and field 3.
 #
 # Note that packing does not remove older revisions still referenced through
@@ -110,8 +110,8 @@ def _objectRevisions(obj, limit=10):
 
 class ATHistoryAwareMixin:
     """Archetypes history aware mixin class
-    
-    Provide ZODB revisions, constructed from older transactions. Note that 
+
+    Provide ZODB revisions, constructed from older transactions. Note that
     these transactions are available only up to the last pack.
 
     """
@@ -124,10 +124,10 @@ class ATHistoryAwareMixin:
     security.declarePrivate('_constructAnnotatedHistory')
     def _constructAnnotatedHistory(self, max=10):
         """Reconstruct historical revisions of archetypes objects
-        
+
         Merges revisions to self with revisions to archetypes-related items
         in __annotations__. Yields at most max recent revisions.
-        
+
         """
         # All relevant historical states by transaction id
         # For every tid, keep a dict with object revisions, keyed on annotation
@@ -135,16 +135,16 @@ class ATHistoryAwareMixin:
         # Initialize with self revisions
         history = dict([(tid, {None: rev})
                         for (tid, rev) in _objectRevisions(self, max)])
-            
+
         if not getattr(self, '__annotations__', None):
             # No annotations, just return the history we have for self
-            # Note that if this object had __annotations__ in a past 
+            # Note that if this object had __annotations__ in a past
             # transaction they will be ignored! Working around this is a
             # YAGNI I think though.
             for tid in sorted(history.keys()):
                 yield history[tid][None]
             return
-            
+
         # Now find all __annotation__ revisions, and the annotation keys
         # used in those.
         annotation_key_objects = {}
@@ -159,13 +159,13 @@ class ATHistoryAwareMixin:
                     continue # Not persistent
                 if key not in annotation_key_objects:
                     annotation_key_objects[key] = revision[key]
-                    
+
         # For all annotation keys, get their revisions
         for key, obj in annotation_key_objects.iteritems():
             for tid, rev in _objectRevisions(obj, max):
                 history.setdefault(tid, {})[key] = rev
         del annotation_key_objects
-                
+
         # Now we merge the annotation and object revisions into one for each
         # transaction id, and yield the results
         tids = sorted(history.iterkeys(), reverse=True)
@@ -174,22 +174,22 @@ class ATHistoryAwareMixin:
             has_revision = lambda t, h=history, k=key: k in h[t]
             next_tid = itertools.ifilter(has_revision, tids).next()
             return history[next_tid][key]
-        
+
         for i, tid in enumerate(tids[:max]):
             revision = find_revision(tids[i:], None)
             obj = revision['object']
             # Track size to maintain correct metadata
             size = revision['size']
-            
+
             anns_rev = find_revision(tids[i:], '__annotations__')
             size += anns_rev['size']
             anns = anns_rev['object']
-            
+
             # We use a temporary OOBTree to avoid _p_jar complaints from the
             # transaction machinery
             tempbtree = OOBTree()
             tempbtree.__setstate__(anns.__getstate__())
-            
+
             # Find annotation revisions and insert
             for key in itertools.ifilter(isatkey, tempbtree.iterkeys()):
                 if not hasattr(tempbtree[key], '_p_jar'):
@@ -197,52 +197,52 @@ class ATHistoryAwareMixin:
                 value_rev = find_revision(tids[i:], key)
                 size += value_rev['size']
                 tempbtree[key] = value_rev['object']
-                
-            # Now transfer the tembtree state over to anns, effectively 
-            # bypassing the transaction registry while maintaining BTree 
+
+            # Now transfer the tembtree state over to anns, effectively
+            # bypassing the transaction registry while maintaining BTree
             # integrity
             anns.__setstate__(tempbtree.__getstate__())
             anns._p_changed = 0
             del tempbtree
-            
+
             # Do a similar hack to set anns on the main object
             state = obj.__getstate__()
             state['__annotations__'] = anns
             obj.__setstate__(state)
             obj._p_changed = 0
-            
+
             # Update revision metadata if needed
             if revision['tid'] != tid:
                 # any other revision will do; only size and object are unique
                 revision = history[tid].values()[0].copy()
                 revision['object'] = obj
-                
+
             # Correct size based on merged records
             revision['size'] = size
-            
+
             # clean up as we go
             del history[tid]
-            
+
             yield revision
 
     security.declarePrivate('getHistories')
     def getHistories(self, max=10):
         """Iterate over historic revisions.
-        
+
         Yields (object, time, transaction_note, user) tuples, where object
         is an object revision approximating what was committed at that time,
         with the current acquisition context.
 
-        Object revisions include correct archetype-related annotation revisions 
-        (in __annotations__); other persistent sub-objects are in their current 
+        Object revisions include correct archetype-related annotation revisions
+        (in __annotations__); other persistent sub-objects are in their current
         revision, not historical!
-        
+
         """
-        
+
         parent = aq_parent(self)
         for revision in self._constructAnnotatedHistory(max):
             obj = revision['object'].__of__(parent)
-            yield (obj, DateTime(revision['time']), revision['description'], 
+            yield (obj, DateTime(revision['time']), revision['description'],
                    revision['user_name'])
 
 InitializeClass(ATHistoryAwareMixin)

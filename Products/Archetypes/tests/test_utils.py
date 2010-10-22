@@ -34,7 +34,7 @@ class UidGeneratorTest(ATTestCase):
     """Some ppl have reported problems with uids. This test isn't mathematical
     correct but should show the issue on plattform. I suspect it's Windows :|
     """
-    
+
     def test_uuid(self):
         uids = {}
         loop_length = 10**5 # about 1.5 seconds on a fast cpu

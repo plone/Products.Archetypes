@@ -41,7 +41,7 @@ class VarSchemataTest( ATTestCase ):
         registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
-    def test_variableschema(self):        
+    def test_variableschema(self):
         self.folder.dummy = Dummy(oid='dummy')
         dummy = self.folder.dummy
         dummy.setTitle('dummy1')

@@ -83,12 +83,12 @@ class BaseSQLStorage(StorageLayer):
             return 0
         else:
             return 1
-        
+
     def map_reference(self, field, value):
         __traceback_info__ = repr(value)
 
         return ','.join(value)
-    
+
     def unmap_boolean(self, field, value):
         __traceback_info__ = repr(value)
         if not value or value == '0':   # Gadfly return integers as strings
@@ -133,7 +133,7 @@ class BaseSQLStorage(StorageLayer):
         factory = getToolByName(instance,'portal_factory')
         if factory.isTemporary(instance):
           return
-              
+
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.providedBy(f) \
                   and f.getStorage().__class__ is self.__class__]

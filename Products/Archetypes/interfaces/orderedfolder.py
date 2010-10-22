@@ -29,7 +29,7 @@ class IOrderedFolder(Interface):
 
 import zope.deferredimport
 zope.deferredimport.deprecated(
-    "Please use the canonical interface from OFS. " 
+    "Please use the canonical interface from OFS. "
     "This alias will be removed in the next major version.",
     IOrderedContainer = 'OFS.interfaces:IOrderedContainer',
     )

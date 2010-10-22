@@ -141,10 +141,10 @@ class ISchema(ISchemata):
 
     def replaceField(name, field):
         """Replace field under ``name`` with ``field``"""
-        
+
     def moveField(name, direction=None, pos=None, after=None, before=None):
         """Move a field
-        
+
         name:
             name of the field
         direction:
@@ -156,7 +156,7 @@ class ISchema(ISchemata):
             Moves the field 'name' after the field 'after'
         before:
             Moves the field 'name' before the field 'before'
-         
+
         """
 
 class ICompositeSchema(ISchema):

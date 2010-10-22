@@ -5,7 +5,7 @@ class IField(Interface):
 
 #     required = Attribute('required', 'Require a value to be present when submitting the field')
 #     default = Attribute('default', 'Default value for a field')
-#     default_method = Attribute('default_method', 'Name of a method on the field ' + 
+#     default_method = Attribute('default_method', 'Name of a method on the field ' +
 #                                                  'or an actual function instance to return the default')
 #     vocabulary = Attribute('vocabulary', 'List of suggested values for the field')
 #     vocabulary_factory = Attribute('vocabulary_factory', 'Name of Zope 3 vocabulary factory')
@@ -61,13 +61,13 @@ class IField(Interface):
               will be created)
 
         3) Zope 3 vocabulary factory vocabulary
-        
+
             - precondition: a content_instance is given
-            
+
             - self.vocabulary_factory is given
-            
-            - a named utility providing zope.schema.interfaces.IVocbularyFactory 
-              exists for the name self.vocabulary_factory.     
+
+            - a named utility providing zope.schema.interfaces.IVocbularyFactory
+              exists for the name self.vocabulary_factory.
 
         """
 
@@ -199,7 +199,7 @@ class IObjectField(IField):
 
     def get_size(instance):
         """Get size of the stored data used for get_size in BaseObject
-        
+
         Should be overwritte by special fields like FileField. It's safe for
         fields which are storing strings, ints and BaseUnits but it won't return
         the right results for fields containing OFS.Image.File instances or
@@ -279,7 +279,7 @@ class IFixedPointField(IField):
 class IReferenceField(IField):
     """Marker interface for reference fields
     """
-    
+
 class IComputedField(IField):
     """Marker interface for computed fields
     """
@@ -297,7 +297,7 @@ class IFieldDefaultProvider(Interface):
     field. If no default or default_method is set on that field
     explicitly, Archetypes will find and call this adapter.
     """
-    
+
     def __call__():
         """Get the default value.
         """

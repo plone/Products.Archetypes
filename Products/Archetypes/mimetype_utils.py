@@ -20,14 +20,14 @@ def setDefaultContentType(context, value):
             site_properties.manage_changeProperties(default_contenttype=value)
 
 def getAllowedContentTypes(context):
-    """ computes the list of allowed content types by subtracting the site property blacklist 
+    """ computes the list of allowed content types by subtracting the site property blacklist
         from the list of installed types.
     """
     allowable_types = getAllowableContentTypes(context)
     forbidden_types = getForbiddenContentTypes(context)
     allowed_types = [type for type in allowable_types if type not in forbidden_types]
     return allowed_types
-    
+
 def getAllowableContentTypes(context):
     """ retrieves the list of installed content types by querying portal transforms. """
     portal_transforms = getToolByName(context, 'portal_transforms')

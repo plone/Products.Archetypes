@@ -14,7 +14,7 @@ class FacadeMetadataStorage(StorageLayer):
     """
 
     security = ClassSecurityInfo()
-    
+
     def __init__(self, metadata_set):
         self.metadata_set = metadata_set
 

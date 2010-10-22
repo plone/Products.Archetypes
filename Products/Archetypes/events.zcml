@@ -9,7 +9,7 @@
         zcml:condition="installed plone.locking"
         for="plone.locking.interfaces.ITTWLockable
              .interfaces.IEditBegunEvent"
-        handler="plone.locking.events.lockOnEditBegins" 
+        handler="plone.locking.events.lockOnEditBegins"
         />
 
     <subscriber
@@ -19,14 +19,14 @@
         handler="plone.locking.events.unlockAfterModification"
         />
 
-    <subscriber 
+    <subscriber
         zcml:condition="installed plone.locking"
         for="plone.locking.interfaces.ITTWLockable
              .interfaces.IObjectEditedEvent"
         handler="plone.locking.events.unlockAfterModification"
         />
 
-	<subscriber 
+	<subscriber
         zcml:condition="installed plone.locking"
         for="plone.locking.interfaces.ITTWLockable
              .interfaces.IObjectInitializedEvent"

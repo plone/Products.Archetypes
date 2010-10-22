@@ -146,7 +146,7 @@ class ATAnnotations(DictMixin, Explicit):
 
     def getObject(self):
         return self._obj
-        
+
     def getAnnotationObject(self):
         try:
             return self._obj.__annotations__
@@ -161,7 +161,7 @@ class ATAnnotations(DictMixin, Explicit):
     #def iterkeys(self):
     #def itervalues(self):
     #def values(self):
-    #def items(self):    
+    #def items(self):
     #def clear(self):
     #def setdefault(self, key, default):
     #def pop(self, key, *args):

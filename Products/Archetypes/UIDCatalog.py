@@ -215,9 +215,9 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     def _catalogObject(self, obj, path):
         """Catalog the object. The object will be cataloged with the absolute
            path in case we don't pass the relative url.
-        """ 
-        url = getRelURL(self, obj.getPhysicalPath()) 
-        self.catalog_object(obj, url) 
+        """
+        url = getRelURL(self, obj.getPhysicalPath())
+        self.catalog_object(obj, url)
 
     security.declareProtected(CMFCore.permissions.ManagePortal, 'manage_rebuildCatalog')
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):

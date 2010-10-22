@@ -28,7 +28,7 @@ This is the body.
 
 class NonLoweringMessage(Message):
     """A RFC 822 Message class that doesn't lower header names
-    
+
     IMPORTANT: Only a small subset of the available methods aren't lowering the
                header names!
     """
@@ -41,7 +41,7 @@ class NonLoweringMessage(Message):
             return line[:i]
             #return line[:i].lower()
         else:
-            return None        
+            return None
 
     def getheader(self, name, default=None):
         """Get the header value for a name.
@@ -51,7 +51,7 @@ class NonLoweringMessage(Message):
             # return self.dict[name.lower()]
         except KeyError:
             return default
-    get = getheader  
+    get = getheader
 
 
 
@@ -61,7 +61,7 @@ def formatRFC822Headers( headers ):
         headers, including adding leading whitespace to elements which
         contain newlines in order to preserve continuation-line semantics.
 
-        code based on old cmf1.4 impl 
+        code based on old cmf1.4 impl
     """
     munged = []
     linesplit = re.compile( r'[\n\r]+?' )
@@ -75,10 +75,10 @@ def formatRFC822Headers( headers ):
 
 def parseRFC822(body):
     """Parse a RFC 822 (email) style string
-    
+
     The code is mostly based on CMFDefault.utils.parseHeadersBody. It doesn't
     capitalize the headers as the CMF function.
-    
+
     >>> headers, body = parseRFC822(sample_data)
     >>> keys = headers.keys(); keys.sort()
     >>> for key in keys:
@@ -87,7 +87,7 @@ def parseRFC822(body):
     ('keywords', 'foo')
     ('mixedCase', 'a MiXeD case keyword')
     ('title', 'a title')
-    
+
     >>> print body
     This is the body.
     <BLANKLINE>

@@ -172,7 +172,7 @@ class LargeFileTest(ATSiteTestCase):
         self.assertEqual(obj.getBody().size, 140000)
         obj.getBody().setFilename('Spam.txt')
         self.assertEqual(obj.getBody().size, 140000)
-        
+
 
 class StrangeIdTest(ATSiteTestCase):
     def test_strangeUnallowedIds(self):

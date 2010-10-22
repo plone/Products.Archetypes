@@ -201,12 +201,12 @@ class ProcessingTest(ATSiteTestCase):
         dummy.processForm()
 
         image_field = dummy.getField('imagefield')
-        self.assertEquals(image_field.tag(dummy), 
+        self.assertEquals(image_field.tag(dummy),
                           '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt=''), 
+        self.assertEquals(image_field.tag(dummy, alt=''),
                           '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt='', title=''), 
-                          '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)        
+        self.assertEquals(image_field.tag(dummy, alt='', title=''),
+                          '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
 
     def test_get_size(self):
         dummy = self.makeDummy()
@@ -235,7 +235,7 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_validation_visible_fields(self):
         """ we assume that every field is visible """
-        
+
         dummy = self.makeDummy()
         request = TestRequest()
         alsoProvides(request, IAttributeAnnotatable)
@@ -245,7 +245,7 @@ class ProcessingTest(ATSiteTestCase):
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
         self.failUnless(errors, errors)
-        
+
     def test_validation_invisible_fields(self):
         dummy = self.makeDummy()
         request = FakeRequest()
@@ -258,7 +258,7 @@ class ProcessingTest(ATSiteTestCase):
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
         self.failIf(errors, errors)
-        
+
     def test_validation_hidden_fields(self):
         dummy = self.makeDummy()
         request = FakeRequest()
@@ -278,7 +278,7 @@ class ProcessingTest(ATSiteTestCase):
         request.form.update(empty_values)
         request.form['fieldset'] = 'default'
         self._test_required(request)
-        
+
     def test_required_empty_request(self):
         request = FakeRequest()
         request.form = {}
@@ -351,9 +351,9 @@ class ProcessingTest(ATSiteTestCase):
 
         # Default
         self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
-        
+
         expected = DisplayList([('value1', 'title1'), ('v2', 't2')])
-        
+
         # # Vocabulary factory
         field.vocabulary = ()
         field.vocabulary_factory = 'archetypes.tests.dummyvocab'
@@ -368,11 +368,11 @@ class ProcessingTest(ATSiteTestCase):
 
         # Default
         self.failUnlessEqual(field.getDefault(dummy), None)
-        
+
         # Value
         field.default = "Hello"
         self.failUnlessEqual(field.getDefault(dummy), 'Hello')
-        
+
         # Method
         field.default = None
         field.default_method = 'default_val'
@@ -380,14 +380,14 @@ class ProcessingTest(ATSiteTestCase):
 
         # Adapter
         field.default_method = None
-        
+
         class DefaultFor(object):
             implements(IFieldDefaultProvider)
             def __init__(self, context):
                 self.context = context
             def __call__(self):
                 return "Adapted"
-        
+
         getSiteManager().registerAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
         self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
@@ -397,7 +397,7 @@ class ProcessingTest(ATSiteTestCase):
         dummy = self.makeDummy()
         request = FakeRequest()
         field = dummy.Schema().fields()[3] # textfield
-        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' ) 
+        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' )
         encoding = field.getRaw(self.portal, raw=1).original_encoding
         self.assertEqual(encoding, 'latin')
 
@@ -416,7 +416,7 @@ class DownloadTest(ATSiteTestCase):
         self.field.getMutator(self.dummy)(self.wordfile.read())
         self.request = self.app.REQUEST
         self.response = self.request.response
-    
+
     def test_download_from_textfield(self):
         # make sure field data doesn't get transformed when using the
         # download method
@@ -430,7 +430,7 @@ class DownloadTest(ATSiteTestCase):
         self.field.download(self.dummy, no_output=True)
         self.assertEqual(self.response.headers['content-disposition'],
                          'attachment; filename="uberzeugen"')
-        
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()

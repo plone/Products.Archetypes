@@ -15,7 +15,7 @@
                               templateId='widgets/string', macro='string-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                   tal:replace="accessor">string</span>
         </span>
     </metal:view_macro>

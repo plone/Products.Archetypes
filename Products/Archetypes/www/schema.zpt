@@ -13,8 +13,8 @@
                              required field/required|nothing;
                              default field/default|nothing;
                              vocabulary field/vocabulary|nothing;
-                             enforceVocabulary field/enforceVocabulary|nothing; 
-                             multiValued field/multiValued|nothing; 
+                             enforceVocabulary field/enforceVocabulary|nothing;
+                             multiValued field/multiValued|nothing;
                              searchable field/searchable|nothing;
                              isMetadata field/isMetadata|nothing;
                              accessor field/accessor|nothing;

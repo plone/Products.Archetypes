@@ -17,7 +17,7 @@
                               templateId='widgets/boolean', macro='boolean-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                   tal:define="voc field/Vocabulary; key accessor;
                               value python:voc and voc.getValue(str(key)) or key"
                   tal:replace="value"

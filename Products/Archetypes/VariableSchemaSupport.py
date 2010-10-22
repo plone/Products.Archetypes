@@ -13,7 +13,7 @@ from Products.CMFCore import permissions
 from ExtensionClass import Base
 
 class VarClassGen(ClassGenerator):
-    """A version of ClassGen that is able to generate a class' methods based on 
+    """A version of ClassGen that is able to generate a class' methods based on
     an explicitly given schema.
     """
 
@@ -22,7 +22,7 @@ class VarClassGen(ClassGenerator):
 
     def updateMethods(self, klass):
         """Update the methods of the klass to support a new schema.
-        
+
         This will re-generate methods.
         """
         self.generateMethods(klass, self.schema.fields())
@@ -39,11 +39,11 @@ schemadict={}
 class VariableSchemaSupport(Base):
     """
     Mixin class to support instance-based schemas
-    
+
     NOTE: This implementation has been found to be quite slow, because the
     hash is expensive to calculate and does not appear to work very well as
     a cache key.
-    
+
     Attention: must be before BaseFolder or BaseContent in
     the inheritance list, e.g:
 

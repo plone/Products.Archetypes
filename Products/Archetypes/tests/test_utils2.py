@@ -85,7 +85,7 @@ class OrderedDictTest( ATTestCase ):
         (k,v) = self.d.popitem()
         self.failUnless(k == 'c')
         self.failUnless(v == '3')
-        
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

@@ -16,7 +16,7 @@
                               templateId='widgets/rich', macro='rich-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                   tal:define="transformable python: context.isTransformable(fieldName);"
                   tal:condition="transformable"
                   tal:replace="structure accessor">rich</span>
@@ -30,7 +30,7 @@
             </tal:comment>
         </div>
     </metal:view_macro>
- 
+
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
         <metal:fill fill-slot="widget_body"
@@ -43,7 +43,7 @@
           </metal:use>
           <div class="fieldUploadFile"
                tal:condition="widget/allow_file_upload | python:1">
-              <span class="discreet" 
+              <span class="discreet"
                     i18n:translate="or_upload_a_file">or upload a file (existing content will be replaced)</span>
               <input type="file"
                      size="30"

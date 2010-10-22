@@ -63,13 +63,13 @@ else:
 # The following code checks the submitted form for an 'associate_ref' list
 # value.  if the field exists, and the name of the ReferenceField is among the
 # listed values, then the reference will be associated immediately upon
-# creation. If not, then the reference will not become associated until the 
+# creation. If not, then the reference will not become associated until the
 # reference source object is saved (i.e. current behaviour remains).
 if add_reference['field'] in req_get('associate_ref', []):
     if field.multiValued:
         field.getMutator(context)(field.getAccessor(context)() + [reference_object])
     else:
-        field.getMutator(context)(reference_object) 
+        field.getMutator(context)(reference_object)
 
 info = {'reference_source_field':add_reference['field'],
         'reference_source_url':portal.portal_url.getRelativeUrl(context),

@@ -51,10 +51,10 @@
     <metal:main fill-slot="main">
       <metal:block define-macro="main">
 
-  <h1 class="documentFirstHeading" 
+  <h1 class="documentFirstHeading"
       tal:content="context/title_or_id"
       metal:use-macro="metadata_macros/header|default" />
-      
+
   <div id="content-core">
       <form name="edit_form"
             method="post"
@@ -90,7 +90,7 @@
                        name="add_reference.destination:record"
                        value=""
                        />
-       
+
           <div class="field">
             <label>&nbsp;</label>
             <input class="context"
@@ -101,7 +101,7 @@
           </div>
       </form>
   </div>
-  
+
   </metal:block>
   </metal:main>
 

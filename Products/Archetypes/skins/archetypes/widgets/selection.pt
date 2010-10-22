@@ -20,7 +20,7 @@
                               templateId='widgets/selection', macro='selection-field-view');"
             tal:attributes="class kss_class;
                             id string:parent-fieldname-$fieldName">
-            <span metal:define-slot="inside" 
+            <span metal:define-slot="inside"
                 tal:define="vocab python:field.Vocabulary(context);
                             value python:accessor();
                             display python:context.displayValue(vocab, value)"

@@ -9,7 +9,7 @@ class IVocabulary(Interface):
 
             The instance of the content is given as parameter.
         """
- 
+
     def getVocabularyDict(self, instance):
         """ returns the vocabulary as a dictionary with a string key and a
             string value. If it is not a flat vocabulary, the value is a

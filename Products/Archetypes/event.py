@@ -39,7 +39,7 @@ class EditBegunEvent(ObjectEvent):
     """An edit operation was begun
     """
     implements(IEditBegunEvent)
-    
+
 class EditCancelledEvent(ObjectEvent):
     """An edit operation was cancelled
     """

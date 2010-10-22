@@ -11,7 +11,7 @@ class TestDefaultMimeTypes(ATSiteTestCase):
 
     def test_ATDocumentDefaultType(self):
         self.loginAsPortalOwner()
-        # we create a new document: 
+        # we create a new document:
         self.portal.invokeFactory('DDocument', id='testdoc', title='TestDocument')
         obj = self.portal.testdoc
         # its text field should have the site wide default 'text/plain'
@@ -21,7 +21,7 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         teaserfield = obj.getField('teaser')
         self.assertEqual(teaserfield.getContentType(obj), 'text/plain')
 
-        # then we try to change the sitewide default: 
+        # then we try to change the sitewide default:
         setDefaultContentType(self.portal, "text/x-web-markdown")
         # while this raises no error it won't change the default, as we have
         # no properties tool nor properties sheet

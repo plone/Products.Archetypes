@@ -214,7 +214,7 @@ def modify_fti(fti, klass, pkg_name):
             if action['id'] != 'folderlisting':
                 actions.append(action)
         fti[0]['actions'] = tuple(actions)
-        
+
     # CMF 1.5 method aliases
     if getattr(klass, 'aliases', None):
         aliases = klass.aliases
@@ -224,8 +224,8 @@ def modify_fti(fti, klass, pkg_name):
             if required not in aliases:
                 raise ValueError, "Alias %s is required but not provied by %s" % (
                                   required, klass)
-        fti[0]['aliases'] = aliases 
-        
+        fti[0]['aliases'] = aliases
+
     # Dynamic View FTI support
     if getattr(klass, 'default_view', False):
         default_view = klass.default_view
@@ -233,7 +233,7 @@ def modify_fti(fti, klass, pkg_name):
             raise TypeError, "Invalid type for default view in class %s" % klass
         fti[0]['default_view'] = default_view
         fti[0]['view_methods'] = (default_view, )
-        
+
         if getattr(klass, 'suppl_views', False):
             suppl_views = klass.suppl_views
             if not isinstance(suppl_views, (list, tuple)):
@@ -561,7 +561,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # self._templates[instance] = ['base_view',]
             # templates = self._templates[instance]
         for t in templates:
-            results.append((t, self._registeredTemplates[t]))            
+            results.append((t, self._registeredTemplates[t]))
 
         return DisplayList(results).sortedByValue()
 
@@ -595,7 +595,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             self.registerTemplate(name)
 
         return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
-    
+
     security.declareProtected(permissions.View, 'typeImplementsInterfaces')
     def typeImplementsInterfaces(self, type, interfaces):
         """Checks if an type uses one of the given interfaces.
@@ -607,19 +607,19 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             if res:
                 return True
         return False
-    
+
     security.declareProtected(permissions.View, 'isTemplateEnabled')
     def isTemplateEnabled(self, type):
         """Checks if an type uses ITemplateMixin.
         """
         return self.typeImplementsInterfaces(type, [ITemplateMixin])
-        
+
     security.declareProtected(permissions.View, 'listTemplateEnabledPortalTypes')
     def listTemplateEnabledPortalTypes(self):
         """Return a list of portal_types with ITemplateMixin
         """
         return self.listPortalTypesWithInterfaces([ITemplateMixin])
-        
+
     security.declareProtected(permissions.View, 'listPortalTypesWithInterfaces')
     def listPortalTypesWithInterfaces(self, ifaces):
         """Returns a list of ftis of which the types implement one of
@@ -629,7 +629,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         >>> tool = getToolByName(self.portal, TOOL_NAME)
         >>> meth = tool.listPortalTypesWithInterfaces
         >>> ftis = tool.listPortalTypesWithInterfaces([IReferenceable])
-        
+
         Sort the type ids and print them:
         >>> type_ids = [fti.getId() for fti in ftis]
         >>> type_ids.sort()
@@ -735,7 +735,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         typeDesc = getType(typeName, package)
         process_types([typeDesc], package)
         klass = typeDesc['klass']
-        
+
         # get the meta type of the FTI from the class, use the default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if fti_meta_type in (None, 'simple item'):
@@ -1065,7 +1065,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'setCatalogsByType')
     def setCatalogsByType(self, portal_type, catalogList):
         """ associate catalogList with meta_type. (unfortunally not portal_type).
-        
+
             catalogList is a list of strings with the ids of the catalogs.
             Each catalog is has to be a tool, means unique in site root.
         """

@@ -271,13 +271,13 @@ class ReferenceBaseCatalog(PluggableCatalog):
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
-    """    
+    """
     def __init__(self, obj):
         self._obj = obj
-                
+
     def __getattr__(self, name):
         return getattr(self._obj, name)
-        
+
     def Title(self):
         # TODO: dumb try to make sure UID catalog doesn't fail if Title can't be
         # converted to an ascii string
@@ -374,7 +374,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             tID, tobj = self._uidFor(targetObject)
         else:
             tID, tobj = None,None
-            
+
         brains = self._queryFor(sid=sID, relationship=relationship, tid=tID)
         return self._resolveBrains(brains)
 

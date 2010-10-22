@@ -9,7 +9,7 @@
     <metal:view_macro define-macro="view">
 
      <tal:block tal:condition="python:hasattr(field, 'relationship')">
-        
+
       <tal:block  tal:define="targets python:context.getRefs(field.relationship)"
                   tal:condition="targets">
 
@@ -34,7 +34,7 @@
       </tal:block>
      </tal:block>
 
-      <tal:block 
+      <tal:block
             tal:condition="not:python:hasattr(field, 'relationship')"
             tal:define="vocab python:field.Vocabulary(here);
                         value python:accessor();
@@ -67,7 +67,7 @@
                                         id string:${fieldName}_options;
                                         size widget/size;
                                         onDblClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')">
-      
+
                         <tal:block tal:repeat="vocab_item vocab">
                           <option
                             tal:define="label python:vocab.getValue(vocab_item)"
@@ -78,10 +78,10 @@
                             option
                           </option>
                         </tal:block>
-      
+
                       </select>
                     </td>
-      
+
                     <td style="vertical-align:middle;padding-left:0.5em;padding-right:0.5em">
                       <input type="button" class="context" value="&gt;&gt;"
                              tal:attributes="onClick string:javascript:inout_moveKeywords('${fieldName}_options','${fieldName}','${fieldName}')"
@@ -98,7 +98,7 @@
                                           id string:${fieldName};
                                           size widget/size;
                                           onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
-  	              
+  	
                           <tal:block tal:repeat="single_value selection">
                             <option
                               tal:attributes="value single_value;"

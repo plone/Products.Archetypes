@@ -16,19 +16,19 @@ class InstallIndexesTests(ATSiteTestCase):
             del ComplexType.schema['richtextfield'].index_method
         except (AttributeError, KeyError):
             pass
-        
+
     def test_base_usage(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('getRichtextfield' in self.portal.portal_catalog.indexes())
 
-        
+
     def test_index_method(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
         ComplexType.schema['richtextfield'].index_method = 'Whatever'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('Whatever' in self.portal.portal_catalog.indexes())
-        
+
         ComplexType.schema['richtextfield'].index_method = '_at_accessor'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('getRichtextfield' in self.portal.portal_catalog.indexes())
@@ -37,7 +37,7 @@ class InstallIndexesTests(ATSiteTestCase):
         utils.install_indexes(self.portal, StringIO(), (ComplexType,) )
         self.failUnless('getRawRichtextfield' in self.portal.portal_catalog.indexes())
 
-        
+
     def test_bad_index_method(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
         ComplexType.schema['richtextfield'].index_method = lambda x: 'yop'
@@ -50,7 +50,7 @@ class InstallIndexesTests(ATSiteTestCase):
         ComplexType.schema['richtextfield'].index_method = ComplexType._get_selection_vocab
         self.failUnlessRaises(ValueError,
                               utils.install_indexes, self.portal, StringIO(), (ComplexType,) )
-        
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

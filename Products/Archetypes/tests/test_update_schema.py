@@ -149,7 +149,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         self.assertEqual(dummy.TEXTFIELD2(), 'B')
         # Note: TEXTFIELD is a BaseUnit, which means you need to call
         # it to get its value.
-        
+
     def test_no_schema_attribute_added(self):
         """Does updating the schema mess things up?
 

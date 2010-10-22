@@ -97,7 +97,7 @@
                   <legend id=""
                           tal:content="python: view.getTranslatedSchemaLabel(fieldset)"
                           tal:attributes="id string:fieldsetlegend-${fieldsetid}"
-                          tal:condition="not:sole_fieldset" 
+                          tal:condition="not:sole_fieldset"
                           i18n:translate=""></legend>
                   <tal:fields repeat="field python:schematas[fieldset].editableFields(here, visible_only=True)">
                     <metal:fieldMacro use-macro="python:context.widget(field.getName(), mode='edit')" />
@@ -131,7 +131,7 @@
 		   tal:condition="python: fieldsets and not allow_tabbing"
 		   />
 
-	    
+	
             <input type="hidden"
                    name="form.submitted"
                    value="1"
@@ -248,7 +248,7 @@
 
     <metal:footer_macro define-macro="footer">
     </metal:footer_macro>
-        
+
   </body>
 
 </html>

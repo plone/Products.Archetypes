@@ -78,7 +78,7 @@
                          kss_class python:getKssClasses(fieldName);"
              tal:condition="python:('edit' in widget.modes and 'w' in field.mode and field.checkPermission('w',here))
                                     or (mode=='search' and field.checkPermission('r',here))"
-             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class; 
+             tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class;
                              id python: 'archetypes-fieldname-' + fieldName">
           <span metal:define-slot="widget_body_label_prefix"></span>
           <label class="formQuestion" i18n:translate=""

@@ -338,7 +338,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         dummy.allowDiscussion(False)
         self.failIf(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), False)
-        
+
     def testDiscussionOverride(self):
         # Make sure that if allowed_discussion is set on the class
         # we can still use allowDiscussion to override it.

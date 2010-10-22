@@ -253,23 +253,23 @@ class ReferenceCatalogTests(ATSiteTestCase):
         obj2 = makeContent(self.folder, portal_type='Refnode',id='reftwo')
         obj3 = makeContent(self.folder, portal_type='Refnode',id='refthree')
         obj4 = makeContent(self.folder, portal_type='Refnode',id='reffour')
-        
+
         o2U = obj2.UID()
         o3U = obj3.UID()
         o4U = obj4.UID()
-        
+
         links1 = [o2U, o3U, o4U]
         obj1.update(sortedlinks=links1)
         self.assertEqual(obj1.getRawSortedlinks(), links1)
-        
+
         links2 = [o4U, o3U, o2U]
         obj1.update(sortedlinks=links2)
         self.assertEqual(obj1.getRawSortedlinks(), links2)
-        
+
         links3 = [o3U, o2U]
         obj1.update(sortedlinks=links3)
         self.assertEqual(obj1.getRawSortedlinks(), links3)
-      
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

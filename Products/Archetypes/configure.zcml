@@ -8,7 +8,7 @@
 
   <include zcml:condition="installed plone.i18n"
       package="plone.i18n" />
-  
+
   <include package="plone.folder"/>
 
   <include package="Products.CMFFormController" />

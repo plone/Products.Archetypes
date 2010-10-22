@@ -104,7 +104,7 @@ class SQLStorageConfig (SimpleItem):
     def getDefaultConnFor(self, ob):
         """ Return the default conn, if applicable, for ob.
         """
-    
+
         types_tool = getToolByName( self, 'portal_types', None )
         if ( types_tool is not None
             and types_tool.getTypeInfo( ob ) is not None ):
