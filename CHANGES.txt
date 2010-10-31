@@ -13,6 +13,10 @@ Changelog
   need not) be migrated.
   [optilude]
 
+- Fix Referenceable, UIDCatalog to support reference over non Archetypes based
+  content.
+  [toutpt]
+
 1.6.1 - 2010-07-18
 ------------------
 

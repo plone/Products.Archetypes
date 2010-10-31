@@ -32,6 +32,7 @@ from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.examples import *
 from Products.Archetypes.config import *
 from Products.Archetypes.atapi import DisplayList
+from plone.uuid.interfaces import IUUIDAware, IUUID
 
 class BaseReferenceableTests(ATSiteTestCase):
 
@@ -60,6 +61,14 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnless(hasattr(aq_base(doc), UUID_ATTR))
         self.failUnless(getattr(aq_base(doc), UUID_ATTR, None))
 
+    def test_uuid(self):
+        doc = makeContent( self.folder
+                           , portal_type='DDocument'
+                           , title='Foo' )
+
+        self.failUnless(IUUIDAware.providedBy(doc))
+        uuid = IUUID(doc, None)
+        self.failUnless(uuid == doc.UID())
 
     def test_renamedontchangeUID( self ):
         catalog = self.portal.uid_catalog

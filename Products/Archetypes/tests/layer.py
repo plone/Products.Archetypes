@@ -31,6 +31,9 @@ class ZCML(FunctionalZCMLLayer):
         import Products.PlacelessTranslationService
         zcml.load_config('configure.zcml', Products.PlacelessTranslationService)
 
+        import plone.uuid
+        zcml.load_config('configure.zcml', plone.uuid)
+
     setUp = classmethod(setUp)
 
     def tearDown(cls):

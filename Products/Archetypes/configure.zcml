@@ -74,4 +74,7 @@
   <five:deprecatedManageAddDelete
       class=".examples.SimpleType.SimpleType" />
 
+  <adapter factory=".UIDCatalog.Title" name="Title" />
+  <adapter factory=".UIDCatalog.UID_indexer" name="UID" />
+
 </configure>
