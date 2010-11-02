@@ -26,7 +26,7 @@ from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
 from plone.indexer.interfaces import IIndexableObject
 from plone.indexer.decorator import indexer
-from plone.uuid.interfaces import IAttributeUUID, IUUID
+from plone.uuid.interfaces import IUUID, IUUIDAware
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 logger = logging.getLogger('Archetypes')
@@ -149,7 +149,7 @@ def Title(obj):
     except UnicodeDecodeError:
         return obj.getId()
 
-@indexer(IAttributeUUID, IUIDCatalog)
+@indexer(IUUIDAware, IUIDCatalog)
 def UID_indexer(obj):
     return IUUID(obj, None)
 
