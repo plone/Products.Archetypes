@@ -68,14 +68,15 @@ class DexterityLike(object):
     def getId(self):
         return self.id
 
-#register this class as indexable with plone.indexer default
-sm = component.getSiteManager()
-sm.registerAdapter(factory=wrapper.IndexableObjectWrapper,
-                   required=(interface.Interface, IZCatalog),
-                   provided=IIndexableObject)
-
 
 class ReferenceCatalogTests(ATSiteTestCase):
+
+    def afterSetUp(self):
+        #register the test class as indexable with plone.indexer default
+        sm = component.getSiteManager()
+        sm.registerAdapter(factory=wrapper.IndexableObjectWrapper,
+                           required=(interface.Interface, IZCatalog),
+                           provided=IIndexableObject)
 
     def verifyBrains(self):
         uc = getattr(self.portal, config.UID_CATALOG)
