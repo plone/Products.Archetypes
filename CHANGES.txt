@@ -1,9 +1,11 @@
 Changelog
 =========
 
-1.6.5 - unreleased
+1.6.5 - Unreleased
 ------------------
 
+- Fixed a SyntaxWarning when using assert in the migrations module.
+  [deo]
 
 1.6.4 - 2010-11-06
 ------------------
@@ -32,7 +34,6 @@ Changelog
   not in the vocabulary.
   (Fix forward ported from branch 1.5.)
   [maurits]
-
 
 1.6.1 - 2010-07-18
 ------------------
