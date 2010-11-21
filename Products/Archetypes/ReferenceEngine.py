@@ -504,7 +504,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             obj = None
             #and we look up the object
             uid_catalog = getToolByName(self, UID_CATALOG)
-            brains = uid_catalog(UID=uuid)
+            brains = uid_catalog(dict(UID=uuid))
             for brain in brains:
                 res = brain.getObject()
                 if res is not None:

@@ -4,6 +4,9 @@ Changelog
 1.6.5 - Unreleased
 ------------------
 
+- Avoid various deprecation warnings under Zope 2.13.
+  [hannosch]
+
 - Fixed a SyntaxWarning when using assert in the migrations module.
   [deo]
 

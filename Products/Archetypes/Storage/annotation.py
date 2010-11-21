@@ -182,7 +182,7 @@ def migrateStorageOfType(portal, portal_type, schema):
     migration.
     """
     catalog = getToolByName(portal, 'portal_catalog')
-    brains = catalog(Type = portal_type)
+    brains = catalog(dict(Type = portal_type))
 
     fields = [ field.getName()
         for field in schema.fields()

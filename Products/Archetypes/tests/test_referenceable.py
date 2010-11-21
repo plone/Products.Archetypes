@@ -42,12 +42,16 @@ class BaseReferenceableTests(ATSiteTestCase):
         rc = getattr(self.portal, REFERENCE_CATALOG)
 
         #Verify all UIDs resolve
-        brains = uc()
+        uids = uc.uniqueValuesFor('UID')
+        brains = uc(dict(UID=uids))
+
         uobjects = [b.getObject() for b in brains]
         self.failIf(None in uobjects, """bad uid resolution""")
 
         #Verify all references resolve
-        brains = rc()
+        uids = rc.uniqueValuesFor('UID')
+        brains = rc(dict(UID=uids))
+
         robjects = [b.getObject() for b in brains]
         self.failIf(None in robjects, """bad ref catalog resolution""")
         return uobjects, robjects
@@ -462,7 +466,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.failUnless(a.UID() in uids, (a.UID(), uids))
         self.failUnless(b.UID() in uids, (b.UID(), uids))
 
-        refs = rc()
+        uids = rc.uniqueValuesFor('UID')
+        refs = rc(dict(UID=uids))
         self.assertEquals(len(refs), 1)
         ref = refs[0].getObject()
         self.assertEquals(ref.targetUID, b.UID())
@@ -472,8 +477,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.folder._delObject("reftest")
         self.verifyBrains()
 
-        uids = uc.uniqueValuesFor('UID')
-        self.assertEquals(len(rc()), 0)
+        uids = rc.uniqueValuesFor('UID')
+        self.assertEquals(len(uids), 0)
 
     def test_reindexUIDCatalog(self):
         catalog = self.portal.uid_catalog
@@ -482,7 +487,7 @@ class BaseReferenceableTests(ATSiteTestCase):
                           portal_type='DDocument',
                           id='demodoc')
         doc.update(title="sometitle")
-        brain = catalog(UID=doc.UID())[0]
+        brain = catalog(dict(UID=doc.UID()))[0]
         self.assertEquals(brain.Title, doc.Title())
 
     def test_referenceReference(self):

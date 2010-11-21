@@ -1944,7 +1944,7 @@ class ReferenceField(ObjectField):
             allowed_types = meth(self)
 
         skw = allowed_types and {'portal_type':allowed_types} or {}
-        brains = uc.searchResults(**skw)
+        brains = uc.searchResults(skw)
 
         if self.vocabulary_custom_label is not None:
             label = lambda b:eval(self.vocabulary_custom_label, {'b': b})

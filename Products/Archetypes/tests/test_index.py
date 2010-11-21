@@ -106,12 +106,12 @@ class MultiplexTest(ATSiteTestCase):
                            id='simple_type')
 
         # Make sure the object is indexed by portal_catalog...
-        results = self.pc.searchResults(getId='simple_type')
+        results = self.pc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 1)
         self.failUnlessEqual(results[0].getObject(), inst)
 
         # ...but isn't by the zope_catalog
-        results = self.zc.searchResults(getId='simple_type')
+        results = self.zc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 0)
 
     def test_new_catalog(self):
@@ -122,12 +122,12 @@ class MultiplexTest(ATSiteTestCase):
                            id='simple_type')
 
         # Make sure the object is indexed by the new zope_catalog...
-        results = self.zc.searchResults(getId='simple_type')
+        results = self.zc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 1)
         self.failUnlessEqual(results[0].getObject(), inst)
 
         # ...but isn't indexed anymore by portal_catalog
-        results = self.pc.searchResults(getId='simple_type')
+        results = self.pc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 0)
 
     def test_both_catalogs(self):
@@ -139,12 +139,12 @@ class MultiplexTest(ATSiteTestCase):
                            id='simple_type')
 
         # Make sure the object is indexed by portal_catalog...
-        results = self.pc.searchResults(getId='simple_type')
+        results = self.pc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 1)
         self.failUnlessEqual(results[0].getObject(), inst)
 
         # ...and also by the zope_catalog
-        results = self.zc.searchResults(getId='simple_type')
+        results = self.zc.searchResults(dict(getId='simple_type'))
         self.failUnlessEqual(len(results), 1)
         self.failUnlessEqual(results[0].getObject(), inst)
 

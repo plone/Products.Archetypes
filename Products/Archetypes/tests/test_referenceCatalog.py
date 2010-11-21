@@ -42,16 +42,18 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uc = getattr(self.portal, config.UID_CATALOG)
         rc = getattr(self.portal, config.REFERENCE_CATALOG)
 
-        #Verify all UIDs resolve
-        brains = uc()
+        # Verify all UIDs resolve
+        uids = uc.uniqueValuesFor('UID')
+        brains = uc(dict(UID=uids))
         objects = [b.getObject() for b in brains]
         self.failIf(None in objects, """bad uid resolution""")
         for b in brains:
             if b.getPath().startswith('/'):
                 print "Bad Brain", b, b.getObject()
 
-        #Verify all references resolve
-        brains = rc()
+        # Verify all references resolve
+        uids = rc.uniqueValuesFor('UID')
+        brains = rc(dict(UID=uids))
         objects = [b.getObject() for b in brains]
         self.failIf(None in objects, """bad ref catalog resolution""")
 
@@ -77,7 +79,9 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uid1 = obj.UID()
         uid2 = obj2.UID()
 
-        brains = rc()
+        uids = rc.uniqueValuesFor('UID')
+        brains = rc(dict(UID=uids))
+
         ref = brains[0].getObject()
         self.failUnless(ref.sourceUID == uid1)
         self.failUnless(ref.targetUID == uid2)

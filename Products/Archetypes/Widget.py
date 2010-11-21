@@ -226,7 +226,7 @@ class ReferenceWidget(TypesWidget):
         containers = []
         portal_path = "/".join(purl.getPortalObject().getPhysicalPath())
         for wanted in searchFor:
-            for brain in catalog(portal_type=wanted):
+            for brain in catalog(dict(portal_type=wanted)):
                 relative_path = brain.getPath().replace(portal_path + '/', '')
                 containers.append(relative_path)
 

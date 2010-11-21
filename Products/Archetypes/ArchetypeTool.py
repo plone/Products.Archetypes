@@ -837,7 +837,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """Finds all object to check if they are 'referenceable'.
         """
         catalog = getToolByName(self, 'portal_catalog')
-        brains = catalog(id=[])
+        brains = catalog(dict(id=[]))
         for b in brains:
             o = b.getObject()
             if o is not None:
@@ -865,7 +865,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
-        results = catalog(UID=keys)
+        results = catalog(dict(UID=keys))
         return results
 
 

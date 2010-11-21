@@ -2106,7 +2106,7 @@ FIXME, but for now::
   ----------------------------------------------------------------------
   from Products.Archetypes.Storage import SybaseStorage # Does not exist currently
 
-  results = root.portal_catalog(portal_type='MyObjectType')
+  results = root.portal_catalog(dict(portal_type='MyObjectType'))
   for r in results:
      r.getObject().Schema()['fieldname'].setStorage(SybaseStorage())
   ---------------------------------------------------------------------
