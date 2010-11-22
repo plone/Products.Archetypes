@@ -118,7 +118,7 @@ class SQLStorageConfig (SimpleItem):
         c_types = []
         ti = self.getInstalledTypes()
         for t in ti:
-            for field in t['type'].fields():
+            for field in t['schema'].fields():
                 if IObjectField.providedBy(field) and \
                    ISQLStorage.providedBy(field.getStorage()):
                     c_types.append(t)
