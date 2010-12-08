@@ -8,6 +8,7 @@ from zope.interface import implements
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
 from DocumentTemplate import sequence
+from OFS.OrderSupport import OrderSupport
 from OFS.interfaces import IOrderedContainer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IDynamicType
@@ -18,9 +19,9 @@ from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 
 
-class OrderedContainer:
-
-    implements(IOrderedContainer)
+class OrderedContainer(OrderSupport):
+    """ Archetype specific additions and changes to OFS.OrderSupport
+    """
 
     security = ClassSecurityInfo()
 
@@ -37,136 +38,23 @@ class OrderedContainer:
         metadata.insert(position, obj_meta)
         self._objects = tuple(metadata)
 
-    # TODO here the implementing of IOrderedContainer starts
-    # this should be replaced by mixing in the 2.7 specific class
-    # OSF.OrderedContainer.OrderedContainer
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsByDelta')
-    def moveObjectsByDelta(self, ids, delta, subset_ids=None):
-        """ Move specified sub-objects by delta.
-        """
-        if isinstance(ids, basestring):
-            ids = (ids,)
-        min_position = 0
-        objects = list(self._objects)
-        if subset_ids == None:
-            # OLD: subset_ids = [ obj['id'] for obj in objects ]
-            subset_ids = self.getCMFObjectsSubsetIds(objects)
-        else:
-            subset_ids = list(subset_ids)
-        # unify moving direction
-        if delta > 0:
-            ids = list(ids)
-            ids.reverse()
-            subset_ids.reverse()
-        counter = 0
-
-        for id in ids:
-            try:
-                old_position = subset_ids.index(id)
-            except ValueError:
-                continue
-            new_position = max( old_position - abs(delta), min_position )
-            if new_position == min_position:
-                min_position += 1
-            if not old_position == new_position:
-                subset_ids.remove(id)
-                subset_ids.insert(new_position, id)
-                counter += 1
-
-        if counter > 0:
-            if delta > 0:
-                subset_ids.reverse()
-            obj_dict = {}
-            for obj in objects:
-                obj_dict[ obj['id'] ] = obj
-            pos = 0
-            for i in range( len(objects) ):
-                if objects[i]['id'] in subset_ids:
-                    try:
-                        objects[i] = obj_dict[ subset_ids[pos] ]
-                        pos += 1
-                    except KeyError:
-                        raise ValueError('The object with the id "%s" does '
-                                         'not exist.' % subset_ids[pos])
-            self._objects = tuple(objects)
-
-        return counter
-
     security.declarePrivate('getCMFObjectsSubsetIds')
-    def getCMFObjectsSubsetIds(self, objs):
+    def getIdsSubset(self, objs):
         """Get the ids of only cmf objects (used for moveObjectsByDelta)
         """
         ttool = getToolByName(self, 'portal_types')
         cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
+    getCMFObjectsSubsetIds = getIdsSubset
+
     security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')
     def getObjectPosition(self, id):
-
-        objs = list(self._objects)
-        om = [objs.index(om) for om in objs if om['id']==id ]
-
-        if om: # only 1 in list if any
-            return om[0]
-
-        raise NotFound, 'Object %s was not found' % str(id)
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsUp')
-    def moveObjectsUp(self, ids, delta=1, RESPONSE=None):
-        """ Move an object up """
-        self.moveObjectsByDelta(ids, -delta)
-        if RESPONSE is not None:
-            RESPONSE.redirect('manage_workspace')
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsDown')
-    def moveObjectsDown(self, ids, delta=1, RESPONSE=None):
-        """ move an object down """
-        self.moveObjectsByDelta(ids, delta)
-        if RESPONSE is not None:
-            RESPONSE.redirect('manage_workspace')
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsToTop')
-    def moveObjectsToTop(self, ids, RESPONSE=None):
-        """ move an object to the top """
-        self.moveObjectsByDelta( ids, -len(self._objects) )
-        if RESPONSE is not None:
-            RESPONSE.redirect('manage_workspace')
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectsToBottom')
-    def moveObjectsToBottom(self, ids, RESPONSE=None):
-        """ move an object to the bottom """
-        self.moveObjectsByDelta( ids, len(self._objects) )
-        if RESPONSE is not None:
-            RESPONSE.redirect('manage_workspace')
-
-    security.declareProtected(permissions.ModifyPortalContent, 'moveObjectToPosition')
-    def moveObjectToPosition(self, id, position):
-        """ Move specified object to absolute position.
-        """
-        delta = position - self.getObjectPosition(id)
-        return self.moveObjectsByDelta(id, delta)
-
-    security.declareProtected(permissions.ModifyPortalContent, 'orderObjects')
-    def orderObjects(self, key, reverse=None):
-        """ Order sub-objects by key and direction.
-        """
-        ids = [ id for id, obj in sequence.sort( self.objectItems(),
-                                        ( (key, 'cmp', 'asc'), ) ) ]
-        if reverse:
-            ids.reverse()
-        return self.moveObjectsByDelta( ids, -len(self._objects) )
-
-    # here the implementing of IOrderedContainer ends
-
-    def manage_renameObject(self, id, new_id, REQUEST=None):
-        " "
-        objidx = self.getObjectPosition(id)
-        method = OrderedContainer.inheritedAttribute('manage_renameObject')
-        result = method(self, id, new_id, REQUEST)
-        self.moveObject(new_id, objidx)
-
-        return result
+        try:
+            pos = OrderSupport.getObjectPosition(self, id)
+        except ValueError:
+            raise NotFound, 'Object %s was not found' % str(id)
+        return pos
 
 InitializeClass(OrderedContainer)
 
