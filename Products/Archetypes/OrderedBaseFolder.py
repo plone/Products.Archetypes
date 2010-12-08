@@ -1,6 +1,6 @@
-"""
+""" A base/mixin class for Archetype folders with order support
+
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
-OrderedFolder adapted to Zope 2.7 style interface by Jens.KLEIN@jensquadrat.de
 """
 
 from zope.interface import implements
@@ -46,6 +46,7 @@ class OrderedContainer(OrderSupport):
         cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
         return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
 
+    # BBB
     getCMFObjectsSubsetIds = getIdsSubset
 
     security.declareProtected(permissions.ModifyPortalContent, 'getObjectPosition')

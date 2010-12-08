@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.6.5'
+version = '1.7dev'
 
 setup(name='Products.Archetypes',
       version=version,
@@ -68,6 +68,6 @@ setup(name='Products.Archetypes',
           'ExtensionClass',
           'transaction',
           'ZODB3',
-          'Zope2',
+          'Zope2 >= 2.13.1',
       ],
       )

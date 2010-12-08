@@ -1,14 +1,20 @@
 Changelog
 =========
 
-1.6.5 - Unreleased
-------------------
+1.7 - Unreleased
+----------------
 
 - Avoid various deprecation warnings under Zope 2.13.
   [hannosch]
 
 - Fixed a SyntaxWarning when using assert in the migrations module.
   [deo]
+
+- Cleaned OrderedBaseFolder by using OFS implementation of OrderSupport.
+  [tom_gross]
+
+- Depend on Zope 2.13.1
+  [tom_gross]
 
 1.6.4 - 2010-11-06
 ------------------
