@@ -1,6 +1,9 @@
 1.5.17 - unreleased
 ===================
 
+- Handle getCharset() returning None in Field.encode/decode. (backport)
+  [elro]
+
 - Speed up the unicodeTestIn skin script.
   [maurits]
 

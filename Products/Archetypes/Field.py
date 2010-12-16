@@ -128,6 +128,8 @@ def encode(value, instance, **kwargs):
                 # that occurs during object initialization
                 # (no acquisition wrapper)
                 encoding = 'UTF8'
+            if encoding is None:
+                encoding = 'UTF8'
         value = value.encode(encoding)
     return value
 
@@ -141,6 +143,8 @@ def decode(value, instance, **kwargs):
             except AttributeError:
                 # that occurs during object initialization
                 # (no acquisition wrapper)
+                encoding = 'UTF8'
+            if encoding is None:
                 encoding = 'UTF8'
         value = unicode(value, encoding)
     return value
