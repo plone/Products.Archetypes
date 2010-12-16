@@ -4,6 +4,9 @@ Changelog
 1.7 - Unreleased
 ----------------
 
+- Handle getCharset() returning None in Field.encode/decode.
+  [elro]
+
 - Avoid various deprecation warnings under Zope 2.13.
   [hannosch]
 
