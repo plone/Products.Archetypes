@@ -29,15 +29,13 @@ Features
 Unit testing
 ------------
 
-* Install the `CMFTestCase`_ product.
-
-* Go into the root of your instance and run 
-  INSTANCE_HOME/bin/zopectl test --s Products.Archetypes
+* Go into the root of your buildout and run::
+ 
+  bin/test Products.Archetypes
 
 Documentation
 -------------
 
 Major resource for documentation is located at `plone.org`_.
 
-.. _CMFTestCase: http://plone.org/products/cmftestcase
 .. _plone.org: http://plone.org/products/archetypes/documentation
