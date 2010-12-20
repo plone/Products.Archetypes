@@ -3,6 +3,8 @@ import os
 import time
 import urllib
 from zope.interface import implements
+from zope import component
+from zope import interface
 
 from App.class_init import InitializeClass
 from App.special_dtml import DTMLFile
@@ -22,6 +24,9 @@ from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.interfaces import IUIDCatalog
 from Products.Archetypes.utils import getRelURL
+from plone.indexer.interfaces import IIndexableObject
+from plone.indexer.decorator import indexer
+from plone.uuid.interfaces import IUUID, IUUIDAware
 
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 logger = logging.getLogger('Archetypes')
@@ -133,6 +138,21 @@ class IndexableObjectWrapper(object):
 
 _marker=[]
 
+#let rewrite Title indexer with plone.indexer
+@indexer(interface.Interface, IUIDCatalog)
+def Title(obj):
+    title = obj.Title()
+    if isinstance(title, unicode):
+        return title.encode('utf-8')
+    try:
+        return str(title)
+    except UnicodeDecodeError:
+        return obj.getId()
+
+@indexer(IUUIDAware, IUIDCatalog)
+def UID_indexer(obj):
+    return IUUID(obj, None)
+
 class UIDResolver(Base):
 
     security = ClassSecurityInfo()
@@ -199,18 +219,16 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
     def catalog_object(self, object, uid, idxs=[],
                        update_metadata=1, pghandler=None):
-        w = IndexableObjectWrapper(object)
-        try:
-            # pghandler argument got added in Zope 2.8
-            ZCatalog.catalog_object(self, w, uid, idxs,
-                                    update_metadata, pghandler=pghandler)
-        except TypeError:
-            try:
-                # update_metadata argument got added somewhere into
-                # the Zope 2.6 line (?)
-                ZCatalog.catalog_object(self, w, uid, idxs, update_metadata)
-            except TypeError:
-                ZCatalog.catalog_object(self, w, uid, idxs)
+
+        w = object
+        if not IIndexableObject.providedBy(object):
+            # This is the CMF 2.2 compatible approach, which should be used going forward
+            wrapper = component.queryMultiAdapter((object, self), IIndexableObject)
+            if wrapper is not None:
+                w = wrapper
+
+        ZCatalog.catalog_object(self, w, uid, idxs,
+                                update_metadata, pghandler=pghandler)
 
     def _catalogObject(self, obj, path):
         """Catalog the object. The object will be cataloged with the absolute

@@ -22,6 +22,12 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+from zope import component
+from zope import interface
+from zope.event import notify
+from zope.lifecycleevent import ObjectCreatedEvent
+from plone.indexer.interfaces import IIndexableObject
+from Products.ZCatalog.interfaces import IZCatalog
 """
 Unittests for a reference Catalog
 
@@ -36,7 +42,41 @@ from Products.Archetypes.references import HoldingReference, CascadeReference
 from OFS.ObjectManager import BeforeDeleteException
 import transaction
 
+from plone.uuid.interfaces import IAttributeUUID, IUUID
+from plone.indexer import wrapper
+
+class DexterityLike(object):
+    """Create a new class non based on Archetypes"""
+    interface.implements(IAttributeUUID)
+
+    def __init__(self):
+        self.id = "myid"
+        self.portal_type = "dexterity_like"
+        self.path = []
+
+    def Title(self):
+        return u"My dexterity like content"
+
+    def getPhysicalPath(self):
+        if self.path[-1] != self.id:
+            self.path.append(self.id)
+        return self.path
+
+    def manage_fixupOwnershipAfterAdd(self):
+        pass
+    
+    def getId(self):
+        return self.id
+
+
 class ReferenceCatalogTests(ATSiteTestCase):
+
+    def afterSetUp(self):
+        #register the test class as indexable with plone.indexer default
+        sm = component.getSiteManager()
+        sm.registerAdapter(factory=wrapper.IndexableObjectWrapper,
+                           required=(interface.Interface, IZCatalog),
+                           provided=IIndexableObject)
 
     def verifyBrains(self):
         uc = getattr(self.portal, config.UID_CATALOG)
@@ -273,7 +313,51 @@ class ReferenceCatalogTests(ATSiteTestCase):
         links3 = [o3U, o2U]
         obj1.update(sortedlinks=links3)
         self.assertEqual(obj1.getRawSortedlinks(), links3)
+    def test_TitleIndexer(self):
+        uc = getattr(self.portal, config.UID_CATALOG)
+        dext = DexterityLike()
+        dext.path = list(self.folder.getPhysicalPath())
+        self.folder[dext.id] = dext
+        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+        results = uc(Title=dext.Title())
+        self.failUnless(len(results)==1)
+        self.failUnless(type(dext.Title())==unicode)
+        self.failUnless(type(results[0].Title)==str)
 
+    def test_UIDIndexer(self):
+        uc = getattr(self.portal, config.UID_CATALOG)
+        dext = DexterityLike()
+        dext.path = list(self.folder.getPhysicalPath())
+        self.folder[dext.id] = dext
+        notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
+
+        #catalog dext instance
+        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+
+        #check lookup
+        uuid = IUUID(dext, None)
+        results = uc(UID=uuid)
+
+        self.failUnless(len(results)==1)
+        self.failUnless(results[0].UID==uuid)
+        self.failUnless(results[0].Title==str(dext.Title()))
+
+    def test_reference_non_archetypes_content(self):
+        #create a archetype based content instance
+        ob = makeContent(self.folder, portal_type='DDocument',id='mydocument')
+        uc = getattr(self.portal, config.UID_CATALOG)
+        uc.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
+        #create a non archetype based content
+        dext = DexterityLike()
+        dext.path = list(self.folder.getPhysicalPath())
+        self.folder[dext.id] = dext
+        notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
+        uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
+        #TODO: create the relation between those
+        ob.setRelated(dext)
+        related = ob.getRelated()
+
+        self.failUnless(related==dext)
 
 def test_suite():
     from unittest import TestSuite, makeSuite

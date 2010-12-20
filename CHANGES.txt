@@ -4,6 +4,19 @@ Changelog
 1.7 - Unreleased
 ----------------
 
+- Fix Referenceable, UIDCatalog to support references to non-Archetypes-based
+  content.
+  [toutpt]
+
+- Use the new `plone.uuid` package to generate UUIDs. The UID() method is now
+  an alias for ``IUUID(obj)``, which is the new preferred means of looking up
+  a UUID, since this can also work for non-Archetypes content. Archetypes
+  provides an IUUID() adapter that returns the value stored in the Archetypes
+  UID attribute. For new content, UUIDs are generated using
+  `plone.uuid.interfaces.IUUIDGenerator`, although old content will not (and
+  need not) be migrated.
+  [optilude]
+
 - Handle getCharset() returning None in Field.encode/decode.
   [elro]
 

@@ -1,19 +1,12 @@
 import logging
 import os
-import socket
 import sys
-from random import random
-from time import time
 from inspect import getargs, getmro
 from types import ClassType, MethodType
 from UserDict import UserDict as BaseDict
 
-try:
-    from hashlib import md5
-except:
-    from md5 import md5
-
 import transaction
+from zope.component import getUtility
 from zope.i18n import translate
 from zope.i18nmessageid import Message
 
@@ -28,39 +21,13 @@ from Products.Archetypes.log import log
 from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 
-try:
-    _v_network = str(socket.gethostbyname(socket.gethostname()))
-except:
-    _v_network = str(random() * 100000000000000000L)
+from plone.uuid.interfaces import IUUIDGenerator
 
 def make_uuid(*args):
-    t = str(time() * 1000L)
-    r = str(random()*100000000000000000L)
-    data = t +' '+ r +' '+ _v_network +' '+ str(args)
-    uid = md5(data).hexdigest()
-    return uid
-
-# linux kernel uid generator. It's a little bit slower but a little bit better
-KERNEL_UUID = '/proc/sys/kernel/random/uuid'
+    generator = getUtility(IUUIDGenerator)
+    return generator()
 
 logger = logging.getLogger('Archetypes')
-
-if os.path.isfile(KERNEL_UUID):
-    HAS_KERNEL_UUID = True
-    def uuid_gen():
-        fp = open(KERNEL_UUID, 'r')
-        while 1:
-            uid = fp.read()[:-1]
-            fp.seek(0)
-            yield uid
-    uid_gen = uuid_gen()
-
-    def kernel_make_uuid(*args):
-        return uid_gen.next()
-else:
-    HAS_KERNEL_UUID = False
-    kernel_make_uuid = make_uuid
-
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)

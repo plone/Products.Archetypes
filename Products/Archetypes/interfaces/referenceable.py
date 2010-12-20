@@ -1,6 +1,6 @@
-from zope.interface import Interface
+from plone.uuid.interfaces import IUUIDAware
 
-class IReferenceable(Interface):
+class IReferenceable(IUUIDAware):
     """ Referenceable """
 
     def getRefs(relationship=None):
