@@ -6,8 +6,7 @@ function textCounter(field, countfield, maxlimit) {
       // if too long...trim it!
       jq(field).attr('value',  fieldval.substring(0, maxlimit));
       alert( 'This field is limited to ' + maxlimit + ' characters in length.' );
-  } else {
-      // otherwise, update 'characters left' counter	
-      jq('input[name="' + countfield + '"]').attr('value', maxlimit - fieldval.length);
-  }
+  } 
+  // update 'characters left' counter	
+  jq('input[name="' + countfield + '"]').attr('value', Math.max(maxlimit - fieldval.length, 0));
 }
