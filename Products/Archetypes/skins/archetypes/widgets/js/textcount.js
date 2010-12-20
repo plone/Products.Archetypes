@@ -2,18 +2,12 @@
 <!-- Dynamic 'fix' by: Nannette Thacker -->
 
 function textCounter(field, countfield, maxlimit) {
-
-	if (field.value.length > maxlimit) {
-	
-		// if too long...trim it!
-		field.value = field.value.substring(0, maxlimit);
-		
-        alert( 'This field is limited to ' + maxlimit + ' characters in length.' );
-        		
-	} else {
-	
-		// otherwise, update 'characters left' counter	
-		countfield.value = maxlimit - field.value.length;
-		
-	}
+  var fieldval = jq(field).attr('value');
+  if (fieldval.length > maxlimit) {
+      // if too long...trim it!
+      jq(field).attr('value',  fieldval.substring(0, maxlimit));
+      alert( 'This field is limited to ' + maxlimit + ' characters in length.' );
+  } 
+  // update 'characters left' counter	
+  jq('input[name="' + countfield + '"]').attr('value', Math.max(maxlimit - fieldval.length, 0));
 }
