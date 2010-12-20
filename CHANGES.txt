@@ -32,6 +32,12 @@ Changelog
 - Depend on Zope 2.13.1
   [tom_gross]
 
+- Fixed textCounter JavaScript to work with fieldnames with hyphen.
+  API of textCounter-method changed. Second parameter takes now
+  the name of the counterfield, not the DOM object itself.
+  https://dev.plone.org/plone/ticket/11334
+  [tom_gross]
+
 1.6.4 - 2010-11-06
 ------------------
 

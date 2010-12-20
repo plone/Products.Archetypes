@@ -32,7 +32,8 @@
                   content_length python:len(content);
                   append_only python: getattr(widget, 'append_only', None);
                   maxlength python: getattr(widget, 'maxlength', None);
-                  keypress string:textCounter(this, this.form.textCounter_${fieldName}, ${maxlength});">
+                  tcname string:textCounter_${fieldName};
+                  keypress string:textCounter(this, '${tcname}', ${maxlength});">
 
         <textarea
             class="blurrable firstToFocus"
@@ -56,7 +57,7 @@
                        i18n:name="count"
                        tal:define="remaining python:(int(maxlength) - content_length) + content.count('\n');
                                    inputsize string:4"
-                       tal:attributes="name string:textCounter_${fieldName};
+                       tal:attributes="name tcname;
                                        value remaining;
                                        maxlength inputsize;
                                        size inputsize;
