@@ -11,7 +11,6 @@ from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelURL
@@ -75,10 +74,11 @@ class Referenceable(CopySource):
 
     def getRefs(self, relationship=None, targetObject=None):
         """get all the referenced objects for this object"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return [ref.getTargetObject() for ref in refs]
+        tool = getToolByName(self, 'reference_catalog')
+        brains = tool.getReferences(self, relationship, targetObject=targetObject,
+                                    objects=False)
+        if brains:
+            return [self._optimizedGetObject(b.targetUID) for b in brains]
         return []
 
     def _getURL(self):
@@ -87,10 +87,11 @@ class Referenceable(CopySource):
 
     def getBRefs(self, relationship=None, targetObject=None):
         """get all the back referenced objects for this object"""
-        tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
-        if refs:
-            return [ref.getSourceObject() for ref in refs]
+        tool = getToolByName(self, 'reference_catalog')
+        brains = tool.getBackReferences(self, relationship,
+                                        targetObject=targetObject, objects=False)
+        if brains:
+            return [self._optimizedGetObject(b.sourceUID) for b in brains]
         return []
 
     #aliases
@@ -112,6 +113,24 @@ class Referenceable(CopySource):
         if refs:
             return refs
         return []
+
+    def _optimizedGetObject(self, uid):
+        tool = getToolByName(self, 'uid_catalog', None)
+        if tool is None: # pragma: no cover
+            return ''
+        tool = aq_inner(tool)
+        traverse = aq_parent(tool).unrestrictedTraverse
+
+        _catalog = tool._catalog
+        rids = _catalog.indexes['UID']._index.get(uid, ())
+        if isinstance(rids, int):
+            rids = (rids, )
+
+        for rid in rids:
+            path = _catalog.paths[rid]
+            obj = traverse(path, default=None)
+            if obj is not None:
+                return obj
 
     def _register(self, reference_manager=None):
         """register with the archetype tool for a unique id"""

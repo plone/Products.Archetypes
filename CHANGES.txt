@@ -4,6 +4,11 @@ Changelog
 1.7 - Unreleased
 ----------------
 
+- Merged optimizations from the `experimental.atrefspeedup` distribution into
+  the reference engine. We avoid intersections with the large relationship
+  index and loading the persistent reference objects where possible.
+  [hannosch]
+
 - Fix Referenceable, UIDCatalog to support references to non-Archetypes-based
   content.
   [toutpt]

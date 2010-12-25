@@ -343,21 +343,19 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.failUnless(results[0].Title==str(dext.Title()))
 
     def test_reference_non_archetypes_content(self):
-        #create a archetype based content instance
+        # create a archetype based content instance
         ob = makeContent(self.folder, portal_type='DDocument',id='mydocument')
         uc = getattr(self.portal, config.UID_CATALOG)
         uc.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
-        #create a non archetype based content
+        # create a non archetype based content
         dext = DexterityLike()
         dext.path = list(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
         notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
-        #TODO: create the relation between those
+        # create the relation between those
         ob.setRelated(dext)
-        related = ob.getRelated()
-
-        self.failUnless(related==dext)
+        self.assertEqual(ob.getRelated()[0], dext)
 
 def test_suite():
     from unittest import TestSuite, makeSuite

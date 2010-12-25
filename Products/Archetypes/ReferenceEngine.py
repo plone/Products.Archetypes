@@ -6,10 +6,9 @@ from zope.interface import implements
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces.referenceable import IReferenceable
+from Products.Archetypes.interfaces import IContentReference
 from Products.Archetypes.interfaces import IReference
 from Products.Archetypes.interfaces import IReferenceCatalog
-from Products.Archetypes.interfaces.referenceengine import \
-    IContentReference, IReference as Z2IReference
 
 from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
 from Products.Archetypes.config import (
@@ -29,6 +28,7 @@ from Products.CMFCore import permissions
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCatalog.Catalog import Catalog
+from Products.ZCatalog.Lazy import LazyMap
 from Products import CMFCore
 
 from plone.uuid.interfaces import IUUID
@@ -87,28 +87,16 @@ class Reference(Referenceable, SimpleItem):
         """the uid method for compat"""
         return IUUID(self, None)
 
-    ###
     # Convenience methods
+
     def getSourceObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
-        brains = tool(UID=self.sourceUID)
-        for brain in brains:
-            obj = brain.getObject()
-            if obj is not None:
-                return obj
+        return self._optimizedGetObject(self.sourceUID)
 
     def getTargetObject(self):
-        tool = getToolByName(self, UID_CATALOG, None)
-        if tool is None: return ''
-        brains = tool(UID=self.targetUID)
-        for brain in brains:
-            obj = brain.getObject()
-            if obj is not None:
-                return obj
+        return self._optimizedGetObject(self.targetUID)
 
-    ###
     # Catalog support
+
     def targetId(self):
         target = self.getTargetObject()
         if target is not None:
@@ -368,28 +356,77 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         for b in self.getBackReferences(object, relationship):
             self._deleteReference(b)
 
-    def getReferences(self, object, relationship=None, targetObject=None):
+    def getReferences(self, object, relationship=None, targetObject=None,
+                      objects=True):
         """return a collection of reference objects"""
-        sID, sobj = self._uidFor(object)
-        if targetObject:
-            tID, tobj = self._uidFor(targetObject)
-        else:
-            tID, tobj = None,None
+        return self._optimizedReferences(object, relationship=relationship,
+            targetObject=targetObject, objects=objects, attribute='sourceUID')
 
-        brains = self._queryFor(sid=sID, relationship=relationship, tid=tID)
-        return self._resolveBrains(brains)
-
-    def getBackReferences(self, object, relationship=None, targetObject=None):
+    def getBackReferences(self, object, relationship=None, targetObject=None,
+                          objects=True):
         """return a collection of reference objects"""
         # Back refs would be anything that target this object
+        return self._optimizedReferences(object, relationship=relationship,
+            targetObject=targetObject, objects=objects, attribute='targetUID')
+
+    def _optimizedReferences(self, object, relationship=None,
+        targetObject=None, objects=True, attribute='sourceUID'):
+
         sID, sobj = self._uidFor(object)
         if targetObject:
             tID, tobj = self._uidFor(targetObject)
+            if attribute == 'sourceUID':
+                brains = self._queryFor(sID, tID, relationship)
+            else:
+                brains = self._queryFor(tID, sID, relationship)
         else:
-            tID, tobj = None,None
+            brains = self._optimizedQuery(sID, attribute, relationship)
 
-        brains = self._queryFor(tid=sID, relationship=relationship, sid=tID)
-        return self._resolveBrains(brains)
+        if objects:
+            return self._resolveBrains(brains)
+        return brains
+
+    def _optimizedQuery(self, uid, indexname, relationship):
+        """query reference catalog for object matching the info we are
+        given, returns brains
+        """
+        if not uid: # pragma: no cover
+            return []
+
+        _catalog = self._catalog
+        indexes = _catalog.indexes
+
+        # First get one or multiple record ids for the source/target uid index
+        rids = indexes[indexname]._index.get(uid, None)
+        if rids is None:
+            return []
+        elif isinstance(rids, int):
+            rids = [rids]
+        else:
+            rids = list(rids)
+
+        # As a second step make sure we only get references of the right type
+        # The unindex holds data of the type: [(-311870037, 'relatesTo')]
+        # The index holds data like: [('relatesTo', -311870037)]
+        if relationship is None:
+            result_rids = rids
+        else:
+            rel_unindex_get = indexes['relationship']._unindex.get
+            result_rids = set()
+            if isinstance(relationship, str):
+                relationship = set([relationship])
+            for r in rids:
+                rels = rel_unindex_get(r, None)
+                if rels is None:
+                    rels = set()
+                elif isinstance(rels, str):
+                    rels = set([rels])
+                if not rels.isdisjoint(relationship):
+                    result_rids.add(r)
+
+        # Create brains
+        return LazyMap(_catalog.__getitem__,
+                       list(result_rids), len(result_rids))
 
     def hasRelationshipTo(self, source, target, relationship):
         sID, sobj = self._uidFor(source)

@@ -40,7 +40,13 @@ schema = BaseSchema + Schema((
 
     ReferenceField('related',
                    relationship = 'related',
-                   multiValued = False,
+                   multiValued = True,
+                   widget=ReferenceWidget(),
+                   keepReferencesOnCopy = True),
+
+    ReferenceField('rel2',
+                   relationship = 'rel2',
+                   multiValued = True,
                    widget=ReferenceWidget(),
                    keepReferencesOnCopy = True),
     ),
