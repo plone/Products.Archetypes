@@ -4,6 +4,10 @@ Changelog
 1.7.1 - Unreleased
 ------------------
 
+- Include plone.app.viewletmanager package to clear up plone.app.layout test
+  failures. 
+  [esteele]
+
 1.7 - 2011-01-03
 ----------------
 
