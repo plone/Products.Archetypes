@@ -4,6 +4,9 @@ Changelog
 1.7.2 - Unreleased
 ------------------
 
+- Merge PLIP 11017: Tags MultiSelectionWidget w/scrollbar & checkboxes.
+  [esteele]
+
 1.7.1 - 2011-01-11
 ------------------
 
