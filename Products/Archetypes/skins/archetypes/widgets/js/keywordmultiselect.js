@@ -95,7 +95,7 @@
 		var multiSelectOptions = multiSelect.next('.multiSelectOptions');
 		var o = multiSelect.data("config");
 		
-		$("#existingTagsHelp").text(o.existingTagsHelpText);
+		$("#existingTagsHelp").text('');
 
 		// clear the existing options
 		multiSelectOptions.html("");
@@ -254,11 +254,6 @@
 					// Set the checkbox (and label class)
 					selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent("LABEL").toggleClass('checked', selectedCheckbox.attr('checked'));
 					
-					// if the checkbox was the select all then set all the checkboxes
-					if(selectedCheckbox.hasClass("selectAll")) {
-						multiSelectOptions.find('INPUT:checkbox').attr('checked', selectedCheckbox.attr('checked')).parent("LABEL").addClass('checked').toggleClass('checked', selectedCheckbox.attr('checked')); 
-					}
-
 					updateSelected.call(multiSelect);
 					return false;
 				}
@@ -325,7 +320,6 @@
 		var multiSelectOptions = multiSelect.next('.multiSelectOptions');
 		var o = multiSelect.data("config");
 		var i = 0;
-		var selectAll = true;
 		var display = '';
 		multiSelectOptions.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
 			if( $(this).attr('checked') ) {

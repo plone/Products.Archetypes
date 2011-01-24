@@ -82,13 +82,9 @@
                             <script type="text/javascript">
                                 jq(document).ready( function() {
                                     jq("#subject").multiSelect({ 
-                                        selectAll: false,
                                         noneSelected: 'No tags currently selected.',
                                         oneOrMoreSelected: '% tags currently selected.', 
-                                        selectAllText: 'Select All (not used here)', 
-                                        listHeightPx: '120', 
-                                        unCheckAltText: 'Uncheck this tag.',
-                                        existingTagsHelpText: 'Hover and type the first letter to skip through tags.'
+                                        listHeightPx: '120'
                                     });
                                 });
                             </script>
