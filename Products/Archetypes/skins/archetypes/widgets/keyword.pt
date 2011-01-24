@@ -138,7 +138,7 @@
                                 </span>
                             </label>
                             <br />
-                            <dd>
+                            <dd id="newTags">
                                 <textarea 
                                     id="entered_subjects"
                                     name="subject:lines"
