@@ -95,6 +95,9 @@
 		var multiSelectOptions = multiSelect.next('.multiSelectOptions');
 		var o = multiSelect.data("config");
 		
+		// Help text here is only relevant when there are many tags, 
+		// so putting that in documentation, rather than here.
+		// "Hover and type the first letter to skip through tags."
 		$("#existingTagsHelp").text('');
 
 		// clear the existing options
