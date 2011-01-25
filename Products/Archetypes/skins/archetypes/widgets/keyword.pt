@@ -42,7 +42,7 @@
                                         Select from existing tags. 
                                     </span>
                                 </dt>
-                                <span id="existingTagsHelp" class="formHelp">
+                                <span id="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
                                     Use Control/Command/Shift keys to select multiple tags.
                                     <tal:comment tal:replace="nothing">
                                         Type-to-skip functionality with javascipt enabled 
@@ -74,8 +74,8 @@
                             <tal:comment tal:replace="nothing">
                                 These spans are hidden by css, and used by the JavaScript called below.
                             </tal:comment>
-                            <span id="noTagsSelected">No tags currently selected.</span>
-                            <span id="oneOrMoreTagsSelected">% tags currently selected.</span>
+                            <span id="noTagsSelected" i18n:translate="label_noTagsSelected">No tags currently selected.</span>
+                            <span id="oneOrMoreTagsSelected" i18n:translate="label_oneOrMoreTagsSelected">% tags currently selected.</span>
                             <tal:comment tal:replace="nothing">
                                 Call js to modify this widget with both a scrollbar and checkboxes.
                                 There may be a better place to put this js call; 
