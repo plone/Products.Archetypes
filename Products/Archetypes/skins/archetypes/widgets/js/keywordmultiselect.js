@@ -337,11 +337,11 @@
 		});
 		
 		if( i == 0 ) {
-			$("#selectedTagsHeading").html( o.noneSelected );
+			$("#selectedTagsHeading").html( $("#noTagsSelected").text() );
 			$("#selectedTags").text('');
 		} else {
 			$("#selectedTags").html( display )
-			$("#selectedTagsHeading").html( o.oneOrMoreSelected.replace('%', i) );
+			$("#selectedTagsHeading").html( $("#oneOrMoreTagsSelected").text().replace('%', i) );
 		}
 	}
 	

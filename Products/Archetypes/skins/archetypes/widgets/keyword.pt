@@ -51,7 +51,7 @@
                                         However, on touch-driven devices, vertical hover typically 
                                         scrolls the page, so horizontal hover is necessary to enable this.  
                                         Alternatively, clicking any of the tags also enables type-to-skip.  
-                                        So the text could techichally be extended to handle this special case 
+                                        So the text could technically be extended to handle this special case 
                                         as "Hover or click and type the first letter to skip through tags.", 
                                         but I think this would be confusing to the majority of users.
                                     </tal:comment>
@@ -72,6 +72,11 @@
                                 </option>
                             </select>
                             <tal:comment tal:replace="nothing">
+                                These spans are hidden by css, and used by the JavaScript called below.
+                            </tal:comment>
+                            <span id="noTagsSelected">No tags currently selected.</span>
+                            <span id="oneOrMoreTagsSelected">% tags currently selected.</span>
+                            <tal:comment tal:replace="nothing">
                                 Call js to modify this widget with both a scrollbar and checkboxes.
                                 There may be a better place to put this js call; 
                                 examples exist in others' widget.py and js files,
@@ -82,8 +87,6 @@
                             <script type="text/javascript">
                                 jq(document).ready( function() {
                                     jq("#subject").multiSelect({ 
-                                        noneSelected: 'No tags currently selected.',
-                                        oneOrMoreSelected: '% tags currently selected.', 
                                         listHeightPx: '120'
                                     });
                                 });
