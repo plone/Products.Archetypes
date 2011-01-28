@@ -86,9 +86,7 @@
                             </tal:comment>
                             <script type="text/javascript">
                                 jq(document).ready( function() {
-                                    jq("#subject").multiSelect({ 
-                                        listHeightPx: '120'
-                                    });
+                                    jq("#subject").multiSelect();
                                 });
                             </script>
                             <input type="hidden"
