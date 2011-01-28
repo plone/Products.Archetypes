@@ -129,10 +129,7 @@
                                         Create and apply new tags. 
                                     </span>
                                 </dt>
-                                <tal:comment tal:replace="nothing">
-                                    Todo: needs new i18n field
-                                </tal:comment>
-                                <span id="newTagsHelp" class="formHelp">
+                                <span id="newTagsHelp" i18n:translate="label_newTagsHelp" class="formHelp">
                                     Enter one tag per line, multiple words allowed.
                                 </span>
                             </label>
