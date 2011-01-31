@@ -91,9 +91,9 @@
 	// Building the actual options
 	function buildOptions(options)
 	{
-		var multiSelect = $(this);
-		var multiSelectOptions = multiSelect.next('.multiSelectOptions');
-		var o = multiSelect.data("config");
+		var multiSelectA = $(this);
+		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
+		var o = multiSelectA.data("config");
 		
 		// Help text here is only relevant when there are many tags, 
 		// so putting that in documentation, rather than here.
@@ -105,7 +105,7 @@
 		var html = "";
 
 		// generate the html for the new options
-		html += renderOptions(multiSelect.attr('id'), options, o, multiSelect.attr('name'));
+		html += renderOptions(multiSelectA.attr('id'), options, o, multiSelectA.attr('name'));
 		
 		multiSelectOptions.html(html);
 		
@@ -114,8 +114,8 @@
 			// set the label checked class
 			$(this).parent("LABEL").toggleClass('checked', $(this).attr('checked'));
 			
-			updateSelected.call(multiSelect);
-			multiSelect.focus();
+			updateSelected.call(multiSelectA);
+			multiSelectA.focus();
 			lastNavClickCheckbox = null;
 			// If this checkbox was navigated to with the tab key before being checked, 
 			// then put focus back on it.
@@ -124,7 +124,7 @@
 				lastNavTabKeyCheckbox = null;
 			}
 			if($(this).parent().parent().hasClass('optGroupContainer')) {
-				updateOptGroup.call(multiSelect, $(this).parent().parent().prev());
+				updateOptGroup.call(multiSelectA, $(this).parent().parent().prev());
 			}
 		});
 		
@@ -134,25 +134,25 @@
 		});
 		
 		// Initialize selected
-		updateSelected.call(multiSelect);
+		updateSelected.call(multiSelectA);
 		
 		// Handle hovers (entering an option) *and* mouse moving within an option
 		multiSelectOptions.find('LABEL').mousemove( function(e) {
 			// Workaround Safari's errant reporting of mousemove when the mouse hasn't moved.
 			// At this point, the browser is saying that the mouse moved.
 			// Initialize position variables.
-			if(multiSelect.oldPositionX == null || multiSelect.oldPositionY == null) {
-				multiSelect.oldPositionX = e.pageX;
-				multiSelect.oldPositionY = e.pageY;
+			if(multiSelectA.oldPositionX == null || multiSelectA.oldPositionY == null) {
+				multiSelectA.oldPositionX = e.pageX;
+				multiSelectA.oldPositionY = e.pageY;
 			}
-			if( multiSelect.oldPositionX != e.pageX || multiSelect.oldPositionY != e.pageY ) {
+			if( multiSelectA.oldPositionX != e.pageX || multiSelectA.oldPositionY != e.pageY ) {
 				// At this point, the mouse actually did move.  
 				$(this).parent().parent().find('LABEL').removeClass('hover');
 				$(this).addClass('hover');
 				lastNavTabKeyCheckbox = null;
-				multiSelect.oldPositionX = e.pageX;
-				multiSelect.oldPositionY = e.pageY;
-				multiSelect.focus();
+				multiSelectA.oldPositionX = e.pageX;
+				multiSelectA.oldPositionY = e.pageY;
+				multiSelectA.focus();
 				adjustViewPort(multiSelectOptions);
 			}
 		});
@@ -166,12 +166,12 @@
 		multiSelectOptions.find('INPUT').focus(function(){
 			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag == null) {
 				// This only happens with tab key navgation.
-				// Must keep track of this, because mouse-driven nav always keeps *focus* on multiSelect, 
+				// Must keep track of this, because mouse-driven nav always keeps *focus* on multiSelectA, 
 				// while the active multiSelectOptions get *hover*.
 				// Tab navigation is different - it's active option checkbox gets *focus*, 
 				// rather than *hover*, since keyboard navigation never hovers.
 				// If the checkbox is tabbed to & checked , save it so that focus can be put back on it.
-				// Without this, both moused & tabbed checks return focus to multiSelect, 
+				// Without this, both moused & tabbed checks return focus to multiSelectA, 
 				// causing tabbed checkboxes to lose focus.
 				lastNavTabKeyCheckbox = $(this);
 				lastNavTabKeyCheckbox.parent().parent().parent().find('LABEL').removeClass('hover');
@@ -181,7 +181,7 @@
 		});
 		
 		// Keyboard
-		multiSelect.keydown( function(e) {
+		multiSelectA.keydown( function(e) {
 		
 			var multiSelectOptions = $(this).next('.multiSelectOptions');
 			
@@ -257,7 +257,7 @@
 					// Set the checkbox (and label class)
 					selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent("LABEL").toggleClass('checked', selectedCheckbox.attr('checked'));
 					
-					updateSelected.call(multiSelect);
+					updateSelected.call(multiSelectA);
 					return false;
 				}
 
@@ -319,9 +319,9 @@
 	
 	// Update the textbox with the total number of selected items
 	function updateSelected() {
-		var multiSelect = $(this);
-		var multiSelectOptions = multiSelect.next('.multiSelectOptions');
-		var o = multiSelect.data("config");
+		var multiSelectA = $(this);
+		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
+		var o = multiSelectA.data("config");
 		var i = 0;
 		var display = '';
 		multiSelectOptions.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
@@ -350,22 +350,22 @@
 			// Default options
 			if( !o ) o = {};
 
-			// Initialize each multiSelect
+			// Initialize each multiSelectA
 			$(this).each( function() {
 				var select = $(this);
 				// anchor originally used for dropdown
-				var html = '<a href="javascript:;" class="multiSelect" tabindex="1"><span></span></a>';
+				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1"><span></span></a>';
 				// overflow-y: auto enables the scrollbar, like a multiple-select
 				html += '<div class="multiSelectOptions" tabindex="9999" style="overflow-y: auto;"></div>';
 				//display:block makes the blank area right of the text clickable, like a multiple-select
 				html += '<style type="text/css">label {display: block;}</style>';
 				$(select).after(html);
 				
-				var multiSelect = $(select).next('.multiSelect');
-				var multiSelectOptions = multiSelect.next('.multiSelectOptions');
+				var multiSelectA = $(select).next('.multiSelectA');
+				var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
 				
-				// Attach the config options to the multiselect
-				multiSelect.data("config", o);
+				// Attach the config options to the multiSelectA
+				multiSelectA.data("config", o);
 				
 				// Serialize the select options into json options
 				var options = [];
@@ -379,11 +379,11 @@
 				$(select).remove();
 				
 				// Add the id & name that was on the original select element to the new input
-				multiSelect.attr("id", $(select).attr("id"));
-				multiSelect.attr("name", $(select).attr("name"));
+				multiSelectA.attr("id", $(select).attr("id"));
+				multiSelectA.attr("name", $(select).attr("name"));
 				
 				// Build the dropdown options
-				buildOptions.call(multiSelect, options);
+				buildOptions.call(multiSelectA, options);
 			
 			});
 		},
