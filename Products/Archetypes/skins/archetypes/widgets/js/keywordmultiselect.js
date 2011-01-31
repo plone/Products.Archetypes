@@ -79,7 +79,7 @@
 	}
 	
 	// render the html for the options/optgroups
-	function renderOptions(id, options, o, selectName)
+	function renderOptions(id, options, selectName)
 	{
 		var html = "";
 		for(var i = 0; i < options.length; i++) {
@@ -93,7 +93,6 @@
 	{
 		var multiSelectA = $(this);
 		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
-		var o = multiSelectA.data("config");
 		
 		// Help text here is only relevant when there are many tags, 
 		// so putting that in documentation, rather than here.
@@ -105,7 +104,7 @@
 		var html = "";
 
 		// generate the html for the new options
-		html += renderOptions(multiSelectA.attr('id'), options, o, multiSelectA.attr('name'));
+		html += renderOptions(multiSelectA.attr('id'), options, multiSelectA.attr('name'));
 		
 		multiSelectOptions.html(html);
 		
@@ -347,8 +346,6 @@
 	
 	$.extend($.fn, {
 		multiSelect: function(o) {
-			// Default options
-			if( !o ) o = {};
 
 			// Initialize each multiSelectA
 			$(this).each( function() {
@@ -363,9 +360,6 @@
 				
 				var multiSelectA = $(select).next('.multiSelectA');
 				var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
-				
-				// Attach the config options to the multiSelectA
-				multiSelectA.data("config", o);
 				
 				// Serialize the select options into json options
 				var options = [];
