@@ -66,7 +66,7 @@
 (function($){
 	
 	// render the html for a single option
-	function renderOption(id, option, i, selectName)
+	function renderOption(option, i, selectName)
 	{
 		// dl, dt, & dd semantically associates selector name with values
 		// label makes the text clickable, like a multiple-select
@@ -79,11 +79,11 @@
 	}
 	
 	// render the html for the options/optgroups
-	function renderOptions(id, options, selectName)
+	function renderOptions(options, selectName)
 	{
 		var html = "";
 		for(var i = 0; i < options.length; i++) {
-			html += renderOption(id, options[i], i, selectName);
+			html += renderOption(options[i], i, selectName);
 		}
 		return html;
 	}
@@ -104,7 +104,7 @@
 		var html = "";
 
 		// generate the html for the new options
-		html += renderOptions(multiSelectA.attr('id'), options, multiSelectA.attr('name'));
+		html += renderOptions(options, multiSelectOptions.attr('name'));
 		
 		multiSelectOptions.html(html);
 		
@@ -316,7 +316,7 @@
 		}
 	}
 	
-	// Update the textbox with the total number of selected items
+	// Update heading with the total number of selected items
 	function updateSelected() {
 		var multiSelectA = $(this);
 		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
@@ -372,9 +372,9 @@
 				// Eliminate the original form element
 				$(select).remove();
 				
-				// Add the id & name that was on the original select element to the new input
-				multiSelectA.attr("id", $(select).attr("id"));
-				multiSelectA.attr("name", $(select).attr("name"));
+				// Add the id & name that was on the original select element to the new div
+				multiSelectOptions.attr("id", $(select).attr("id"));
+				multiSelectOptions.attr("name", $(select).attr("name"));
 				
 				// Build the dropdown options
 				buildOptions.call(multiSelectA, options);
