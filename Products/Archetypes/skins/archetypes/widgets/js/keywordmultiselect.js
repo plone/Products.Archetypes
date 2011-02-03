@@ -111,7 +111,7 @@
 		// Handle all checkboxes
 		multiSelectOptions.find('INPUT:checkbox').click( function() {
 			// set the label checked class
-			$(this).parent("LABEL").toggleClass('checked', $(this).attr('checked'));
+			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
 			
 			updateSelected.call(multiSelectA);
 			multiSelectA.focus();
@@ -125,7 +125,7 @@
 		
 		// Initial display
 		multiSelectOptions.each( function() {
-			$(this).find('INPUT:checked').parent().addClass('checked');
+			$(this).find('INPUT:checked').parent('LABEL').addClass('checked');
 		});
 		
 		// Initialize selected
@@ -169,8 +169,9 @@
 				// Without this, both moused & tabbed checks return focus to multiSelectA, 
 				// causing tabbed checkboxes to lose focus.
 				lastNavTabKeyCheckbox = $(this);
+				// Remove hover class from all labels in the div
 				lastNavTabKeyCheckbox.parent().parent().parent().find('LABEL').removeClass('hover');
-				lastNavTabKeyCheckbox.parent().addClass('hover');
+				lastNavTabKeyCheckbox.parent('LABEL').addClass('hover');
 			}
 			lastNavClickTag = null;
 		});
@@ -246,7 +247,7 @@
 				var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
 				
 				// Set the checkbox (and label class)
-				selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent("LABEL").toggleClass('checked', selectedCheckbox.attr('checked'));
+				selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent('LABEL').toggleClass('checked', selectedCheckbox.attr('checked'));
 				
 				updateSelected.call(multiSelectA);
 				return false;
