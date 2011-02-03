@@ -115,7 +115,6 @@
 			
 			updateSelected.call(multiSelectA);
 			multiSelectA.focus();
-			lastNavClickCheckbox = null;
 			// If this checkbox was navigated to with the tab key before being checked, 
 			// then put focus back on it.
 			if(typeof(lastNavTabKeyCheckbox) != "undefined" && lastNavTabKeyCheckbox != null) {
@@ -354,7 +353,7 @@
 				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1"><span></span></a>';
 				// overflow-y: auto enables the scrollbar, like a multiple-select
 				html += '<div class="multiSelectOptions" tabindex="9999" style="overflow-y: auto;"></div>';
-				//display:block makes the blank area right of the text clickable, like a multiple-select
+				// display:block makes the blank area right of the text clickable, like a multiple-select
 				html += '<style type="text/css">label {display: block;}</style>';
 				$(select).after(html);
 				
@@ -382,20 +381,6 @@
 			});
 		},
 		
-		// Update the dropdown options
-		multiSelectOptionsUpdate: function(options) {
-			buildOptions.call($(this), options);
-		},
-		
-		// get a comma-delimited list of selected values
-		selectedValuesString: function() {
-			var selectedValues = "";
-			$(this).next('.multiSelectOptions').find('INPUT:checkbox:checked').not('.optGroup, .selectAll')(function() {
-				selectedValues += $(this).attr('value') + ",";
-			});
-			// trim any end comma and surounding whitespace
-			return selectedValues.replace(/\s*\,\s*$/,'');
-		}		
 	});
 	
 	// add a new ":startsWith" search filter
