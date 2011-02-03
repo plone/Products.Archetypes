@@ -121,9 +121,6 @@
 				lastNavTabKeyCheckbox.focus();
 				lastNavTabKeyCheckbox = null;
 			}
-			if($(this).parent().parent().hasClass('optGroupContainer')) {
-				updateOptGroup.call(multiSelectA, $(this).parent().parent().prev());
-			}
 		});
 		
 		// Initial display
@@ -284,7 +281,7 @@
 		});
 	}
 	
-	// Adjust the viewport if necessary
+	// Scroll the viewport div if necessary
 	function adjustViewPort(multiSelectOptions)
 	{
 		// check for and move scrollbar down, content up
