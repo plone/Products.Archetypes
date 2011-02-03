@@ -183,105 +183,100 @@
 		
 			var multiSelectOptions = $(this).next('.multiSelectOptions');
 			
-			// Is dropdown visible?
-			if( multiSelectOptions.css('visibility') != 'hidden' ) {
-				// Dropdown is visible
+			// Down || Up
+			if( e.keyCode == 40 || e.keyCode == 38) {
+				var allOptions = multiSelectOptions.find('LABEL');
+				var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
+				var newHoverIndex = -1;
 				
-				// Down || Up
-				if( e.keyCode == 40 || e.keyCode == 38) {
-					var allOptions = multiSelectOptions.find('LABEL');
-					var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
-					var newHoverIndex = -1;
-					
-					// if there is no current highlighted item then highlight the first item
-					if(oldHoverIndex < 0) {
-						// Default to first item
-						multiSelectOptions.find('LABEL:first').addClass('hover');
-					}
-					// else if we are moving down and there is a next item then move
-					else if(e.keyCode == 40 && oldHoverIndex < allOptions.length - 1)
-					{
-						newHoverIndex = oldHoverIndex + 1;
-					}
-					// else if we are moving up and there is a prev item then move
-					else if(e.keyCode == 38 && oldHoverIndex > 0)
-					{
-						newHoverIndex = oldHoverIndex - 1;
-					}
-
-					if(newHoverIndex >= 0) {
-						$(allOptions.get(oldHoverIndex)).removeClass('hover'); // remove the current highlight
-						$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
-						lastNavTabKeyCheckbox = null;
-						
-						// Adjust the viewport if necessary
-						adjustViewPort(multiSelectOptions);
-					}
-					
-					return false;
+				// if there is no current highlighted item then highlight the first item
+				if(oldHoverIndex < 0) {
+					// Default to first item
+					multiSelectOptions.find('LABEL:first').addClass('hover');
+				}
+				// else if we are moving down and there is a next item then move
+				else if(e.keyCode == 40 && oldHoverIndex < allOptions.length - 1)
+				{
+					newHoverIndex = oldHoverIndex + 1;
+				}
+				// else if we are moving up and there is a prev item then move
+				else if(e.keyCode == 38 && oldHoverIndex > 0)
+				{
+					newHoverIndex = oldHoverIndex - 1;
 				}
 
-				// Page up || Page down
-				if( e.keyCode == 33 || e.keyCode == 34) {
-					var allOptions = multiSelectOptions.find('LABEL');
-					var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
-					var newHoverIndex = -1;
-					var optionsPerPage = 8;  // depends on css
-					// if we are moving up and there is a prev item then move
-					if(e.keyCode == 33 && oldHoverIndex > 0) {
-						newHoverIndex = oldHoverIndex - optionsPerPage;
-						if(newHoverIndex < 0) {
-							newHoverIndex = 0;
-						}
-					}
-					if(e.keyCode == 34 && oldHoverIndex < allOptions.length - 1) {
-						newHoverIndex = oldHoverIndex + optionsPerPage;
-						if(newHoverIndex > allOptions.length - 1) {
-							newHoverIndex = allOptions.length - 1;
-						}
-					}
-					$(allOptions).removeClass('hover'); // remove all highlights
+				if(newHoverIndex >= 0) {
+					$(allOptions.get(oldHoverIndex)).removeClass('hover'); // remove the current highlight
 					$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
 					lastNavTabKeyCheckbox = null;
+					
 					// Adjust the viewport if necessary
 					adjustViewPort(multiSelectOptions);
-					return false;
 				}
-					
-				// Enter, Space
-				if( e.keyCode == 13 || e.keyCode == 32 ) {
-					var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
-					
-					// Set the checkbox (and label class)
-					selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent("LABEL").toggleClass('checked', selectedCheckbox.attr('checked'));
-					
-					updateSelected.call(multiSelectA);
-					return false;
-				}
+				
+				return false;
+			}
 
-				// Any other standard keyboard character (try and match the first character of an option)
-				if( e.keyCode >= 33 && e.keyCode <= 126 ) {
-					// find the next matching item after the current hovered item
-					var match = multiSelectOptions.find('LABEL:startsWith(' + String.fromCharCode(e.keyCode) + ')');
-					
-					var currentHoverIndex = match.index(match.filter('LABEL.hover'));
-					
-					// filter the set to any items after the current hovered item
-					var afterHoverMatch = match.filter(function (index) {
-						return index > currentHoverIndex;
-					});
-
-					// if there were no item after the current hovered item then try using the full search results (filtered to the first one)
-					match = (afterHoverMatch.length >= 1 ? afterHoverMatch : match).filter("LABEL:first");
-
-					if(match.length == 1) {
-						// if we found a match then move the hover
-						multiSelectOptions.find('LABEL.hover').removeClass('hover');
-						match.addClass('hover');
-						lastNavTabKeyCheckbox = null;
-						
-						adjustViewPort(multiSelectOptions);
+			// Page up || Page down
+			if( e.keyCode == 33 || e.keyCode == 34) {
+				var allOptions = multiSelectOptions.find('LABEL');
+				var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
+				var newHoverIndex = -1;
+				var optionsPerPage = 8;  // depends on css
+				// if we are moving up and there is a prev item then move
+				if(e.keyCode == 33 && oldHoverIndex > 0) {
+					newHoverIndex = oldHoverIndex - optionsPerPage;
+					if(newHoverIndex < 0) {
+						newHoverIndex = 0;
 					}
+				}
+				if(e.keyCode == 34 && oldHoverIndex < allOptions.length - 1) {
+					newHoverIndex = oldHoverIndex + optionsPerPage;
+					if(newHoverIndex > allOptions.length - 1) {
+						newHoverIndex = allOptions.length - 1;
+					}
+				}
+				$(allOptions).removeClass('hover'); // remove all highlights
+				$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
+				lastNavTabKeyCheckbox = null;
+				// Adjust the viewport if necessary
+				adjustViewPort(multiSelectOptions);
+				return false;
+			}
+				
+			// Enter, Space
+			if( e.keyCode == 13 || e.keyCode == 32 ) {
+				var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
+				
+				// Set the checkbox (and label class)
+				selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent("LABEL").toggleClass('checked', selectedCheckbox.attr('checked'));
+				
+				updateSelected.call(multiSelectA);
+				return false;
+			}
+
+			// Any other standard keyboard character (try and match the first character of an option)
+			if( e.keyCode >= 33 && e.keyCode <= 126 ) {
+				// find the next matching item after the current hovered item
+				var match = multiSelectOptions.find('LABEL:startsWith(' + String.fromCharCode(e.keyCode) + ')');
+				
+				var currentHoverIndex = match.index(match.filter('LABEL.hover'));
+				
+				// filter the set to any items after the current hovered item
+				var afterHoverMatch = match.filter(function (index) {
+					return index > currentHoverIndex;
+				});
+
+				// if there were no item after the current hovered item then try using the full search results (filtered to the first one)
+				match = (afterHoverMatch.length >= 1 ? afterHoverMatch : match).filter("LABEL:first");
+
+				if(match.length == 1) {
+					// if we found a match then move the hover
+					multiSelectOptions.find('LABEL.hover').removeClass('hover');
+					match.addClass('hover');
+					lastNavTabKeyCheckbox = null;
+					
+					adjustViewPort(multiSelectOptions);
 				}
 			}
 			// Prevent enter key from submitting form
@@ -379,7 +374,7 @@
 				buildOptions.call(multiSelectA, options);
 			
 			});
-		},
+		}
 		
 	});
 	
