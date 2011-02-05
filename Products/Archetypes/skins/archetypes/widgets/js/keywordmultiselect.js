@@ -111,21 +111,6 @@
 		// Initialize selected options list
 		updateSelected.call(multiSelectA);
 		
-		// Handle mouse click of checkbox
-		multiSelectOptions.find('INPUT:checkbox').click( function() {
-			// set the label checked class
-			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
-			
-			updateSelected.call(multiSelectA);
-			multiSelectA.focus();
-			// If this checkbox was navigated to with the tab key before being checked, 
-			// then put focus back on it.
-			if(typeof(lastNavTabKeyCheckbox) != "undefined" && lastNavTabKeyCheckbox != null) {
-				lastNavTabKeyCheckbox.focus();
-				lastNavTabKeyCheckbox = null;
-			}
-		});
-		
 		// Handle mouse hover of option, both
 		// entering an option, *and* 
 		// mouse moving within an option.
@@ -150,12 +135,28 @@
 			}
 		});
 		
-		// Handle tab-driven focus of checkbox
+		// Handle mouse click of checkbox
+		multiSelectOptions.find('INPUT:checkbox').click( function() {
+			// set the label checked class
+			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
+			
+			updateSelected.call(multiSelectA);
+			multiSelectA.focus();
+			// If this checkbox was navigated to with the tab key before being checked, 
+			// then put focus back on it.
+			if(typeof(lastNavTabKeyCheckbox) != "undefined" && lastNavTabKeyCheckbox != null) {
+				lastNavTabKeyCheckbox.focus();
+				lastNavTabKeyCheckbox = null;
+			}
+		});
+		
+		// Track mouse click of option
 		multiSelectOptions.find('LABEL').mousedown(function(){
 			// Track mouse clicks, 
 			// so that tab key navigation focus on checkboxes can be maintained separately.
 			lastNavClickTag = this;
 		});
+		// Handle tab-key focus of checkbox
 		multiSelectOptions.find('INPUT').focus(function(){
 			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag == null) {
 				// This only happens with tab key navgation.
