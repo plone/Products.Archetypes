@@ -99,16 +99,19 @@
 		// "Hover and type the first letter to skip through tags."
 		$("#existingTagsHelp").text('');
 
-		// clear the existing options
-		multiSelectOptions.html("");
-		var html = "";
-
 		// generate the html for the new options
-		html += renderOptions(options, multiSelectOptions.attr('name'));
-		
+		html = renderOptions(options, multiSelectOptions.attr('name'));
 		multiSelectOptions.html(html);
 		
-		// Handle all checkboxes
+		// Format selected options
+		multiSelectOptions.each( function() {
+			$(this).find('INPUT:checked').parent('LABEL').addClass('checked');
+		});
+		
+		// Initialize selected options list
+		updateSelected.call(multiSelectA);
+		
+		// Handle mouse click of checkbox
 		multiSelectOptions.find('INPUT:checkbox').click( function() {
 			// set the label checked class
 			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
@@ -123,18 +126,13 @@
 			}
 		});
 		
-		// Initial display
-		multiSelectOptions.each( function() {
-			$(this).find('INPUT:checked').parent('LABEL').addClass('checked');
-		});
-		
-		// Initialize selected
-		updateSelected.call(multiSelectA);
-		
-		// Handle hovers (entering an option) *and* mouse moving within an option
+		// Handle mouse hover of option, both
+		// entering an option, *and* 
+		// mouse moving within an option.
 		multiSelectOptions.find('LABEL').mousemove( function(e) {
-			// Workaround Safari's errant reporting of mousemove when the mouse hasn't moved.
 			// At this point, the browser is saying that the mouse moved.
+			// Workaround Safari's errant reporting of mousemove 
+			// when the mouse hasn't moved, but background has.
 			// Initialize position variables.
 			if(multiSelectA.oldPositionX == null || multiSelectA.oldPositionY == null) {
 				multiSelectA.oldPositionX = e.pageX;
@@ -152,7 +150,7 @@
 			}
 		});
 		
-		// Style checkbox parent with tab-driven focus
+		// Handle tab-driven focus of checkbox
 		multiSelectOptions.find('LABEL').mousedown(function(){
 			// Track mouse clicks, 
 			// so that tab key navigation focus on checkboxes can be maintained separately.
@@ -176,7 +174,7 @@
 			lastNavClickTag = null;
 		});
 		
-		// Keyboard
+		// Handle keyboard press
 		multiSelectA.keydown( function(e) {
 		
 			var multiSelectOptions = $(this).next('.multiSelectOptions');
