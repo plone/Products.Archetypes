@@ -110,6 +110,7 @@
 		
 		// Initialize selected options list
 		updateSelected.call(multiSelectA);
+		var allOptions = multiSelectOptions.find('LABEL');
 		
 		// --- Navigation with Mouse ---
 		// Handle mouse hover of option, both
@@ -126,7 +127,7 @@
 			}
 			if( multiSelectA.oldPositionX != e.pageX || multiSelectA.oldPositionY != e.pageY ) {
 				// At this point, the mouse actually did move.  
-				// Format navigated item
+				// Highlight navigated option
 				$(this).parent().parent().find('LABEL').removeClass('hover');
 				$(this).addClass('hover');
 				lastNavTabKeyCheckbox = null;
@@ -172,7 +173,7 @@
 				// Without this, both moused & tabbed checks return focus to multiSelectA, 
 				// causing tabbed checkboxes to lose focus.
 				lastNavTabKeyCheckbox = $(this);
-				// Format navigated item
+				// Highlight navigated option
 				lastNavTabKeyCheckbox.parent().parent().parent().find('LABEL').removeClass('hover');
 				lastNavTabKeyCheckbox.parent('LABEL').addClass('hover');
 			}
@@ -187,7 +188,6 @@
 			// --- Navigation with Arrow or Page Keys ---
 			// Down || Up
 			if( e.keyCode == 40 || e.keyCode == 38) {
-				var allOptions = multiSelectOptions.find('LABEL');
 				var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
 				var newHoverIndex = -1;
 				
@@ -208,8 +208,8 @@
 				}
 
 				if(newHoverIndex >= 0) {
-					// Format navigated item
-					$(allOptions.get(oldHoverIndex)).removeClass('hover'); // remove the current highlight
+					// Highlight navigated option
+					$(allOptions).removeClass('hover'); // remove old highlights
 					$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
 					lastNavTabKeyCheckbox = null;
 					
@@ -221,7 +221,6 @@
 			}
 			// Page up || Page down
 			if( e.keyCode == 33 || e.keyCode == 34) {
-				var allOptions = multiSelectOptions.find('LABEL');
 				var oldHoverIndex = allOptions.index(allOptions.filter('.hover'));
 				var newHoverIndex = -1;
 				var optionsPerPage = 8;  // depends on css
