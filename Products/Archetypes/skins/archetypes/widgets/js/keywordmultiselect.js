@@ -88,6 +88,68 @@
 		return html;
 	}
 	
+//	// Handle navigation of options
+//	function handleNavigation(device, element, option) {
+//		// Highlight navigated option
+//		
+//		// Scroll the optionsBox
+//		
+//	}
+//	
+//	// Handle selection of options
+//	function handleSelection(device, element, option) {
+//		// Highlight selected option
+//		
+//		// Toggle a checkbox (if not already done directly)
+//		
+//		// Refocus the optionsBox or a checkbox (if one was tabbed to)
+//		
+//	}
+//	
+//	// Detect navigation with tab key
+//	// if tab key
+//		// Save navigation input device to optionsBox
+//		optionsBox.navigationDevice = "tab key";
+//		// Save navigated DOM element to optionsBox
+//		optionsBox.navigationElement = ;
+//		// Save navigated option to optionsBox
+//		optionsBox.navigationOption = ;
+//		// Call handle navigation of options
+//		handleNavigation();
+//			
+//	// Detect navigation with mouse or non-tab keys
+//	// if mouse or arrows or page up/down or first letter
+//		// Save navigation input device to optionsBox
+//		optionsBox.navigationDevice = "mouse or non-tab key";
+//		// Save navigated DOM element to optionsBox
+//		optionsBox.navigationElement = ;
+//		// Save navigated option to optionsBox
+//		optionsBox.navigationOption = ;
+//		// Call handle navigation of options
+//		handleNavigation();
+//			
+//	// Detect selection with mouse
+//	// if mouse click
+//		// Save selection input device to optionsBox
+//		optionsBox.selectionDevice = "mouse";
+//		// Save selected DOM element to optionsBox
+//		optionsBox.selectionElement = ;
+//		// Save selected option to optionsBox
+//		optionsBox.selectionOption = ;
+//		// Call handle selection of options
+//		handleSelection();
+//			
+//	// Detect selection with keyboard
+//	// if space or enter keys
+//		// Save selection input device to optionsBox
+//		optionsBox.selectionDevice = "keyboard";
+//		// Save selected DOM element to optionsBox
+//		optionsBox.selectionElement = ;
+//		// Save selected option to optionsBox
+//		optionsBox.selectionOption = ;
+//		// Call handle selection of options
+//		handleSelection();
+
 	// Building the actual options
 	function buildOptions(options)
 	{
