@@ -128,8 +128,8 @@
 			if( multiSelectA.oldPositionX != e.pageX || multiSelectA.oldPositionY != e.pageY ) {
 				// At this point, the mouse actually did move.  
 				// Highlight navigated option
-				$(this).parent().parent().find('LABEL').removeClass('hover');
-				$(this).addClass('hover');
+				$(this).parent().parent().find('LABEL').removeClass('hover'); // remove all highlights
+				$(this).addClass('hover'); // add the new highlight
 				lastNavTabKeyCheckbox = null;
 				multiSelectA.oldPositionX = e.pageX;
 				multiSelectA.oldPositionY = e.pageY;
@@ -145,6 +145,9 @@
 			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
 			
 			updateSelected.call(multiSelectA);
+			// Highlight selected option
+			// placeholder
+			// Refocus
 			multiSelectA.focus();
 			// If this checkbox was navigated to with the tab key before being checked, 
 			// then put focus back on it.
@@ -165,7 +168,8 @@
 		multiSelectOptions.find('INPUT').focus(function(){
 			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag == null) {
 				// This only happens with tab key navgation.
-				// Must keep track of this, because mouse-driven nav always keeps *focus* on multiSelectA, 
+				// Must keep track of this, because 
+				// mouse-driven nav always keeps *focus* on multiSelectA, 
 				// while the active multiSelectOptions get *hover*.
 				// Tab navigation is different - it's active option checkbox gets *focus*, 
 				// rather than *hover*, since keyboard navigation never hovers.
@@ -237,6 +241,7 @@
 						newHoverIndex = allOptions.length - 1;
 					}
 				}
+				// Highlight navigated option
 				$(allOptions).removeClass('hover'); // remove all highlights
 				$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
 				lastNavTabKeyCheckbox = null;
@@ -249,10 +254,12 @@
 			// Enter, Space
 			if( e.keyCode == 13 || e.keyCode == 32 ) {
 				var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
-				
 				// Set the checkbox (and label class)
 				selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent('LABEL').toggleClass('checked', selectedCheckbox.attr('checked'));
-				
+				// Highlight selected option
+				// placeholder
+				// Refocus
+				// placeholder
 				updateSelected.call(multiSelectA);
 				return false;
 			}
@@ -274,8 +281,9 @@
 
 				if(match.length == 1) {
 					// if we found a match then move the hover
-					multiSelectOptions.find('LABEL.hover').removeClass('hover');
-					match.addClass('hover');
+					// Highlight navigated option
+					$(allOptions).removeClass('hover'); // remove all highlights
+					match.addClass('hover'); // add the new highlight
 					lastNavTabKeyCheckbox = null;
 					
 					adjustViewPort(multiSelectOptions);
