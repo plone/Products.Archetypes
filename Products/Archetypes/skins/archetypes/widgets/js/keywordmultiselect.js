@@ -31,7 +31,7 @@
 //				- Renamed from jqueryMultiSelect.* to jquery.multiSelect.* per the standard recommended at
 //				  http://docs.jquery.com/Plugins/Authoring (does not affect API methods)
 //
-//		1.1.0	- Added the ability to update the options dynamically via javascript: multiSelectOptionsUpdate(JSON)
+//		1.1.0	- Added the ability to update the options dynamically via javascript: optionsBoxUpdate(JSON)
 //              - Added a title that displays the whole comma delimited list when using oneOrMoreSelected = *
 //              - Moved some of the functions to be closured to make them private
 //              - Changed the way the keyboard navigation worked to more closely match how a standard dropdown works
@@ -92,7 +92,7 @@
 	function buildOptions(options)
 	{
 		var multiSelectA = $(this);
-		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
+		var optionsBox = multiSelectA.next('.optionsBox');
 		
 		// Help text here is only relevant when there are many tags, 
 		// so putting that in documentation, rather than here.
@@ -100,23 +100,23 @@
 		$("#existingTagsHelp").text('');
 
 		// generate the html for the new options
-		html = renderOptions(options, multiSelectOptions.attr('name'));
-		multiSelectOptions.html(html);
+		html = renderOptions(options, optionsBox.attr('name'));
+		optionsBox.html(html);
 		
 		// Format selected options
-		multiSelectOptions.each( function() {
+		optionsBox.each( function() {
 			$(this).find('INPUT:checked').parent('LABEL').addClass('checked');
 		});
 		
 		// Initialize selected options list
 		updateSelected.call(multiSelectA);
-		var allOptions = multiSelectOptions.find('LABEL');
+		var allOptions = optionsBox.find('LABEL');
 		
 		// --- Navigation with Mouse ---
 		// Handle mouse hover of option, both
 		// entering an option, *and* 
 		// mouse moving within an option.
-		multiSelectOptions.find('LABEL').mousemove( function(e) {
+		optionsBox.find('LABEL').mousemove( function(e) {
 			// At this point, the browser is saying that the mouse moved.
 			// Workaround Safari's errant reporting of mousemove 
 			// when the mouse hasn't moved, but background has.
@@ -134,13 +134,13 @@
 				multiSelectA.oldPositionX = e.pageX;
 				multiSelectA.oldPositionY = e.pageY;
 				multiSelectA.focus();
-				adjustViewPort(multiSelectOptions);
+				adjustViewPort(optionsBox);
 			}
 		});
 		
 		// --- Selection with Mouse ---
 		// Handle mouse click of checkbox
-		multiSelectOptions.find('INPUT:checkbox').click( function() {
+		optionsBox.find('INPUT:checkbox').click( function() {
 			// set the label checked class
 			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
 			
@@ -159,18 +159,18 @@
 		
 		// --- Navigation with Tab Key ---
 		// Track mouse click of option
-		multiSelectOptions.find('LABEL').mousedown(function(){
+		optionsBox.find('LABEL').mousedown(function(){
 			// Track mouse clicks, 
 			// so that tab key navigation focus on checkboxes can be maintained separately.
 			lastNavClickTag = this;
 		});
 		// Handle tab-key focus of checkbox
-		multiSelectOptions.find('INPUT').focus(function(){
+		optionsBox.find('INPUT').focus(function(){
 			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag == null) {
 				// This only happens with tab key navgation.
 				// Must keep track of this, because 
 				// mouse-driven nav always keeps *focus* on multiSelectA, 
-				// while the active multiSelectOptions get *hover*.
+				// while the active optionsBox get *hover*.
 				// Tab navigation is different - it's active option checkbox gets *focus*, 
 				// rather than *hover*, since keyboard navigation never hovers.
 				// If the checkbox is tabbed to & checked , save it so that focus can be put back on it.
@@ -187,7 +187,7 @@
 		// Handle keyboard press
 		multiSelectA.keydown( function(e) {
 		
-			var multiSelectOptions = $(this).next('.multiSelectOptions');
+			var optionsBox = $(this).next('.optionsBox');
 			
 			// --- Navigation with Arrow or Page Keys ---
 			// Down || Up
@@ -198,7 +198,7 @@
 				// if there is no current highlighted item then highlight the first item
 				if(oldHoverIndex < 0) {
 					// Default to first item
-					multiSelectOptions.find('LABEL:first').addClass('hover');
+					optionsBox.find('LABEL:first').addClass('hover');
 				}
 				// else if we are moving down and there is a next item then move
 				else if(e.keyCode == 40 && oldHoverIndex < allOptions.length - 1)
@@ -218,7 +218,7 @@
 					lastNavTabKeyCheckbox = null;
 					
 					// Adjust the viewport if necessary
-					adjustViewPort(multiSelectOptions);
+					adjustViewPort(optionsBox);
 				}
 				
 				return false;
@@ -246,14 +246,14 @@
 				$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
 				lastNavTabKeyCheckbox = null;
 				// Adjust the viewport if necessary
-				adjustViewPort(multiSelectOptions);
+				adjustViewPort(optionsBox);
 				return false;
 			}
 				
 			// --- Selection with Keyboard ---
 			// Enter, Space
 			if( e.keyCode == 13 || e.keyCode == 32 ) {
-				var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
+				var selectedCheckbox = optionsBox.find('LABEL.hover INPUT:checkbox');
 				// Set the checkbox (and label class)
 				selectedCheckbox.attr('checked', !selectedCheckbox.attr('checked')).parent('LABEL').toggleClass('checked', selectedCheckbox.attr('checked'));
 				// Highlight selected option
@@ -267,7 +267,7 @@
 			// Any other standard keyboard character (try and match the first character of an option)
 			if( e.keyCode >= 33 && e.keyCode <= 126 ) {
 				// find the next matching item after the current hovered item
-				var match = multiSelectOptions.find('LABEL:startsWith(' + String.fromCharCode(e.keyCode) + ')');
+				var match = optionsBox.find('LABEL:startsWith(' + String.fromCharCode(e.keyCode) + ')');
 				
 				var currentHoverIndex = match.index(match.filter('LABEL.hover'));
 				
@@ -286,7 +286,7 @@
 					match.addClass('hover'); // add the new highlight
 					lastNavTabKeyCheckbox = null;
 					
-					adjustViewPort(multiSelectOptions);
+					adjustViewPort(optionsBox);
 				}
 			}
 			// Prevent enter key from submitting form
@@ -295,39 +295,39 @@
 	}
 	
 	// Scroll the viewport div if necessary
-	function adjustViewPort(multiSelectOptions)
+	function adjustViewPort(optionsBox)
 	{
 		// check for and move scrollbar down, content up
-		var hoverTop = multiSelectOptions.find('LABEL.hover').position().top;
-		var hoverHeight = multiSelectOptions.find('LABEL.hover').outerHeight();
+		var hoverTop = optionsBox.find('LABEL.hover').position().top;
+		var hoverHeight = optionsBox.find('LABEL.hover').outerHeight();
 		var selectionBottom = hoverTop + hoverHeight;
 		// The integer 18 is a manual approximation for typical scale, 
-		// since there's extra padding at the top of the div.multiSelectOptions
+		// since there's extra padding at the top of the div.optionsBox
 		// which is not showing up anywhere quantitatively. 
 		// Could use improvement.
-		var optionsHeight = multiSelectOptions.outerHeight() + 18;
-		var optionsScrollTop = multiSelectOptions.scrollTop();
+		var optionsHeight = optionsBox.outerHeight() + 18;
+		var optionsScrollTop = optionsBox.scrollTop();
 		if(selectionBottom > optionsHeight){		
-			multiSelectOptions.scrollTop(optionsScrollTop + selectionBottom - optionsHeight);
+			optionsBox.scrollTop(optionsScrollTop + selectionBottom - optionsHeight);
 		}
 		
 		// check for and move scrollbar up, content down
-		var hoveredTop = multiSelectOptions.find('LABEL.hover').position().top;
-		var optionsTop = multiSelectOptions.position().top;
-		var optionsScrollTop = multiSelectOptions.scrollTop();
+		var hoveredTop = optionsBox.find('LABEL.hover').position().top;
+		var optionsTop = optionsBox.position().top;
+		var optionsScrollTop = optionsBox.scrollTop();
 		if(hoveredTop < optionsTop){		
-			multiSelectOptions.scrollTop(optionsScrollTop + hoveredTop - optionsTop);
+			optionsBox.scrollTop(optionsScrollTop + hoveredTop - optionsTop);
 		}
 	}
 	
 	// Update heading with the total number of selected items
 	function updateSelected() {
 		var multiSelectA = $(this);
-		var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
+		var optionsBox = multiSelectA.next('.optionsBox');
 		var o = multiSelectA.data("config");
 		var i = 0;
 		var display = '';
-		multiSelectOptions.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
+		optionsBox.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
 			if( $(this).attr('checked') ) {
 				i++;
 				display = 
@@ -357,13 +357,13 @@
 				// anchor originally used for dropdown
 				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1"><span></span></a>';
 				// overflow-y: auto enables the scrollbar, like a multiple-select
-				html += '<div class="multiSelectOptions" tabindex="9999" style="overflow-y: auto;"></div>';
+				html += '<div class="optionsBox" tabindex="9999" style="overflow-y: auto;"></div>';
 				// display:block makes the blank area right of the text clickable, like a multiple-select
 				html += '<style type="text/css">label {display: block;}</style>';
 				$(select).after(html);
 				
 				var multiSelectA = $(select).next('.multiSelectA');
-				var multiSelectOptions = multiSelectA.next('.multiSelectOptions');
+				var optionsBox = multiSelectA.next('.optionsBox');
 				
 				// Serialize the select options into json options
 				var options = [];
@@ -377,8 +377,8 @@
 				$(select).remove();
 				
 				// Add the id & name that was on the original select element to the new div
-				multiSelectOptions.attr("id", $(select).attr("id"));
-				multiSelectOptions.attr("name", $(select).attr("name"));
+				optionsBox.attr("id", $(select).attr("id"));
+				optionsBox.attr("name", $(select).attr("name"));
 				
 				// Build the dropdown options
 				buildOptions.call(multiSelectA, options);
