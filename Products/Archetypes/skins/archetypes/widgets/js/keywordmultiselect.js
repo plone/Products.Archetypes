@@ -111,6 +111,7 @@
 		// Initialize selected options list
 		updateSelected.call(multiSelectA);
 		
+		// --- Navigation with Mouse ---
 		// Handle mouse hover of option, both
 		// entering an option, *and* 
 		// mouse moving within an option.
@@ -135,6 +136,7 @@
 			}
 		});
 		
+		// --- Selection with Mouse ---
 		// Handle mouse click of checkbox
 		multiSelectOptions.find('INPUT:checkbox').click( function() {
 			// set the label checked class
@@ -150,6 +152,7 @@
 			}
 		});
 		
+		// --- Navigation with Tab Key ---
 		// Track mouse click of option
 		multiSelectOptions.find('LABEL').mousedown(function(){
 			// Track mouse clicks, 
@@ -180,6 +183,7 @@
 		
 			var multiSelectOptions = $(this).next('.multiSelectOptions');
 			
+			// --- Navigation with Arrow or Page Keys ---
 			// Down || Up
 			if( e.keyCode == 40 || e.keyCode == 38) {
 				var allOptions = multiSelectOptions.find('LABEL');
@@ -213,7 +217,6 @@
 				
 				return false;
 			}
-
 			// Page up || Page down
 			if( e.keyCode == 33 || e.keyCode == 34) {
 				var allOptions = multiSelectOptions.find('LABEL');
@@ -241,6 +244,7 @@
 				return false;
 			}
 				
+			// --- Selection with Keyboard ---
 			// Enter, Space
 			if( e.keyCode == 13 || e.keyCode == 32 ) {
 				var selectedCheckbox = multiSelectOptions.find('LABEL.hover INPUT:checkbox');
