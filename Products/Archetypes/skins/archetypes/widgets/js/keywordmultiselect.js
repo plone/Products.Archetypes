@@ -126,6 +126,7 @@
 			}
 			if( multiSelectA.oldPositionX != e.pageX || multiSelectA.oldPositionY != e.pageY ) {
 				// At this point, the mouse actually did move.  
+				// Format navigated item
 				$(this).parent().parent().find('LABEL').removeClass('hover');
 				$(this).addClass('hover');
 				lastNavTabKeyCheckbox = null;
@@ -171,7 +172,7 @@
 				// Without this, both moused & tabbed checks return focus to multiSelectA, 
 				// causing tabbed checkboxes to lose focus.
 				lastNavTabKeyCheckbox = $(this);
-				// Remove hover class from all labels in the div
+				// Format navigated item
 				lastNavTabKeyCheckbox.parent().parent().parent().find('LABEL').removeClass('hover');
 				lastNavTabKeyCheckbox.parent('LABEL').addClass('hover');
 			}
@@ -207,6 +208,7 @@
 				}
 
 				if(newHoverIndex >= 0) {
+					// Format navigated item
 					$(allOptions.get(oldHoverIndex)).removeClass('hover'); // remove the current highlight
 					$(allOptions.get(newHoverIndex)).addClass('hover'); // add the new highlight
 					lastNavTabKeyCheckbox = null;
