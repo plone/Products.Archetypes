@@ -183,7 +183,7 @@
 			// Workaround Safari's errant reporting of mousemove 
 			// when the mouse hasn't moved, but background has.
 			// Initialize position variables.
-			if(multiSelectA.oldPositionX == null || multiSelectA.oldPositionY == null) {
+			if(multiSelectA.oldPositionX === null || multiSelectA.oldPositionY === null) {
 				multiSelectA.oldPositionX = e.pageX;
 				multiSelectA.oldPositionY = e.pageY;
 			}
@@ -213,7 +213,7 @@
 			multiSelectA.focus();
 			// If this checkbox was navigated to with the tab key before being checked, 
 			// then put focus back on it.
-			if(typeof(lastNavTabKeyCheckbox) != "undefined" && lastNavTabKeyCheckbox != null) {
+			if(typeof(lastNavTabKeyCheckbox) !== "undefined" && lastNavTabKeyCheckbox !== null) {
 				lastNavTabKeyCheckbox.focus();
 				lastNavTabKeyCheckbox = null;
 			}
@@ -228,7 +228,7 @@
 		});
 		// Handle tab-key focus of checkbox
 		optionsBox.find('INPUT').focus(function(){
-			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag == null) {
+			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag === null) {
 				// This only happens with tab key navgation.
 				// Must keep track of this, because 
 				// mouse-driven nav always keeps *focus* on multiSelectA, 
@@ -352,7 +352,9 @@
 				}
 			}
 			// Prevent enter key from submitting form
-			if( e.keyCode == 13 ) return false;
+			if (e.keyCode == 13) {
+				return false;
+			}
 		});
 	}
 	
@@ -376,7 +378,7 @@
 		// check for and move scrollbar up, content down
 		var hoveredTop = optionsBox.find('LABEL.hover').position().top;
 		var optionsTop = optionsBox.position().top;
-		var optionsScrollTop = optionsBox.scrollTop();
+		optionsScrollTop = optionsBox.scrollTop();
 		if(hoveredTop < optionsTop){		
 			optionsBox.scrollTop(optionsScrollTop + hoveredTop - optionsTop);
 		}
@@ -390,22 +392,23 @@
 		var i = 0;
 		var display = '';
 		optionsBox.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
-			if( $(this).attr('checked') ) {
+			if ($(this).attr('checked')) {
 				i++;
-				display = 
-					display + 
-					'<p class="selectedTag"><span class="selectedTag">' + 
-					$(this).parent().text() + 
-					'</span></p>';
+				display = display +
+				'<p class="selectedTag"><span class="selectedTag">' +
+				$(this).parent().text() +
+				'</span></p>';
 			}
-			else selectAll = false;
+			else {
+				selectAll = false;
+			}
 		});
 		
-		if( i == 0 ) {
+		if( i === 0 ) {
 			$("#selectedTagsHeading").html( $("#noTagsSelected").text() );
 			$("#selectedTags").text('');
 		} else {
-			$("#selectedTags").html( display )
+			$("#selectedTags").html( display );
 			$("#selectedTagsHeading").html( $("#oneOrMoreTagsSelected").text().replace('%', i) );
 		}
 	}
@@ -430,7 +433,7 @@
 				// Serialize the select options into json options
 				var options = [];
 				$(select).children().each( function() {
-					if( $(this).val() != '' ) {
+					if( $(this).val() !== '' ) {
 						options.push({ text: $(this).html(), value: $(this).val(), selected: $(this).attr('selected') });
 					}
 				});
@@ -453,7 +456,9 @@
 	// add a new ":startsWith" search filter
 	$.expr[":"].startsWith = function(el, i, m) {
 		var search = m[3];        
-		if (!search) return false;
+		if (!search) {
+			return false;
+		}
 		return eval("/^[/s]*" + search + "/i").test($(el).text());
 	};
 	
