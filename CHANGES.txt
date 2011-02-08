@@ -19,6 +19,11 @@ Changelog
   https://dev.plone.org/plone/ticket/11334
   [tom_gross]
 
+- Fixed handling of Anonymous ownership in ExtensibleMetadata, where the
+  ownership tuple is None. Also triggered for views on FactoryTool-wrapped
+  objects.
+  [mj]
+
 1.6.4 - 2010-11-06
 ------------------
 
