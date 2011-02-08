@@ -593,7 +593,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         creators = self.Schema()['creators']
         if not creators.get(self):
             # for content created with CMF versions before 1.5
-            owner_id = self.getOwnerTuple()[1]
+            owner_tuple = self.getOwnerTuple()
+            owner_id = owner_tuple and owner_tuple[1]
             if owner_id:
                 creators.set(self, (owner_id,))
             else:
