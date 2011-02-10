@@ -376,7 +376,11 @@ class BaseReferenceableTests(ATSiteTestCase):
         brels = account.getBRelationships()
         self.assertEquals(brels, ['From'])
         brefs = account.getBRefs('From')
-        self.assertEquals(brefs, [payment, payment2])
+        # The order is not defined, which can lead to spurious test
+        # failures, but we do not care about the order.
+        self.assertEquals(len(brefs), 2)
+        self.failUnless(payment in brefs)
+        self.failUnless(payment2 in brefs)
 
         brels = payment.getBRelationships()
         self.assertEquals(brels, ['Owns'])
