@@ -8,42 +8,42 @@ $(document).ready(function(){
     // These assignments are not used in the tests, 
     // but were handy for hovering variable names in Firebug when writing the tests, 
     // and could be handy for debugging failed tests if any failures happen in the future.
-    multiple_select = $(".multiSelectOptions");
+    multiple_select = $(".optionsBox");
     existing_tags = multiple_select.children();
     first_tag = existing_tags.first();
-    first_label = $(".multiSelectOptions label:first").text();
+    first_label = $(".optionsBox label:first").text();
     first_selected = $("#selectedTags span:first").text();
     num_tags = existing_tags.length;
-    checked_input_val = $(".multiSelectOptions input:checked").val();
-    checked_label = $(".multiSelectOptions label.checked").css("backgroundColor");
+    checked_input_val = $(".optionsBox input:checked").val();
+    checked_label = $(".optionsBox label.checked").css("backgroundColor");
 
     module("Keyword multiple select enhancement test - refs PLIP ticket #11017");  
     test("Div existence test", function(){  
         expect(1);  
-        equals( $(".multiSelectOptions").length,  
+        equals( $(".optionsBox").length,  
             1,  
-            'Expected 1 as the result, result was: ' + $(".multiSelectOptions").length );  
+            'Expected 1 as the result, result was: ' + $(".optionsBox").length );  
     });
     test("Tag dd count test", function(){  
         expect(1);  
-        equals( $(".multiSelectOptions").children().length,  
+        equals( $(".optionsBox").children().length,  
             16,  
-            'Expected 16 as the result, result was: ' + $(".multiSelectOptions").children().length );  
+            'Expected 16 as the result, result was: ' + $(".optionsBox").children().length );  
     });
     test("First label text test", function(){  
         expect(1);  
-        equals( $(".multiSelectOptions label:first").text(),  
+        equals( $(".optionsBox label:first").text(),  
             'An existing tag',  
-            'Expected An existing tag as the result, result was: ' + $(".multiSelectOptions label:first").text() );  
+            'Expected An existing tag as the result, result was: ' + $(".optionsBox label:first").text() );  
     });
     test("Pre-checked/selected text, checked, formatted, & listed test", function(){  
         expect(3);  
-        equals( $(".multiSelectOptions input:checked").val(),  
+        equals( $(".optionsBox input:checked").val(),  
             "Major Initiatives: Nurture Community",  
-            'Expected Major Initiatives: Nurture Community as the result, result was: ' + $(".multiSelectOptions input:checked").val() );  
-        equals( $(".multiSelectOptions label.checked").css("backgroundColor"),  
+            'Expected Major Initiatives: Nurture Community as the result, result was: ' + $(".optionsBox input:checked").val() );  
+        equals( $(".optionsBox label.checked").css("backgroundColor"),  
             "rgb(238, 238, 238)",  
-            'Expected rgb(238, 238, 238) as the result, result was: ' + $(".multiSelectOptions label.checked").css("backgroundColor") );  
+            'Expected rgb(238, 238, 238) as the result, result was: ' + $(".optionsBox label.checked").css("backgroundColor") );  
         equals( $("#selectedTags span:first").text(),  
             "Major Initiatives: Nurture Community",  
             'Expected Major Initiatives: Nurture Community as the result, result was: ' + $("#selectedTags span:first").text() );  
@@ -52,8 +52,8 @@ $(document).ready(function(){
         //expect(1);  
         //// This doesn't trigger the click methods in the js, not sure why.  
         //// That seems to wreck the possibility of testing this with QUnit; it currently fails.
-        //$(".multiSelectOptions input:first").click();  
-        //ok( $(".multiSelectOptions label:first").hasClass("hover"),  
+        //$(".optionsBox input:first").click();  
+        //ok( $(".optionsBox label:first").hasClass("hover"),  
             //'Expected hover class on first label.' );  
     //});
     
