@@ -4,6 +4,10 @@ Changelog
 1.7.3 - Unreleased
 ------------------
 
+- Remove method docstrings in Referenceable and ReferenceEngine to prevent
+  making them publishable.
+  [davisagli]
+
 - Fixed handling of Anonymous ownership in ExtensibleMetadata, where the
   ownership tuple is None. Also triggered for views on FactoryTool-wrapped
   objects.
