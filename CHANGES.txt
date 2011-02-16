@@ -4,6 +4,10 @@ Changelog
 1.6.5 - Unreleased
 ------------------
 
+- Remove method docstrings in Referenceable and ReferenceEngine to prevent
+  making them publishable.
+  [davisagli]
+
 - Handle getCharset() returning None in Field.encode/decode.
   [elro]
 
