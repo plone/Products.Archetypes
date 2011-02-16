@@ -10,7 +10,6 @@ from Acquisition import aq_base, aq_parent, aq_inner
 from OFS.ObjectManager import BeforeDeleteException
 
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.permissions import View
 from OFS.CopySupport import CopySource
 from OFS.Folder import Folder
 from utils import getRelURL
@@ -39,10 +38,11 @@ class Referenceable(CopySource):
     __implements__ = (DEPRECATED,)
 
     security = ClassSecurityInfo()
-    # XXX FIXME more security
+    # Note: methods of this class are made non-publishable by not giving them
+    # docstrings.
 
     def reference_url(self):
-        """like absoluteURL, but return a link to the object with this UID"""
+        # like absoluteURL, but return a link to the object with this UID"""
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.reference_url(self)
 
@@ -65,19 +65,17 @@ class Referenceable(CopySource):
         return tool.deleteReferences(self, relationship)
 
     def getRelationships(self):
-        """What kinds of relationships does this object have"""
+        # What kinds of relationships does this object have
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getRelationships(self)
 
     def getBRelationships(self):
-        """
-        What kinds of relationships does this object have from others
-        """
+        # What kinds of relationships does this object have from others
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         return tool.getBackRelationships(self)
 
     def getRefs(self, relationship=None, targetObject=None):
-        """get all the referenced objects for this object"""
+        # get all the referenced objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getReferences(self, relationship, targetObject=targetObject)
         if refs:
@@ -85,11 +83,11 @@ class Referenceable(CopySource):
         return []
 
     def _getURL(self):
-        """the url used as the relative path based uid in the catalogs"""
+        # the url used as the relative path based uid in the catalogs
         return getRelURL(self, self.getPhysicalPath())
 
     def getBRefs(self, relationship=None, targetObject=None):
-        """get all the back referenced objects for this object"""
+        # get all the back referenced objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
@@ -101,7 +99,7 @@ class Referenceable(CopySource):
     getBackReferences=getBRefs
 
     def getReferenceImpl(self, relationship=None, targetObject=None):
-        """get all the reference objects for this object    """
+        # get all the reference objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getReferences(self, relationship, targetObject=targetObject)
         if refs:
@@ -109,7 +107,7 @@ class Referenceable(CopySource):
         return []
 
     def getBackReferenceImpl(self, relationship=None, targetObject=None):
-        """get all the back reference objects for this object"""
+        # get all the back reference objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
         refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
         if refs:
@@ -117,7 +115,7 @@ class Referenceable(CopySource):
         return []
 
     def _register(self, reference_manager=None):
-        """register with the archetype tool for a unique id"""
+        # register with the archetype tool for a unique id
         if self.UID() is not None:
             return
 
@@ -127,13 +125,13 @@ class Referenceable(CopySource):
 
 
     def _unregister(self):
-        """unregister with the archetype tool, remove all references"""
+        # unregister with the archetype tool, remove all references
         reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.unregisterObject(self)
 
     def _getReferenceAnnotations(self):
-        """given an object extract the bag of references for which it
-        is the source"""
+        # given an object, extract the bag of references for which it is the
+        # source
         if not getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
             setattr(self, config.REFERENCE_ANNOTATION,
                     Folder(config.REFERENCE_ANNOTATION))
@@ -141,8 +139,7 @@ class Referenceable(CopySource):
         return getattr(self, config.REFERENCE_ANNOTATION).__of__(self)
 
     def _delReferenceAnnotations(self):
-        """Removes annotation from self
-        """
+        # Removes annotation from self
         if getattr(aq_base(self), config.REFERENCE_ANNOTATION, None):
             delattr(self, config.REFERENCE_ANNOTATION)
 
@@ -182,8 +179,8 @@ class Referenceable(CopySource):
         self.manage_afterAdd(item, container)
 
     def _updateCatalog(self, container):
-        """Update catalog after copy, rename ...
-        """
+        # Update catalog after copy, rename ...
+
         # the UID index needs to be updated for any annotations we
         # carry
         try:
@@ -202,10 +199,9 @@ class Referenceable(CopySource):
 
     ## OFS Hooks
     def manage_afterAdd(self, item, container):
-        """
-        Get a UID
-        (Called when the object is created or moved.)
-        """
+        # Get a UID
+        # (Called when the object is created or moved.)
+
         if isFactoryContained(self):
             return
         isCopy = getattr(item, '_v_is_cp', None)
@@ -233,10 +229,9 @@ class Referenceable(CopySource):
                  
 
     def manage_afterClone(self, item):
-        """
-        Get a new UID (effectivly dropping reference)
-        (Called when the object is cloned.)
-        """
+        # Get a new UID (effectivly dropping reference)
+        # (Called when the object is cloned.)
+
         uc = getToolByName(self, config.UID_CATALOG)
 
         isCopy = getattr(item, '_v_is_cp', None)
@@ -256,10 +251,8 @@ class Referenceable(CopySource):
         self._updateCatalog(self)
 
     def manage_beforeDelete(self, item, container):
-        """
-        Remove self from the catalog.
-        (Called when the object is deleted or moved.)
-        """
+        # Remove self from the catalog.
+        # (Called when the object is deleted or moved.)
 
         # Change this to be "item", this is the root of this recursive
         # chain and it will be flagged in the correct mode

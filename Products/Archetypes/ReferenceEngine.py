@@ -366,7 +366,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             self._deleteReference(objects[0])
 
     def deleteReferences(self, object, relationship=None):
-        """delete all the references held by an object"""
+        # delete all the references held by an object
         for b in self.getReferences(object, relationship):
             self._deleteReference(b)
 
@@ -374,7 +374,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             self._deleteReference(b)
 
     def getReferences(self, object, relationship=None, targetObject=None):
-        """return a collection of reference objects"""
+        # return a collection of reference objects
         sID, sobj = self._uidFor(object)
         if targetObject:
             tID, tobj = self._uidFor(targetObject)
@@ -385,7 +385,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return self._resolveBrains(brains)
 
     def getBackReferences(self, object, relationship=None, targetObject=None):
-        """return a collection of reference objects"""
+        # return a collection of reference objects
+
         # Back refs would be anything that target this object
         sID, sobj = self._uidFor(object)
         if targetObject:
@@ -408,9 +409,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return False
 
     def getRelationships(self, object):
-        """
-        Get all relationship types this object has TO other objects
-        """
+        # Get all relationship types this object has TO other objects
         sID, sobj = self._uidFor(object)
         brains = self._queryFor(sid=sID)
         res = {}
@@ -420,9 +419,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return res.keys()
 
     def getBackRelationships(self, object):
-        """
-        Get all relationship types this object has FROM other objects
-        """
+        # Get all relationship types this object has FROM other objects
         sID, sobj = self._uidFor(object)
         brains = self._queryFor(tid=sID)
         res = {}
@@ -437,12 +434,12 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                 shasattr(object, 'isReferenceable'))
 
     def reference_url(self, object):
-        """return a url to an object that will resolve by reference"""
+        # return a url to an object that will resolve by reference
         sID, sobj = self._uidFor(object)
         return "%s/lookupObject?uuid=%s" % (self.absolute_url(), sID)
 
     def lookupObject(self, uuid, REQUEST=None):
-        """Lookup an object by its uuid"""
+        # Lookup an object by its uuid
         obj = self._objectByUUID(uuid)
         if REQUEST:
             return REQUEST.RESPONSE.redirect(obj.absolute_url())
@@ -573,6 +570,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
 
 
+    security.declareProtected(permissions.ManagePortal, 'manage_catalogFoundItems')
     def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
                                  obj_metatypes=None,
                                  obj_ids=None, obj_searchterm=None,

@@ -1,6 +1,10 @@
 1.5.17 - unreleased
 ===================
 
+- Remove method docstrings in Referenceable and ReferenceEngine to prevent
+  making them publishable.
+  [davisagli]
+
 - Handle getCharset() returning None in Field.encode/decode. (backport)
   [elro]
 
