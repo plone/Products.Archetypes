@@ -16,13 +16,38 @@ $(document).ready(function(){
     num_tags = existing_tags.length;
     checked_input_val = $(".optionsBox input:checked").val();
     checked_label = $(".optionsBox label.checked").css("backgroundColor");
+	
+    module("Tags multiple select enhancement test (refactored without anchor) - PLIP refs #11017");
+	
+    test("Handle selection of options test", function(){
+		$(".optionsBox").selectionDevice = 'mouse';
+		$(".optionsBox").selectionElement = $(".optionsBox label:first");
+		$(".optionsBox").selectionOption = $(".optionsBox label:first");
+        expect(1);
+        equals( 
+			$(".optionsBox label:first").hasClass('checked'),  
+            false,  
+            'Expected hasClass checked false as the result, result was: ' + $(".optionsBox label:first").hasClass('checked') 
+		);  
+		//mySelectOrDeselectAnOption.selectAnOption($(".optionsBox"));
+//        equals( 
+//			$(".optionsBox label:first").hasClass('checked'),  
+//            true,  
+//            'Expected hasClass checked true as the result, result was: ' + $(".optionsBox label:first").hasClass('checked') 
+//		);  
+    });
+	
+	// Now write tests as array of values, 
+	// per http://www.adequatelygood.com/2010/7/Writing-Testable-JavaScript
+	// First set includes label class, checkbox state, focus, focus with tab
 
-    module("Keyword multiple select enhancement test - refs PLIP ticket #11017");  
+	
+    module("Tags multiple select enhancement test (still contains anchor) - PLIP refs #11017");  
     test("Div existence test", function(){  
         expect(1);  
         equals( $(".optionsBox").length,  
             1,  
-            'Expected 1 as the result, result was: ' + $(".optionsBox").length );  
+            'Expected 1 optionsBox div as the result, result was: ' + $(".optionsBox").length );  
     });
     test("Tag dd count test", function(){  
         expect(1);  

@@ -254,6 +254,7 @@
 		
 		// Initialize selected options list
 		updateSelected.call(multiSelectA);
+		var allOptions = optionsBox.find('LABEL');
 		
 		// --- Navigation with Mouse ---
 		// Handle mouse hover of option, both
