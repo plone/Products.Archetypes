@@ -1,3 +1,4 @@
+/*jslint white:false, onevar:true, undef:true, nomen:true, eqeqeq:true, plusplus:true, bitwise:true, regexp:true, newcap:true, immed:true, strict:false, browser:true */
 /*
 // jQuery multiSelect
 //
@@ -63,15 +64,14 @@
 */
 
 // Removed a test for jQuery, since we know it is available.
-(function($){
+(function($) {
 	
 	// render the html for a single option
-	function renderOption(option, i, selectName)
-	{
+	function renderOption(option, i, selectName) {
 		// dl, dt, & dd semantically associates selector name with values
 		// label makes the text clickable, like a multiple-select
 		var html = '<dd><label for="tag' + i + '"><input type="checkbox" name="' + selectName + '" value="' + option.value + '" id="tag' + i + '"';
-		if( option.selected ){
+		if( option.selected ) {
 			html += ' checked="checked"';
 		}
 		html += ' />' + option.text + '</label></dd>';
@@ -79,8 +79,7 @@
 	}
 	
 	// render the html for the options/optgroups
-	function renderOptions(options, selectName)
-	{
+	function renderOptions(options, selectName) {
 		var html = "";
 		for(var i = 0; i < options.length; i++) {
 			html += renderOption(options[i], i, selectName);
@@ -233,8 +232,7 @@
 
 
 	// Building the actual options
-	function buildOptions(options)
-	{
+	function buildOptions(options) {
 		var multiSelectA = $(this);
 		var optionsBox = multiSelectA.next('.optionsBox');
 		
@@ -303,13 +301,13 @@
 		
 		// --- Navigation with Tab Key ---
 		// Track mouse click of option
-		optionsBox.find('LABEL').mousedown(function(){
+		optionsBox.find('LABEL').mousedown(function() {
 			// Track mouse clicks, 
 			// so that tab key navigation focus on checkboxes can be maintained separately.
 			lastNavClickTag = this;
 		});
 		// Handle tab-key focus of checkbox
-		optionsBox.find('INPUT').focus(function(){
+		optionsBox.find('INPUT').focus(function() {
 			if(typeof(lastNavClickTag) == "undefined" || lastNavClickTag === null) {
 				// This only happens with tab key navgation.
 				// Must keep track of this, because 
@@ -345,13 +343,11 @@
 					optionsBox.find('LABEL:first').addClass('hover');
 				}
 				// else if we are moving down and there is a next item then move
-				else if(e.keyCode == 40 && oldHoverIndex < allOptions.length - 1)
-				{
+				else if(e.keyCode == 40 && oldHoverIndex < allOptions.length - 1) {
 					newHoverIndex = oldHoverIndex + 1;
 				}
 				// else if we are moving up and there is a prev item then move
-				else if(e.keyCode == 38 && oldHoverIndex > 0)
-				{
+				else if(e.keyCode == 38 && oldHoverIndex > 0) {
 					newHoverIndex = oldHoverIndex - 1;
 				}
 
@@ -441,8 +437,7 @@
 	}
 	
 	// Scroll the viewport div if necessary
-	function adjustViewPort(optionsBox)
-	{
+	function adjustViewPort(optionsBox) {
 		// check for and move scrollbar down, content up
 		var hoverTop = optionsBox.find('LABEL.hover').position().top;
 		var hoverHeight = optionsBox.find('LABEL.hover').outerHeight();
@@ -453,7 +448,7 @@
 		// Could use improvement.
 		var optionsHeight = optionsBox.outerHeight() + 18;
 		var optionsScrollTop = optionsBox.scrollTop();
-		if(selectionBottom > optionsHeight){		
+		if(selectionBottom > optionsHeight) {		
 			optionsBox.scrollTop(optionsScrollTop + selectionBottom - optionsHeight);
 		}
 		
@@ -461,7 +456,7 @@
 		var hoveredTop = optionsBox.find('LABEL.hover').position().top;
 		var optionsTop = optionsBox.position().top;
 		optionsScrollTop = optionsBox.scrollTop();
-		if(hoveredTop < optionsTop){		
+		if(hoveredTop < optionsTop) {		
 			optionsBox.scrollTop(optionsScrollTop + hoveredTop - optionsTop);
 		}
 	}
@@ -496,7 +491,7 @@
 	}
 	
 	$.extend($.fn, {
-		multiSelect: function(o) {
+		multiSelect: function() {
 
 			// Initialize each multiSelectA
 			$(this).each( function() {
