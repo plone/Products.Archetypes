@@ -4,6 +4,9 @@ Changelog
 1.7.3 - Unreleased
 ------------------
 
+- Fixed i18n of new keywords widget.
+  [vincentfretin]
+
 - Remove method docstrings in Referenceable and ReferenceEngine to prevent
   making them publishable.
   [davisagli]

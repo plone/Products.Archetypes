@@ -38,24 +38,24 @@
                         <dl id="existingTags">
                             <label for="subject">
                                 <dt id="existingTagsTitle">
-                                    <span i18n:translate="label_existing_tags">
+                                    <span i18n:translate="label_select_existing_tags">
                                         Select from existing tags. 
                                     </span>
                                 </dt>
                                 <span id="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
                                     Use Control/Command/Shift keys to select multiple tags.
-                                    <tal:comment tal:replace="nothing">
-                                        Type-to-skip functionality with javascipt enabled 
-                                        currently is described as 
-                                        "Hover and type the first letter to skip through tags." 
-                                        However, on touch-driven devices, vertical hover typically 
-                                        scrolls the page, so horizontal hover is necessary to enable this.  
-                                        Alternatively, clicking any of the tags also enables type-to-skip.  
-                                        So the text could technically be extended to handle this special case 
-                                        as "Hover or click and type the first letter to skip through tags.", 
-                                        but I think this would be confusing to the majority of users.
-                                    </tal:comment>
                                 </span>
+                                <tal:comment tal:replace="nothing">
+                                    Type-to-skip functionality with javascript enabled 
+                                    currently is described as 
+                                    "Hover and type the first letter to skip through tags." 
+                                    However, on touch-driven devices, vertical hover typically 
+                                    scrolls the page, so horizontal hover is necessary to enable this.  
+                                    Alternatively, clicking any of the tags also enables type-to-skip.  
+                                    So the text could technically be extended to handle this special case 
+                                    as "Hover or click and type the first letter to skip through tags.", 
+                                    but I think this would be confusing to the majority of users.
+                                </tal:comment>
                             </label>
                             <div class="visualClear"><!-- --></div>
                             <select id="predefined_subjects"
@@ -123,7 +123,7 @@
                         <dl id="newTagsSection">
                             <label for="subject_keywords">
                                 <dt id="newTagsTitle">
-                                    <span i18n:translate="label_new_tags">
+                                    <span i18n:translate="label_create_new_tags">
                                         Create and apply new tags. 
                                     </span>
                                 </dt>
