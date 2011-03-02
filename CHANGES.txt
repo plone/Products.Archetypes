@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.3 - Unreleased
+1.7.3 - 2011-03-02
 ------------------
 
 - Fixed i18n of new keywords widget.
