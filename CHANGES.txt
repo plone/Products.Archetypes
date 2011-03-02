@@ -71,6 +71,33 @@ Changelog
   https://dev.plone.org/plone/ticket/11334
   [tom_gross]
 
+1.6.5 - 2011-02-25
+------------------
+
+- Remove method docstrings in Referenceable and ReferenceEngine to prevent
+  making them publishable.
+  [davisagli]
+
+- Handle getCharset() returning None in Field.encode/decode.
+  [elro]
+
+- Avoid various deprecation warnings under Zope 2.13.
+  [hannosch]
+
+- Fixed a SyntaxWarning when using assert in the migrations module.
+  [deo]
+
+- Fixed textCounter JavaScript to work with fieldnames with hyphen.
+  API of textCounter-method changed. Second parameter takes now
+  the name of the counterfield, not the DOM object itself.
+  http://dev.plone.org/plone/ticket/11334
+  [tom_gross]
+
+- Fixed handling of Anonymous ownership in ExtensibleMetadata, where the
+  ownership tuple is None. Also triggered for views on FactoryTool-wrapped
+  objects.
+  [mj]
+
 1.6.4 - 2010-11-06
 ------------------
 
