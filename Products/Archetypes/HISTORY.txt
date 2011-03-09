@@ -1,4 +1,9 @@
-1.5.17 - unreleased
+1.5.18 - Unreleased
+===================
+
+- No changes yet.
+
+1.5.17 - 2011-03-09
 ===================
 
 - Remove method docstrings in Referenceable and ReferenceEngine to prevent
