@@ -4,6 +4,10 @@ Changelog
 1.7.4 - Unreleased
 ------------------
 
+- Fixed: all labels on edit form had 'display: block' css behaviour
+  once there was keywords.
+  [thomasdesvenain]
+
 1.7.3 - 2011-03-02
 ------------------
 
@@ -29,7 +33,7 @@ Changelog
 ------------------
 
 - Include plone.app.viewletmanager package to clear up plone.app.layout test
-  failures. 
+  failures.
   [esteele]
 
 1.7 - 2011-01-03
@@ -382,7 +386,7 @@ Changelog
 * Restructured and restyled inandout widget to fix issue with rtl scripts.
   http://dev.plone.org/plone/ticket/5660
   [emanlove]
-  
+
 * Replaced the css_slot with the style_slot, as the deprecated
   css_slot is now really removed in Plone 4.
   [maurits+maartenkling]
@@ -402,7 +406,7 @@ Changelog
 * Adjust to refactoring of CMFCatalogAware and PortalFolder's use of it.
   [davisagli]
 
-* Fix for missing short-name field due to removal of globals. 
+* Fix for missing short-name field due to removal of globals.
   http://dev.plone.org/plone/ticket/9429
   [esteele]
 
@@ -621,7 +625,7 @@ Changelog
 
 1.5.10 - 2008-09-30
 -------------------
- 
+
 * Fire WebDAVObjectInitializedEvent/WebDAVObjectEditedEvent when
   content is created/edited via PUT/MKCOL. This is part of the fix
   for http://dev.plone.org/plone/ticket/7338

@@ -502,7 +502,7 @@
 				// overflow-y: auto enables the scrollbar, like a multiple-select
 				html += '<div class="optionsBox" tabindex="9999" style="overflow-y: auto;"></div>';
 				// display:block makes the blank area right of the text clickable, like a multiple-select
-				html += '<style type="text/css">label {display: block;}</style>';
+				html += '<style type="text/css">.ArchetypesKeywordWidget label {display: block;}</style>';
 				$(select).after(html);
 
 				var multiSelectA = $(select).next('.multiSelectA');
