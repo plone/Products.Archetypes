@@ -496,7 +496,6 @@
 			// Initialize each multiSelectA
 			$(this).each( function() {
 				var select = $(this);
-                                console.log(select);
 				// anchor originally used for dropdown
 				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1"><span></span></a>';
 				// overflow-y: auto enables the scrollbar, like a multiple-select
