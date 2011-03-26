@@ -4,6 +4,9 @@ Changelog
 1.7.4 - Unreleased
 ------------------
 
+- Fixed test setup to work with ZCA-based GenericSetup profile registry.
+  [davisagli]
+
 - Fixed: all labels on edit form had 'display: block' css behaviour
   once there was keywords.
   [thomasdesvenain]
