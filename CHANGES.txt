@@ -4,6 +4,9 @@ Changelog
 1.6.6 - Unreleased
 ------------------
 
+- Fixed test setup to work with ZCA-based GenericSetup profile registry.
+  [davisagli]
+
 1.6.5 - 2011-02-25
 ------------------
 

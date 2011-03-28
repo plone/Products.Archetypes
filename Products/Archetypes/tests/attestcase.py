@@ -5,6 +5,7 @@ from Testing.ZopeTestCase.functional import Functional
 
 from Products.CMFTestCase import CMFTestCase
 from Products.CMFTestCase.ctc import setupCMFSite
+from Products.CMFTestCase.layer import onsetup
 from Products.GenericSetup import EXTENSION, profile_registry
 
 from Products.Archetypes.tests.layer import ZCML
@@ -12,12 +13,14 @@ from Products.Archetypes.tests.layer import ZCML
 default_user = user_name
 default_role = 'Member'
 
-profile_registry.registerProfile('Archetypes_sampletypes',
-    'Archetypes Sample Content Types',
-    'Extension profile including Archetypes sample content types',
-    'profiles/sample_types',
-    'Products.Archetypes',
-    EXTENSION)
+@onsetup
+def setupSampleTypeProfile():
+    profile_registry.registerProfile('Archetypes_sampletypes',
+        'Archetypes Sample Content Types',
+        'Extension profile including Archetypes sample content types',
+        'profiles/sample_types',
+        'Products.Archetypes',
+        EXTENSION)
 
 # setup a CMF site
 ZopeTestCase.installProduct('PythonScripts')
@@ -28,6 +31,7 @@ ZopeTestCase.installProduct('MimetypesRegistry')
 ZopeTestCase.installProduct('PortalTransforms')
 ZopeTestCase.installProduct('Archetypes')
 
+setupSampleTypeProfile()
 setupCMFSite(
     extension_profiles=['Products.CMFFormController:CMFFormController',
                         'Products.CMFQuickInstallerTool:CMFQuickInstallerTool',
