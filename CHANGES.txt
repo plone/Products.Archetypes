@@ -4,6 +4,10 @@ Changelog
 1.7.4 - Unreleased
 ------------------
 
+- Fix bug where a TextField's default_content_type was not respected when
+  wrapping a non-BaseUnit value.
+  [davisagli]
+
 - Fixed test setup to work with ZCA-based GenericSetup profile registry.
   [davisagli]
 

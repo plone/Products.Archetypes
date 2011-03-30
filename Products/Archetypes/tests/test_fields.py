@@ -401,6 +401,13 @@ class ProcessingTest(ATSiteTestCase):
         encoding = field.getRaw(self.portal, raw=1).original_encoding
         self.assertEqual(encoding, 'latin')
 
+    def test_mimetype(self):
+        dummy = self.makeDummy()
+        field = TextField('test', default_content_type='text/html')
+        dummy.test = ''
+        mimetype = field.getContentType(dummy)
+        self.assertEqual('text/html', mimetype)
+
 
 class DownloadTest(ATSiteTestCase):
 
