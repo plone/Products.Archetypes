@@ -1075,6 +1075,11 @@ class FileField(ObjectField):
         obj = self._make_file(self.getName(), title='',
                               file=value, instance=instance)
         setattr(obj, 'filename', filename)
+        if IBaseUnit.providedBy(obj):
+            if mimetype:
+                obj.setContentType(instance, mimetype)
+        else:
+            setattr(obj, 'content_type', mimetype)
         setattr(obj, 'content_type', mimetype)
         try:
             delattr(obj, 'title')
