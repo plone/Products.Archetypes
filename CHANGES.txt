@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.4 - Unreleased
+1.7.4 - 2011-04-03
 ------------------
 
 - Fix bug where a TextField's default_content_type was not respected when
