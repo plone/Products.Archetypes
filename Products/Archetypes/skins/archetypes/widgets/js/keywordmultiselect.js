@@ -497,7 +497,7 @@
 			$(this).each( function() {
 				var select = $(this);
 				// anchor originally used for dropdown
-				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1"><span></span></a>';
+				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1" title="activate tag selector below"><span></span></a>';
 				// overflow-y: auto enables the scrollbar, like a multiple-select
 				html += '<div class="optionsBox" tabindex="9999" style="overflow-y: auto;"></div>';
 				// display:block makes the blank area right of the text clickable, like a multiple-select
