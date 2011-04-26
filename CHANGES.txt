@@ -4,6 +4,8 @@ Changelog
 1.7.5 - unreleased
 ------------------
 
+- Put required field indicator inside the label tag, fixes #11726
+  [dimboo]
 
 1.7.4 - 2011-04-03
 ------------------
