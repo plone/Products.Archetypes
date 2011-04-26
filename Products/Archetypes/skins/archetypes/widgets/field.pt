@@ -78,17 +78,18 @@
              tal:attributes="class python: test(error_id, 'field error ' + 'Archetypes' + widget.getName(), 'field ' + 'Archetypes' + widget.getName()) + ' ' + kss_class; 
                              id python: 'archetypes-fieldname-' + field.getName()">
           <span metal:define-slot="widget_body_label_prefix"></span>
-          <label class="formQuestion" i18n:translate=""
-                 tal:content="python:widget.Label(here)"
+          <label class="formQuestion"
                  tal:attributes="for python:field.getName()">
+              <span tal:replace="python:widget.Label(here)"
+                    i18n:translate="" />
+              <span class="fieldRequired"
+                    tal:condition="field/required"
+                    title="Required"
+                    i18n:translate="label_required"
+                    i18n:attributes="title title_required;">
+                (Required)
+              </span>
           </label>
-          <span class="fieldRequired"
-                tal:condition="field/required"
-                title="Required"
-                i18n:translate="label_required"
-                i18n:attributes="title title_required;">
-            (Required)
-          </span>
           <div class="formHelp"
                tal:define="description python:widget.Description(here)"
                tal:content="structure description"

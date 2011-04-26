@@ -1,7 +1,8 @@
 1.5.18 - Unreleased
 ===================
 
-- No changes yet.
+- Put required field indicator inside the label tag, fixes #
+  [dimboo]
 
 1.5.17 - 2011-03-09
 ===================
