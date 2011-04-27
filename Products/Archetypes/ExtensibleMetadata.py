@@ -167,6 +167,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'rights',
             accessor="Rights",
             default_method='defaultRights',
+            allowable_content_types=('text/plain',),
             widget=TextAreaWidget(
                 label=_(u'label_copyrights', default=u'Rights'),
                 description=_(u'help_copyrights',
