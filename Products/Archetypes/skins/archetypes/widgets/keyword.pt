@@ -47,14 +47,15 @@
                                 </span>
                                 <tal:comment tal:replace="nothing">
                                     Type-to-skip functionality with javascript enabled 
-                                    currently is described as 
+                                    could be described as 
                                     "Hover and type the first letter to skip through tags." 
                                     However, on touch-driven devices, vertical hover typically 
                                     scrolls the page, so horizontal hover is necessary to enable this.  
                                     Alternatively, clicking any of the tags also enables type-to-skip.  
-                                    So the text could technically be extended to handle this special case 
+                                    So the help could technically be extended to handle this special case 
                                     as "Hover or click and type the first letter to skip through tags.", 
                                     but I think this would be confusing to the majority of users.
+									The decision at this point is to not try to explain any of this on the page.
                                 </tal:comment>
                             </label>
                             <div class="visualClear"><!-- --></div>
