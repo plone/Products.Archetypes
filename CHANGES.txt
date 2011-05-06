@@ -4,9 +4,9 @@ Changelog
 1.7.5 - unreleased
 ------------------
 
-- Rights field has text/plain format only.
-  (If no allowable_format specified for secondary fields, we get unexpected behaviour)
-  This refs http://dev.plone.org/plone/ticket/9345.
+- Rights field has text/plain format only. (If no allowable_format specified
+  for secondary fields, we get unexpected behaviour) This refs
+  http://dev.plone.org/plone/ticket/9345.
   [thomasdesvenain]
 
 - Put required field indicator inside the label tag, fixes #11726
