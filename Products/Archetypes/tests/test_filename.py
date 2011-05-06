@@ -48,7 +48,7 @@ class GetFilenameTest(ATSiteTestCase):
     def test_textfieldwithfilename(self):
         obj = self._dummy
         field = obj.getField('atextfield')
-        self.assertEqual(field.getFilename(obj), '')
+        self.assertEqual(field.getFilename(obj), None)
         self.assertEqual(field.getRaw(obj), default_text)
         obj.setAtextfield('Bla', filename='name.rst')
         self.assertEqual(field.getFilename(obj), 'name.rst')
@@ -66,7 +66,7 @@ class GetFilenameTest(ATSiteTestCase):
         field = obj.getField('atextfield')
         obj.setAtextfield('Bli')
         self.assertEqual(str(field.getRaw(obj)), 'Bli')
-        self.assertEqual(field.getFilename(obj), '')
+        self.assertEqual(field.getFilename(obj), None)
 
     def test_textfielduploadwithoutfilename(self):
         obj = self._dummy

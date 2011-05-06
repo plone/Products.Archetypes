@@ -4,6 +4,13 @@ Changelog
 1.7.5 - unreleased
 ------------------
 
+- Avoid flagging base units as changed, if their values didn't actually change.
+  [hannosch]
+
+- Clarify default value of `BaseUnit.filename` to be `None` instead of
+  switching between `None` and an empty string in every request.
+  [hannosch]
+
 - Rights field has text/plain format only. (If no allowable_format specified
   for secondary fields, we get unexpected behaviour) This refs
   http://dev.plone.org/plone/ticket/9345.

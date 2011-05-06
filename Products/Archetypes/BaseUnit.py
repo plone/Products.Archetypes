@@ -1,5 +1,4 @@
 import os.path
-from types import StringType
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
@@ -22,6 +21,12 @@ class BaseUnit(File):
     implements(IBaseUnit, IWriteLock)
 
     isUnit = 1
+    mimetype = None
+    binary = None
+    original_encoding = None
+    raw = None
+    size = None
+    filename = None
 
     security = ClassSecurityInfo()
 
@@ -46,8 +51,10 @@ class BaseUnit(File):
         adapter = getToolByName(context, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
 
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
+        if self.mimetype != str(mimetype):
+            self.mimetype = str(mimetype)
+        if self.binary != mimetype.binary:
+            self.binary = mimetype.binary
         if not self.isBinary():
             if encoding is None:
                 try:
@@ -56,11 +63,14 @@ class BaseUnit(File):
                     # adapter is not defined, we are in object creation
                     import site
                     encoding = site.encoding
-            self.original_encoding = encoding
+            if self.original_encoding != encoding:
+                self.original_encoding = encoding
         else:
-            self.original_encoding = None
-        self.raw  = data
-        self.size = len(data)
+            if self.original_encoding != encoding:
+                self.original_encoding = None
+        if type(self.raw) != type(data) or self.raw != data:
+            self.raw = data
+            self.size = len(data)
         # taking care of stupid IE
         self.setFilename(filename)
         self._cacheExpire()
@@ -185,8 +195,10 @@ class BaseUnit(File):
         if not result:
             raise ValueError('Unknown mime type %s' % value)
         mimetype = result[0]
-        self.mimetype = str(mimetype)
-        self.binary = mimetype.binary
+        if self.mimetype != str(mimetype):
+            self.mimetype = str(mimetype)
+        if self.binary != mimetype.binary:
+            self.binary = mimetype.binary
         self._cacheExpire()
 
     def getFilename(self):
@@ -197,11 +209,14 @@ class BaseUnit(File):
     def setFilename(self, filename):
         """Set the file name.
         """
-        if type(filename) is StringType:
+        if isinstance(filename, str):
             filename = os.path.basename(filename)
-            self.filename = filename.split("\\")[-1]
+            filename = filename.split("\\")[-1]
+            if self.filename != filename:
+                self.filename = filename
         else:
-            self.filename = filename
+            if self.filename != filename:
+                self.filename = filename
         self._cacheExpire()
 
     def _cacheExpire(self):

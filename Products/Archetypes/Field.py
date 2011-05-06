@@ -1281,7 +1281,7 @@ class TextField(FileField):
         if file is None:
             file = self._make_file(self.getName(), title='',
                                    file='', instance=instance)
-        filename = kwargs.get('filename') or ''
+        filename = kwargs.get('filename', None)
         body = None
         if IBaseUnit.providedBy(value):
             mimetype = value.getContentType() or mimetype
@@ -1334,10 +1334,11 @@ class TextField(FileField):
         if isinstance(value, Pdata):
             # TODO Should be fixed eventually
             value = str(value)
-        filename = filename[max(filename.rfind('/'),
-                                filename.rfind('\\'),
-                                filename.rfind(':'),
-                                )+1:]
+        if isinstance(filename, basestring):
+            filename = filename[max(filename.rfind('/'),
+                                    filename.rfind('\\'),
+                                    filename.rfind(':'),
+                                    )+1:]
 
         if mimetype is None or mimetype == 'text/x-unknown-content-type':
             if body is None:
