@@ -4,6 +4,9 @@ Changelog
 1.7.5 - unreleased
 ------------------
 
+- Add forward compatibility with DateTime 3.
+  [hannosch]
+
 - Avoid flagging base units as changed, if their values didn't actually change.
   [hannosch]
 

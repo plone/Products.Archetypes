@@ -19,6 +19,7 @@ from Acquisition import aq_parent
 from Acquisition import aq_inner
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from DateTime.interfaces import DateTimeError
 from ExtensionClass import Base
 from OFS.Image import File
 from OFS.Image import Pdata
@@ -1437,7 +1438,7 @@ class DateTimeField(ObjectField):
     def validate_required(self, instance, value, errors):
         try:
             DateTime(value)
-        except DateTime.DateTimeError:
+        except DateTimeError:
             result = False
         else:
             # None is a valid DateTime input, but does not validate for
@@ -1462,7 +1463,7 @@ class DateTimeField(ObjectField):
                 # otherwise it uses timezone naive conversion.
                 # see http://dev.plone.org/plone/ticket/10141
                 value = DateTime(value.replace('-', '/', 2))
-            except DateTime.DateTimeError:
+            except DateTimeError:
                 value = None
 
         ObjectField.set(self, instance, value, **kwargs)
