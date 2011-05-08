@@ -164,7 +164,7 @@
 //		optionsBox.find('INPUT:checkbox').click( function() {
 //			// set the label checked class
 //			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
-//			updateSelected.call(multiSelectA);
+//			updateSelected.call(optionsBox);
 //			// Highlight selected option
 //			//
 //			// Refocus
@@ -233,8 +233,8 @@
 
 	// Building the actual options
 	function buildOptions(options) {
-		var multiSelectA = $(this);
-		var optionsBox = multiSelectA.next('.optionsBox');
+		var optionsBox = $(this);
+		var multiSelectA = optionsBox.next('.multiSelectA');
 
 		// Help text here is only relevant when there are many tags,
 		// so putting that in documentation, rather than here.
@@ -251,7 +251,7 @@
 		});
 
 		// Initialize selected options list
-		updateSelected.call(multiSelectA);
+		updateSelected.call(optionsBox);
 		var allOptions = optionsBox.find('LABEL');
 
 		// --- Navigation with Mouse ---
@@ -286,7 +286,7 @@
 			// set the label checked class
 			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
 
-			updateSelected.call(multiSelectA);
+			updateSelected.call(optionsBox);
 			// Highlight selected option
 			// placeholder
 			// Refocus
@@ -329,7 +329,7 @@
 		// Handle keyboard press
 		multiSelectA.keydown( function(e) {
 
-			var optionsBox = $(this).next('.optionsBox');
+			var optionsBox = $(this).prev('.optionsBox');
 
 			// --- Navigation with Arrow or Page Keys ---
 			// Down || Up
@@ -400,7 +400,7 @@
 				// placeholder
 				// Refocus
 				// placeholder
-				updateSelected.call(multiSelectA);
+				updateSelected.call(optionsBox);
 				return false;
 			}
 
@@ -463,9 +463,8 @@
 
 	// Update heading with the total number of selected items
 	function updateSelected() {
-		var multiSelectA = $(this);
-		var optionsBox = multiSelectA.next('.optionsBox');
-		var o = multiSelectA.data("config");
+		var optionsBox = $(this);
+		var multiSelectA = optionsBox.next('.multiSelectA');
 		var i = 0;
 		var display = '';
 		optionsBox.find('INPUT:checkbox').not('.selectAll, .optGroup').each( function() {
@@ -493,19 +492,22 @@
 	$.extend($.fn, {
 		multiSelect: function() {
 
-			// Initialize each multiSelectA
+			// Initialize each optionsBox
 			$(this).each( function() {
 				var select = $(this);
-				// anchor originally used for dropdown
-				var html = '<a href="javascript:;" class="multiSelectA" tabindex="1" title="activate tag selector: currently active"><span></span></a>';
-				// overflow-y: auto enables the scrollbar, like a multiple-select
+				var html = '';
+				// Overflow-y: auto enables the scrollbar, like a multiple-select
 				html += '<div class="optionsBox" tabindex="9999" style="overflow-y: auto;"></div>';
+				// Anchor originally used for dropdown.
+				// Will try to remove after refactoring to be more modular and testable with QUnit,
+				// although this element may need to stay to hold focus for mouse & arrow key navigation.
+				html += '<a href="javascript:;" class="multiSelectA" title="enable tag selector: tag selector is currently enabled"></a>';
 				// display:block makes the blank area right of the text clickable, like a multiple-select
 				html += '<style type="text/css">.ArchetypesKeywordWidget label {display: block;}</style>';
 				$(select).after(html);
 
-				var multiSelectA = $(select).next('.multiSelectA');
-				var optionsBox = multiSelectA.next('.optionsBox');
+				var optionsBox = $(select).next('.optionsBox');
+				var multiSelectA = optionsBox.next('.multiSelectA');
 
 				// Serialize the select options into json options
 				var options = [];
@@ -523,7 +525,7 @@
 				optionsBox.attr("name", $(select).attr("name"));
 
 				// Build the dropdown options
-				buildOptions.call(multiSelectA, options);
+				buildOptions.call(optionsBox, options);
 
 			});
 		}
