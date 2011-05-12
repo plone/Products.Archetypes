@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.5 - unreleased
+1.7.5 - 2011-05-12
 ------------------
 
 - Add forward compatibility with DateTime 3.
