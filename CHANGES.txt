@@ -4,6 +4,9 @@ Changelog
 1.7.6 - unreleased
 ------------------
 
+- Fixed DisplayList slices to work on Windows 64bit. This closes
+  http://dev.plone.org/plone/ticket/11232.
+  [hannosch]
 
 1.7.5 - 2011-05-12
 ------------------

@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from inspect import getargs, getmro
+from itertools import islice, count
 from types import ClassType, MethodType
 from UserDict import UserDict as BaseDict
 
@@ -400,14 +401,17 @@ class DisplayList:
         #itor/generators
         return self._itor[key]
 
-    def __getslice__(self,i1,i2):
-        r=[]
-        for i in xrange(i1,i2):
-            try: r.append((self._itor[i], self.getValue(self._itor[i]),))
-            except IndexError: return r
+    def __getslice__(self, i1, i2):
+        r = []
+        for i in islice(count(i1), i2-i1):
+            try:
+                r.append((self._itor[i], self.getValue(self._itor[i]), ))
+            except IndexError:
+                return r
         return DisplayList(r)
 
-    slice=__getslice__
+    slice = __getslice__
+
 
 InitializeClass(DisplayList)
 
