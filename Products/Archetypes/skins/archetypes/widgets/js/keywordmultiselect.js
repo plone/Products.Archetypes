@@ -88,147 +88,17 @@
 	}
 
 
-//	var allOptions = optionsBox.find('LABEL');
-//
+//  Plans to later modularize input and output handling,
+//  for better testability, modularity, and accessibility.
 //	// Handle mouse move input
-//	// Handle mouse hover of option, both
-//	// entering an option, *and*
-//	// mouse moving within an option.
-//	allOptions.mousemove( function(event) {
-//		// At this point, the browser is saying that the mouse moved.
-//		// Workaround Safari's errant reporting of mousemove
-//		// when the mouse hasn't moved, but only background has.
-//		// Initialize position variables.
-//		if(optionsBox.oldPositionX === null || optionsBox.oldPositionY === null) {
-//			optionsBox.oldPositionX = event.pageX;
-//			optionsBox.oldPositionY = event.pageY;
-//		}
-//		if( optionsBox.oldPositionX != e.pageX || optionsBox.oldPositionY != e.pageY ) {
-//			// At this point, the mouse actually did move.
-//			optionsBox.oldPositionX = event.pageX;
-//			optionsBox.oldPositionY = event.pageY;
-//			optionsBox.navigationDevice = 'mouse';
-//			optionsBox.navigationElement = $(this);
-//			optionsBox.navigationOption = $(this);
-//			handleNavigation();
-//		}
-//	});
-//
 //	// Handle mouse click input
-//	allOptions.mousedown( function(event) {
-//		optionsBox.selectionEvent = event;
-//		optionsBox.selectionDevice = 'mouse';
-//		optionsBox.selectionElement = $(this);
-//		optionsBox.selectionOption = $(this).parent('LABEL');
-//	}
-//
 //	// Handle key press input
-//	optionsBox.keydown( function(event) {
-//		detectNavigation(event);
-//		detectKeyboardSelection(event);
-//	});
-//
 //	// Detect navigation with mouse or non-tab keys
-//	function detectNavigation(event) {
-//		// if mouse, arrows, page up/down, or first letter/number,
-//		// not spacebar or enter
-//		if( event.keyCode != 13 && event.keyCode != 32 ) {
-//			// Save navigation input device to optionsBox
-//			optionsBox.navigationDevice = 'non-tab key';
-//			// Call handle navigation of options
-//			handleNavigation(optionsBox.navigationDevice, optionsBox.navigationElement, optionsBox.navigationOption);
-//			// Save navigated DOM element to optionsBox
-//			optionsBox.navigationElement = ;
-//			// Save navigated option to optionsBox
-//			optionsBox.navigationOption = ;
-//		}
-//	}
-//
 //	// Detect navigation with tab key
-//	function detectNavigationTabKey(event) {
-//	// if tab key
-//		// Save navigation input device to optionsBox
-//		optionsBox.navigationDevice = 'tab key';
-//		// Call handle navigation of options
-//		handleNavigation();
-//		// Save navigated DOM element to optionsBox
-//		optionsBox.navigationElement = ;
-//		// Save navigated option to optionsBox
-//		optionsBox.navigationOption = ;
-//	}
-//
 //	// Detect selection with mouse
-//	function detectSelectionMouse(event) {
-//		// if mouse click
-//		// Handle mouse click of checkbox
-//		optionsBox.find('INPUT:checkbox').click( function() {
-//			// set the label checked class
-//			$(this).parent('LABEL').toggleClass('checked', $(this).attr('checked'));
-//			updateSelected.call(optionsBox);
-//			// Highlight selected option
-//			//
-//			// Refocus
-//			multiSelectA.focus();
-//			// If this checkbox was navigated to with the tab key before being checked,
-//			// then put focus back on it.
-//			if(typeof(lastNavTabKeyCheckbox) !== 'undefined' && lastNavTabKeyCheckbox !== null) {
-//				lastNavTabKeyCheckbox.focus();
-//				lastNavTabKeyCheckbox = null;
-//			}
-//		});
-//		// Handle mouse click of option label
-//		// Save selected DOM element to optionsBox
-//		optionsBox.selectionElement = $(this);
-//		// Save selection input device to optionsBox
-//		optionsBox.selectionDevice = 'mouse';
-//		// Save selected option to optionsBox
-//		optionsBox.selectionOption = ;
-//		// Call handle selection of options
-//		handleSelection();
-//
 //	// Detect selection with keyboard
-//	function detectSelectionKeyboard(event) {
-//		// if space or enter keys
-//		if( event.keyCode == 13 || event.keyCode == 32 ) {
-//			// Save selection input device to optionsBox
-//			optionsBox.selectionDevice = 'keyboard';
-//			// Save selected DOM element to optionsBox
-//			optionsBox.selectionElement = ;
-//			// Save selected option to optionsBox
-//			optionsBox.selectionOption = ;
-//			// Call handle selection of options
-//			handleSelection(optionsBox);
-//		}
-//
 //	// Handle navigation of options
-//	function handleNavigation(optionsBox) {
-//		// Remove all highlights
-//		allOptions.removeClass('hover');
-//		// Highlight navigated option
-//		optionsBox.navigationOption.addClass('hover');
-//		// Scroll the optionsBox
-//		adjustViewPort(optionsBox);
-//	}
-//
 //	// Handle selection of options
-//	function handleSelection(optionsBox) {
-//		// Highlight selected option
-//		optionsBox.selectionOption.toggleClass('checked');
-//		// Toggle a checkbox (if not already toggled after tab key)
-//		optionsBox.selectionOption.attr('checked');
-//		// Refocus the optionsBox or a checkbox if one was tabbed to
-//		// If navigation was done with mouse or a non-tab key?
-//		if(optionsBox.selectionDevice == 'mouse' || \
-//		optionsBox.selectionDevice == 'non-tab key') {
-//			// Return focus to div
-//			optionsBox.focus();
-//		// If navigation was done with tab key?
-//		} else if(optionsBox.selectionDevice == 'tab key') {
-//			// Return focus to checkbox
-//			optionsBox.selectionElement.focus();
-//		}
-//	}
-
 
 
 	// Building the actual options
