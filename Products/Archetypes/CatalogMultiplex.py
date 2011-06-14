@@ -16,7 +16,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
     security = ClassSecurityInfo()
 
     def __url(self):
-        return '/'.join( self.getPhysicalPath() )
+        return '/'.join(self.getPhysicalPath())
 
     def getCatalogs(self):
         at = getToolByName(self, TOOL_NAME, None)
@@ -59,7 +59,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
         catalogs = [c for c in at.getCatalogsByType(self.meta_type)
                                if ICatalogTool.providedBy(c)]
-        path = '/'.join(self.getPhysicalPath())
+        path = self.__url()
 
         for catalog in catalogs:
             for brain in catalog.unrestrictedSearchResults(path=path):
