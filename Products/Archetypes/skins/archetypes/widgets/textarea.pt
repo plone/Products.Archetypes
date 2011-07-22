@@ -29,7 +29,7 @@
                   binary python:base and value.isBinary() or context.isBinary(fieldName);
                   content python: not not base and value.getRaw() or value;
                   content python: not binary and content or '';
-                  content_length python:len(content);
+                  content_length python:len(unicode(content, 'utf-8'));
                   append_only widget/append_only|nothing;
                   maxlength widget/maxlength|nothing;
                   tcname string:textCounter_${fieldName};
