@@ -7,8 +7,14 @@
 ##bind subpath=traverse_subpath
 ##parameters=name
 
+from Products.MimetypesRegistry.common import MimeTypeException
+
 mimetool = context.mimetypes_registry
-mimetypes = mimetool.lookup(name)
+try:
+    mimetypes = mimetool.lookup(name)
+except MimeTypeException:
+    mimetypes = ()
+
 if len(mimetypes):
     return mimetypes[0].name()
 else:

@@ -4,6 +4,10 @@ Changelog
 1.7.7 - Unreleased
 ------------------
 
+- Avoid site error when we display a file whose mimetype is unknown.
+  Refs http://dev.plone.org/plone/ticket/12061.
+  [thomasdesvenain]
+
 - Fixed initial content length used by textCounter. Length should be the length
   of a unicode string, not the utf-8 string.
   [vincentfretin]
