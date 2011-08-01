@@ -1463,6 +1463,10 @@ class DateTimeField(ObjectField):
                 # otherwise it uses timezone naive conversion.
                 # see http://dev.plone.org/plone/ticket/10141
                 value = DateTime(value.replace('-', '/', 2))
+                if value.timezoneNaive():
+                    # Do a double conversion to accept the local
+                    # timezone assumption as non-naive
+                    value = DateTime(value)
             except DateTimeError:
                 value = None
 
