@@ -4,6 +4,9 @@ Changelog
 1.7.7 - Unreleased
 ------------------
 
+- When checking isVisible in validation, use instance, not widget as argument.
+  [tesdal]
+
 - Do a double DateTime conversion to avoid timezone naive values.
   Refs http://dev.plone.org/plone/ticket/10141.
   [rossp]
