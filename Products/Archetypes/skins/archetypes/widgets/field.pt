@@ -86,7 +86,7 @@
             consider their format (checkbox, radio, select box ...) to correctly format the label to meet
             accessibility standards.
           </tal:comment>
-          <tal:ifLabel tal:condition="python: widget.getName() not in ('LabelWidget', 'SelectionWidget', 'MultiSelectionWidget')">
+          <tal:ifLabel tal:condition="python: widget.getName() not in ('LabelWidget', 'CalendarWidget', 'SelectionWidget', 'MultiSelectionWidget')">
             <label class="formQuestion"
                    tal:attributes="for python:fieldName">
                 <span tal:replace="python:widget.Label(here)" 
