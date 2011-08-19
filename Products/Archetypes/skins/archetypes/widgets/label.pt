@@ -11,7 +11,26 @@
 
     <metal:define define-macro="edit">
       <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
-	<metal:fill fill-slot="widget_body" />
+      <metal:fill fill-slot="widget_body">
+          <div class="formQuestion label">
+              <span tal:replace="python:widget.Label(here)" 
+                    i18n:translate="" />
+              <span class="required"
+                    tal:condition="field/required"
+                    title="Required"
+                    i18n:attributes="title title_required;"
+                    style="color: #f00;">
+                &#x25a0;
+              </span>
+          </div>
+          <div class="formHelp"
+               tal:define="description python:widget.Description(here)"
+               tal:content="structure description"
+               tal:attributes="id string:${fieldName}_help"
+               i18n:translate="">
+            Help
+          </div>
+      </metal:fill>
       </metal:use>
     </metal:define>
 

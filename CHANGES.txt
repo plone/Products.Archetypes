@@ -4,6 +4,14 @@ Changelog
 1.7.7 - Unreleased
 ------------------
 
+- Fixed http://dev.plone.org/plone/ticket/11387 (Missing & orphaned labels
+  for check boxes and radio buttons) by deferring label generation for label,
+  select and multi-select widgets to each widget's edit macro. In the case
+  of the select and multi-select widgets, this allows the label to be generated
+  (or not) once the format (checkbox, dropdown...) is known.
+  Thanks to mattbarkau and jdeluca for researching this and proposing a solution.
+  [smcmahon]
+
 - When checking isVisible in validation, use instance, not widget as argument.
   [tesdal]
 
