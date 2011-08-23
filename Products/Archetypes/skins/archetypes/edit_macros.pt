@@ -8,12 +8,6 @@
   <head><title></title></head>
   <body>
 
-
-<div metal:define-macro="topslot">
-    <title>Woo!</title>
-    (*****)
-</div>
-
     <div metal:define-macro="header">
       <metal:block define-slot="title">
         <h1 i18n:translate="heading_add_item" class="documentFirstHeading"
