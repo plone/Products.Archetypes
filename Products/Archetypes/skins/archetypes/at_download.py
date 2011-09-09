@@ -10,4 +10,7 @@ if traverse_subpath:
     field = context.getWrappedField(traverse_subpath[0])
 else:
     field = context.getPrimaryField()
+if not hasattr(field, 'download'):
+    from zExceptions import NotFound
+    raise NotFound
 return field.download(context)

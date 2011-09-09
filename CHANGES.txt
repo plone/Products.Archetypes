@@ -4,7 +4,11 @@ Changelog
 1.7.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Raise a NotFound exception when the at_download script cannot
+  find the requested field.  I have seen the Google bot trying to
+  index at_download/info@example.org and at_download/www.example.org,
+  which is obviously wrong.
+  [maurits]
 
 
 1.7.7 (2011-08-23)
