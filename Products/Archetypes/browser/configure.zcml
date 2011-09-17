@@ -18,6 +18,15 @@
       permission="cmf.ModifyPortalContent"
       allowed_interface="..interfaces.IEditForm"
       />
+  
+  <!-- Make sure that if a user goes to /edit on an unauthorized context,
+  they get the login form rather than a LocationError -->
+  <browser:page
+      for="Shared.DC.Scripts.Bindings.UnauthorizedBinding"
+      name="at_base_edit_view"
+      class=".edit.UnauthorizedEdit"
+      permission="zope.Public"
+      />
 
   <browser:page
       for="..interfaces.IBaseObject"

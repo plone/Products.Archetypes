@@ -4,7 +4,10 @@ Changelog
 1.7.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix: Make sure user sees login form rather than an exception when trying
+  to access /edit on an unauthorized context.
+  This fixes http://dev.plone.org/plone/ticket/12056
+  [davisagli]
 
 
 1.7.8 (2011-09-16)

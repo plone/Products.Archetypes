@@ -2,6 +2,7 @@ from zope.component import queryUtility
 from zope.interface import implements
 
 from Acquisition import aq_inner
+from zExceptions import Unauthorized
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 
@@ -55,3 +56,11 @@ class Edit(BrowserView):
             if norm is not None:
                 return norm.normalize(text)
         return text
+
+
+# This is a helper to make sure the user gets a login form if they go to
+# /edit on an unauthorized context.
+class UnauthorizedEdit(BrowserView):
+    
+    def __call__(self):
+        raise Unauthorized
