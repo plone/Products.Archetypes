@@ -19,6 +19,7 @@ from Acquisition import aq_parent
 from Acquisition import aq_inner
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from DateTime.DateTime import safelocaltime
 from DateTime.interfaces import DateTimeError
 from ExtensionClass import Base
 from OFS.Image import File
@@ -1458,15 +1459,13 @@ class DateTimeField(ObjectField):
             value = None
         elif not isinstance(value, DateTime):
             try:
-                # Convert value to non-ISO8601 representation (YYYY/MM/DD).
-                # DateTime uses local timezone for non-ISO8601 strings,
-                # otherwise it uses timezone naive conversion.
-                # see http://dev.plone.org/plone/ticket/10141
-                value = DateTime(value.replace('-', '/', 2))
+                value = DateTime(value)
                 if value.timezoneNaive():
-                    # Do a double conversion to accept the local
-                    # timezone assumption as non-naive
-                    value = DateTime(value)
+                    # Use local timezone for tz naive strings
+                    # see http://dev.plone.org/plone/ticket/10141
+                    zone = value.localZone(safelocaltime(value.timeTime()))
+                    parts = value.parts()[:-1] + (zone,)
+                    value = DateTime(*parts)
             except DateTimeError:
                 value = None
 
