@@ -140,6 +140,16 @@ class TypesWidget(macrowidget, Base):
         properties = deepcopy(cdict)
         return self.__class__(**properties)
 
+    security.declarePublic('render_own_label')
+    def render_own_label(self):
+        """
+        By default the title/description of a field is not rendered by the
+        widget macros, but by the field macros instead. Widgets can change
+        that by overriding render_own_label if they need special styling.
+        """
+        return False
+
+
 InitializeClass(TypesWidget)
 
 class StringWidget(TypesWidget):
@@ -449,6 +459,11 @@ class CalendarWidget(TypesWidget):
         form[fname] = value
         return value, {}
 
+    security.declarePublic('render_own_label')
+    def render_own_label(self):
+        return True
+
+
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
@@ -458,6 +473,11 @@ class SelectionWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+    security.declarePublic('render_own_label')
+    def render_own_label(self):
+        return True
+
 
 class LanguageWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -496,6 +516,11 @@ class MultiSelectionWidget(TypesWidget):
         else:
             values = []
         return values, {}
+
+    security.declarePublic('render_own_label')
+    def render_own_label(self):
+        return True
+
 
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
@@ -730,6 +755,11 @@ class LabelWidget(TypesWidget):
         })
 
     security = ClassSecurityInfo()
+
+    security.declarePublic('render_own_label')
+    def render_own_label(self):
+        return True
+
 
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
