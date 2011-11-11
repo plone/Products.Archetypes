@@ -4,6 +4,10 @@
 - Put required field indicator inside the label tag, fixes #
   [dimboo]
 
+- Backported bugfix where a TextField's default_content_type was not respected when
+  wrapping a non-BaseUnit value.
+  [tom_gross]
+
 1.5.17 - 2011-03-09
 ===================
 

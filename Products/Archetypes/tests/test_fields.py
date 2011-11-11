@@ -394,6 +394,13 @@ class ProcessingTest(ATSiteTestCase):
         self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
 
+    def test_mimetype(self):
+        dummy = self.makeDummy()
+        field = TextField('test', default_content_type='text/html')
+        dummy.test = ''
+        mimetype = field.getContentType(dummy)
+        self.assertEqual('text/html', mimetype)
+
 
 class DownloadTest(ATSiteTestCase):
 
