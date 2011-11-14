@@ -1,5 +1,8 @@
 1.5.18 - Unreleased
-===================
+
+- Fix DateTimeField.set() to handle all date formats DateTime handles.
+  See discussion at http://dev.plone.org/plone/ticket/10141.
+  [elro]
 
 - Put required field indicator inside the label tag, fixes #
   [dimboo]

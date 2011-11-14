@@ -23,6 +23,8 @@ from Acquisition import Implicit
 from BTrees.OOBTree import OOBTree
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from DateTime.interfaces import DateTimeError
+from DateTime.DateTime import safelocaltime
 from ExtensionClass import Base
 from Globals import InitializeClass
 from OFS.Image import File
@@ -1431,14 +1433,13 @@ class DateTimeField(ObjectField):
     def validate_required(self, instance, value, errors):
         try:
             DateTime(value)
-        except DateTime.DateTimeError:
+        except DateTimeError:
             result = False
         else:
             # None is a valid DateTime input, but does not validate for
             # required.
             result = value is not None
         return ObjectField.validate_required(self, instance, result, errors)
-
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1452,7 +1453,13 @@ class DateTimeField(ObjectField):
         elif not isinstance(value, DateTime):
             try:
                 value = DateTime(value)
-            except DateTime.DateTimeError:
+                if value.timezoneNaive():
+                    # Use local timezone for tz naive strings
+                    # see http://dev.plone.org/plone/ticket/10141
+                    zone = value.localZone(safelocaltime(value.timeTime()))
+                    parts = value.parts()[:-1] + (zone,)
+                    value = DateTime(*parts)
+            except DateTimeError:
                 value = None
 
         ObjectField.set(self, instance, value, **kwargs)
