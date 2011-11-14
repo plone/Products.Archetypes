@@ -1,4 +1,5 @@
-1.5.18 - Unreleased
+1.5.18 - 2011-11-14
+===================
 
 - Fix DateTimeField.set() to handle all date formats DateTime handles.
   See discussion at http://dev.plone.org/plone/ticket/10141.
