@@ -1,6 +1,8 @@
 1.5.20 - unreleased
 
-...
+- Added missing dependency on ``DateTime``. We need support for
+  timezone naive date objects.
+  [malthe]
 
 1.5.19 - 2011-11-14
 ===================
