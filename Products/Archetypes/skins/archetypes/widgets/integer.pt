@@ -14,7 +14,7 @@
              tal:define="kss_class python:getKssClasses(fieldName,
                          templateId='widgets/integer', macro='integer-field-view');"
              tal:attributes="class kss_class;
-                             id string:parent-fieldname-$fieldName">
+                             id string:parent-fieldname-$fieldName-$UID">
             <span metal:define-slot="inside"
                   tal:replace="accessor">string</span>
         </div>

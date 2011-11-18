@@ -15,7 +15,7 @@
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/rich', macro='rich-field-view');"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName">
+                            id string:parent-fieldname-$fieldName-$UID">
             <span metal:define-slot="inside"
                   tal:define="transformable python: context.isTransformable(fieldName);"
                   tal:condition="transformable"

@@ -15,7 +15,7 @@
                 tal:define="kss_class python:getKssClasses(fieldName,
                                   templateId='widgets/keyword', macro='keyword-field-view');"
                 tal:attributes="class kss_class;
-                                id string:parent-fieldname-$fieldName">
+                                id string:parent-fieldname-$fieldName-$UID">
                 <ul metal:define-slot="inside">
                     <li tal:repeat="item accessor"
                         tal:content="item"/>

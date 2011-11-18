@@ -51,7 +51,8 @@ class ArchetypesRenderer:
         context.setLocal('widget', widget)
         context.setLocal('field', field)
         context.setLocal('mode', mode)
-
+        context.setLocal('UID',instance.UID())
+        
         if kwargs:
             for k,v in kwargs.items():
                 context.setLocal(k, v)

@@ -16,7 +16,7 @@
             tal:define="kss_class python:getKssClasses(fieldName,
                               templateId='widgets/boolean', macro='boolean-field-view');"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName">
+                            id string:parent-fieldname-$fieldName-$UID">
             <span metal:define-slot="inside"
                   tal:define="voc field/Vocabulary; key accessor;
                               value python:voc and voc.getValue(str(key)) or key"

@@ -15,6 +15,12 @@ Changelog
 - Add new viewletmanger that enable extra markup before the fieldsets
   [jfroche]
 
+- Include UID of object in widget DOM ids, eg:
+  id="parent-fieldname-$fieldName-$UID". This makes it possible to
+  render multiple Archetype objects in the same view without duplicate
+  DOM ids. This fixes http://dev.plone.org/ticket/9464
+  [rochecompaan]
+
 1.7.9 (2011-09-19)
 ------------------
 
