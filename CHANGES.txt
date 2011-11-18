@@ -12,6 +12,9 @@ Changelog
   render their own label/help text for styling to override it. Closes
   http://dev.plone.org/plone/ticket/12355
 
+- Add new viewletmanger that enable extra markup before the fieldsets
+  [jfroche]
+
 1.7.9 (2011-09-19)
 ------------------
 
