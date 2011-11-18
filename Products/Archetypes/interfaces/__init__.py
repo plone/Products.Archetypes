@@ -37,7 +37,7 @@ from athistoryaware import IATHistoryAware
 from archetypetool import IArchetypeTool
 from edit import IEditForm
 from validator import IObjectPreValidation, IObjectPostValidation
-from viewlet import IEditAfterFieldsets
+from viewlet import IEditBeforeFieldsets, IEditAfterFieldsets
 
 import zope.deferredimport
 zope.deferredimport.deprecated(

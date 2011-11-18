@@ -5,6 +5,13 @@
   <include package="plone.app.viewletmanager" />
 
   <browser:viewletManager
+      name="archetypes.edit.beforefieldsets"
+      provides="..interfaces.IEditBeforeFieldsets"
+      permission="cmf.ModifyPortalContent"
+      class="plone.app.viewletmanager.manager.OrderedViewletManager"
+      />
+
+  <browser:viewletManager
       name="archetypes.edit.afterfieldsets"
       provides="..interfaces.IEditAfterFieldsets"
       permission="cmf.ModifyPortalContent"
