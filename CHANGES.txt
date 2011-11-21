@@ -11,6 +11,7 @@ Changelog
 - Add render_own_label to TypesWidget. Allows "special" widgets that need to
   render their own label/help text for styling to override it. Closes
   http://dev.plone.org/plone/ticket/12355
+  [ggozad, stefan]
 
 - Add new viewletmanger that enable extra markup before the fieldsets
   [jfroche]
@@ -20,9 +21,15 @@ Changelog
   render multiple Archetype objects in the same view without duplicate
   DOM ids. This fixes http://dev.plone.org/ticket/9464
   [rochecompaan]
-  
+
 - Fix SelectionWidgets getSelected not return selected values if the value is a int
-   with value 0 [martior]
+  with value 0
+  [martior]
+
+- Gracefully deal with ReferenceFields that had their referencesSortable flag
+  changed after creation.
+  [stefan]
+
 
 1.7.9 (2011-09-19)
 ------------------

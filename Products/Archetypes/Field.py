@@ -1795,8 +1795,9 @@ class ReferenceField(ObjectField):
         [rd.__setitem__(IUUID(r, None), r) for r in res]
 
         refs = instance.at_ordered_refs
-        order = refs[self.relationship]
-
+        order = refs.get(self.relationship)
+        if order is None:
+            return res
         return [rd[uid] for uid in order if uid in rd.keys()]
 
     security.declarePrivate('set')
@@ -1922,7 +1923,9 @@ class ReferenceField(ObjectField):
             return res
 
         refs = instance.at_ordered_refs
-        order = refs[self.relationship]
+        order = refs.get(self.relationship)
+        if order is None:
+            return res
         return [r for r in order if r in res]
 
 
