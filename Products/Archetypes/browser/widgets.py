@@ -69,6 +69,8 @@ class SelectionWidget(BrowserView):
     ...                                      (30, '30'), (45, '45')])
     >>> widget.getSelected(quarter_vocabulary, 5)
     []
+    >>> widget.getSelected(quarter_vocabulary, 0)
+    [0]
     >>> widget.getSelected(quarter_vocabulary, 15)
     [15]
     >>> widget.getSelected(quarter_vocabulary, '15')
@@ -126,7 +128,7 @@ class SelectionWidget(BrowserView):
         selected = []
         for v, pos in values:
             ov = vocabKeys.get(v)
-            if ov:
+            if ov is not None:
                 selected.append((pos, ov))
             elif integerKeys:
                 # Submitting a string '5' where the vocabulary has
@@ -140,7 +142,7 @@ class SelectionWidget(BrowserView):
                 except (ValueError, TypeError):
                     continue
                 ov = integerKeys.get(int_value)
-                if ov:
+                if ov is not None:
                     selected.append((pos, ov))
         selected.sort()
         return [v for pos, v in selected]
