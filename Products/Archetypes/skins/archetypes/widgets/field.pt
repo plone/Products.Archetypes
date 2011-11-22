@@ -54,9 +54,10 @@
     </metal:data_macro>
 
     <div metal:define-macro="view" tal:define="fieldName fieldName|field/getName;
-                                               fieldtypename python:field.getType().split('.')[-1];"
+                                               fieldtypename python:field.getType().split('.')[-1];
+                                               uid context/UID|nothing"
         tal:attributes="class string:field ArchetypesField-${fieldtypename};
-                        id string:archetypes-fieldname-${fieldName}-${UID}">
+                        id string:archetypes-fieldname-${fieldName}-${uid}">
           <metal:use_base_view use-macro="context/widgets/field/macros/base_view" />
     </div>
 

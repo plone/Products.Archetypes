@@ -15,9 +15,10 @@
                         getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
         <span metal:define-macro="textarea-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
-                              templateId='widgets/textarea', macro='textarea-field-view');"
+                              templateId='widgets/textarea', macro='textarea-field-view');
+                              uid context/UID|nothing;"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$UID">
+                            id string:parent-fieldname-$fieldName-$uid">
             <span metal:define-slot="inside"
                   tal:replace="accessor">textarea</span>
         </span>

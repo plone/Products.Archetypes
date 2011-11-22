@@ -13,9 +13,10 @@
                             getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
             <div metal:define-macro="keyword-field-view"
                 tal:define="kss_class python:getKssClasses(fieldName,
-                                  templateId='widgets/keyword', macro='keyword-field-view');"
+                                  templateId='widgets/keyword', macro='keyword-field-view');
+                                  uid context/UID|nothing"
                 tal:attributes="class kss_class;
-                                id string:parent-fieldname-$fieldName-$UID">
+                                id string:parent-fieldname-$fieldName-$uid">
                 <ul metal:define-slot="inside">
                     <li tal:repeat="item accessor"
                         tal:content="item"/>

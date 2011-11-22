@@ -21,9 +21,10 @@
                        format widget/format;
                        formatted python:format and d and d.strftime(format);
                        tlt nocall:context/toLocalizedTime|nothing;
-                       result python:(format and formatted) or (d and tlt and tlt(d, long_format=1)) or None;"
+                       result python:(format and formatted) or (d and tlt and tlt(d, long_format=1)) or None;
+                       uid context/UID|nothing;"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$UID">
+                            id string:parent-fieldname-$fieldName-$uid">
             <span metal:define-slot="inside"
                   tal:replace="structure result">calendar</span>
         </div>

@@ -13,9 +13,10 @@
                                   getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
         <div metal:define-macro="rich-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
-                              templateId='widgets/rich', macro='rich-field-view');"
+                              templateId='widgets/rich', macro='rich-field-view');
+                              uid context/UID|nothing"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$UID">
+                            id string:parent-fieldname-$fieldName-$uid">
             <span metal:define-slot="inside"
                   tal:define="transformable python: context.isTransformable(fieldName);"
                   tal:condition="transformable"

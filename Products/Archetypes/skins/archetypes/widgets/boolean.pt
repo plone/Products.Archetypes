@@ -14,9 +14,10 @@
                         getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
         <span metal:define-macro="boolean-field-view"
             tal:define="kss_class python:getKssClasses(fieldName,
-                              templateId='widgets/boolean', macro='boolean-field-view');"
+                              templateId='widgets/boolean', macro='boolean-field-view');
+                              uid context/UID|nothing;"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$UID">
+                            id string:parent-fieldname-$fieldName-$uid">
             <span metal:define-slot="inside"
                   tal:define="voc field/Vocabulary; key accessor;
                               value python:voc and voc.getValue(str(key)) or key"
