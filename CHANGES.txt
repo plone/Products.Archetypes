@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.10 (unreleased)
+1.7.10 (2011-11-24)
 -------------------
 
 - Fix DateTimeField.set() to handle all date formats DateTime handles.
