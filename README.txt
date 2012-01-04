@@ -31,7 +31,7 @@ Unit testing
 
 * Go into the root of your buildout and run::
  
-  bin/test Products.Archetypes
+    bin/test Products.Archetypes
 
 Documentation
 -------------
