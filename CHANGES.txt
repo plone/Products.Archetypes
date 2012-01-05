@@ -4,7 +4,9 @@ Changelog
 1.7.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix regression: widget labels were not rendered for subclasses of
+  CalendarWidget, SelectionWidget, MultiSelectionWidget, and LabelWidget.
+  [davisagli]
 
 
 1.7.10 (2011-11-24)
