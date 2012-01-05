@@ -461,7 +461,7 @@ class CalendarWidget(TypesWidget):
 
     security.declarePublic('render_own_label')
     def render_own_label(self):
-        return bool(self.getName() == 'CalendarWidget')
+        return True
 
 
 class SelectionWidget(TypesWidget):
@@ -476,7 +476,7 @@ class SelectionWidget(TypesWidget):
 
     security.declarePublic('render_own_label')
     def render_own_label(self):
-        return bool(self.getName() == 'SelectionWidget')
+        return True
 
 
 class LanguageWidget(TypesWidget):
@@ -519,7 +519,7 @@ class MultiSelectionWidget(TypesWidget):
 
     security.declarePublic('render_own_label')
     def render_own_label(self):
-        return bool(self.getName() == 'MultiSelectionWidget')
+        return True
 
 
 class KeywordWidget(TypesWidget):
@@ -758,7 +758,7 @@ class LabelWidget(TypesWidget):
 
     security.declarePublic('render_own_label')
     def render_own_label(self):
-        return bool(self.getName() == 'LabelWidget')
+        return True
 
 
 class PasswordWidget(TypesWidget):
