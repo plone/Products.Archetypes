@@ -1,8 +1,12 @@
 1.5.20 - unreleased
+===================
 
 - Added missing dependency on ``DateTime``. We need support for
   timezone naive date objects.
   [malthe]
+
+- use ISO8601() instead of ISO() for date metadata
+  [tom_gross]
 
 1.5.19 - 2011-11-14
 ===================
