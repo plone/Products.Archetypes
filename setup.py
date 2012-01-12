@@ -28,6 +28,6 @@ setup(name='Products.Archetypes',
           'Products.MimetypesRegistry',
           'Products.PortalTransforms',
           'Products.validation>=1.6.4',
-          'DateTime>=2.12.2',
+          'DateTime>=2.11.2,<2.99',
       ],
       )
