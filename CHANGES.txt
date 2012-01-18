@@ -4,7 +4,8 @@ Changelog
 1.7.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Archetypes ImageField converts GIF to PNG when it scales 
+  see http://dev.plone.org/plone/ticket/12472 [anthonygerrard]
 
 
 1.7.10 (2011-11-24)
