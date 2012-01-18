@@ -8,6 +8,10 @@
 - use ISO8601() instead of ISO() for date metadata
   [tom_gross]
 
+- Archetypes ImageField converts GIF to PNG when it scales 
+  see http://dev.plone.org/plone/ticket/12472 
+  [anthonygerrard]
+
 1.5.19 - 2011-11-14
 ===================
 
