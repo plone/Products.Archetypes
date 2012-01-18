@@ -27,6 +27,10 @@
 
 import os
 
+import PIL
+
+from StringIO import StringIO
+
 from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.interface import implements, alsoProvides
 from zope.component import getSiteManager
@@ -207,6 +211,17 @@ class ProcessingTest(ATSiteTestCase):
                           '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
         self.assertEquals(image_field.tag(dummy, alt='', title=''),
                           '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
+
+    def test_gif_format_preserved_when_scaling(self):
+        dummy = self.makeDummy()
+
+        image_field = dummy.getField('imagefield')
+
+        scaled_image_file, img_format = image_field.scale(img_content, 5, 5)        
+        self.assertEqual("gif", img_format)
+        
+        image = PIL.Image.open(scaled_image_file)
+        self.assertEqual("GIF", image.format)
 
     def test_get_size(self):
         dummy = self.makeDummy()
