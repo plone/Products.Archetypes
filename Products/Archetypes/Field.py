@@ -2452,6 +2452,18 @@ class ImageField(FileField):
 
         original_file=StringIO(data)
         image = PIL.Image.open(original_file)
+        
+        if image.format == 'GIF' and size[0] >= image.size[0] and size[1] >= image.size[1]:
+            try:
+                image.seek(image.tell() + 1)
+                # original image is animated GIF and no bigger than the scale requested
+                # don't attempt to scale as this will lose animation
+                original_file.seek(0)
+                return original_file, 'gif'
+            except EOFError:
+                # image is not animated
+                pass
+        
         # consider image mode when scaling
         # source images can be mode '1','L,','P','RGB(A)'
         # convert to greyscale or RGBA before scaling
