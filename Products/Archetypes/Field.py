@@ -2499,7 +2499,7 @@ class ImageField(FileField):
                 return original_file, 'gif'
             except EOFError:
                 # image is not animated
-                pass
+                image.seek(0)
         
         # consider image mode when scaling
         # source images can be mode '1','L,','P','RGB(A)'
