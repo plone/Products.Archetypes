@@ -76,6 +76,8 @@ txt_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
 img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'), 'rb')
 img_content = img_file.read()
+animated_gif_file = open(os.path.join(PACKAGE_HOME, 'input', 'animated.gif'), 'rb')
+animated_gif_content = animated_gif_file.read()
 
 field_values = {'objectfield':'objectfield',
                 'stringfield':'stringfield',
@@ -222,6 +224,18 @@ class ProcessingTest(ATSiteTestCase):
         
         image = PIL.Image.open(scaled_image_file)
         self.assertEqual("GIF", image.format)
+
+    def test_dont_scale_animated_gif_when_original_is_smaller_than_scale_size(self):
+        dummy = self.makeDummy()
+
+        image_field = dummy.getField('imagefield')
+
+        scaled_image_file, img_format = image_field.scale(animated_gif_content, 100, 100)        
+        self.assertEqual("gif", img_format)
+        
+        image = PIL.Image.open(scaled_image_file)
+        self.assertEqual("GIF", image.format)
+        image.seek(image.tell() + 1)
 
     def test_get_size(self):
         dummy = self.makeDummy()

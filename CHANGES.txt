@@ -4,6 +4,10 @@ Changelog
 1.6.7 - unreleased
 ------------------
 
+- Animated GIF loses animation if Archetypes ImageField original_size property set
+  see http://dev.plone.org/ticket/12488
+  [anthonygerrard]
+
 - Archetypes ImageField converts GIF to PNG when it scales 
   see http://dev.plone.org/plone/ticket/12472 
   [anthonygerrard]
