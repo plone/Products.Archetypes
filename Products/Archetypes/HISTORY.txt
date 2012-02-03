@@ -4,6 +4,9 @@
 - Added missing dependency on ``DateTime``. We need support for
   timezone naive date objects.
   [malthe]
+  
+-- use ISO8601() instead of ISO() for date metadata
+-  [tom_gross]  
 
 - Animated GIF loses animation if Archetypes ImageField original_size property set
   see http://dev.plone.org/ticket/12488
