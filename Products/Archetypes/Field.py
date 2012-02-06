@@ -2299,13 +2299,14 @@ class ImageField(FileField):
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
-        if not value:
-            return
         # Do we have to delete the image?
-        if value=="DELETE_IMAGE":
+        if value == "DELETE_IMAGE" or value is None:
             self.removeScales(instance, **kwargs)
             # unset main field too
             ObjectField.unset(self, instance, **kwargs)
+            return
+
+        if not value:
             return
 
         kwargs.setdefault('mimetype', None)
