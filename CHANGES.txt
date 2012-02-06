@@ -4,7 +4,6 @@ Changelog
 1.7.12 (unreleased)
 -------------------
 
-<<<<<<< HEAD
 - Animated GIF loses animation if Archetypes ImageField original_size property set
   see http://dev.plone.org/ticket/12488
   [anthonygerrard]
@@ -12,13 +11,12 @@ Changelog
 1.7.11 (2012-01-26)
 -------------------
 
-- Archetypes ImageField converts GIF to PNG when it scales 
+- Archetypes ImageField converts GIF to PNG when it scales
   see http://dev.plone.org/plone/ticket/12472 [anthonygerrard]
-=======
+
 - Delete image also when field mutator is given a `None`
   argument. Previously, an image would only be deleted if given the
   string `"DELETE_IMAGE"`.
->>>>>>> 6c0c663... Delete image when mutator is given an argument of `None`.
 
   Note that we still return immediately if provided an empty string.
   [malthe]
