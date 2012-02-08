@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.12 (unreleased)
+1.7.12 (2012-02-07)
 -------------------
 
 - Animated GIF loses animation if Archetypes ImageField original_size property set
