@@ -882,6 +882,11 @@ def addStatusMessage(request, message, type='info'):
 
 def transaction_note(note):
     """ Write human legible note """
+
+    if type(note) == unicode:
+        import unicodedata
+        note = unicodedata.normalize('NFKD', note).encode('utf-8', 'ignore')
+
     T = transaction.get()
     if (len(T.description) + len(note)) >= 65533:
         logger.warning('Transaction note too large omitting %s' % str(note))
