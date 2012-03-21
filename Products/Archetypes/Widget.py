@@ -159,6 +159,7 @@ class StringWidget(TypesWidget):
         'size' : '30',
         'maxlength' : '255',
         'blurrable' : True,
+        'placeholder' : '',
         })
 
     security = ClassSecurityInfo()
