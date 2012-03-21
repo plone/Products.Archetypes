@@ -34,6 +34,7 @@
                                id fieldName;
                                value value;
                                size widget/size;
+                               placeholder widget/placeholder|string:;
                                maxlength widget/maxlength;"
                />
       </metal:use>
