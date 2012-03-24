@@ -12,11 +12,12 @@
                       tal:define="kssClassesView context/@@kss_field_decorator_view;
                                   getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
         <div metal:define-macro="rich-field-view"
-            tal:define="kss_class python:getKssClasses(fieldName,
-                              templateId='widgets/rich', macro='rich-field-view');
-                              uid context/UID|nothing"
+            tal:define="uid context/UID|nothing;
+                        field_id string:parent-fieldname-$fieldName-$uid;
+                        kss_class python:getKssClasses(fieldName,
+                              templateId='widgets/rich', macro='rich-field-view', target=field_id);"
             tal:attributes="class kss_class;
-                            id string:parent-fieldname-$fieldName-$uid">
+                            id field_id">
             <span metal:define-slot="inside"
                   tal:define="transformable python: context.isTransformable(fieldName);"
                   tal:condition="transformable"
