@@ -531,6 +531,7 @@ class KeywordWidget(TypesWidget):
         'vocab_source' : 'portal_catalog',
         'roleBasedAdd' : True,
         'helper_js': ('widgets/js/keywordmultiselect.js',),
+        'helper_css': ('keywordwidget.css',),
         })
 
     security = ClassSecurityInfo()

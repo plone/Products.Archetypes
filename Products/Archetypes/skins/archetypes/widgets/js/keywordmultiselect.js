@@ -67,10 +67,10 @@
 (function($) {
 
 	// render the html for a single option
-	function renderOption(option, i, selectName) {
+	function renderOption(option, i, selectName, $container) {
 		// dl, dt, & dd semantically associates selector name with values
 		// label makes the text clickable, like a multiple-select
-		var html = '<dd><label for="tag' + i + '"><input type="checkbox" name="' + selectName + '" value="' + option.value + '" id="tag' + i + '"';
+		var html = '<dd><label for="' + $container.attr('id') + '-' + i + '"><input type="checkbox" name="' + selectName + '" value="' + option.value + '" id="' + $container.attr('id') + '-' + i + '"';
 		if( option.selected ) {
 			html += ' checked="checked"';
 		}
@@ -79,10 +79,10 @@
 	}
 
 	// render the html for the options/optgroups
-	function renderOptions(options, selectName) {
+	function renderOptions(options, selectName, $container) {
 		var html = "";
 		for(var i = 0; i < options.length; i++) {
-			html += renderOption(options[i], i, selectName);
+			html += renderOption(options[i], i, selectName, $container);
 		}
 		return html;
 	}
@@ -102,17 +102,17 @@
 
 
 	// Building the actual options
-	function buildOptions(options) {
+	function buildOptions(options, $container) {
 		var optionsBox = $(this);
 		var multiSelectA = optionsBox.next('.multiSelectA');
 
 		// Help text here is only relevant when there are many tags,
 		// so putting that in documentation, rather than here.
 		// "Hover and type the first letter to skip through tags."
-		$("#existingTagsHelp").text('');
+		$(".existingTagsHelp", $container).text('');
 
 		// generate the html for the new options
-		html = renderOptions(options, optionsBox.attr('name'));
+		html = renderOptions(options, optionsBox.attr('name'), $container);
 		optionsBox.html(html);
 
 		// Format selected options
@@ -350,18 +350,19 @@
 			}
 		});
 
+		var $container = optionsBox.closest('.tagsContainer');
 		if( i === 0 ) {
-			$("#selectedTagsHeading").html( $("#noTagsSelected").text() );
-			$("#selectedTags").text('');
+			$(".selectedTagsHeading", $container).html( $(".noTagsSelected", $container).text() );
+			$(".selectedTags", $container).text('');
 		} else {
-			$("#selectedTags").html( display );
-			$("#selectedTagsHeading").html( $("#oneOrMoreTagsSelected").text().replace('%', i) );
+			$(".selectedTags", $container).html( display );
+			$(".selectedTagsHeading", $container).html( $(".oneOrMoreTagsSelected", $container).text().replace('%', i) );
 		}
 	}
 
 	$.extend($.fn, {
 		multiSelect: function() {
-
+			$container = $(this).closest('.tagsContainer');
 			// Initialize each optionsBox
 			$(this).each( function() {
 				var select = $(this);
@@ -374,28 +375,28 @@
 				html += '<a href="javascript:;" class="multiSelectA" title="enable tag selector: tag selector is currently enabled"></a>';
 				// display:block makes the blank area right of the text clickable, like a multiple-select
 				html += '<style type="text/css">.ArchetypesKeywordWidget label {display: block;}</style>';
-				$(select).after(html);
+				select.after(html);
 
-				var optionsBox = $(select).next('.optionsBox');
+				var optionsBox = select.next('.optionsBox');
 				var multiSelectA = optionsBox.next('.multiSelectA');
 
 				// Serialize the select options into json options
 				var options = [];
-				$(select).children().each( function() {
-					if( $(this).val() !== '' ) {
+				select.children().each( function() {
+					if( select.val() !== '' ) {
 						options.push({ text: $(this).html(), value: $(this).val(), selected: $(this).attr('selected') });
 					}
 				});
 
 				// Eliminate the original form element
-				$(select).remove();
+				select.remove();
 
 				// Add the id & name that was on the original select element to the new div
-				optionsBox.attr("id", $(select).attr("id"));
-				optionsBox.attr("name", $(select).attr("name"));
+				optionsBox.attr("id", select.attr("id"));
+				optionsBox.attr("name", select.attr("name"));
 
 				// Build the dropdown options
-				buildOptions.call(optionsBox, options);
+				buildOptions.call(optionsBox, options, $container);
 
 			});
 		}
