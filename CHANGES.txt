@@ -9,6 +9,12 @@ Changelog
   Closes http://dev.plone.org/ticket/12465
   [esteele]
 
+- Fixed the KeywordWidget template and JavaScript source. the widget can
+  now be used for fields with name different from "subject". Also multiple
+  istances of this field can be used in the same page.
+  See http://dev.plone.org/ticket/12218
+  [keul]
+
 1.7.12 (2012-02-07)
 -------------------
 
