@@ -112,7 +112,7 @@
 		$(".existingTagsHelp", $container).text('');
 
 		// generate the html for the new options
-		html = renderOptions(options, optionsBox.attr('name'), $container);
+		var html = renderOptions(options, optionsBox.attr('name'), $container);
 		optionsBox.html(html);
 
 		// Format selected options
@@ -137,7 +137,7 @@
 				multiSelectA.oldPositionX = e.pageX;
 				multiSelectA.oldPositionY = e.pageY;
 			}
-			if( multiSelectA.oldPositionX != e.pageX || multiSelectA.oldPositionY != e.pageY ) {
+			if( multiSelectA.oldPositionX !== e.pageX || multiSelectA.oldPositionY !== e.pageY ) {
 				// At this point, the mouse actually did move.
 				// Highlight navigated option
 				$(this).parent().parent().find('LABEL').removeClass('hover'); // remove all highlights
@@ -362,7 +362,7 @@
 
 	$.extend($.fn, {
 		multiSelect: function() {
-			$container = $(this).closest('.tagsContainer');
+			var $container = $(this).closest('.tagsContainer');
 			// Initialize each optionsBox
 			$(this).each( function() {
 				var select = $(this);
