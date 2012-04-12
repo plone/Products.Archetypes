@@ -4,7 +4,7 @@ Changelog
 1.7.14 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- added 'placeholder' support for StringWidget, DecimalWidget and IntegerWidget
 
 
 1.7.13 (2012-04-09)

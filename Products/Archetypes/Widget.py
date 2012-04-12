@@ -159,6 +159,7 @@ class StringWidget(TypesWidget):
         'size' : '30',
         'maxlength' : '255',
         'blurrable' : True,
+        'placeholder' : '',
         })
 
     security = ClassSecurityInfo()
@@ -173,6 +174,7 @@ class DecimalWidget(TypesWidget):
         'whole_dollars' : False,
         'thousands_commas' : False,
         'blurrable' : True,
+        'placeholder' : '',
         })
 
     security = ClassSecurityInfo()
@@ -184,6 +186,7 @@ class IntegerWidget(TypesWidget):
         'size' : '5',
         'maxlength' : '255',
         'blurrable' : True,
+        'placeholder' : '',
         })
 
     security = ClassSecurityInfo()
