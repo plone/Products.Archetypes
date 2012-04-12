@@ -42,7 +42,7 @@
                             id fieldName;
                             cols widget/cols;
                             rows widget/rows;
-                            placeholder widget/placeholder|string:;
+                            placeholder widget/placeholder|nothing;
                             onkeydown python:test(maxlength, keypress, None);
                             onkeyup python:test(maxlength, keypress, None);"
             tal:define="content python:not append_only and content or '';"
