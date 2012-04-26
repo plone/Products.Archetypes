@@ -95,10 +95,7 @@
                 <span class="required"
                       tal:condition="field/required"
                       title="Required"
-                      i18n:attributes="title title_required;"
-                      style="color: #f00;">
-                  &#x25a0;
-                </span>
+                      i18n:attributes="title title_required;">&nbsp;</span>
             </label>
             <div class="formHelp"
                  tal:define="description python:widget.Description(here)"
