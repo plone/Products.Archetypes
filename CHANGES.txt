@@ -9,6 +9,7 @@ Changelog
   [tom_gross]
 
 - added 'placeholder' support for StringWidget, DecimalWidget and IntegerWidget
+  [zopyx]
 
 
 1.7.13 (2012-04-09)
