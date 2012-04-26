@@ -4,6 +4,10 @@ Changelog
 1.7.14 (unreleased)
 -------------------
 
+- removed hardcoded required icon. It can and should be set by CSS as it is done
+  in the formTabs
+  [tom_gross]
+
 - added 'placeholder' support for StringWidget, DecimalWidget and IntegerWidget
 
 
