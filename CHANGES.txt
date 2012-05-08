@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.14 (unreleased)
+1.7.14 (2012-05-07)
 -------------------
 
 - removed hardcoded required icon. It can and should be set by CSS as it is done
