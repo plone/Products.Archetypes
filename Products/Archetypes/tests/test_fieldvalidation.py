@@ -124,7 +124,7 @@ class TestSettings(ATTestCase):
             msg = 'Assertion failed for setting:\n%s.\nResult was "%s".' % \
                   (setting, result)
 
-            self.assert_(setting['assertion'](result),
+            self.assertTrue(setting['assertion'](result),
                          setting.get('failmsg', msg))
 
 
@@ -137,8 +137,8 @@ class TestValidation(ATTestCase):
         # attach a validator that never validates, so any value must fail
         field = IntegerField('integer', validators=('v3',))
 
-        self.assert_(field.validate(1, self.instance, errors={}) is not None)
-        self.assert_(field.validate(0, self.instance, errors={}) is not None)
+        self.assertTrue(field.validate(1, self.instance, errors={}) is not None)
+        self.assertTrue(field.validate(0, self.instance, errors={}) is not None)
 
 
 def test_suite():

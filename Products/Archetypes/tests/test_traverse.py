@@ -45,47 +45,47 @@ class TraverseTests(TestCase):
 
 
     def testInterface(self):
-        self.failUnless(verifyClass(IPublishTraverse, ImageTraverser))
+        self.assertTrue(verifyClass(IPublishTraverse, ImageTraverser))
 
 
     def testUnknownField(self):
         traverser=ImageTraverser(MockContext(), None)
-        self.failUnless(traverser.publishTraverse(None, "missing") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(None, "missing") is fallback_marker)
 
 
     def testWrongFieldType(self):
         context=MockContext()
         context.field=BaseMockField("Other.Type")
         traverser=ImageTraverser(context, None)
-        self.failUnless(traverser.publishTraverse(None, "field") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(None, "field") is fallback_marker)
 
 
     def testCorrectFieldType(self):
         context=MockContext()
         context.field=MockField("Other.Type")
         traverser=ImageTraverser(context, None)
-        self.failUnless(traverser.publishTraverse(None, "field") is data_marker)
+        self.assertTrue(traverser.publishTraverse(None, "field") is data_marker)
 
 
     def testFullImage(self):
         context=MockContext()
         context.field=MockField("Products.Archetypes.Field.ImageField")
         traverser=ImageTraverser(context, None)
-        self.failUnless(traverser.publishTraverse(None, "field") is data_marker)
+        self.assertTrue(traverser.publishTraverse(None, "field") is data_marker)
 
 
     def testUnknownScale(self):
         context=MockContext()
         context.field=MockField("Products.Archetypes.Field.ImageField")
         traverser=ImageTraverser(context, None)
-        self.failUnless(traverser.publishTraverse(None, "field_poster") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(None, "field_poster") is fallback_marker)
 
 
     def testKnownScale(self):
         context=MockContext()
         context.field=MockField("Products.Archetypes.Field.ImageField")
         traverser=ImageTraverser(context, None)
-        self.failUnless(traverser.publishTraverse(None, "field_mini") is data_marker)
+        self.assertTrue(traverser.publishTraverse(None, "field_mini") is data_marker)
 
 
 

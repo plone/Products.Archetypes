@@ -78,19 +78,19 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
-        self.failUnless(errors['foo'])
+        self.assertTrue(errors['foo'])
         del ob
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject2)
         errors = ob.validate()
-        self.failIf(errors.has_key('foo'))
+        self.assertFalse(errors.has_key('foo'))
         del ob
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject3)
         errors = ob.validate()
-        self.failUnless(errors['foo'])
+        self.assertTrue(errors['foo'])
         del ob
 
         sm = component.getSiteManager()
@@ -110,19 +110,19 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
-        self.failIf(errors.has_key('bar'))
+        self.assertFalse(errors.has_key('bar'))
         del ob
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject2)
         errors = ob.validate()
-        self.failUnless(errors['bar'])
+        self.assertTrue(errors['bar'])
         del ob
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject3)
         errors = ob.validate()
-        self.failUnless(errors.has_key('bar'))
+        self.assertTrue(errors.has_key('bar'))
         del ob
 
         sm = component.getSiteManager()

@@ -96,30 +96,30 @@ class AttributeProtectionTest(ATSiteTestCase):
 
         title = p.Title()
         p.update(title='Bla')
-        self.failUnlessEqual(title, p.Title())
+        self.assertEqual(title, p.Title())
 
         title = p.Title()
         p.edit(title='Bla')
-        self.failUnlessEqual(title, p.Title())
+        self.assertEqual(title, p.Title())
 
         title = p.Title()
         p.processForm(data=True, values={'title':'Bla'})
-        self.failUnlessEqual(title, p.Title())
+        self.assertEqual(title, p.Title())
 
     def test_field_write_has_perm(self):
         # Check that if the user does have the field.write_permission
         # then the value will be updated in edit() or update().
         p = self.inst
         p.update(title='Bla1')
-        self.failUnlessEqual(p.Title(), 'Bla1')
+        self.assertEqual(p.Title(), 'Bla1')
 
         title = p.Title()
         p.edit(title='Bla2')
-        self.failUnlessEqual(p.Title(), 'Bla2')
+        self.assertEqual(p.Title(), 'Bla2')
 
         title = p.Title()
         p.processForm(data=True, values={'title':'Bla3'})
-        self.failUnlessEqual(p.Title(), 'Bla3')
+        self.assertEqual(p.Title(), 'Bla3')
 
     def test_import_transaction_note(self):
         self.check('from Products.Archetypes.utils import transaction_note')

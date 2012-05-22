@@ -186,7 +186,7 @@ class StrangeIdTest(ATSiteTestCase):
         strangeIds = ['home', 'version']
         for id in strangeIds:
             self.folder.invokeFactory('Folder', id)
-            self.assert_(id in self.folder.objectIds())
+            self.assertTrue(id in self.folder.objectIds())
 
 
 def test_suite():

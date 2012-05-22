@@ -33,11 +33,11 @@ class TemplateMixinTest(ATSiteTestCase):
 
     def test_isTemplateEnabled(self):
         at = getToolByName(self.portal, TOOL_NAME)
-        self.failUnless(at.isTemplateEnabled(TemplateMixin))
+        self.assertTrue(at.isTemplateEnabled(TemplateMixin))
 
     def test_isTemplateEnabledType(self):
         at = getToolByName(self.portal, TOOL_NAME)
-        self.failUnless(at.isTemplateEnabled(dict(klass=TemplateMixin)))
+        self.assertTrue(at.isTemplateEnabled(dict(klass=TemplateMixin)))
 
 def test_suite():
     from unittest import TestSuite, makeSuite

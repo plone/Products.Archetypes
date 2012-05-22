@@ -47,14 +47,14 @@ class BaseReferenceableTests(ATSiteTestCase):
         brains = uc(dict(UID=uids))
 
         uobjects = [b.getObject() for b in brains]
-        self.failIf(None in uobjects, """bad uid resolution""")
+        self.assertFalse(None in uobjects, """bad uid resolution""")
 
         #Verify all references resolve
         uids = rc.uniqueValuesFor('UID')
         brains = rc(dict(UID=uids))
 
         robjects = [b.getObject() for b in brains]
-        self.failIf(None in robjects, """bad ref catalog resolution""")
+        self.assertFalse(None in robjects, """bad ref catalog resolution""")
         return uobjects, robjects
 
     def test_hasUID( self ):
@@ -62,17 +62,17 @@ class BaseReferenceableTests(ATSiteTestCase):
                            , portal_type='DDocument'
                            , title='Foo' )
 
-        self.failUnless(hasattr(aq_base(doc), UUID_ATTR))
-        self.failUnless(getattr(aq_base(doc), UUID_ATTR, None))
+        self.assertTrue(hasattr(aq_base(doc), UUID_ATTR))
+        self.assertTrue(getattr(aq_base(doc), UUID_ATTR, None))
 
     def test_uuid(self):
         doc = makeContent( self.folder
                            , portal_type='DDocument'
                            , title='Foo' )
 
-        self.failUnless(IUUIDAware.providedBy(doc))
+        self.assertTrue(IUUIDAware.providedBy(doc))
         uuid = IUUID(doc, None)
-        self.failUnless(uuid == doc.UID())
+        self.assertTrue(uuid == doc.UID())
 
     def test_renamedontchangeUID( self ):
         catalog = self.portal.uid_catalog
@@ -88,12 +88,12 @@ class BaseReferenceableTests(ATSiteTestCase):
         UID = doc.UID()
         # This test made an assumption about other UIDs in the system
         # that are wrong with things like ATCT
-        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
+        self.assertTrue(UID in catalog.uniqueValuesFor('UID'))
         # ensure object has a _p_jar
         transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
-        self.failUnless(UID in catalog.uniqueValuesFor('UID'))
+        self.assertTrue(UID in catalog.uniqueValuesFor('UID'))
         self.assertEquals(doc.UID(), UID)
 
 
@@ -227,10 +227,10 @@ class BaseReferenceableTests(ATSiteTestCase):
                             , id=obj_id)
 
         UID2 = doc2.UID()
-        self.failIf(UID == UID2)
+        self.assertFalse(UID == UID2)
         uniq = catalog.uniqueValuesFor('UID')
-        self.failUnless(UID in uniq, (UID, uniq))
-        self.failUnless(UID2 in uniq, (UID, uniq))
+        self.assertTrue(UID in uniq, (UID, uniq))
+        self.assertTrue(UID2 in uniq, (UID, uniq))
 
     def test_setUID_keeps_relationships(self):
         obj_id   = 'demodoc'
@@ -250,8 +250,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        self.failUnless(b in refs, (b, refs))
-        self.failUnless(c in refs, (c, refs))
+        self.assertTrue(b in refs, (b, refs))
+        self.assertTrue(c in refs, (c, refs))
         self.assertEquals(a.getRefs('KnowsAbout'), [b])
         self.assertEquals(b.getRefs('KnowsAbout'), [a])
         self.assertEquals(a.getRefs('Owns'), [c])
@@ -296,8 +296,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(new_refs[0], new_uid)
 
         refs = a.getRefs()
-        self.failUnless(b in refs, (b, refs))
-        self.failUnless(c in refs, (c, refs))
+        self.assertTrue(b in refs, (b, refs))
+        self.assertTrue(c in refs, (c, refs))
         self.assertEquals(a.getRefs('KnowsAbout'), [b])
         self.assertEquals(b.getRefs('KnowsAbout'), [a])
         self.assertEquals(a.getRefs('Owns'), [c])
@@ -324,13 +324,13 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(c, "Owns")
 
         refs = a.getRefs()
-        self.failUnless(b in refs, (b, refs))
-        self.failUnless(c in refs, (c, refs))
+        self.assertTrue(b in refs, (b, refs))
+        self.assertTrue(c in refs, (c, refs))
         self.assertEquals(a.getRefs('Owns'), [c])
         self.assertEquals(c.getBRefs('Owns'), [a])
         rels = a.getRelationships()
-        self.failUnless("KnowsAbout" in rels, ("KnowsAbout", rels))
-        self.failUnless("Owns" in rels, ("Owns", rels))
+        self.assertTrue("KnowsAbout" in rels, ("KnowsAbout", rels))
+        self.assertTrue("Owns" in rels, ("Owns", rels))
 
         a.deleteReference(c, "Owns")
         self.assertEquals(a.getRefs(), [b])
@@ -379,8 +379,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         # The order is not defined, which can lead to spurious test
         # failures, but we do not care about the order.
         self.assertEquals(len(brefs), 2)
-        self.failUnless(payment in brefs)
-        self.failUnless(payment2 in brefs)
+        self.assertTrue(payment in brefs)
+        self.assertTrue(payment2 in brefs)
 
         brels = payment.getBRelationships()
         self.assertEquals(brels, ['Owns'])
@@ -476,8 +476,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         rc = self.portal.reference_catalog
 
         uids = uc.uniqueValuesFor('UID')
-        self.failUnless(a.UID() in uids, (a.UID(), uids))
-        self.failUnless(b.UID() in uids, (b.UID(), uids))
+        self.assertTrue(a.UID() in uids, (a.UID(), uids))
+        self.assertTrue(b.UID() in uids, (b.UID(), uids))
 
         uids = rc.uniqueValuesFor('UID')
         refs = rc(dict(UID=uids))
@@ -562,7 +562,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             (dummy.UID(), dummy.getId()),
             ('', u'label_no_reference'),
             ])
-        self.failIfEqual(field.Vocabulary(dummy), expected)
+        self.assertNotEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
         self.assertEquals(field.Vocabulary(dummy), expected)
 
@@ -574,7 +574,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b)
         self.folder._delObject('b')
 
-        self.failUnlessEqual(a.getRefs(), [])
+        self.assertEqual(a.getRefs(), [])
 
     def test_noBackReferenceAfterDelete(self):
         # Deleting source should delete back reference
@@ -584,7 +584,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b)
         self.folder._delObject('a')
 
-        self.failUnlessEqual(b.getBRefs(), [])
+        self.assertEqual(b.getBRefs(), [])
 
     def test_copyKeepsReferences(self):
         # when copied a pasted object should NOT lose all references
@@ -603,8 +603,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         related_field = a.getField('related')
         related_field.set(a, b.UID())
 
-        self.failUnlessEqual(b.getBRefs(), [a])
-        self.failUnlessEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
 
         cb = org_folder.manage_copyObjects(ids=['a'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
@@ -613,17 +613,17 @@ class BaseReferenceableTests(ATSiteTestCase):
         # The copy should get a new UID
         a_uid = a.UID()
         ca_uid = copy_a.UID()
-        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+        self.assertFalse(a_uid == ca_uid, (a_uid, ca_uid))
 
         # The copy should have the same references
-        self.failUnlessEqual(a.getRefs(), copy_a.getRefs())
-        self.failUnless(copy_a in b.getBRefs())
+        self.assertEqual(a.getRefs(), copy_a.getRefs())
+        self.assertTrue(copy_a in b.getBRefs())
 
 
         # Original object should keep references
-        self.failUnlessEqual(a.getRefs(), [b])
+        self.assertEqual(a.getRefs(), [b])
         # Original non-copied object should point to both the original and the copied object
-        self.failUnlessEqual(b.getBRefs(), [a, copy_a])
+        self.assertEqual(b.getBRefs(), [a, copy_a])
 
     def test_copyPasteSupport(self):
         # copy/paste behaviour test
@@ -641,8 +641,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         b = makeContent(org_folder, portal_type='DDocument', id='b')
         a.addReference(b)
 
-        self.failUnlessEqual(b.getBRefs(), [a])
-        self.failUnlessEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
 
         cb = org_folder.manage_copyObjects(ids=['a'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
@@ -651,16 +651,16 @@ class BaseReferenceableTests(ATSiteTestCase):
         # The copy should get a new UID
         a_uid = a.UID()
         ca_uid = copy_a.UID()
-        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+        self.assertFalse(a_uid == ca_uid, (a_uid, ca_uid))
 
         # The copy shouldn't have references
-        self.failUnlessEqual(copy_a.getRefs(), [])
-        self.failIf(copy_a in b.getBRefs())
+        self.assertEqual(copy_a.getRefs(), [])
+        self.assertFalse(copy_a in b.getBRefs())
 
 
         # Original object should keep references
-        self.failUnlessEqual(a.getRefs(), [b])
-        self.failUnlessEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
 
     def test_cutPasteSupport(self):
         # cut/paste behaviour test
@@ -682,8 +682,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
         copy_a = getattr(dst_folder, 'a')
 
-        self.failUnlessEqual(copy_a.getRefs(), [b])
-        self.failUnlessEqual(b.getBRefs(), [copy_a])
+        self.assertEqual(copy_a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [copy_a])
 
     def test_folderCopyPasteSupport(self):
         # copy/paste behaviour test
@@ -703,8 +703,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         b = makeContent(my_folder, portal_type='DDocument', id='b')
         a.addReference(b)
 
-        self.failUnlessEqual(b.getBRefs(), [a])
-        self.failUnlessEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
 
         cb = org_folder.manage_copyObjects(ids=['my_folder'])
         dst_folder.manage_pasteObjects(cb_copy_data=cb)
@@ -714,18 +714,18 @@ class BaseReferenceableTests(ATSiteTestCase):
         # The copy should get a new UID
         a_uid = a.UID()
         ca_uid = copy_a.UID()
-        self.failIf(a_uid == ca_uid, (a_uid, ca_uid))
+        self.assertFalse(a_uid == ca_uid, (a_uid, ca_uid))
 
         # The copy shouldn't have references
-        self.failUnlessEqual(copy_a.getRefs(), [])
-        self.failIf(copy_a in b.getBRefs())
+        self.assertEqual(copy_a.getRefs(), [])
+        self.assertFalse(copy_a in b.getBRefs())
 
         #The copy's uid should have changed
-        self.failIf(ca_uid == a_uid)
+        self.assertFalse(ca_uid == a_uid)
 
         # Original object should keep references
-        self.failUnlessEqual(a.getRefs(), [b])
-        self.failUnlessEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
 
     def test_folderCutPasteSupport(self):
         # copy/paste behaviour test
@@ -745,8 +745,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         b = makeContent(my_folder, portal_type='DDocument', id='b')
         a.addReference(b)
 
-        self.failUnlessEqual(b.getBRefs(), [a])
-        self.failUnlessEqual(a.getRefs(), [b])
+        self.assertEqual(b.getBRefs(), [a])
+        self.assertEqual(a.getRefs(), [b])
         a_uid = a.UID()
 
         transaction.savepoint(optimistic=True)
@@ -758,11 +758,11 @@ class BaseReferenceableTests(ATSiteTestCase):
         ca_uid = copy_a.UID()
 
         # The copy shouldn't have references
-        self.failUnlessEqual(copy_a.getRefs(), [copy_b])
-        self.failUnlessEqual(copy_b.getBRefs(), [copy_a])
+        self.assertEqual(copy_a.getRefs(), [copy_b])
+        self.assertEqual(copy_b.getBRefs(), [copy_a])
 
         #The copy's uid should have changed
-        self.failUnless(ca_uid == a_uid, (a_uid, ca_uid))
+        self.assertTrue(ca_uid == a_uid, (a_uid, ca_uid))
 
 
 class SimpleFolderReferenceableTests(BaseReferenceableTests):

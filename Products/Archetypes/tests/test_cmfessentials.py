@@ -53,16 +53,16 @@ class TestPermissions(ATSiteTestCase):
 
     def testPermissions(self):
         for content in self.demo_instances:
-            self.failUnless(checkPerm(permissions.View, content))
-            self.failUnless(checkPerm(permissions.AccessContentsInformation, content))
-            self.failUnless(checkPerm(permissions.ModifyPortalContent, content))
+            self.assertTrue(checkPerm(permissions.View, content))
+            self.assertTrue(checkPerm(permissions.AccessContentsInformation, content))
+            self.assertTrue(checkPerm(permissions.ModifyPortalContent, content))
 
     def testRendering(self):
         # Attempt to call each object and make sure it presents a rendered
         # html view
         for content in self.demo_instances:
-            self.failUnless(isinstance(content(), basestring))
-            self.failUnless(content().strip().startswith('<!DOCTYPE'))
+            self.assertTrue(isinstance(content(), basestring))
+            self.assertTrue(content().strip().startswith('<!DOCTYPE'))
 
 
 def test_suite():

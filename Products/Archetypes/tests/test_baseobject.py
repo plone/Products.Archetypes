@@ -82,7 +82,7 @@ class BaseObjectTest(ATSiteTestCase):
         dummy.setMULTIPLEFIELD(['1','2'])
         searchable = dummy.SearchableText()
 
-        self.failUnless(isinstance(searchable, basestring))
+        self.assertTrue(isinstance(searchable, basestring))
         self.assertEquals(searchable,
             '1 2 Option 1 : printemps [[plone][Option 2 : \xc3\xa9t\xc3\xa9]]')
 
@@ -104,7 +104,7 @@ class BaseObjectTest(ATSiteTestCase):
         # This is where we left off in the previous test
         dummy.setMULTIPLEFIELD(['1','2'])
         searchable = dummy.SearchableText()
-        self.failUnless(searchable.startswith('1 2 Option 1 : printemps'))
+        self.assertTrue(searchable.startswith('1 2 Option 1 : printemps'))
 
         # Now we set another index_method and expect it to be used:
         dummy.getField('MULTIPLEFIELD').index_method = 'myMethod'
@@ -112,7 +112,7 @@ class BaseObjectTest(ATSiteTestCase):
             return "What do you expect of a Dummy?"
         Dummy.myMethod = myMethod
         searchable = dummy.SearchableText()
-        self.failUnless(searchable.startswith("What do you expect of a Dummy"))
+        self.assertTrue(searchable.startswith("What do you expect of a Dummy"))
         del Dummy.myMethod
 
     def test_authenticatedContentType(self):

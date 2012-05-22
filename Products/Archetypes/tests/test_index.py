@@ -48,28 +48,28 @@ class ETagTest(ATSiteTestCase):
         time.sleep(1)
         self.inst.reindexObject()
         after = self.inst.http__etag(readonly=True)
-        self.failIf(before == after)
+        self.assertFalse(before == after)
 
     def test_etag_update_on_edit(self):
         before = self.inst.http__etag(readonly=True)
         time.sleep(1)
         self.inst.edit(title='Bla')
         after = self.inst.http__etag(readonly=True)
-        self.failIf(before == after)
+        self.assertFalse(before == after)
 
     def test_etag_update_on_update(self):
         before = self.inst.http__etag(readonly=True)
         time.sleep(1)
         self.inst.update(title='Bla')
         after = self.inst.http__etag(readonly=True)
-        self.failIf(before == after)
+        self.assertFalse(before == after)
 
     def test_etag_update_on_processform(self):
         before = self.inst.http__etag(readonly=True)
         time.sleep(1)
         self.inst.processForm(data=1, values={'title':'Bla'})
         after = self.inst.http__etag(readonly=True)
-        self.failIf(before == after)
+        self.assertFalse(before == after)
 
 
 class ReindexTest(ATSiteTestCase):
@@ -107,12 +107,12 @@ class MultiplexTest(ATSiteTestCase):
 
         # Make sure the object is indexed by portal_catalog...
         results = self.pc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 1)
-        self.failUnlessEqual(results[0].getObject(), inst)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].getObject(), inst)
 
         # ...but isn't by the zope_catalog
         results = self.zc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 0)
+        self.assertEqual(len(results), 0)
 
     def test_new_catalog(self):
         # Change SimpleType to use only zope_catalog
@@ -123,12 +123,12 @@ class MultiplexTest(ATSiteTestCase):
 
         # Make sure the object is indexed by the new zope_catalog...
         results = self.zc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 1)
-        self.failUnlessEqual(results[0].getObject(), inst)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].getObject(), inst)
 
         # ...but isn't indexed anymore by portal_catalog
         results = self.pc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 0)
+        self.assertEqual(len(results), 0)
 
     def test_both_catalogs(self):
         # Change SimpleType to use both catalogs
@@ -140,13 +140,13 @@ class MultiplexTest(ATSiteTestCase):
 
         # Make sure the object is indexed by portal_catalog...
         results = self.pc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 1)
-        self.failUnlessEqual(results[0].getObject(), inst)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].getObject(), inst)
 
         # ...and also by the zope_catalog
         results = self.zc.searchResults(dict(getId='simple_type'))
-        self.failUnlessEqual(len(results), 1)
-        self.failUnlessEqual(results[0].getObject(), inst)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].getObject(), inst)
 
 
 def test_suite():

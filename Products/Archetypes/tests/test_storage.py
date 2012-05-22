@@ -53,36 +53,36 @@ class ChangeStorageTest(ATSiteTestCase):
 
         out = ('bla','bla','bla')
 
-        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnless(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
-        self.failUnlessEqual(dummy.getAlinesfield(), out)
-        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
+        self.assertEqual(str(dummy.getAtextfield()), 'sometext')
+        self.assertTrue(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
+        self.assertEqual(dummy.getAlinesfield(), out)
+        self.assertEqual(dummy.getAnobjectfield(), 'someothertext')
 
         for field in dummy.schema.fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
-                self.failUnlessEqual(field.getStorage().getName(), 'AttributeStorage')
+                self.assertEqual(field.getStorage().getName(), 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
-                self.failUnlessEqual(field.getStorage().getName(), 'MetadataStorage')
+                self.assertEqual(field.getStorage().getName(), 'MetadataStorage')
 
-        self.failUnlessEqual(str(dummy.getAtextfield()), 'sometext')
-        self.failUnless(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
-        self.failUnlessEqual(dummy.getAlinesfield(), out)
-        self.failUnlessEqual(dummy.getAnobjectfield(), 'someothertext')
+        self.assertEqual(str(dummy.getAtextfield()), 'sometext')
+        self.assertTrue(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
+        self.assertEqual(dummy.getAlinesfield(), out)
+        self.assertEqual(dummy.getAnobjectfield(), 'someothertext')
 
     def test_unset(self):
         dummy = self._dummy
         dummy.setAtextfield('sometext')
         field = dummy.getField('atextfield')
         field.setStorage(dummy, AttributeStorage())
-        self.failUnless(hasattr(dummy, 'atextfield'))
+        self.assertTrue(hasattr(dummy, 'atextfield'))
         field.setStorage(dummy, MetadataStorage())
-        self.failIf(hasattr(dummy, 'atextfield'))
-        self.failUnless(dummy._md.has_key('atextfield'))
+        self.assertFalse(hasattr(dummy, 'atextfield'))
+        self.assertTrue(dummy._md.has_key('atextfield'))
         field.setStorage(dummy, AttributeStorage())
-        self.failIf(dummy._md.has_key('atextfield'))
-        self.failUnless(hasattr(dummy, 'atextfield'))
+        self.assertFalse(dummy._md.has_key('atextfield'))
+        self.assertTrue(hasattr(dummy, 'atextfield'))
 
 
 class MetadataStorageTest(ATTestCase):

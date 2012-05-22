@@ -37,7 +37,7 @@ class LanguageVocabularyTest(ATSiteTestCase):
         dummy = self._dummy
         field = dummy.getField('language')
         vocab = field.Vocabulary(dummy)
-        self.failIf('pt-br' in vocab.keys())
+        self.assertFalse('pt-br' in vocab.keys())
 
     def test_combined_codes(self):
         tool = getToolByName(self.portal, 'portal_languages', None)
@@ -51,9 +51,9 @@ class LanguageVocabularyTest(ATSiteTestCase):
         field = dummy.getField('language')
         vocab = field.Vocabulary(dummy)
         if tool is None:
-            self.failIf('pt-br' in vocab.keys())
+            self.assertFalse('pt-br' in vocab.keys())
         else:
-            self.failUnless('pt-br' in vocab.keys())
+            self.assertTrue('pt-br' in vocab.keys())
 
 def test_suite():
     from unittest import TestSuite, makeSuite

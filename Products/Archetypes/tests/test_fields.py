@@ -249,8 +249,8 @@ class ProcessingTest(ATSiteTestCase):
             field = dummy.getField(k)
             s = field.get_size(dummy)
             size+=s
-            self.failUnless(s, 'got: %s, field: %s' % (s, k))
-        self.failUnlessEqual(size, dummy.get_size())
+            self.assertTrue(s, 'got: %s, field: %s' % (s, k))
+        self.assertEqual(size, dummy.get_size())
 
     def test_validation(self):
         dummy = self.makeDummy()
@@ -260,7 +260,7 @@ class ProcessingTest(ATSiteTestCase):
         dummy.REQUEST = request
         errors = {}
         dummy.validate(REQUEST=request, errors=errors)
-        self.failIf(errors, errors)
+        self.assertFalse(errors, errors)
 
     def test_validation_visible_fields(self):
         """ we assume that every field is visible """
@@ -273,7 +273,7 @@ class ProcessingTest(ATSiteTestCase):
         request.form['fieldset'] = 'default'
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
-        self.failUnless(errors, errors)
+        self.assertTrue(errors, errors)
 
     def test_validation_invisible_fields(self):
         dummy = self.makeDummy()
@@ -286,7 +286,7 @@ class ProcessingTest(ATSiteTestCase):
             field.widget.visible['edit'] = 'invisible'
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
-        self.failIf(errors, errors)
+        self.assertFalse(errors, errors)
 
     def test_validation_hidden_fields(self):
         dummy = self.makeDummy()
@@ -298,7 +298,7 @@ class ProcessingTest(ATSiteTestCase):
             field.widget.visible['edit'] = 'hidden'
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
-        self.failIf(errors, errors)
+        self.assertFalse(errors, errors)
 
 
 
@@ -325,13 +325,13 @@ class ProcessingTest(ATSiteTestCase):
             f_names.append(name)
         errors = {}
         dummy.validate(REQUEST=request, errors=errors)
-        self.failUnless(errors, "Errors dictionary is empty.")
+        self.assertTrue(errors, "Errors dictionary is empty.")
         err_fields = errors.keys()
         failures = []
         for f_name in f_names:
             if f_name not in err_fields:
                 failures.append(f_name)
-        self.failIf(failures, "%s failed to report error." % failures)
+        self.assertFalse(failures, "%s failed to report error." % failures)
 
     def test_static_vocabulary(self):
         dummy = self.makeDummy()
@@ -339,16 +339,16 @@ class ProcessingTest(ATSiteTestCase):
         field = dummy.Schema().fields()[0]
 
         # Default
-        self.failUnlessEqual(field.Vocabulary(), DisplayList())
+        self.assertEqual(field.Vocabulary(), DisplayList())
         # DisplayList
         field.vocabulary = sampleDisplayList()
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(), sampleDisplayList)
         # List
         field.vocabulary = ['e1', 'element2']
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(), sampleDisplayList)
         # 2-Tuples
         field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
-        self.failUnlessEqual(field.Vocabulary(), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(), sampleDisplayList)
 
     def test_dynamic_vocabulary(self):
         dummy = self.makeDummy()
@@ -356,22 +356,22 @@ class ProcessingTest(ATSiteTestCase):
         field = dummy.Schema().fields()[0]
 
         # Default
-        self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
+        self.assertEqual(field.Vocabulary(dummy), DisplayList())
         # Method
         field.vocabulary = 'aMethod'
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(dummy), sampleDisplayList)
         # DisplayList
         field.vocabulary = sampleDisplayList()
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(dummy), sampleDisplayList)
         # List
         field.vocabulary = ['e1', 'element2']
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(dummy), sampleDisplayList)
         # 2-Tuples
         field.vocabulary = [('e1', 'e1'), ('element2', 'element2')]
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(dummy), sampleDisplayList)
         # Interface
         field.vocabulary = sampleInterfaceVocabulary()
-        self.failUnlessEqual(field.Vocabulary(dummy), sampleDisplayList)
+        self.assertEqual(field.Vocabulary(dummy), sampleDisplayList)
 
     def test_factory_vocabulary(self):
         dummy = self.makeDummy()
@@ -379,7 +379,7 @@ class ProcessingTest(ATSiteTestCase):
         field = dummy.Schema().fields()[0]
 
         # Default
-        self.failUnlessEqual(field.Vocabulary(dummy), DisplayList())
+        self.assertEqual(field.Vocabulary(dummy), DisplayList())
 
         expected = DisplayList([('value1', 'title1'), ('v2', 't2')])
 
@@ -387,7 +387,7 @@ class ProcessingTest(ATSiteTestCase):
         field.vocabulary = ()
         field.vocabulary_factory = 'archetypes.tests.dummyvocab'
         getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
-        self.failUnlessEqual(field.Vocabulary(dummy), expected)
+        self.assertEqual(field.Vocabulary(dummy), expected)
         getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
 
     def test_defaults(self):
@@ -396,16 +396,16 @@ class ProcessingTest(ATSiteTestCase):
         field = dummy.Schema().fields()[0]
 
         # Default
-        self.failUnlessEqual(field.getDefault(dummy), None)
+        self.assertEqual(field.getDefault(dummy), None)
 
         # Value
         field.default = "Hello"
-        self.failUnlessEqual(field.getDefault(dummy), 'Hello')
+        self.assertEqual(field.getDefault(dummy), 'Hello')
 
         # Method
         field.default = None
         field.default_method = 'default_val'
-        self.failUnlessEqual(field.getDefault(dummy), 'World')
+        self.assertEqual(field.getDefault(dummy), 'World')
 
         # Adapter
         field.default_method = None
@@ -418,7 +418,7 @@ class ProcessingTest(ATSiteTestCase):
                 return "Adapted"
 
         getSiteManager().registerAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
-        self.failUnlessEqual(field.getDefault(dummy), 'Adapted')
+        self.assertEqual(field.getDefault(dummy), 'Adapted')
         getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
 
     def test_encoding(self):
@@ -457,7 +457,7 @@ class DownloadTest(ATSiteTestCase):
         # make sure field data doesn't get transformed when using the
         # download method
         value = self.field.download(self.dummy, no_output=True)
-        self.failIf(isinstance(value, str))
+        self.assertFalse(isinstance(value, str))
 
     # XXX This test produces an UnicodeEncodeError in default Archetypes
     def DISABLED_test_download_filename_encoding(self):

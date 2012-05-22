@@ -92,15 +92,15 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         old content.
         """
         dummy = self._dummy1
-        self.failUnless(dummy._isSchemaCurrent())
+        self.assertTrue(dummy._isSchemaCurrent())
 
         # You can make schema an instance attribute if you want (or if
         # you are not careful).
-        self.failIf('schema' in dummy.__dict__)
+        self.assertFalse('schema' in dummy.__dict__)
         dummy.schema = dummy.__class__.schema
-        self.failUnless('schema' in dummy.__dict__)
+        self.assertTrue('schema' in dummy.__dict__)
         # The schema has not *really* changed:
-        self.failUnless(dummy._isSchemaCurrent())
+        self.assertTrue(dummy._isSchemaCurrent())
         # But the damage has been done, as we will show soon.
 
         # We give the class of our content a different schema.
@@ -111,7 +111,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         # can simply cheat to let the object know that its schema is
         # not current anymore.
         dummy._signature = 'bogus'
-        self.failIf(dummy._isSchemaCurrent())
+        self.assertFalse(dummy._isSchemaCurrent())
 
         # Our class has a TEXTFIELD2, but our content does not now it
         # yet.  It *does* already have the getter for that field.
@@ -125,24 +125,24 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
         # And now we can get our second text field, right?  Wrong.
         # Only the getter is there and it does not work.
-        self.failUnless(hasattr(dummy, 'getTEXTFIELD2'))
+        self.assertTrue(hasattr(dummy, 'getTEXTFIELD2'))
         # Actually, the next two tests fail for AT <= 1.5.1, which is
         # actually good.
         self.assertRaises(KeyError, dummy.getTEXTFIELD2)
-        self.failIf(hasattr(dummy, 'TEXTFIELD2'))
+        self.assertFalse(hasattr(dummy, 'TEXTFIELD2'))
 
         # And the first field was required in the first schema but not
         # in the second.  This does not show yet.
-        self.failUnless(dummy.getField('TEXTFIELD1').required)
+        self.assertTrue(dummy.getField('TEXTFIELD1').required)
 
         # This can be fixed by deleting the schema attribute of the
         # instance.
         del dummy.schema
-        self.failIf(dummy.getField('TEXTFIELD1').required)
+        self.assertFalse(dummy.getField('TEXTFIELD1').required)
 
         # At first, direct attribute access for the second field still
         # does not work:
-        self.failIf(hasattr(dummy, 'TEXTFIELD2'))
+        self.assertFalse(hasattr(dummy, 'TEXTFIELD2'))
         # But calling the getter works.
         self.assertEqual(dummy.getTEXTFIELD2(), 'B')
         # And after that call, direct attribute access works too.
@@ -158,32 +158,32 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         """
         dummy = self._dummy1
         dummy._updateSchema()
-        self.failIf('schema' in dummy.__dict__)
+        self.assertFalse('schema' in dummy.__dict__)
 
     def test_detect_schema_change(self):
         dummy = self._dummy1
-        self.failUnless(dummy._isSchemaCurrent())
+        self.assertTrue(dummy._isSchemaCurrent())
         dummy.__class__.schema = schema2.copy()
         # Reregister the type.  (Not needed in AT <= 1.5.1)
         registerType(Dummy1, 'Archetypes')
-        self.failIf(dummy._isSchemaCurrent())
+        self.assertFalse(dummy._isSchemaCurrent())
         dummy._updateSchema()
-        self.failUnless(dummy._isSchemaCurrent())
+        self.assertTrue(dummy._isSchemaCurrent())
 
     def test_remove_instance_schemas(self):
         dummy = self._dummy1
         dummy.schema = schema2.copy()
-        self.failUnless('schema' in dummy.__dict__)
+        self.assertTrue('schema' in dummy.__dict__)
         dummy._updateSchema()
-        self.failUnless('schema' in dummy.__dict__)
+        self.assertTrue('schema' in dummy.__dict__)
         dummy._updateSchema(remove_instance_schemas=True)
-        self.failIf('schema' in dummy.__dict__)
+        self.assertFalse('schema' in dummy.__dict__)
 
     def test_manage_update_schema(self):
         dummy = self._dummy1
         dummy.schema = schema2.copy()
-        self.failUnless('schema' in dummy.__dict__)
-        self.failIf(dummy._isSchemaCurrent())
+        self.assertTrue('schema' in dummy.__dict__)
+        self.assertFalse(dummy._isSchemaCurrent())
 
         # Now we want to update all schemas, but first archetype_tool
         # needs to know that our class needs updating.  The easiest of
@@ -195,12 +195,12 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         # Now we are ready to call manage_updateSchema
         self.attool.manage_updateSchema()
         # This will have no effect on the schema attribute:
-        self.failUnless('schema' in dummy.__dict__)
+        self.assertTrue('schema' in dummy.__dict__)
         # It *does* wrongly mark the schema as current.
-        self.failUnless(dummy._isSchemaCurrent())
+        self.assertTrue(dummy._isSchemaCurrent())
         # So we cheat again and then it works.
         dummy._signature = 'bogus'
-        self.failIf(dummy._isSchemaCurrent())
+        self.assertFalse(dummy._isSchemaCurrent())
 
         # Let's try again.  But first we cheat again.
         self.assertEqual(self.types_to_update(), [])
@@ -209,7 +209,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
         # We need to call manage_updateSchema with an extra option.
         self.attool.manage_updateSchema(remove_instance_schemas=True)
-        self.failIf('schema' in dummy.__dict__)
+        self.assertFalse('schema' in dummy.__dict__)
 
     def types_to_update(self):
         """Which types have a changed schema?

@@ -210,9 +210,9 @@ class SchemataTest( ATSiteTestCase ):
         editable_field_ids = [f.getName() for f in \
             schemata.editableFields(dummy, visible_only=True)]
 
-        self.failUnless('f1' not in editable_field_ids)
-        self.failUnless('f2' in editable_field_ids)
-        self.failUnless('f3' not in editable_field_ids)
+        self.assertTrue('f1' not in editable_field_ids)
+        self.assertTrue('f2' in editable_field_ids)
+        self.assertTrue('f3' not in editable_field_ids)
 
 def test_suite():
     from unittest import TestSuite, makeSuite

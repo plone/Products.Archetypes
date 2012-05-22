@@ -130,67 +130,67 @@ class ClassGenTest(ATSiteTestCase):
     def test_methods(self):
         obj = self._dummy
         #setters
-        self.failUnless(hasattr(obj, 'setAtextfield'))
-        self.failUnless(hasattr(obj, 'setAfilefield'))
-        self.failUnless(hasattr(obj, 'setAlinesfield'))
-        self.failUnless(hasattr(obj, 'setAdatefield'))
-        self.failUnless(hasattr(obj, 'setAnobjectfield'))
-        self.failUnless(hasattr(obj, 'setAfixedpointfield'))
-        self.failUnless(hasattr(obj, 'setAwriteonlyfield'))
-        self.failUnless(not hasattr(obj, 'setAreadonlyfield'))
+        self.assertTrue(hasattr(obj, 'setAtextfield'))
+        self.assertTrue(hasattr(obj, 'setAfilefield'))
+        self.assertTrue(hasattr(obj, 'setAlinesfield'))
+        self.assertTrue(hasattr(obj, 'setAdatefield'))
+        self.assertTrue(hasattr(obj, 'setAnobjectfield'))
+        self.assertTrue(hasattr(obj, 'setAfixedpointfield'))
+        self.assertTrue(hasattr(obj, 'setAwriteonlyfield'))
+        self.assertTrue(not hasattr(obj, 'setAreadonlyfield'))
         #getters
-        self.failUnless(hasattr(obj, 'getAtextfield'))
-        self.failUnless(hasattr(obj, 'getAfilefield'))
-        self.failUnless(hasattr(obj, 'getAlinesfield'))
-        self.failUnless(hasattr(obj, 'getAdatefield'))
-        self.failUnless(hasattr(obj, 'getAnobjectfield'))
-        self.failUnless(hasattr(obj, 'getAfixedpointfield'))
-        self.failUnless(not hasattr(obj, 'getAwriteonlyfield'))
-        self.failUnless(hasattr(obj, 'getAreadonlyfield'))
+        self.assertTrue(hasattr(obj, 'getAtextfield'))
+        self.assertTrue(hasattr(obj, 'getAfilefield'))
+        self.assertTrue(hasattr(obj, 'getAlinesfield'))
+        self.assertTrue(hasattr(obj, 'getAdatefield'))
+        self.assertTrue(hasattr(obj, 'getAnobjectfield'))
+        self.assertTrue(hasattr(obj, 'getAfixedpointfield'))
+        self.assertTrue(not hasattr(obj, 'getAwriteonlyfield'))
+        self.assertTrue(hasattr(obj, 'getAreadonlyfield'))
         #raw getters
-        self.failUnless(hasattr(obj, 'getRawAtextfield'))
-        self.failUnless(hasattr(obj, 'getRawAfilefield'))
-        self.failUnless(hasattr(obj, 'getRawAlinesfield'))
-        self.failUnless(hasattr(obj, 'getRawAdatefield'))
-        self.failUnless(hasattr(obj, 'getRawAnobjectfield'))
-        self.failUnless(hasattr(obj, 'getRawAfixedpointfield'))
-        self.failUnless(hasattr(obj, 'getRawAwriteonlyfield'))
-        self.failUnless(not hasattr(obj, 'getRawAreadonlyfield'))
+        self.assertTrue(hasattr(obj, 'getRawAtextfield'))
+        self.assertTrue(hasattr(obj, 'getRawAfilefield'))
+        self.assertTrue(hasattr(obj, 'getRawAlinesfield'))
+        self.assertTrue(hasattr(obj, 'getRawAdatefield'))
+        self.assertTrue(hasattr(obj, 'getRawAnobjectfield'))
+        self.assertTrue(hasattr(obj, 'getRawAfixedpointfield'))
+        self.assertTrue(hasattr(obj, 'getRawAwriteonlyfield'))
+        self.assertTrue(not hasattr(obj, 'getRawAreadonlyfield'))
 
     def test_textfield(self):
         obj = self._dummy
         obj.setAtextfield('Bla', mimetype="text/plain")
-        self.failUnlessEqual(str(obj.getAtextfield()), 'Bla')
+        self.assertEqual(str(obj.getAtextfield()), 'Bla')
 
     def test_filefield(self):
         obj = self._dummy
         obj.setAfilefield('Bla')
-        self.failUnlessEqual(str(obj.getAfilefield()), 'Bla')
+        self.assertEqual(str(obj.getAfilefield()), 'Bla')
 
     def test_linesfield(self):
         obj = self._dummy
         obj.setAlinesfield(['Bla', 'Ble', 'Bli'])
-        self.failUnlessEqual(obj.getAlinesfield(), ('Bla', 'Ble', 'Bli'))
+        self.assertEqual(obj.getAlinesfield(), ('Bla', 'Ble', 'Bli'))
 
     def test_datefield(self):
         obj = self._dummy
         obj.setAdatefield('2002/01/01')
-        self.failUnlessEqual(obj.getAdatefield(), DateTime('2002/01/01'))
+        self.assertEqual(obj.getAdatefield(), DateTime('2002/01/01'))
 
     def test_objectfield(self):
         obj = self._dummy
         obj.setAnobjectfield('bla')
-        self.failUnlessEqual(obj.getAnobjectfield(), 'bla')
+        self.assertEqual(obj.getAnobjectfield(), 'bla')
 
     def test_fixedpointfield(self):
         obj = self._dummy
         obj.setAfixedpointfield('26.05')
-        self.failUnlessEqual(obj.getAfixedpointfield(), '26.05')
+        self.assertEqual(obj.getAfixedpointfield(), '26.05')
 
     def test_writeonlyfield(self):
         obj = self._dummy
         obj.setAwriteonlyfield('bla')
-        self.failUnlessEqual(obj.getRawAwriteonlyfield(), 'bla')
+        self.assertEqual(obj.getRawAwriteonlyfield(), 'bla')
 
     def test1_getbaseunit(self):
         obj = self._dummy
@@ -198,7 +198,7 @@ class ClassGenTest(ATSiteTestCase):
             if not hasattr(field, 'getBaseUnit'):
                 continue
             bu = field.getBaseUnit(obj)
-            self.failUnless(IBaseUnit.providedBy(bu),
+            self.assertTrue(IBaseUnit.providedBy(bu),
                             ('Return value of %s.getBaseUnit() does not '
                              'implement BaseUnit: %s' %
                              (field.__class__, type(bu))))
@@ -240,12 +240,12 @@ foo_field = StringField('foo',
 class ClassGenSecurityTest(unittest.TestCase):
 
     def test_security_dont_stomp_existing_decl_perm(self):
-        self.failIf(hasattr(SecDummy1, '__ac_permissions__'))
-        self.failUnless(hasattr(SecDummy1, 'makeFoo'))
+        self.assertFalse(hasattr(SecDummy1, '__ac_permissions__'))
+        self.assertTrue(hasattr(SecDummy1, 'makeFoo'))
         existing_method = getattr(SecDummy1, 'makeFoo')
         generateMethods(SecDummy1, (foo_field,))
-        self.failUnless(hasattr(SecDummy1, '__ac_permissions__'))
-        self.failUnless(SecDummy1.makeFoo == existing_method)
+        self.assertTrue(hasattr(SecDummy1, '__ac_permissions__'))
+        self.assertTrue(SecDummy1.makeFoo == existing_method)
         got = SecDummy1.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),
@@ -253,53 +253,53 @@ class ClassGenSecurityTest(unittest.TestCase):
         self.assertEquals(got, expected)
 
     def test_security_dont_stomp_existing_decl_public(self):
-        self.failIf(hasattr(SecDummy4, '__ac_permissions__'))
-        self.failIf(hasattr(SecDummy4, 'makeFoo__roles__'))
-        self.failUnless(hasattr(SecDummy4, 'makeFoo'))
+        self.assertFalse(hasattr(SecDummy4, '__ac_permissions__'))
+        self.assertFalse(hasattr(SecDummy4, 'makeFoo__roles__'))
+        self.assertTrue(hasattr(SecDummy4, 'makeFoo'))
         existing_method = getattr(SecDummy4, 'makeFoo')
         generateMethods(SecDummy4, (foo_field,))
-        self.failUnless(hasattr(SecDummy4, '__ac_permissions__'))
-        self.failUnless(SecDummy4.makeFoo == existing_method)
+        self.assertTrue(hasattr(SecDummy4, '__ac_permissions__'))
+        self.assertTrue(SecDummy4.makeFoo == existing_method)
         got = SecDummy4.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),)
         self.assertEquals(got, expected)
-        self.failUnless(hasattr(SecDummy4, 'makeFoo__roles__'))
-        self.failUnless(SecDummy4.makeFoo__roles__ == ACCESS_PUBLIC)
+        self.assertTrue(hasattr(SecDummy4, 'makeFoo__roles__'))
+        self.assertTrue(SecDummy4.makeFoo__roles__ == ACCESS_PUBLIC)
 
     def test_security_dont_stomp_existing_decl_private(self):
-        self.failIf(hasattr(SecDummy5, '__ac_permissions__'))
-        self.failIf(hasattr(SecDummy5, 'makeFoo__roles__'))
-        self.failUnless(hasattr(SecDummy5, 'makeFoo'))
+        self.assertFalse(hasattr(SecDummy5, '__ac_permissions__'))
+        self.assertFalse(hasattr(SecDummy5, 'makeFoo__roles__'))
+        self.assertTrue(hasattr(SecDummy5, 'makeFoo'))
         existing_method = getattr(SecDummy5, 'makeFoo')
         generateMethods(SecDummy5, (foo_field,))
-        self.failUnless(hasattr(SecDummy5, '__ac_permissions__'))
-        self.failUnless(SecDummy5.makeFoo == existing_method)
+        self.assertTrue(hasattr(SecDummy5, '__ac_permissions__'))
+        self.assertTrue(SecDummy5.makeFoo == existing_method)
         got = SecDummy5.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),)
         self.assertEquals(got, expected)
-        self.failUnless(hasattr(SecDummy5, 'makeFoo__roles__'))
-        self.failUnless(SecDummy5.makeFoo__roles__ == ACCESS_PRIVATE)
+        self.assertTrue(hasattr(SecDummy5, 'makeFoo__roles__'))
+        self.assertTrue(SecDummy5.makeFoo__roles__ == ACCESS_PRIVATE)
 
     def test_security_protect_manual_method(self):
-        self.failIf(hasattr(SecDummy2, '__ac_permissions__'))
-        self.failUnless(hasattr(SecDummy2, 'makeFoo'))
+        self.assertFalse(hasattr(SecDummy2, '__ac_permissions__'))
+        self.assertTrue(hasattr(SecDummy2, 'makeFoo'))
         existing_method = getattr(SecDummy2, 'makeFoo')
         generateMethods(SecDummy2, (foo_field,))
-        self.failUnless(hasattr(SecDummy2, '__ac_permissions__'))
-        self.failUnless(SecDummy2.makeFoo == existing_method)
+        self.assertTrue(hasattr(SecDummy2, '__ac_permissions__'))
+        self.assertTrue(SecDummy2.makeFoo == existing_method)
         got = SecDummy2.__ac_permissions__
         expected = (('Modify portal content',
                      ('makeFoo', 'setFoo', 'getRawFoo')),)
         self.assertEquals(got, expected)
 
     def test_security_protect_generate_method(self):
-        self.failIf(hasattr(SecDummy3, '__ac_permissions__'))
-        self.failIf(hasattr(SecDummy3, 'makeFoo'))
+        self.assertFalse(hasattr(SecDummy3, '__ac_permissions__'))
+        self.assertFalse(hasattr(SecDummy3, 'makeFoo'))
         generateMethods(SecDummy3, (foo_field,))
-        self.failUnless(hasattr(SecDummy3, '__ac_permissions__'))
-        self.failUnless(hasattr(SecDummy3, 'makeFoo'))
+        self.assertTrue(hasattr(SecDummy3, '__ac_permissions__'))
+        self.assertTrue(hasattr(SecDummy3, 'makeFoo'))
         got = SecDummy3.__ac_permissions__
         expected = (('Modify portal content',
                      ('makeFoo', 'setFoo', 'getRawFoo')),)

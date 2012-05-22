@@ -50,27 +50,27 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
-        self.failIf('tourist' not in ffrom.contentIds())
+        self.assertFalse('tourist' not in ffrom.contentIds())
 
         #make sure we have _p_jar
         transaction.savepoint(optimistic=True)
         cb = ffrom.manage_copyObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
-        self.failIf('tourist' not in ffrom.contentIds())
-        self.failIf('tourist' not in fto.contentIds())
+        self.assertFalse('tourist' not in ffrom.contentIds())
+        self.assertFalse('tourist' not in fto.contentIds())
 
     def test_cut_and_paste(self):
         ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
-        self.failIf('tourist' not in ffrom.contentIds())
+        self.assertFalse('tourist' not in ffrom.contentIds())
 
         #make sure we have _p_jar
         transaction.savepoint(optimistic=True)
         cb = ffrom.manage_cutObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
-        self.failIf('tourist' in ffrom.contentIds())
-        self.failIf('tourist' not in fto.contentIds())
+        self.assertFalse('tourist' in ffrom.contentIds())
+        self.assertFalse('tourist' not in fto.contentIds())
 
 class PortalCopyTests(ATSiteTestCase):
 
@@ -92,16 +92,16 @@ class PortalCopyTests(ATSiteTestCase):
         bodyfield = doc.getField('body')
         imagefield = doc.getField('image')
 
-        self.failUnlessEqual(doc.getContentType(), 'text/x-rst')
+        self.assertEqual(doc.getContentType(), 'text/x-rst')
 
-        self.failUnlessEqual(doc.getRawBody(), 'testdata')
-        self.failUnless(doc.getImage().data, self._image)
+        self.assertEqual(doc.getRawBody(), 'testdata')
+        self.assertTrue(doc.getImage().data, self._image)
 
-        self.failUnless(bodyfield.getContentType(doc), 'text/x-rst')
+        self.assertTrue(bodyfield.getContentType(doc), 'text/x-rst')
 
     def test_created_doc(self):
         portal = self.portal
-        self.failUnless(portal, 'document')
+        self.assertTrue(portal, 'document')
         doc = portal.document
         self._test_doc(doc)
 
@@ -113,13 +113,13 @@ class PortalCopyTests(ATSiteTestCase):
         noSecurityManager()
         transaction.savepoint(optimistic=True)
 
-        self.failUnless(hasattr(aq_base(app), 'newportal'))
+        self.assertTrue(hasattr(aq_base(app), 'newportal'))
         self.newportal = app.newportal
         # check if we really have new portal!
-        self.failIf(aq_base(self.newportal) is aq_base(self.portal))
-        self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
+        self.assertFalse(aq_base(self.newportal) is aq_base(self.portal))
+        self.assertNotEqual(aq_base(self.newportal), aq_base(self.portal))
 
-        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        self.assertTrue(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
 
@@ -133,13 +133,13 @@ class PortalCopyTests(ATSiteTestCase):
         noSecurityManager()
         transaction.savepoint(optimistic=True)
 
-        self.failUnless(hasattr(aq_base(self.app), 'copy_of_%s' % portal_name))
+        self.assertTrue(hasattr(aq_base(self.app), 'copy_of_%s' % portal_name))
         self.newportal = getattr(self.app, 'copy_of_%s' % portal_name)
         # check if we really have new portal!
-        self.failIf(aq_base(self.newportal) is aq_base(self.portal))
-        self.failIfEqual(aq_base(self.newportal), aq_base(self.portal))
+        self.assertFalse(aq_base(self.newportal) is aq_base(self.portal))
+        self.assertNotEqual(aq_base(self.newportal), aq_base(self.portal))
 
-        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        self.assertTrue(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
 
@@ -153,10 +153,10 @@ class PortalCopyTests(ATSiteTestCase):
         noSecurityManager()
         transaction.savepoint(optimistic=True)
 
-        self.failUnless(hasattr(aq_base(self.app), portal_name))
+        self.assertTrue(hasattr(aq_base(self.app), portal_name))
         self.newportal = getattr(self.app, portal_name)
 
-        self.failUnless(hasattr(aq_base(self.newportal), 'document'))
+        self.assertTrue(hasattr(aq_base(self.newportal), 'document'))
         doc = self.newportal.document
         self._test_doc(doc)
 
@@ -186,7 +186,7 @@ class PortalCopyTests(ATSiteTestCase):
         # "member" should have both.
         file_ob = member_area.copy_of_test_file
         self.assertEqual(aq_base(file_ob.getOwner().getId()), aq_base(member).getId())
-        self.failUnless('Owner' in
+        self.assertTrue('Owner' in
                             file_ob.get_local_roles_for_userid(default_user))
 
     def test_copy_paste_resets_workflow(self):
@@ -271,7 +271,7 @@ class PortalCopyTests(ATSiteTestCase):
         doc_copy = self.folder.document
 
         tb = dtool.getDiscussionFor(doc_copy)
-        self.failUnless(tb.hasReplies(doc_copy), "Discussion not copied")
+        self.assertTrue(tb.hasReplies(doc_copy), "Discussion not copied")
 
         # Copying doc should have cataloged the reply in manage_afterClone
         results = cat(Title='Stupendous')

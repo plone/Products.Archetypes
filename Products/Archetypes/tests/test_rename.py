@@ -128,12 +128,12 @@ class RenameTests(ATSiteTestCase):
         doc = makeContent(self.folder, portal_type='Fact', id=obj_id)
         content = 'The book is on the table!'
         doc.setQuote(content, mimetype="text/plain")
-        self.failUnless(str(doc.getQuote()) == str(content))
+        self.assertTrue(str(doc.getQuote()) == str(content))
         # make sure we have _p_jar
         transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(obj_id, new_id)
         doc = getattr(self.folder, new_id)
-        self.failUnless(str(doc.getQuote()) == str(content))
+        self.assertTrue(str(doc.getQuote()) == str(content))
         uid = UID(doc)
         # Should call afterAdd twice, one for the object
         # creation and another for the rename

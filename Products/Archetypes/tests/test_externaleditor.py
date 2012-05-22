@@ -36,7 +36,7 @@ class ExternalEditorTest(ATSiteTestCase):
         #really a test that baseobject.__getitem__ returns something
         #which externaleditor can use
         obj = makeContent(self.folder, portal_type='SimpleType', id='obj')
-        self.failUnless(IBaseUnit.providedBy(obj.body))
+        self.assertTrue(IBaseUnit.providedBy(obj.body))
 
 
 def test_suite():

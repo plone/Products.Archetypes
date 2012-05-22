@@ -84,29 +84,29 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
 def compareMetadataOf(test, obj, data='default',
                       mimetype='application/octet-stream', time=1980):
     l_data = (data,)
-    test.failUnless(obj.Title() == data, 'Title')
-    test.failUnless(obj.Subject() == l_data,
+    test.assertTrue(obj.Title() == data, 'Title')
+    test.assertTrue(obj.Subject() == l_data,
                     'Subject: %s, %s' % (obj.Subject(), l_data))
-    test.failUnless(obj.Description() == data, 'Description')
-    test.failUnless(obj.Contributors() == l_data, 'Contributors')
-    test.failUnless(obj.EffectiveDate() == DateTime(time, 1).ISO8601(),
+    test.assertTrue(obj.Description() == data, 'Description')
+    test.assertTrue(obj.Contributors() == l_data, 'Contributors')
+    test.assertTrue(obj.EffectiveDate() == DateTime(time, 1).ISO8601(),
                     'effective date')
-    test.failUnless(obj.ExpirationDate() == DateTime(time, 1).ISO8601(),
+    test.assertTrue(obj.ExpirationDate() == DateTime(time, 1).ISO8601(),
                     'expiration date')
     if aq_base(obj) is obj:
         # If the object is not acquisition wrapped, then those
         # ComputedAttributes won't get executed because the
         # declaration requires it to be wrapped
         # like: ComputedAttribute(method, 1)
-        test.failUnless(isinstance(obj.effective_date, ComputedAttribute))
-        test.failUnless(isinstance(obj.expiration_date, ComputedAttribute))
+        test.assertTrue(isinstance(obj.effective_date, ComputedAttribute))
+        test.assertTrue(isinstance(obj.expiration_date, ComputedAttribute))
     else:
-        test.failUnlessEqual(str(obj.effective_date),  str(DateTime(time, 1)))
-        test.failUnlessEqual(str(obj.expiration_date), str(DateTime(time, 1)))
-    # XXX BROKEN! test.failUnless(obj.Format() == data,
+        test.assertEqual(str(obj.effective_date),  str(DateTime(time, 1)))
+        test.assertEqual(str(obj.expiration_date), str(DateTime(time, 1)))
+    # XXX BROKEN! test.assertTrue(obj.Format() == data,
     #                             'Format: %s, %s' % (obj.Format(), mimetype))
-    test.failUnless(obj.Language() == data, 'Language')
-    test.failUnless(obj.Rights() == data, 'Rights')
+    test.assertTrue(obj.Language() == data, 'Language')
+    test.assertTrue(obj.Rights() == data, 'Rights')
 
 
 class DummyFolder(BaseFolder):
@@ -135,9 +135,9 @@ class ExtensibleMetadataTest(ATSiteTestCase):
             fobj = getattr(obj, accessor, None)
             if not fobj:
                 self.fail('Missing accessor for field: %s' % str(field))
-            self.failUnless(hasattr(obj, accessor),
+            self.assertTrue(hasattr(obj, accessor),
                             'Missing accessor %s' % accessor)
-            self.failUnless((type(fobj) is FunctionType or
+            self.assertTrue((type(fobj) is FunctionType or
                              hasattr(fobj, '__call__')),
                             'Accessor %s is not callable' % accessor)
 
@@ -147,9 +147,9 @@ class ExtensibleMetadataTest(ATSiteTestCase):
             mutator = field[1]
             if not mutator: continue
             fobj = getattr(obj, mutator, None)
-            self.failUnless(hasattr(obj, mutator),
+            self.assertTrue(hasattr(obj, mutator),
                             'Missing mutator %s' % mutator)
-            self.failUnless((type(fobj) is FunctionType
+            self.assertTrue((type(fobj) is FunctionType
                              or hasattr(fobj, '__call__')),
                             'Mutator %s is not callable' % mutator)
 
@@ -160,15 +160,15 @@ class ExtensibleMetadataTest(ATSiteTestCase):
             if not meta: continue
             md = aq_base(obj)._md
             field = aq_base(obj).Schema()[meta]
-            self.failUnless(md.has_key(meta), 'Missing field %s' % meta)
+            self.assertTrue(md.has_key(meta), 'Missing field %s' % meta)
             _marker = []
             value = md.get(meta, _marker)
             # We are checking here if the metadata
             # for a given field has been correctly initialized.
-            self.failIf(value is _marker,
+            self.assertFalse(value is _marker,
                         'Metadata field %s has not been correctly '
                         'initialized.' % meta)
-            self.failUnless(field.isMetadata,
+            self.assertTrue(field.isMetadata,
                             'isMetadata not set correctly for field %s.' % meta)
 
 
@@ -208,10 +208,10 @@ class ExtMetadataContextTest(ATSiteTestCase):
 
     def testIsParent(self):
         portal = self.portal
-        self.failUnless(aq_parent(self._parent) == portal)
+        self.assertTrue(aq_parent(self._parent) == portal)
         dummy_parent = aq_base(aq_parent(self._parent.dummy))
         parent = aq_base(self._parent)
-        self.failUnless(dummy_parent is parent,
+        self.assertTrue(dummy_parent is parent,
                         ('Parent is not the parent of dummy! '
                          'Some tests will give you false results!'))
 
@@ -224,7 +224,7 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
         self.folder.invokeFactory(id="dummy",
                                   type_name="SimpleType")
         dummy = getattr(self.folder, 'dummy')
-        self.failUnlessEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
+        self.assertEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
 
 
 class ExtMetadataSetFormatTest(ATSiteTestCase):
@@ -247,7 +247,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
 
         pfield = dummy.getPrimaryField()
         # tests do need afilefield
-        self.failUnlessEqual(pfield.getName(), 'afilefield')
+        self.assertEqual(pfield.getName(), 'afilefield')
         pfield.set(dummy, self.value, filename=self.filename, mimetype='text/plain')
 
         self._parent.dummy = dummy
@@ -256,40 +256,40 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
 
-        self.failUnlessEqual(dummy.Format(), 'text/plain')
-        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
-        self.failUnlessEqual(dummy.content_type, 'text/plain')
-        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
-        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
-        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
+        self.assertEqual(dummy.Format(), 'text/plain')
+        self.assertEqual(dummy.getContentType(), 'text/plain')
+        self.assertEqual(dummy.content_type, 'text/plain')
+        self.assertEqual(dummy.get_content_type(), 'text/plain')
+        self.assertEqual(pfield.getContentType(dummy), 'text/plain')
+        self.assertEqual(pfield.get(dummy).content_type, 'text/plain')
 
         dummy.setFormat('image/gif')
-        self.failUnlessEqual(dummy.Format(), 'image/gif')
-        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
-        self.failUnlessEqual(dummy.content_type, 'image/gif')
-        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
-        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
-        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
+        self.assertEqual(dummy.Format(), 'image/gif')
+        self.assertEqual(dummy.getContentType(), 'image/gif')
+        self.assertEqual(dummy.content_type, 'image/gif')
+        self.assertEqual(dummy.get_content_type(), 'image/gif')
+        self.assertEqual(pfield.getContentType(dummy), 'image/gif')
+        self.assertEqual(pfield.get(dummy).content_type, 'image/gif')
 
     def testSetContentType(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
 
         dummy.setContentType('text/plain')
-        self.failUnlessEqual(dummy.Format(), 'text/plain')
-        self.failUnlessEqual(dummy.getContentType(), 'text/plain')
-        self.failUnlessEqual(dummy.content_type, 'text/plain')
-        self.failUnlessEqual(dummy.get_content_type(), 'text/plain')
-        self.failUnlessEqual(pfield.getContentType(dummy), 'text/plain')
-        self.failUnlessEqual(pfield.get(dummy).content_type, 'text/plain')
+        self.assertEqual(dummy.Format(), 'text/plain')
+        self.assertEqual(dummy.getContentType(), 'text/plain')
+        self.assertEqual(dummy.content_type, 'text/plain')
+        self.assertEqual(dummy.get_content_type(), 'text/plain')
+        self.assertEqual(pfield.getContentType(dummy), 'text/plain')
+        self.assertEqual(pfield.get(dummy).content_type, 'text/plain')
 
         dummy.setContentType('image/gif')
-        self.failUnlessEqual(dummy.Format(), 'image/gif')
-        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
-        self.failUnlessEqual(dummy.content_type, 'image/gif')
-        self.failUnlessEqual(dummy.get_content_type(), 'image/gif')
-        self.failUnlessEqual(pfield.getContentType(dummy), 'image/gif')
-        self.failUnlessEqual(pfield.get(dummy).content_type, 'image/gif')
+        self.assertEqual(dummy.Format(), 'image/gif')
+        self.assertEqual(dummy.getContentType(), 'image/gif')
+        self.assertEqual(dummy.content_type, 'image/gif')
+        self.assertEqual(dummy.get_content_type(), 'image/gif')
+        self.assertEqual(pfield.getContentType(dummy), 'image/gif')
+        self.assertEqual(pfield.get(dummy).content_type, 'image/gif')
 
 
     def testMultipleChanges(self):
@@ -297,32 +297,32 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         pfield = dummy.getPrimaryField()
 
         dummy.setContentType('image/gif')
-        self.failUnlessEqual(dummy.getContentType(), 'image/gif')
+        self.assertEqual(dummy.getContentType(), 'image/gif')
         dummy.setFormat('application/pdf')
-        self.failUnlessEqual(dummy.Format(), 'application/pdf')
+        self.assertEqual(dummy.Format(), 'application/pdf')
         dummy.setContentType('image/jpeg')
-        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
+        self.assertEqual(dummy.Format(), 'image/jpeg')
 
-        self.failUnlessEqual(pfield.get(dummy).filename, self.filename)
-        self.failUnlessEqual(pfield.get(dummy).data, self.value)
+        self.assertEqual(pfield.get(dummy).filename, self.filename)
+        self.assertEqual(pfield.get(dummy).data, self.value)
 
     def testChangesOnFieldChangesObject(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
 
         data = pfield.get(dummy)
-        self.failUnlessEqual(data.content_type, 'text/plain')
+        self.assertEqual(data.content_type, 'text/plain')
 
         data.content_type = 'image/jpeg'
 
-        self.failUnlessEqual(data.content_type, 'image/jpeg')
+        self.assertEqual(data.content_type, 'image/jpeg')
 
         pfield.set(dummy, data)
-        self.failUnlessEqual(dummy.Format(), 'image/jpeg')
-        self.failUnlessEqual(dummy.getContentType(), 'image/jpeg')
-        self.failUnlessEqual(dummy.content_type, 'image/jpeg')
-        self.failUnlessEqual(dummy.get_content_type(), 'image/jpeg')
-        self.failUnlessEqual(pfield.getContentType(dummy), 'image/jpeg')
+        self.assertEqual(dummy.Format(), 'image/jpeg')
+        self.assertEqual(dummy.getContentType(), 'image/jpeg')
+        self.assertEqual(dummy.content_type, 'image/jpeg')
+        self.assertEqual(dummy.get_content_type(), 'image/jpeg')
+        self.assertEqual(pfield.getContentType(dummy), 'image/jpeg')
 
     def testDiscussionEditAccessorDoesConversions(self):
         # Use a DDocument because the dummy is too dumb for this
@@ -330,13 +330,13 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         dummy = self.folder.bogus_item
         # Set Allow discussion
         dummy.allowDiscussion(True)
-        self.failUnless(dummy.isDiscussable())
+        self.assertTrue(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), True)
         dummy.allowDiscussion(None)
         self.assertEqual(dummy.editIsDiscussable(), False)
         self.assertEqual(dummy.rawIsDiscussable(), None)
         dummy.allowDiscussion(False)
-        self.failIf(dummy.isDiscussable())
+        self.assertFalse(dummy.isDiscussable())
         self.assertEqual(dummy.editIsDiscussable(), False)
 
     def testDiscussionOverride(self):

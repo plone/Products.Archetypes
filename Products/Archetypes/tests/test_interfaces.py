@@ -90,7 +90,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def interfaceImplementedByInstanceOf(self, klass, interface):
         """ tests if the klass implements the interface in the right way """
         # is the class really implemented by the given interface?
-        self.failUnless(interface.implementedBy(klass),
+        self.assertTrue(interface.implementedBy(klass),
             'The class %s does not implement %s' % (className(klass), className(interface)))
         # verify if the implementation is correct
         try:
@@ -103,7 +103,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
     def interfaceImplementedBy(self, instance, interface):
         """ tests if the instance implements the interface in the right way """
         # is the class really implemented by the given interface?
-        self.failUnless(interface.providedBy(instance),
+        self.assertTrue(interface.providedBy(instance),
             'The instance of %s does not implement %s' % (className(instance), className(interface)))
         # verify if the implementation is correct
         try:
@@ -127,7 +127,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
             interfaces = (interfaces)
         impl = self.getImplementsOfInstanceOf(klass)
         for interface in interfaces:
-            self.failUnless(interface in impl, 'The class %s does not implement %s' % (className(klass), className(interface)))
+            self.assertTrue(interface in impl, 'The class %s does not implement %s' % (className(klass), className(interface)))
 
     def doesImplementBy(self, instance, interfaces):
         """ make shure that the klass implements at least these interfaces"""
@@ -135,7 +135,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
             interfaces = (interfaces)
         impl = self.getImplementsOf(instance)
         for interface in interfaces:
-            self.failUnless(interface in impl, 'The instance of %s does not implement %s' % (className(instance), className(interface)))
+            self.assertTrue(interface in impl, 'The instance of %s does not implement %s' % (className(instance), className(interface)))
 
     def _testStuff(self):
         """ test self.klass and self.instance """

@@ -41,7 +41,7 @@ class UidGeneratorTest(ATTestCase):
         for i in xrange(loop_length):
             uid = make_uuid()
             uids[uid] = 1
-        self.failUnlessEqual(len(uids), loop_length)
+        self.assertEqual(len(uids), loop_length)
 
 class DisplayListTest(ATTestCase):
 
@@ -50,78 +50,78 @@ class DisplayListTest(ATTestCase):
         tb = ('a', 'c', 'b')
         tc = ('a', 'c', 'c')
         td = ('c', 'b', 'a')
-        self.failUnless(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, ta)))
-        self.failIf(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, tb)))
-        self.failUnless(DisplayList(zip(ta, ta)) == DisplayList(zip(td, td)))
-        self.failUnless(DisplayList(zip(tb, ta)) == DisplayList(zip(tb, ta)))
+        self.assertTrue(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, ta)))
+        self.assertFalse(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, tb)))
+        self.assertTrue(DisplayList(zip(ta, ta)) == DisplayList(zip(td, td)))
+        self.assertTrue(DisplayList(zip(tb, ta)) == DisplayList(zip(tb, ta)))
         self.assertRaises(TypeError, cmp, DisplayList(), '')
 
     def test_slice(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         sub = l[1:]
-        self.failUnless(DisplayList(l)[1:] == sub)
+        self.assertTrue(DisplayList(l)[1:] == sub)
 
     def test_item(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         for i in range(0,2):
             item = ta[i]
-            self.failUnless(DisplayList(l)[i] == item)
+            self.assertTrue(DisplayList(l)[i] == item)
 
     def test_add(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)[:]
-        self.failUnless(dl == l)
+        self.assertTrue(dl == l)
         l.append(('d', 'd'))
         dl.append(('d', 'd'))
-        self.failUnless(dl == l)
+        self.assertTrue(dl == l)
 
     def test_len(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(len(dl) == len(l))
+        self.assertTrue(len(dl) == len(l))
 
     def test_keys(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(tuple(dl.keys()) == ta)
+        self.assertTrue(tuple(dl.keys()) == ta)
 
     def test_values(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(tuple(dl.values()) == ta)
+        self.assertTrue(tuple(dl.values()) == ta)
 
     def test_items(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(dl.items() == tuple(l))
+        self.assertTrue(dl.items() == tuple(l))
 
     def test_repr(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(repr(dl).find(str(l)))
+        self.assertTrue(repr(dl).find(str(l)))
 
     def test_str(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(str(dl) == str(l))
+        self.assertTrue(str(dl) == str(l))
 
     def test_call(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
         dl = DisplayList(l)
-        self.failUnless(dl == dl)
-        self.failUnless(dl() == dl())
-        self.failUnless(dl[:] == l)
-        self.failUnless(dl()[:] == l)
+        self.assertTrue(dl == dl)
+        self.assertTrue(dl() == dl())
+        self.assertTrue(dl[:] == l)
+        self.assertTrue(dl()[:] == l)
 
     def test_sort(self):
         a = (('a','a',), ('b','b'), ('c', 'c'))

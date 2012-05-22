@@ -86,7 +86,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uids = uc.uniqueValuesFor('UID')
         brains = uc(dict(UID=uids))
         objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad uid resolution""")
+        self.assertFalse(None in objects, """bad uid resolution""")
         for b in brains:
             if b.getPath().startswith('/'):
                 print "Bad Brain", b, b.getObject()
@@ -95,20 +95,20 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uids = rc.uniqueValuesFor('UID')
         brains = rc(dict(UID=uids))
         objects = [b.getObject() for b in brains]
-        self.failIf(None in objects, """bad ref catalog resolution""")
+        self.assertFalse(None in objects, """bad ref catalog resolution""")
 
     def test_create(self):
         rc = getattr(self.portal, config.REFERENCE_CATALOG)
         uc = getattr(self.portal, config.UID_CATALOG)
 
-        self.failUnless(rc is not None)
+        self.assertTrue(rc is not None)
 
         id1 = "firstObject"
         obj = makeContent(self.folder, portal_type='Fact', id=id1)
-        self.failUnless(obj.UID())
+        self.assertTrue(obj.UID())
 
         brains = uc(UID=obj.UID())
-        self.failUnless(len(brains) == 1)
+        self.assertTrue(len(brains) == 1)
 
         id2 = "secondObject"
         obj2 = makeContent(self.folder, portal_type='Fact', id=id2)
@@ -123,20 +123,20 @@ class ReferenceCatalogTests(ATSiteTestCase):
         brains = rc(dict(UID=uids))
 
         ref = brains[0].getObject()
-        self.failUnless(ref.sourceUID == uid1)
-        self.failUnless(ref.targetUID == uid2)
+        self.assertTrue(ref.sourceUID == uid1)
+        self.assertTrue(ref.targetUID == uid2)
 
         #Check the metadata
-        self.failUnless(ref.foo == "bar")
+        self.assertTrue(ref.foo == "bar")
 
         unqualified = obj.getRefs()
         byRel = obj.getRefs('testRelationship')
         assert unqualified[0] == byRel[0] == ref.getTargetObject()
 
         back = obj2.getBRefs()
-        self.failUnless(back[0] == obj)
+        self.assertTrue(back[0] == obj)
 
-        self.failUnless(obj.reference_url().endswith(uid1))
+        self.assertTrue(obj.reference_url().endswith(uid1))
 
         # Make sure all objects have _p_oids and _p_jars
         transaction.savepoint(optimistic=True)
@@ -146,30 +146,30 @@ class ReferenceCatalogTests(ATSiteTestCase):
         obj.setId('new1')
         self.verifyBrains()
 
-        self.failUnless(obj.getId() == 'new1')
-        self.failUnless(obj.UID() == uid1)
+        self.assertTrue(obj.getId() == 'new1')
+        self.assertTrue(obj.UID() == uid1)
 
         b = obj.getRefs()
-        self.failUnless(b[0].UID() == uid2)
+        self.assertTrue(b[0].UID() == uid2)
 
         obj2.setId('new2')
-        self.failUnless(obj2.getId() == 'new2')
-        self.failUnless(obj2.UID() == uid2)
+        self.assertTrue(obj2.getId() == 'new2')
+        self.assertTrue(obj2.UID() == uid2)
 
         b = obj2.getBRefs()
 
-        self.failUnless(b[0].UID() == uid1)
+        self.assertTrue(b[0].UID() == uid1)
 
         #Add another reference with a different relationship (and the
         #other direction)
 
         obj2.addReference(obj, 'betaRelationship', this="that")
         b = obj2.getRefs('betaRelationship')
-        self.failUnless(b[0].UID() == uid1)
+        self.assertTrue(b[0].UID() == uid1)
         b = obj.getBRefs('betaRelationship')
         refs = rc.getBackReferences(obj, 'betaRelationship')
         # objs back ref should be obj2
-        self.failUnless(refs[0].sourceUID == b[0].UID() == uid2)
+        self.assertTrue(refs[0].sourceUID == b[0].UID() == uid2)
         self.verifyBrains()
 
 
@@ -182,7 +182,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
 
         obj1.addReference(obj2, relationship="uses", referenceClass=HoldingReference)
 
-        self.failUnless(obj2 in obj1.getRefs('uses'))
+        self.assertTrue(obj2 in obj1.getRefs('uses'))
 
         # a holding reference says obj2 can't be deleted cause its held
         try:
@@ -193,7 +193,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
             raise AssertionError("holding reference didn't hold")
 
         #and just check to make sure its still there
-        self.failUnless(hasattr(self.folder, obj2.id))
+        self.assertTrue(hasattr(self.folder, obj2.id))
 
         obj3 = makeContent(self.folder, portal_type='Fact', id='obj3')
         obj4 = makeContent(self.folder, portal_type='Fact', id='obj4')
@@ -202,8 +202,8 @@ class ReferenceCatalogTests(ATSiteTestCase):
 
         self.folder.manage_delObjects(obj3.id)
         items = self.folder.contentIds()
-        self.failIf(obj3.id in items)
-        self.failIf(obj4.id in items)
+        self.assertFalse(obj3.id in items)
+        self.assertFalse(obj4.id in items)
 
     def test_cascaderef(self):
         my1stfolder = makeContent(self.folder, portal_type='SimpleFolder', id='my1stfolder')
@@ -213,9 +213,9 @@ class ReferenceCatalogTests(ATSiteTestCase):
         obj5.addReference(obj6, relationship="uses", referenceClass=CascadeReference)
         my1stfolder.manage_delObjects(['obj5'])
         items = my1stfolder.contentIds()
-        self.failIf('obj5' in items)
+        self.assertFalse('obj5' in items)
         items = my2ndfolder.contentIds()
-        self.failIf('obj6' in items)
+        self.assertFalse('obj6' in items)
 
     def test_delete(self):
         rc = getattr(self.portal, config.REFERENCE_CATALOG)
@@ -236,11 +236,11 @@ class ReferenceCatalogTests(ATSiteTestCase):
 
         # Assert that the reference is gone, that the UID is gone and
         # that the content is gone
-        self.failUnless(obj2.getBRefs() == [])
-        self.failIf(obj1.id in self.folder.contentIds())
+        self.assertTrue(obj2.getBRefs() == [])
+        self.assertFalse(obj1.id in self.folder.contentIds())
 
-        self.failIf(uid1 in uc.uniqueValuesFor('UID'))
-        self.failUnless(uid2 in uc.uniqueValuesFor('UID'))
+        self.assertFalse(uid1 in uc.uniqueValuesFor('UID'))
+        self.assertTrue(uid2 in uc.uniqueValuesFor('UID'))
 
         sourceRefs = rc(sourceUID = uid1)
         targetRefs = rc(targetUID = uid1)
@@ -272,7 +272,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         ref = rc.getReferences(obj1)[0]
         ref.attribute1 = "some_value"
         ruid = ref.UID()
-        self.failUnless(ref.attribute1=='some_value')
+        self.assertTrue(ref.attribute1=='some_value')
 
 
         transaction.savepoint(optimistic=True)
@@ -289,7 +289,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         ruid2 = ref.UID()
         assert ruid == ruid2, """ref uid got reassigned"""
         #check for the attribute
-        self.failUnless(hasattr(ref, 'attribute1'), 'Custom attribute on reference object is lost during schema update')
+        self.assertTrue(hasattr(ref, 'attribute1'), 'Custom attribute on reference object is lost during schema update')
         self.assertEqual(ref.attribute1, 'some_value')
 
     def test_sortable_references(self):
@@ -320,9 +320,9 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.folder[dext.id] = dext
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
         results = uc(Title=dext.Title())
-        self.failUnless(len(results)==1)
-        self.failUnless(type(dext.Title())==unicode)
-        self.failUnless(type(results[0].Title)==str)
+        self.assertTrue(len(results)==1)
+        self.assertTrue(type(dext.Title())==unicode)
+        self.assertTrue(type(results[0].Title)==str)
 
     def test_UIDIndexer(self):
         uc = getattr(self.portal, config.UID_CATALOG)
@@ -338,9 +338,9 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uuid = IUUID(dext, None)
         results = uc(UID=uuid)
 
-        self.failUnless(len(results)==1)
-        self.failUnless(results[0].UID==uuid)
-        self.failUnless(results[0].Title==str(dext.Title()))
+        self.assertTrue(len(results)==1)
+        self.assertTrue(results[0].UID==uuid)
+        self.assertTrue(results[0].Title==str(dext.Title()))
 
     def test_reference_non_archetypes_content(self):
         # create a archetype based content instance
