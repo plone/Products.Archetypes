@@ -4,6 +4,10 @@ Changelog
 1.7.15 (unreleased)
 -------------------
 
+- Remove remaining hard-coded required markers. The 1.7.14 change only got
+  one of them.
+  [smcmahon]
+
 - Moved form help from a div after form field labels to a span within. The
   purpose is to semantically associate the label to the form help so that
   it's more useful to a screen reader user.
