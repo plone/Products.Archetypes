@@ -41,14 +41,13 @@
                   style="color: #f00;">
               &#x25a0;
             </span>
-        </div>
-
-        <div class="formHelp"
-             tal:define="description python:widget.Description(here)"
-             tal:content="structure description"
-             tal:attributes="id string:${fieldName}_help"
-             i18n:translate="">
-          Help
+            <span class="formHelp"
+                 tal:define="description python:widget.Description(here)"
+                 tal:content="structure description"
+                 tal:attributes="id string:${fieldName}_help"
+                 i18n:translate="">
+              Help
+            </span>
         </div>
 
         <tal:item repeat="item vocab">
@@ -80,14 +79,14 @@
                   style="color: #f00;">
               &#x25a0;
             </span>
+            <span class="formHelp"
+                 tal:define="description python:widget.Description(here)"
+                 tal:content="structure description"
+                 tal:attributes="id string:${fieldName}_help"
+                 i18n:translate="">
+              Help
+            </span>
         </label>
-        <div class="formHelp"
-             tal:define="description python:widget.Description(here)"
-             tal:content="structure description"
-             tal:attributes="id string:${fieldName}_help"
-             i18n:translate="">
-          Help
-        </div>
         <select multiple="multiple"
                 class="blurrable"
                 tal:attributes="name string:${fieldName}:list;

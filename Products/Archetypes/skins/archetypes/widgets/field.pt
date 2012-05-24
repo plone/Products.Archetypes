@@ -96,14 +96,14 @@
                       tal:condition="field/required"
                       title="Required"
                       i18n:attributes="title title_required;">&nbsp;</span>
+                <span class="formHelp"
+                     tal:define="description python:widget.Description(here)"
+                     tal:content="structure description"
+                     tal:attributes="id string:${fieldName}_help"
+                     i18n:translate="">
+                  Help
+                </span>
             </label>
-            <div class="formHelp"
-                 tal:define="description python:widget.Description(here)"
-                 tal:content="structure description"
-                 tal:attributes="id string:${fieldName}_help"
-                 i18n:translate="">
-              Help
-            </div>
           </tal:ifLabel>
           <span tal:condition="field/workflowable | nothing"
                 tal:omit-tag="">

@@ -24,14 +24,14 @@
           <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"
                  tal:attributes="for python:fieldName">
+            <span class="formHelp"
+                 tal:define="description python:widget.Description(here)"
+                 tal:content="structure description"
+                 tal:attributes="id string:${fieldName}_help"
+                 i18n:translate="">
+              Help
+            </span>
           </label>
-          <div class="formHelp"
-               tal:define="description python:widget.Description(here)"
-               tal:content="structure description"
-               tal:attributes="id string:${fieldName}_help"
-               i18n:translate="">
-            Help
-          </div>
           <metal:use use-macro="context/widgets/computed/macros/view" />
       </div>
     </metal:define>

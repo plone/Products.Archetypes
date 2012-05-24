@@ -469,12 +469,12 @@ data appropriate to its type. Below is a list of possible widget
 properties, with their default values (see ``generator/widget.py``).
 Individual widgets may have additional properties.
 
-description
-  Some documentation for this field. It's rendered as a ``div`` with the
-  CSS class ``formHelp``.
-
 label
   Is used as the label for the field when rendering the form.
+
+description
+  Some documentation for this field. It's rendered as a ``span`` with the
+  CSS class ``formHelp`` within the label tag.
 
 visible
   Defaults to ``{'edit':'visible', 'view':'visible'}``, which signifies

@@ -44,13 +44,13 @@
                     style="color: #f00;">
                 &#x25a0;
               </span>
-          </div>
-          <div class="formHelp"
-               tal:define="description python:widget.Description(here)"
-               tal:content="structure description"
-               tal:attributes="id string:${fieldName}_help"
-               i18n:translate="">
-            Help
+              <span class="formHelp"
+                   tal:define="description python:widget.Description(here)"
+                   tal:content="structure description"
+                   tal:attributes="id string:${fieldName}_help"
+                   i18n:translate="">
+                Help
+              </span>
           </div>
           <tal:define define="id fieldName;
                               show_hm widget/show_hm|nothing;

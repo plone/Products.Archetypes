@@ -41,11 +41,12 @@
               <fieldset>
                 <legend i18n:translate="legend_add_new">Add new</legend>
                 <div class="field">
-                  <label i18n:translate="label_what">What</label>
-                  <div class="formHelp"
-                       i18n:translate="help_select_content_to_create">
-                    Select what content type you wish to create.
-                  </div>
+                  <label i18n:translate="label_what">What
+                    <span class="formHelp"
+                         i18n:translate="help_select_content_to_create">
+                      Select what content type you wish to create.
+                    </span>
+                  </label>
                   <div>
                     <select tal:define="id string:${fieldName}_types"
                             tal:attributes="id id;
@@ -57,11 +58,12 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label i18n:translate="label_where">Where</label>
-                  <div class="formHelp"
-                       i18n:translate="help_select_where_to_create">
-                    Select where you want to create that.
-                  </div>
+                  <label i18n:translate="label_where">Where
+                    <span class="formHelp"
+                         i18n:translate="help_select_where_to_create">
+                      Select where you want to create that.
+                    </span>
+                  </label>
                   <div>
                     <select name="add_reference.destination:record"
                             tal:attributes="id string:${fieldName}_destinations;
@@ -69,8 +71,7 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label></label>
-                  <div class="formHelp"></div>
+                  <label><span class="formHelp"></span></label>
                   <div>
                     <input class="context"
                       type="submit"

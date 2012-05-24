@@ -4,6 +4,15 @@ Changelog
 1.7.15 (unreleased)
 -------------------
 
+- Moved form help from a div after form field labels to a span within. The
+  purpose is to semantically associate the label to the form help so that
+  it's more useful to a screen reader user.
+  Note that sunburst's public.css and classic's form.css.dtml were 
+  simultaneously changed to assure block display of help in normal 
+  font-weight.
+  Closes http://dev.plone.org/ticket/7212, an accessibility ticket.
+  [smcmahon]
+
 - Deprecated aliases were replaced on tests.
   [hvelarde]
 

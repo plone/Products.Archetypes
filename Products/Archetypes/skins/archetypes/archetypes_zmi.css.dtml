@@ -9,13 +9,13 @@ label {
   margin: .3em 0em;
 }
 
-div.formHelp {
+.formHelp {
   font-family: Verdana, Helvetica, sans-serif;
   font-size: 8pt;
   color: #999999;
 }
 
-div.formHelp:hover {
+.formHelp:hover {
   font-family: Verdana, Helvetica, sans-serif;
   font-size: 8pt;
   color: #666666;
