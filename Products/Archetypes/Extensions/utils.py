@@ -127,7 +127,7 @@ def install_types(self, out, types, package_name):
         t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, klass.__name__, package_name)
         if t and fti:
             t.manage_changeProperties(**fti)
-            if 'aliases' in fti.has_key:
+            if 'aliases' in fti:
                 t.setMethodAliases(fti['aliases'])
 
         # Set the human readable title explicitly
