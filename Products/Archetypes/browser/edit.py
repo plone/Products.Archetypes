@@ -61,6 +61,6 @@ class Edit(BrowserView):
 # This is a helper to make sure the user gets a login form if they go to
 # /edit on an unauthorized context.
 class UnauthorizedEdit(BrowserView):
-    
+
     def __call__(self):
         raise Unauthorized

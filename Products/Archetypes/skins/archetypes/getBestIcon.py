@@ -23,7 +23,7 @@ if lookup:
     try:
         context.restrictedTraverse(mti.icon_path)
         return mti.icon_path
-    except (NotFound, KeyError, AttributeError): # Looking for 'NotFound' or KeyError
+    except (NotFound, KeyError, AttributeError):  # Looking for 'NotFound' or KeyError
         pass
 
 return context.getIcon()

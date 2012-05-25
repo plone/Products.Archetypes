@@ -10,7 +10,6 @@
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.utils import addStatusMessage
-from Products.CMFCore.utils import getToolByName
 
 REQUEST = context.REQUEST
 old_id = context.getId()
@@ -24,7 +23,7 @@ new_context.processForm()
 
 # Get the current language and put it in request/LANGUAGE
 form = REQUEST.form
-if form.has_key('current_lang'):
+if 'current_lang' in form:
     form['language'] = form.get('current_lang')
 
 portal_status_message = _(u'Changes saved.')
@@ -78,11 +77,11 @@ if reference_source_url is not None:
                                  default=u'Reference edited.')
 
     kwargs = {
-        'status':'success_add_reference',
-        'context':reference_obj,
-        'fieldset':reference_source_fieldset,
-        'field':reference_source_field,
-        'reference_focus':reference_source_field,
+        'status': 'success_add_reference',
+        'context': reference_obj,
+        'fieldset': reference_source_fieldset,
+        'field': reference_source_field,
+        'reference_focus': reference_source_field,
         }
     addStatusMessage(REQUEST, portal_status_message)
     return state.set(**kwargs)
@@ -95,7 +94,7 @@ if state.errors:
         for f_name in f_names:
             fields.append((s, f_name))
     for s_name, f_name in fields:
-        if errors.has_key(f_name):
+        if f_name in errors:
             REQUEST.set('fieldset', s_name)
             addStatusMessage(REQUEST, portal_status_message)
             return state.set(

@@ -1,10 +1,10 @@
-from Products.Archetypes.atapi import *
+from Products.Archetypes import atapi
 from Products.Archetypes.config import PKG_NAME
 from Products.CMFCore.permissions import setDefaultRoles
 from AccessControl import ClassSecurityInfo
 
-schema = BaseSchema + Schema((
-    TextField('body',
+schema = atapi.BaseSchema + atapi.Schema((
+    atapi.TextField('body',
               required=1,
               searchable=1,
               default_output_type='text/html',
@@ -12,19 +12,19 @@ schema = BaseSchema + Schema((
                                        'text/restructured',
                                        'text/html',
                                        'application/msword'),
-              widget  = RichWidget(description="""Enter or upload text for the Body of the document"""),
+              widget=atapi.RichWidget(description="""Enter or upload text for the Body of the document"""),
               ),
-    StringField('ptype',
+    atapi.StringField('ptype',
               default_method='Type'
               ),
     ))
 
 
-class SimpleType(BaseContent):
+class SimpleType(atapi.BaseContent):
     """A simple archetype"""
     schema = schema
 
-registerType(SimpleType, PKG_NAME)
+atapi.registerType(SimpleType, PKG_NAME)
 
 TestView = 'Archetypes Tests: Protected Type View'
 setDefaultRoles(TestView, ('Anonymous', 'Manager',))
@@ -32,11 +32,12 @@ setDefaultRoles(TestView, ('Anonymous', 'Manager',))
 TestWrite = 'Archetypes Tests: Protected Type Write'
 setDefaultRoles(TestWrite, ('Anonymous', 'Manager',))
 
+
 class SimpleProtectedType(SimpleType):
 
     security = ClassSecurityInfo()
 
-    attr_security = AttributeValidator()
+    attr_security = atapi.AttributeValidator()
     security.setDefaultAccess(attr_security)
     # Delete so it cannot be accessed anymore.
     del attr_security
@@ -51,4 +52,4 @@ class SimpleProtectedType(SimpleType):
     def foo(self):
         return 'bar'
 
-registerType(SimpleProtectedType, PKG_NAME)
+atapi.registerType(SimpleProtectedType, PKG_NAME)

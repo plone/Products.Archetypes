@@ -24,9 +24,11 @@ from zope.interface import implements
 __docformat__ = 'reStructuredText'
 _marker = []
 
+
 def getNames(schema):
     """Returns a list of all fieldnames in the given schema."""
     return [f.getName() for f in schema.fields()]
+
 
 def getSchemata(obj):
     """Returns an ordered dictionary, which maps all Schemata names to fields
@@ -40,6 +42,7 @@ def getSchemata(obj):
         schemata[f.schemata] = sub.__of__(obj)
 
     return schemata
+
 
 class Schemata(Base):
     """Manage a list of fields by grouping them together.
@@ -71,7 +74,6 @@ class Schemata(Base):
         """Returns the Schemata's name."""
         return self.__name__
 
-
     def __add__(self, other):
         """Returns a new Schemata object that contains all fields and layers
         from ``self`` and ``other``.
@@ -85,7 +87,6 @@ class Schemata(Base):
 
         return c
 
-
     security.declareProtected(permissions.View, 'copy')
     def copy(self):
         """Returns a deep copy of this Schemata.
@@ -95,12 +96,10 @@ class Schemata(Base):
             c.addField(field.copy())
         return c
 
-
     security.declareProtected(permissions.View, 'fields')
     def fields(self):
         """Returns a list of my fields in order of their indices."""
         return [self._fields[name] for name in self._names]
-
 
     security.declareProtected(permissions.View, 'values')
     values = fields
@@ -155,7 +154,7 @@ class Schemata(Base):
 
         results = []
 
-        for field in self.fields(): # step through each of my fields
+        for field in self.fields():  # step through each of my fields
 
             # predicate failed:
             failed = [pred for pred in predicates if not pred(field)]
@@ -226,9 +225,8 @@ class Schemata(Base):
                     "string." % name
                     )
 
-
     def __delitem__(self, name):
-        if not self._fields.has_key(name):
+        if name not in self._fields:
             raise KeyError("Schemata has no field '%s'" % name)
         del self._fields[name]
         self._names.remove(name)
@@ -242,7 +240,7 @@ class Schemata(Base):
 
     security.declareProtected(permissions.View, 'has_key')
     def has_key(self, name):
-        return self._fields.has_key(name)
+        return name in self._fields
 
     __contains__ = has_key
 
@@ -304,7 +302,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
     security.setDefaultAccess('allow')
 
     _properties = {
-        'marshall' : None
+        'marshall': None
         }
 
     def __init__(self):
@@ -344,7 +342,6 @@ class SchemaLayerContainer(DefaultLayerContainer):
                     ILayer.providedBy(obj)):
                     obj.initializeInstance(instance, item, container)
                     initializedLayers.append((layer, obj))
-
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'cleanupLayers')
@@ -532,7 +529,7 @@ class BasicSchema(Schemata):
 
     security.declareProtected(permissions.View, 'allow')
     def allow(self, name):
-        return self.has_key(name)
+        return name in self
 
     security.declareProtected(permissions.View, 'validate')
     def validate(self, instance=None, REQUEST=None,
@@ -610,7 +607,6 @@ class BasicSchema(Schemata):
             if res:
                 errors[field.getName()] = res
         return errors
-
 
     # Utility method for converting a Schema to a string for the
     # purpose of comparing schema.  This comparison is used for
@@ -831,7 +827,7 @@ class Schema(BasicSchema, SchemaLayerContainer):
             if after == name:
                 raise ValueError, "name and after can't be the same"
             idx = keys.index(after)
-            return self._moveFieldToPosition(name, idx+1)
+            return self._moveFieldToPosition(name, idx + 1)
 
         if before is not None:
             if before == name:
@@ -848,9 +844,9 @@ class Schema(BasicSchema, SchemaLayerContainer):
         oldpos = keys.index(name)
         keys.remove(name)
         if oldpos >= pos:
-           keys.insert(pos, name)
+            keys.insert(pos, name)
         else:
-           keys.insert(pos - 1, name)
+            keys.insert(pos - 1, name)
         self._names = keys
 
     def _moveFieldInSchemata(self, name, direction):
@@ -876,11 +872,11 @@ class Schema(BasicSchema, SchemaLayerContainer):
         if direction == -1:
             if pos > 0:
                 del lst[pos]
-                lst.insert(pos-1, field)
+                lst.insert(pos - 1, field)
         if direction == 1:
             if pos < len(lst):
                 del lst[pos]
-                lst.insert(pos+1, field)
+                lst.insert(pos + 1, field)
 
         d[field_schemata_name] = lst
 
@@ -954,11 +950,11 @@ class ManagedSchema(Schema):
         if direction == -1:
             if pos > 0:
                 schemata_names.remove(name)
-                schemata_names.insert(pos-1, name)
+                schemata_names.insert(pos - 1, name)
         if direction == 1:
             if pos < len(schemata_names):
                 schemata_names.remove(name)
-                schemata_names.insert(pos+1, name)
+                schemata_names.insert(pos + 1, name)
 
         # remove and re-add
         self.__init__()
@@ -973,6 +969,7 @@ InitializeClass(ManagedSchema)
 
 # Reusable instance for MetadataFieldList
 MDS = MetadataStorage()
+
 
 class MetadataSchema(Schema):
     """Schema that enforces MetadataStorage."""

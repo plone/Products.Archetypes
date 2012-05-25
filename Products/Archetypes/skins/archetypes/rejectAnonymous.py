@@ -16,6 +16,6 @@ if context.portal_membership.isAnonymousUser():
     url = '%s/login_form' % context.portal_url()
     addStatusMessage(REQUEST, _(u'You must sign in first.'), type='info')
 
-    RESPONSE=context.REQUEST.RESPONSE
+    RESPONSE = context.REQUEST.RESPONSE
     return RESPONSE.redirect(url)
 return True

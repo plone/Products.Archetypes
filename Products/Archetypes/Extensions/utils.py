@@ -20,6 +20,7 @@ from Products.Archetypes.interfaces.ITemplateMixin import ITemplateMixin
 class Extra:
     """indexes extra properties holder"""
 
+
 def install_additional_templates(self, out, types):
     """Registers additionals templates for TemplateMixin classes.
     """
@@ -45,8 +46,9 @@ def install_additional_templates(self, out, types):
 
             at.bindTemplate(portal_type, views)
 
+
 def install_subskin(self, out, globals=types_globals, product_skins_dir='skins'):
-    skinstool=getToolByName(self, 'portal_skins')
+    skinstool = getToolByName(self, 'portal_skins')
 
     product = getPackageName(globals)
     registry_key = "%s:%s" % (product, product_skins_dir)
@@ -55,7 +57,7 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
         try:
             registerDirectory(product_skins_dir, globals)
         except OSError, ex:
-            if ex.errno == 2: # No such file or directory
+            if ex.errno == 2:  # No such file or directory
                 return
             raise
     try:
@@ -82,15 +84,16 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
         if isdir(join(fullProductSkinsPath, productSkinName)):
             for skinName in skinstool.getSkinSelections():
                 path = skinstool.getSkinPath(skinName)
-                path = [i.strip() for i in  path.split(',')]
+                path = [i.strip() for i in path.split(',')]
                 try:
                     if productSkinName not in path:
-                        path.insert(path.index('custom') +1, productSkinName)
+                        path.insert(path.index('custom') + 1, productSkinName)
                 except ValueError:
                     if productSkinName not in path:
                         path.append(productSkinName)
                 path = ','.join(path)
                 skinstool.addSkinSelection(skinName, path)
+
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
@@ -117,14 +120,14 @@ def install_types(self, out, types, package_name):
                                                 id=klass.portal_type,
                                                 typeinfo_name=typeinfo_name)
         except ValueError:
-            print "failed to add '%s'" %  klass.portal_type
+            print "failed to add '%s'" % klass.portal_type
             print "fti_meta_type = %s" % fti_meta_type
         ## rr: from CMF-2.0 onward typeinfo_name from the call above
         ## is ignored and we have to do some more work
         t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, klass.__name__, package_name)
         if t and fti:
             t.manage_changeProperties(**fti)
-            if fti.has_key('aliases'):
+            if 'aliases' in fti.has_key:
                 t.setMethodAliases(fti['aliases'])
 
         # Set the human readable title explicitly
@@ -155,6 +158,7 @@ def install_types(self, out, types, package_name):
             folders = tuple(dict(zip(folders, folders)).keys())
             sp._updateProperty(prop, folders)
 
+
 def _getFtiAndDataFor(tool, typename, klassname, package_name):
     """helper method for type info setting
        returns fti object from the types tool and the data created
@@ -179,6 +183,7 @@ def install_actions(self, out, types):
         ## it used to do :-(
         fixActionsForType(portal_type, typesTool)
 
+
 def install_indexes(self, out, types):
     portal_catalog = catalog = getToolByName(self, 'portal_catalog')
     for cls in types:
@@ -200,7 +205,7 @@ def install_indexes(self, out, types):
             for alternative in index:
                 installed = None
                 index_spec = alternative.split(':', 1)
-                use_column  = 0
+                use_column = 0
                 if len(index_spec) == 2 and index_spec[1] in ('schema', 'brains'):
                     use_column = 1
                 index_spec = index_spec[0]
@@ -215,7 +220,7 @@ def install_indexes(self, out, types):
                 if parts[0].find('/') > 0:
                     str_idx = parts[0].find('/')
                     catalog_name = parts[0][:str_idx]
-                    parts[0] = parts[0][str_idx+1:]
+                    parts[0] = parts[0][str_idx + 1:]
                     catalog = getToolByName(self, catalog_name)
                 else:
                     catalog = portal_catalog
@@ -326,10 +331,10 @@ def setupEnvironment(self, out, types,
                      install_deps=1):
 
     if install_deps:
-        qi=getToolByName(self, 'portal_quickinstaller', None)
+        qi = getToolByName(self, 'portal_quickinstaller', None)
         if require_dependencies:
             if not qi.isProductInstalled('CMFFormController'):
-                qi.installProduct('CMFFormController',locked=1)
+                qi.installProduct('CMFFormController', locked=1)
                 print >>out, 'Installing CMFFormController'
             if not qi.isProductInstalled('MimetypesRegistry'):
                 qi.installProduct('MimetypesRegistry')
@@ -413,9 +418,9 @@ def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=Non
     mt = tuple([t.meta_type for t in ftypes])
 
     # because manage_catalogFoundItems sucks we have to do it on our own ...
-    func    = rc.catalog_object
-    obj     = self
-    path    = '/'.join(obj.getPhysicalPath())
+    func = rc.catalog_object
+    obj = self
+    path = '/'.join(obj.getPhysicalPath())
     REQUEST = self.REQUEST
 
     rc.ZopeFindAndApply(obj,

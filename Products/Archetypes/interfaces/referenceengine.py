@@ -1,5 +1,6 @@
 from zope.interface import Interface
 
+
 class IReference(Interface):
     """ Reference """
 
@@ -19,7 +20,6 @@ class IReference(Interface):
 
     def targetTitle():
         """ gives the title of the target object """
-
 
     # Policy hooks, subclass away
     def addHook(tool, sourceObject=None, targetObject=None):
@@ -51,9 +51,11 @@ class IContentReference(IReference):
     def getContentObject():
         """ gives the contentish object attached to the reference"""
 
+
 class IReferenceCatalog(Interface):
     """Marker interface for reference catalog
     """
+
 
 class IUIDCatalog(Interface):
     """Marker interface for uid catalog

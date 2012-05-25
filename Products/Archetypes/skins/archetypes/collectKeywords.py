@@ -6,7 +6,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=name, index, vocab_source='portal_catalog'
-REQUEST=context.REQUEST
+REQUEST = context.REQUEST
 
 
 ## With the advent of multi-cataloging we need to pass an optional

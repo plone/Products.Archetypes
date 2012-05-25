@@ -2,6 +2,7 @@ from Products.Archetypes.interfaces import ISchema, IBaseObject
 from zope.component import adapter
 from zope.interface import implementer
 
+
 @implementer(ISchema)
 @adapter(IBaseObject)
 def instanceSchemaFactory(context):
@@ -42,8 +43,3 @@ def instanceSchemaFactory(context):
      product does, so you may be better off using that.
     """
     return context.schema
-
-
-
-
-

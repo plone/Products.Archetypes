@@ -7,6 +7,7 @@ README.txt and interfaces.py.
 
 from zope.interface import Interface
 
+
 class IObjectValidation(Interface):
     """Pre- or post-validate an Archetypes object (common base interface)
 
@@ -18,11 +19,12 @@ class IObjectValidation(Interface):
         and values of error strings.
         """
 
+
 class IObjectPreValidation(IObjectValidation):
     """Validate before schema validation
     """
 
+
 class IObjectPostValidation(IObjectValidation):
     """Validate after schema validation
     """
-

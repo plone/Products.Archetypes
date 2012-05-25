@@ -10,13 +10,14 @@ from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
 from zope.interface import implements
 
-type_map = {'text':'string',
-            'datetime':'date',
-            'lines':'lines',
-            'integer':'int'
+type_map = {'text': 'string',
+            'datetime': 'date',
+            'lines': 'lines',
+            'integer': 'int'
             }
 
 _marker = []
+
 
 #XXX subclass from Base?
 class Storage:
@@ -51,10 +52,12 @@ class Storage:
 
 setSecurity(Storage)
 
+
 class ReadOnlyStorage(Storage):
     """A marker storage class for used for read-only fields."""
 
     security = ClassSecurityInfo()
+
 
 class StorageLayer(Storage):
     """Base, abstract StorageLayer. Storages that need to manipulate
@@ -83,6 +86,7 @@ class StorageLayer(Storage):
 
 setSecurity(StorageLayer)
 
+
 class AttributeStorage(Storage):
     """Stores data as an attribute of the instance. This is the most
     commonly used storage"""
@@ -109,6 +113,7 @@ class AttributeStorage(Storage):
         except AttributeError:
             pass
         instance._p_changed = 1
+
 
 class ObjectManagedStorage(Storage):
     """Stores data using the Objectmanager interface. It's usually
@@ -139,6 +144,7 @@ class ObjectManagedStorage(Storage):
         instance._delObject(name)
         instance._p_changed = 1
 
+
 class MetadataStorage(StorageLayer):
     """Storage used for ExtensibleMetadata. Attributes are stored on
     a persistent mapping named ``_md`` on the instance."""
@@ -156,8 +162,8 @@ class MetadataStorage(StorageLayer):
         # Check for already existing field to avoid  the reinitialization
         # (which means overwriting) of an already existing field after a
         # copy or rename operation
-        base = aq_base (instance)
-        if not base._md.has_key(field.getName()):
+        base = aq_base(instance)
+        if field.getName() not in base._md:
             self.set(field.getName(), instance, field.getDefault(instance))
 
     security.declarePrivate('get')
@@ -175,8 +181,8 @@ class MetadataStorage(StorageLayer):
     def set(self, name, instance, value, **kwargs):
         base = aq_base(instance)
         # Remove acquisition wrappers
-        if not hasattr(base,'_md'):
-	            base._md=PersistentMapping()
+        if not hasattr(base, '_md'):
+            base._md = PersistentMapping()
 
         base._md[name] = aq_base(value)
         base._p_changed = 1

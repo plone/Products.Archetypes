@@ -26,8 +26,6 @@
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
 
-from Products.Archetypes.interfaces.storage import IStorage
-from Products.Archetypes.interfaces.layer import ILayer
 from Products.Archetypes.Storage import Storage
 from Products.Archetypes.Storage import StorageLayer
 from Products.Archetypes.Storage import _marker
@@ -104,7 +102,7 @@ class AnnotationStorage(BaseAnnotationStorage):
         value = getattr(aq_base(instance), name, _marker)
         if value is _marker:
                 raise AttributeError(name)
-        delattr(instance, name) # explicit del althought set would do the job, too
+        delattr(instance, name)  # explicit del althought set would do the job, too
         self.set(name, instance, value, **kwargs)
         return value
 
@@ -171,6 +169,7 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
 
 registerStorage(MetadataAnnotationStorage)
 
+
 def migrateStorageOfType(portal, portal_type, schema):
     """Migrate storage from attribute to annotation storage
 
@@ -182,13 +181,13 @@ def migrateStorageOfType(portal, portal_type, schema):
     migration.
     """
     catalog = getToolByName(portal, 'portal_catalog')
-    brains = catalog(dict(Type = portal_type))
+    brains = catalog(dict(Type=portal_type))
 
-    fields = [ field.getName()
+    fields = [field.getName()
         for field in schema.fields()
         if field.storage.__class__ == AnnotationStorage
         ]
-    md_fields = [ field.getName()
+    md_fields = [field.getName()
         for field in schema.fields()
         if field.storage.__class__ == MetadataAnnotationStorage
         ]
@@ -208,6 +207,7 @@ def migrateStorageOfType(portal, portal_type, schema):
 
         if state is None: obj._p_deactivate()
 
+
 def _attr2ann(clean_obj, ann, fields):
     """Attribute 2 annotation
     """
@@ -221,6 +221,7 @@ def _attr2ann(clean_obj, ann, fields):
             value = getattr(clean_obj, field, _marker)
             if value is not _marker:
                 delattr(clean_obj, field)
+
 
 def _meta2ann(clean_obj, ann, fields):
     """metadata 2 annotation

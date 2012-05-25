@@ -20,7 +20,7 @@ class ArchetypeToolXMLAdapter(XMLAdapterBase):
     def _exportNode(self):
         """Export the object as a DOM node.
         """
-        node=self._doc.createElement('archetypetool')
+        node = self._doc.createElement('archetypetool')
         node.appendChild(self._extractCatalogSettings())
 
         self._logger.info('ArchetypeTool settings exported.')
@@ -38,23 +38,23 @@ class ArchetypeToolXMLAdapter(XMLAdapterBase):
 
     def _initCatalogSettings(self, node):
         for child in node.childNodes:
-            if child.nodeName=='catalogmap':
+            if child.nodeName == 'catalogmap':
                 for type in child.getElementsByTagName('type'):
-                    portaltype=type.getAttribute('portal_type')
-                    catalogs=[e.getAttribute('value') \
-                              for e in type.getElementsByTagName('catalog')]
+                    portaltype = type.getAttribute('portal_type')
+                    catalogs = [e.getAttribute('value') \
+                                for e in type.getElementsByTagName('catalog')]
                     already = [cat.getId() for cat in
                                self.context.getCatalogsByType(portaltype)]
                     catalogs = set(catalogs + already)
                     self.context.setCatalogsByType(portaltype, list(catalogs))
 
     def _extractCatalogSettings(self):
-        node=self._doc.createElement('catalogmap')
+        node = self._doc.createElement('catalogmap')
         for type in self.context.listRegisteredTypes(True):
-            child=self._doc.createElement('type')
+            child = self._doc.createElement('type')
             child.setAttribute('portal_type', type['name'])
             for cat in self.context.getCatalogsByType(type['name']):
-                sub=self._doc.createElement('catalog')
+                sub = self._doc.createElement('catalog')
                 sub.setAttribute('value', cat.id)
                 child.appendChild(sub)
             node.appendChild(child)

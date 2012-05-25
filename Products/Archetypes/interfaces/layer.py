@@ -1,9 +1,9 @@
 from zope.interface import Interface
 
+
 class ILayer(Interface):
     """Layering support
     """
-
 
     def initializeInstance(instance, item=None, container=None):
         """Optionally called to initialize a layer for an entire
@@ -22,6 +22,7 @@ class ILayer(Interface):
         """Optionally called to cleanup a layer for an entire
         instance
         """
+
 
 class ILayerContainer(Interface):
     """An object that contains layers and can use/manipulate them"""
@@ -43,6 +44,7 @@ class ILayerContainer(Interface):
     def getLayerImpl(name):
         """Return an object implementing this layer
         """
+
 
 class ILayerRuntime(Interface):
     """ Layer Runtime """

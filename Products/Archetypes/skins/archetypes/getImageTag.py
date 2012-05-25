@@ -7,4 +7,4 @@
 ##bind subpath=traverse_subpath
 ##parameters=fieldName, scale = None
 
-return context.getWrappedField (fieldName).tag (context, scale)
+return context.getWrappedField(fieldName).tag(context, scale)

@@ -1,21 +1,21 @@
-from Products.Archetypes.atapi import *
+from Products.Archetypes import atapi
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.Archetypes.Marshall import PrimaryFieldMarshaller
 from Products.Archetypes.config import PKG_NAME
 
-schema = BaseSchema + Schema((
-    TextField('teaser',
+schema = atapi.BaseSchema + atapi.Schema((
+    atapi.TextField('teaser',
               searchable=1,
-              widget=TextAreaWidget(description="""A short lead-in to the
+              widget=atapi.TextAreaWidget(description="""A short lead-in to the
               article so that we might get people to read the body""",
                                     label="Teaser",
                                     rows=3)),
 
     # Using a bare ObjetField doesn't make sense ...
     #ObjectField('author'),
-    StringField('author'),
+    atapi.StringField('author'),
 
-    TextField('body',
+    atapi.TextField('body',
               required=1,
               primary=1,
               searchable=1,
@@ -24,36 +24,37 @@ schema = BaseSchema + Schema((
                                        'text/plain',
                                        'text/html',
                                        'application/msword'),
-              widget=RichWidget(),
+              widget=atapi.RichWidget(),
               ),
 
-    IntegerField("number",
+    atapi.IntegerField("number",
                  index="FieldIndex",
                  default=42,
                  validators=('isInt',),
                  ),
 
-    ImageField('image',
+    atapi.ImageField('image',
                default_output_type='image/jpeg',
                allowable_content_types=('image/*',),
-               widget=ImageWidget()),
+               widget=atapi.ImageWidget()),
 
-    ReferenceField('related',
-                   relationship = 'related',
-                   multiValued = True,
-                   widget=ReferenceWidget(),
-                   keepReferencesOnCopy = True),
+    atapi.ReferenceField('related',
+                   relationship='related',
+                   multiValued=True,
+                   widget=atapi.ReferenceWidget(),
+                   keepReferencesOnCopy=True),
 
-    ReferenceField('rel2',
-                   relationship = 'rel2',
-                   multiValued = True,
-                   widget=ReferenceWidget(),
-                   keepReferencesOnCopy = True),
+    atapi.ReferenceField('rel2',
+                   relationship='rel2',
+                   multiValued=True,
+                   widget=atapi.ReferenceWidget(),
+                   keepReferencesOnCopy=True),
     ),
 
     marshall=PrimaryFieldMarshaller()) + TemplateMixin.schema
 
-class DDocument(TemplateMixin, BaseContent):
+
+class DDocument(TemplateMixin, atapi.BaseContent):
     """An extensible Document (test) type"""
     schema = schema
     archetype_name = "Demo Doc"
@@ -66,4 +67,4 @@ class DDocument(TemplateMixin, BaseContent):
         self.called_afterPUT_hook = True
 
 
-registerType(DDocument, PKG_NAME)
+atapi.registerType(DDocument, PKG_NAME)

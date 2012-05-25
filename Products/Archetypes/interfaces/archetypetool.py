@@ -1,5 +1,6 @@
 from zope.interface import Attribute, Interface
 
+
 class IArchetypeTool(Interface):
     """This tool manages various kinds of behaviour for Archetype based
     content types. """
@@ -10,7 +11,6 @@ class IArchetypeTool(Interface):
         """Return the list of sorted types.
         """
 
-
     def setCatalogsByType(meta_type, catalogList):
         """ associate catalogList with meta_type. (unfortunally not portal_type).
 
@@ -18,13 +18,10 @@ class IArchetypeTool(Interface):
             Each catalog is has to be a tool, means unique in site root.
         """
 
-
     def getCatalogsByType(meta_type):
         """Return the catalog objects assoicated with a given type.
         """
 
-
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
-

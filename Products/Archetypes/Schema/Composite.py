@@ -112,7 +112,7 @@ class CompositeSchema(Implicit):
         overriding an existing one)
         """
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 s[name] = field
                 return
         self.getSchemas()[0][name] = field
@@ -122,7 +122,7 @@ class CompositeSchema(Implicit):
         """Add a field (possibly overriding an existing one)"""
         name = field.getName()
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 s.addField(field)
                 return
         self.getSchemas()[0].addField(field)
@@ -133,7 +133,7 @@ class CompositeSchema(Implicit):
     def __delitem__(self, name):
         """Delete field by name ``name`` """
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 del s[name]
                 return
         del self.getSchemas()[0][name]
@@ -147,7 +147,7 @@ class CompositeSchema(Implicit):
         Raises KeyError if the field does not exist.
         """
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 return s[name]
         return self.getSchemas()[0][name]
 
@@ -157,7 +157,7 @@ class CompositeSchema(Implicit):
         for missing
         """
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 return s.get(name)
         return self.getSchemas()[0].get(name, default)
 
@@ -165,10 +165,9 @@ class CompositeSchema(Implicit):
     def has_key(self, name):
         """Check if a field by the given name exists"""
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 return True
-        return self.getSchemas()[0].has_key(name)
-
+        return name in self.getSchemas()[0]
 
     security.declareProtected(View, 'keys')
     def keys(self, name):
@@ -196,7 +195,7 @@ class CompositeSchema(Implicit):
         """Call the mutator by name on instance,
         setting the value.
         """
-        if self.has_key(name):
+        if name in self:
             instance[name] = value
 
     security.declareProtected(ModifyPortalContent, 'setDefaults')
@@ -265,14 +264,14 @@ class CompositeSchema(Implicit):
     def changeSchemataForField(self, fieldname, schemataname):
         """Change the schemata for a field """
         for s in self.getSchemas():
-            if s.has_key(fieldname):
+            if fieldname in s:
                 s.changeSchemataForField(fieldname, schemataname)
 
     security.declarePrivate('replaceField')
     def replaceField(self, name, field):
         """Replace field under ``name`` with ``field``"""
         for s in self.getSchemas():
-            if s.has_key(name):
+            if name in s:
                 s.replaceField(name, field)
 
     security.declarePrivate('initializeLayers')

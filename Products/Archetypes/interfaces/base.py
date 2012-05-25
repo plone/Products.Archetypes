@@ -1,5 +1,6 @@
 from zope.interface import Interface
 
+
 class IBaseObject(Interface):
     """ The most basic Archetypes-based implementation
     """
@@ -131,6 +132,7 @@ class IBaseObject(Interface):
         """Get a dictionary of objects from the session
         """
 
+
 class IBaseContent(IBaseObject):
     """Contentish base interface marker
 
@@ -157,11 +159,12 @@ class IBaseFolder(IBaseObject):
         Optionally you can suppress 'hidden' files, or files that begin with '.'
         """
 
-    def folderlistingFolderContents(contentFilter=None, suppressHiddenFiles=0 ):
+    def folderlistingFolderContents(contentFilter=None, suppressHiddenFiles=0):
         """
         Calls listFolderContents in protected only by ACI so that folder_listing
         can work without the List folder contents permission, as in CMFDefault
         """
+
 
 class IBaseUnit(Interface):
     """

@@ -14,7 +14,7 @@ value = context.unicodeEncode(value, site_charset=site_charset)
 # map from mimetypes used in allowable_content_types to mimetypes that are stored
 # in the base unit
 mapping = {
-    'text/x-python' : 'text/python-source',
+    'text/x-python': 'text/python-source',
     'text/restructured': 'text/x-rst',
 }
 
