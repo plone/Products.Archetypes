@@ -13,6 +13,7 @@ from Persistence import PersistentMapping
 from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
 
+
 class SQLStorageConfig (SimpleItem):
 
     """ Map Archetypes to SQL Database Connections.
@@ -25,20 +26,16 @@ class SQLStorageConfig (SimpleItem):
 
     security = ClassSecurityInfo()
 
-    manage_options = (({ 'label' : 'Connections'
-                         , 'action' : 'manage_selectConnections'
-                         }
-                       ),
-                      )
+    manage_options = (({'label': 'Connections',
+                        'action': 'manage_selectConnections'}),)
 
     #
     #   ZMI methods
     #
 
-
     _manage_selectConnections = DTMLFile('www/selectConnections', globals())
 
-    security.declareProtected( ManagePortal, 'manage_selectConnections')
+    security.declareProtected(ManagePortal, 'manage_selectConnections')
     def manage_selectConnections(self, REQUEST, manage_tabs_message=None):
 
         """ Show a management screen for changing type to workflow connections.
@@ -49,7 +46,7 @@ class SQLStorageConfig (SimpleItem):
         for t in ti:
             id = t['name']
             title = None
-            if cbt is not None and cbt.has_key(id):
+            if cbt is not None and id in cbt:
                 conn = cbt[id]
             else:
                 conn = '(Default)'
@@ -63,7 +60,7 @@ class SQLStorageConfig (SimpleItem):
             management_view='Connections',
             manage_tabs_message=manage_tabs_message)
 
-    security.declareProtected( ManagePortal, 'manage_changeConnections')
+    security.declareProtected(ManagePortal, 'manage_changeConnections')
     def manage_changeConnections(self, default_conn, props=None, REQUEST=None):
         """ Changes which connectionss apply to objects of which type.
         """
@@ -89,7 +86,7 @@ class SQLStorageConfig (SimpleItem):
     #
     #   Administration methods
     #
-    security.declareProtected( ManagePortal, 'setDefaultConn')
+    security.declareProtected(ManagePortal, 'setDefaultConn')
     def setDefaultConn(self, default_conn):
         """ Set the default conn for this tool
         """
@@ -105,13 +102,13 @@ class SQLStorageConfig (SimpleItem):
         """ Return the default conn, if applicable, for ob.
         """
 
-        types_tool = getToolByName( self, 'portal_types', None )
-        if ( types_tool is not None
-            and types_tool.getTypeInfo( ob ) is not None ):
+        types_tool = getToolByName(self, 'portal_types', None)
+        if (types_tool is not None
+            and types_tool.getTypeInfo(ob) is not None):
             return self._default_conn
         return None
 
-    security.declareProtected( ManagePortal, 'getConfigurableTypes')
+    security.declareProtected(ManagePortal, 'getConfigurableTypes')
     def getConfigurableTypes(self):
         """ Get a list of types that can be configured for SQL Storage.
         """
@@ -125,8 +122,7 @@ class SQLStorageConfig (SimpleItem):
                     break
         return c_types
 
-
-    security.declareProtected( ManagePortal, 'getInstalledTypes')
+    security.declareProtected(ManagePortal, 'getInstalledTypes')
     def getInstalledTypes(self):
         pt = getToolByName(self, 'portal_types', None)
         at = getToolByName(self, TOOL_NAME, None)
@@ -142,8 +138,7 @@ class SQLStorageConfig (SimpleItem):
         installed_types = [t for t in ti if t['name'] in pt]
         return installed_types
 
-
-    security.declareProtected( ManagePortal, 'setConnForPortalTypes')
+    security.declareProtected(ManagePortal, 'setConnForPortalTypes')
     def setConnForPortalTypes(self, type_names, conn):
         """ Set a conn for a specific portal type.
         """
@@ -155,7 +150,7 @@ class SQLStorageConfig (SimpleItem):
         for id in type_names:
             if conn == '(Default)':
                 # Remove from cbt.
-                if cbt.has_key(id):
+                if id in cbt:
                     del cbt[id]
             else:
                 conn = conn.strip()

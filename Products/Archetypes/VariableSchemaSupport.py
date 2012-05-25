@@ -12,6 +12,7 @@ from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from ExtensionClass import Base
 
+
 class VarClassGen(ClassGenerator):
     """A version of ClassGen that is able to generate a class' methods based on
     an explicitly given schema.
@@ -34,7 +35,8 @@ class VarClassGen(ClassGenerator):
 # do different schemas per-*instance*)
 #
 
-schemadict={}
+schemadict = {}
+
 
 class VariableSchemaSupport(Base):
     """
@@ -64,16 +66,16 @@ class VariableSchemaSupport(Base):
         s = self.getSchema()
 
         # create a hash value out of the schema
-        hash=sha(str([f.__dict__ for f in s.values()]) +
-                 str(self.__class__)).hexdigest()
+        hash = sha(str([f.__dict__ for f in s.values()]) +
+                   str(self.__class__)).hexdigest()
 
-        if schemadict.has_key(hash): #ok we had that schema already, so take it
-            schema=schemadict[hash]
-        else: #make a new one and store it using the hash key
-            schemadict[hash]=s
-            schema=schemadict[hash]
-            g=VarClassGen(schema)
-            g.updateMethods(self.__class__) #generate the methods
+        if hash in schemadict:  # ok we had that schema already, so take it
+            schema = schemadict[hash]
+        else:  # make a new one and store it using the hash key
+            schemadict[hash] = s
+            schema = schemadict[hash]
+            g = VarClassGen(schema)
+            g.updateMethods(self.__class__)  # generate the methods
 
         return schema
 
@@ -82,8 +84,8 @@ class VariableSchemaSupport(Base):
     def getSchema(self):
         return self.schema
 
-    security.declareProtected(permissions.ManagePortal,'setSchema')
+    security.declareProtected(permissions.ManagePortal, 'setSchema')
     def setSchema(self, schema):
-        self.schema=schema
+        self.schema = schema
 
 InitializeClass(VariableSchemaSupport)

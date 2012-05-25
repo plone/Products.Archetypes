@@ -39,12 +39,13 @@ from zope.component import adapts
 
 # annotation keys
 AT_ANN_STORAGE = 'Archetypes.storage.AnnotationStorage'
-AT_MD_STORAGE  = 'Archetypes.storage.MetadataAnnotationStorage'
-AT_FIELD_MD    = 'Archetypes.field.Metadata'
-AT_REF         = 'Archetypes.referenceEngine.Reference'
+AT_MD_STORAGE = 'Archetypes.storage.MetadataAnnotationStorage'
+AT_FIELD_MD = 'Archetypes.field.Metadata'
+AT_REF = 'Archetypes.referenceEngine.Reference'
 
 # all keys so someone can test against this list
 AT_ANN_KEYS = (AT_ANN_STORAGE, AT_MD_STORAGE, AT_FIELD_MD, AT_REF)
+
 
 class ATAnnotations(DictMixin, Explicit):
     """Store annotations in the '__annotations__' attribute on a IATAnnotatable
@@ -140,7 +141,7 @@ class ATAnnotations(DictMixin, Explicit):
         """
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
-            return self.has_key(k)
+            return k in self
         else:
             raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
 
@@ -174,8 +175,8 @@ class ATAnnotations(DictMixin, Explicit):
 
 InitializeClass(ATAnnotations)
 
-def getAnnotation(obj):
-     """Get an ATAnnotation object for obj
-     """
-     return ATAnnotations(obj).__of__(obj)
 
+def getAnnotation(obj):
+    """Get an ATAnnotation object for obj
+    """
+    return ATAnnotations(obj).__of__(obj)

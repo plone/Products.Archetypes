@@ -7,6 +7,7 @@ from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope.interface import Interface, implements
 
+
 class iwidget(Interface):
     def __call__(instance, context=None):
         """Returns a rendered fragment that can be included in a larger
@@ -25,6 +26,7 @@ class iwidget(Interface):
     def Description(instance):
         """Returns the description, possibly translated."""
 
+
 class widget:
     """Base class for widgets.
 
@@ -39,14 +41,14 @@ class widget:
 
     implements(iwidget)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
     security.declareObjectPublic()
     security.setDefaultAccess('allow')
 
     _properties = {
-        'description' : '',
-        'label' : '',
-        'visible' : {'edit':'visible', 'view':'visible'},
+        'description': '',
+        'label': '',
+        'visible': {'edit': 'visible', 'view': 'visible'},
         'condition': '',
     }
 
@@ -67,7 +69,7 @@ class widget:
 
     def _translate_attribute(self, instance, name):
         value = getattr(self, name, '')
-        msgid = getattr(self, name+'_msgid', None) or value
+        msgid = getattr(self, name + '_msgid', None) or value
 
         if not value and not msgid:
             return ''
@@ -114,7 +116,7 @@ class macrowidget(widget):
 
     _properties = widget._properties.copy()
     _properties.update({
-        'macro' : None,
+        'macro': None,
     })
 
     def bootstrap(self, instance):
@@ -135,13 +137,13 @@ class macrowidget(widget):
             paths.insert(0, 'at_widget_%s' % self.macro.split('/')[-1])
         for path in paths:
             try:
-                template = instance.restrictedTraverse(path = path)
+                template = instance.restrictedTraverse(path=path)
                 if template:
                     return template.macros[mode]
             except (Unauthorized, AttributeError, KeyError):
                 # This means we didn't have access or it doesn't exist
                 pass
-        raise AttributeError("Macro %s does not exist for %s" %(macro,
-                                                                instance))
+        raise AttributeError("Macro %s does not exist for %s" % (macro,
+                                                                 instance))
 
 InitializeClass(widget)

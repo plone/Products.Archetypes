@@ -23,7 +23,7 @@
 #
 ################################################################################
 """Archetypes history awareness"""
-__author__  = 'Martijn Pieters <mj@zopatista.com>'
+__author__ = 'Martijn Pieters <mj@zopatista.com>'
 
 import itertools
 
@@ -83,6 +83,7 @@ from zope.interface import implements
 # field 2 at tid 1 are still retained. Field 3 will be completely purged, as
 # are the revisions for __annotations__ from tids 1 and 3.
 
+
 # The OFS.History.historicalRevision method fails for OOBTrees.
 def _historicalRevision(self, tid):
     state = self._p_jar.oldstate(self, tid)
@@ -97,16 +98,18 @@ def _historicalRevision(self, tid):
     rev._p_changed = 0
     return rev
 
+
 def _objectRevisions(obj, limit=10):
     """Iterate over (thread id, persistent object revisions), up to limit"""
     for rev in obj._p_jar.db().history(obj._p_oid, size=limit):
         tid = rev.get('tid', None) or rev.get('serial', None)
-        if not tid: # Apparently not all storages provide this?
+        if not tid:  # Apparently not all storages provide this?
             return
         # Set 'tid' so we don't have to test for 'serial' again
         rev['tid'] = tid
         rev['object'] = _historicalRevision(obj, tid)
         yield tid, rev
+
 
 class ATHistoryAwareMixin:
     """Archetypes history aware mixin class
@@ -118,8 +121,7 @@ class ATHistoryAwareMixin:
 
     implements(IATHistoryAware)
 
-    security       = ClassSecurityInfo()
-
+    security = ClassSecurityInfo()
 
     security.declarePrivate('_constructAnnotatedHistory')
     def _constructAnnotatedHistory(self, max=10):
@@ -156,7 +158,7 @@ class ATHistoryAwareMixin:
             revision = rev['object']
             for key in itertools.ifilter(isatkey, revision.iterkeys()):
                 if not hasattr(revision[key], '_p_jar'):
-                    continue # Not persistent
+                    continue  # Not persistent
                 if key not in annotation_key_objects:
                     annotation_key_objects[key] = revision[key]
 
@@ -193,7 +195,7 @@ class ATHistoryAwareMixin:
             # Find annotation revisions and insert
             for key in itertools.ifilter(isatkey, tempbtree.iterkeys()):
                 if not hasattr(tempbtree[key], '_p_jar'):
-                    continue # Not persistent
+                    continue  # Not persistent
                 value_rev = find_revision(tids[i:], key)
                 size += value_rev['size']
                 tempbtree[key] = value_rev['object']

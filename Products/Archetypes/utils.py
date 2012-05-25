@@ -24,11 +24,13 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from plone.uuid.interfaces import IUUIDGenerator
 
+
 def make_uuid(*args):
     generator = getUtility(IUUIDGenerator)
     return generator()
 
 logger = logging.getLogger('Archetypes')
+
 
 def fixSchema(schema):
     """Fix persisted schema from AT < 1.3 (UserDict-based)
@@ -41,6 +43,7 @@ def fixSchema(schema):
     return schema
 
 _marker = []
+
 
 def mapply(method, *args, **kw):
     """ Inspect function and apply positional and keyword arguments as possible.
@@ -122,14 +125,17 @@ def mapply(method, *args, **kw):
         return method(*call_args, **nkw)
     return method()
 
+
 def className(klass):
     if type(klass) not in [ClassType, ExtensionClass]:
         klass = klass.__class__
     return "%s.%s" % (klass.__module__, klass.__name__)
 
+
 def productDir():
     module = sys.modules[__name__]
     return os.path.dirname(module.__file__)
+
 
 def pathFor(path=None, file=None):
     base = productDir()
@@ -140,22 +146,25 @@ def pathFor(path=None, file=None):
 
     return base
 
+
 def capitalize(string):
     if string[0].islower():
         string = string[0].upper() + string[1:]
     return string
 
+
 def findDict(listofDicts, key, value):
     #Look at a list of dicts for one where key == value
     for d in listofDicts:
-        if d.has_key(key):
+        if key in d:
             if d[key] == value:
                 return d
     return None
 
 
 def basename(path):
-    return path[max(path.rfind('\\'), path.rfind('/'))+1:]
+    return path[max(path.rfind('\\'), path.rfind('/')) + 1:]
+
 
 def unique(s):
     """Return a list of the elements in s, but without duplicates.
@@ -228,7 +237,6 @@ def unique(s):
     return u
 
 
-
 class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
@@ -279,7 +287,7 @@ class DisplayList:
         self._keys = {}
         self._i18n_msgids = {}
         self._values = {}
-        self._itor   = []
+        self._itor = []
         self.index = 0
         if data:
             self.fromList(data)
@@ -306,7 +314,7 @@ class DisplayList:
         a = tuple(self.items())
         if hasattr(other, 'items'):
             b = other.items()
-        else: #assume a seq
+        else:  # assume a seq
             b = tuple(zip(other, other))
 
         msgids = self._i18n_msgids
@@ -317,7 +325,7 @@ class DisplayList:
         return v
 
     def index_sort(self, a, b):
-        return  a[0] - b[0]
+        return a[0] - b[0]
 
     def add(self, key, value, msgid=None):
         if not isinstance(key, basestring):
@@ -326,7 +334,7 @@ class DisplayList:
         if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        self.index +=1
+        self.index += 1
         k = (self.index, key)
         v = (self.index, value)
 
@@ -403,7 +411,7 @@ class DisplayList:
 
     def __getslice__(self, i1, i2):
         r = []
-        for i in islice(count(i1), i2-i1):
+        for i in islice(count(i1), i2 - i1):
             try:
                 r.append((self._itor[i], self.getValue(self._itor[i]), ))
             except IndexError:
@@ -412,8 +420,8 @@ class DisplayList:
 
     slice = __getslice__
 
-
 InitializeClass(DisplayList)
+
 
 class IntDisplayList(DisplayList):
     """Static display lists for integer keys, can look up on
@@ -486,7 +494,7 @@ class IntDisplayList(DisplayList):
         if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
                             type(value))
-        self.index +=1
+        self.index += 1
         k = (self.index, key)
         v = (self.index, value)
 
@@ -509,6 +517,7 @@ class IntDisplayList(DisplayList):
                 return v[1]
         return default
 
+
 class Vocabulary(DisplayList):
     """
     Wrap DisplayList class and add internationalisation
@@ -521,7 +530,7 @@ class Vocabulary(DisplayList):
         self._keys = display_list._keys
         self._i18n_msgids = display_list._i18n_msgids
         self._values = display_list._values
-        self._itor   = display_list._itor
+        self._itor = display_list._itor
         self.index = display_list.index
         self._instance = instance
         self._i18n_domain = i18n_domain
@@ -559,6 +568,7 @@ class Vocabulary(DisplayList):
 
 InitializeClass(Vocabulary)
 
+
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for
        keys() and items()."""
@@ -566,14 +576,14 @@ class OrderedDict(BaseDict):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    def __init__(self, dict=None):	
-        self._keys = []	
-        BaseDict.__init__(self, dict)	
-        if dict is not None:	
+    def __init__(self, dict=None):
+        self._keys = []
+        BaseDict.__init__(self, dict)
+        if dict is not None:
             self._keys = self.data.keys()
 
     def __setitem__(self, key, item):
-        if not self.data.has_key(key):
+        if key not in self.data:
             self._keys.append(key)
         return BaseDict.__setitem__(self, key, item)
 
@@ -601,7 +611,7 @@ class OrderedDict(BaseDict):
 
     def update(self, dict):
         for k in dict.keys():
-            if not self.data.has_key(k):
+            if k not in self.data:
                 self._keys.append(k)
         return BaseDict.update(self, dict)
 
@@ -616,7 +626,7 @@ class OrderedDict(BaseDict):
         return c
 
     def setdefault(self, key, failobj=None):
-        if not self.data.has_key(key):
+        if key not in self.data:
             self._keys.append(key)
         return BaseDict.setdefault(self, key, failobj)
 
@@ -629,7 +639,7 @@ class OrderedDict(BaseDict):
         return (k, v)
 
     def pop(self, key):
-        v = self.data.pop(key) # will raise KeyError if needed
+        v = self.data.pop(key)  # will raise KeyError if needed
         self._keys.remove(key)
         return v
 
@@ -644,8 +654,10 @@ def getRelPath(self, ppath):
     ppath = ppath[len(portal_path):]
     return ppath
 
+
 def getRelURL(self, ppath):
     return '/'.join(getRelPath(self, ppath))
+
 
 def shasattr(obj, attr, acquire=False):
     """Safe has attribute method
@@ -694,8 +706,10 @@ ORIG_NAME = '__at_original_method_name__'
 def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
+
 def call_original(self, __name__, __pattern__, *args, **kw):
     return getattr(self, __pattern__ % __name__)(*args, **kw)
+
 
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
@@ -707,6 +721,7 @@ def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     setattr(method, ORIG_NAME, new_name)
     setattr(method, WRAPPER, True)
     setattr(klass, name, method)
+
 
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
@@ -726,17 +741,20 @@ def _get_position_after(label, options):
         position += 1
     return position
 
+
 def insert_zmi_tab_before(label, new_option, options):
     _options = list(options)
     position = _get_position_after(label, options)
-    _options.insert(position-1, new_option)
+    _options.insert(position - 1, new_option)
     return tuple(_options)
+
 
 def insert_zmi_tab_after(label, new_option, options):
     _options = list(options)
     position = _get_position_after(label, options)
     _options.insert(position, new_option)
     return tuple(_options)
+
 
 def _getSecurity(klass, create=True):
     # a Zope 2 class can contain some attribute that is an instance
@@ -760,6 +778,7 @@ def _getSecurity(klass, create=True):
         if DEBUG_SECURITY:
             print '%s has no ClassSecurityObject' % klass.__name__
     return security
+
 
 def mergeSecurity(klass):
     # This method looks into all the base classes and tries to
@@ -790,6 +809,7 @@ def mergeSecurity(klass):
             name = k[:-9]
             security.names[name] = v
 
+
 def setSecurity(klass, defaultAccess=None, objectPermission=None):
     """Set security of classes
 
@@ -818,10 +838,11 @@ def setSecurity(klass, defaultAccess=None, objectPermission=None):
             method = getattr(klass, name)
             if name.startswith('_') or type(method) != MethodType:
                 continue
-            if not security.names.has_key(name):
+            if name not in security.names:
                 print '%s.%s has no security' % (klass.__name__, name)
             elif security.names.get(name) is ACCESS_PUBLIC:
                 print '%s.%s is public' % (klass.__name__, name)
+
 
 def contentDispositionHeader(disposition, charset='utf-8', language=None, **kw):
     """Return a properly quoted disposition header
@@ -858,10 +879,11 @@ def addStatusMessage(request, message, type='info'):
     """
     IStatusMessage(request).addStatusMessage(message, type=type)
 
+
 def transaction_note(note):
     """ Write human legible note """
-    T=transaction.get()
-    if (len(T.description)+len(note))>=65533:
+    T = transaction.get()
+    if (len(T.description) + len(note)) >= 65533:
         logger.warning('Transaction note too large omitting %s' % str(note))
     else:
         T.note(str(note))

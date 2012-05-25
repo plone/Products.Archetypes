@@ -1,7 +1,7 @@
 import sys
 import bbb
 
-from Products.Archetypes.config import *
+from Products.Archetypes.config import PKG_NAME, REGISTER_DEMO_TYPES
 from Products.Archetypes.utils import DisplayList
 
 from AccessControl import ModuleSecurityInfo
@@ -39,10 +39,9 @@ ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
 ###
 # register tools and content types
 ###
-from Products.Archetypes.ArchetypeTool import \
-    process_types, listTypes, fixAfterRenameType
+from Products.Archetypes.ArchetypeTool import process_types, listTypes
 from Products.Archetypes.ArchetypeTool import ArchetypeTool
-ATToolModule = sys.modules[ArchetypeTool.__module__] # mpf :|
+ATToolModule = sys.modules[ArchetypeTool.__module__]  # mpf :|
 from Products.Archetypes.ArchTTWTool import ArchTTWTool
 from Products.Archetypes.ReferenceEngine import ReferenceCatalog as RefTool
 from Products.Archetypes.UIDCatalog import UIDCatalog as UIDTool
@@ -55,7 +54,8 @@ tools = (
     UIDTool,
     )
 
-types_globals=globals()
+types_globals = globals()
+
 
 def initialize(context):
     from Products.CMFCore import utils
@@ -72,10 +72,10 @@ def initialize(context):
 
         utils.ContentInit(
             '%s Content' % PKG_NAME,
-            content_types = content_types,
-            permission = permissions.AddPortalContent,
-            extra_constructors = constructors,
-            fti = ftis,
+            content_types=content_types,
+            permission=permissions.AddPortalContent,
+            extra_constructors=constructors,
+            fti=ftis,
             ).initialize(context)
     try:
         from Products.CMFCore.FSFile import FSFile

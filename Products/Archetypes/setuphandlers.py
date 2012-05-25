@@ -5,14 +5,15 @@ Archetypes setup handlers.
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG, UID_CATALOG
 
+
 def install_uidcatalog(out, site, rebuild=False):
     catalog = getToolByName(site, UID_CATALOG)
 
-    index_defs= (('UID', 'FieldIndex'),
-                 ('Type', 'FieldIndex'),
-                 ('id', 'FieldIndex'),
-                 ('Title', 'FieldIndex'), # used for sorting
-                 ('portal_type', 'FieldIndex'),)
+    index_defs = (('UID', 'FieldIndex'),
+                  ('Type', 'FieldIndex'),
+                  ('id', 'FieldIndex'),
+                  ('Title', 'FieldIndex'),  # used for sorting
+                  ('portal_type', 'FieldIndex'),)
     metadata_defs = ('UID', 'Type', 'id', 'Title', 'portal_type', 'meta_type')
     reindex = False
 

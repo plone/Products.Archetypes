@@ -4,6 +4,9 @@ Changelog
 1.7.15 (unreleased)
 -------------------
 
+- PEP 8 (ignoring W602, W604, E231, E241, E301, E302, E501 and E701).
+  [hvelarde]
+
 - Remove remaining hard-coded required markers. The 1.7.14 change only got
   one of them.
   [smcmahon]
@@ -11,8 +14,8 @@ Changelog
 - Moved form help from a div after form field labels to a span within. The
   purpose is to semantically associate the label to the form help so that
   it's more useful to a screen reader user.
-  Note that sunburst's public.css and classic's form.css.dtml were 
-  simultaneously changed to assure block display of help in normal 
+  Note that sunburst's public.css and classic's form.css.dtml were
+  simultaneously changed to assure block display of help in normal
   font-weight.
   Closes http://dev.plone.org/ticket/7212, an accessibility ticket.
   [smcmahon]
@@ -35,8 +38,8 @@ Changelog
 1.7.13 (2012-04-09)
 -------------------
 
-- Make sure inline editing calls target the 
-  id="parent-fieldname-$fieldName-$UID" on text fields. 
+- Make sure inline editing calls target the
+  id="parent-fieldname-$fieldName-$UID" on text fields.
   Closes http://dev.plone.org/ticket/12465
   [esteele]
 

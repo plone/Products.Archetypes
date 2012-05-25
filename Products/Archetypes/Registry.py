@@ -5,9 +5,11 @@ from Products.Archetypes.utils import setSecurity
 from Products.Archetypes.ArchetypeTool import listTypes
 from Products.Archetypes.interfaces.base import IBaseObject
 
+
 def getDoc(klass):
     doc = klass.__doc__ or ''
     return doc
+
 
 class Registry:
 
@@ -22,7 +24,7 @@ class Registry:
         self.__registry[name] = item
 
     def unregister(self, name):
-        if self.__registry.has_key(name):
+        if name in self.__registry:
             del self.__registry[name]
 
     def keys(self):
@@ -39,6 +41,7 @@ class Registry:
 
     def get(self, name, default=None):
         return self.__registry.get(name, default)
+
 
 class FieldDescription:
 
@@ -78,6 +81,7 @@ class FieldDescription:
 
         return props
 
+
 class WidgetDescription:
 
     __allow_access_to_unprotected_subobjects__ = 1
@@ -101,6 +105,7 @@ class WidgetDescription:
 
         return props
 
+
 class ValidatorDescription:
 
     __allow_access_to_unprotected_subobjects__ = 1
@@ -110,6 +115,7 @@ class ValidatorDescription:
         self.klass = klass
         self.title = title or klass.__name__
         self.description = description or getDoc(klass)
+
 
 class StorageDescription:
 
@@ -121,6 +127,7 @@ class StorageDescription:
         self.title = title or klass.__name__
         self.description = description or getDoc(klass)
 
+
 def findBaseTypes(klass):
     bases = []
     if hasattr(klass, '__bases__'):
@@ -128,6 +135,7 @@ def findBaseTypes(klass):
             if IBaseObject.providedBy(b):
                 bases.append(className(b))
     return bases
+
 
 class TypeDescription:
 
@@ -174,12 +182,14 @@ def registerWidget(klass, **kw):
     widget = WidgetDescription(klass, **kw)
     widgetDescriptionRegistry.register(widget.id, widget)
 
+
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
 def registerStorage(klass, **kw):
     setSecurity(klass, defaultAccess=None, objectPermission=None)
     storage = StorageDescription(klass, **kw)
     storageDescriptionRegistry.register(storage.id, storage)
+
 
 class TypeRegistry:
 
@@ -216,6 +226,7 @@ class TypeRegistry:
                 return v
         return default
 
+
 class ValidatorRegistry:
 
     def __init__(self):
@@ -249,6 +260,7 @@ def registerValidator(item, name=''):
 typeDescriptionRegistry = TypeRegistry()
 availableTypes = typeDescriptionRegistry.items
 
+
 class PropertyMapping:
 
     def __init__(self):
@@ -259,14 +271,14 @@ class PropertyMapping:
         if not klass:
             map = self._default
         else:
-            if not self._mapping.has_key(klass):
+            if klass not in self._mapping:
                 self._mapping[klass] = {}
             map = self._mapping[klass]
         map[property] = type
 
     def getType(self, property, klass):
         value = None
-        if self._mapping.has_key(klass):
+        if klass in self._mapping:
             value = self._mapping[klass].get(property, None)
         return value or self._default.get(property, 'not-registered')
 

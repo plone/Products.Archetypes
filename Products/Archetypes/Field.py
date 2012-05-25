@@ -137,6 +137,7 @@ def encode(value, instance, **kwargs):
         value = value.encode(encoding)
     return value
 
+
 def decode(value, instance, **kwargs):
     """ensure value is an unicode string"""
     if isinstance(value, str):
@@ -155,6 +156,7 @@ def decode(value, instance, **kwargs):
 
 _field_count = 0
 
+
 class Field(DefaultLayerContainer):
     """
     Extend `DefaultLayerContainer`.
@@ -169,38 +171,38 @@ class Field(DefaultLayerContainer):
     security = ClassSecurityInfo()
 
     _properties = {
-        'old_field_name':None,
-        'required' : False,
-        'default' : None,
-        'default_method' : None,
-        'vocabulary' : (),
-        'vocabulary_factory' : None,
-        'enforceVocabulary' : False,
-        'multiValued' : False,
-        'searchable' : False,
-        'isMetadata' : False,
+        'old_field_name': None,
+        'required': False,
+        'default': None,
+        'default_method': None,
+        'vocabulary': (),
+        'vocabulary_factory': None,
+        'enforceVocabulary': False,
+        'multiValued': False,
+        'searchable': False,
+        'isMetadata': False,
 
-        'accessor' : None,
-        'edit_accessor' : None,
-        'mutator' : None,
-        'mode' : 'rw',
+        'accessor': None,
+        'edit_accessor': None,
+        'mutator': None,
+        'mode': 'rw',
 
-        'read_permission' : permissions.View,
-        'write_permission' : permissions.ModifyPortalContent,
+        'read_permission': permissions.View,
+        'write_permission': permissions.ModifyPortalContent,
 
-        'storage' : AttributeStorage(),
+        'storage': AttributeStorage(),
 
-        'generateMode' : 'veVc',
-        'force' : '',
-        'type' : None,
+        'generateMode': 'veVc',
+        'force': '',
+        'type': None,
         'widget': StringWidget,
-        'validators' : (),
-        'index' : None, # "KeywordIndex" or "<index_type>:schema"
-        'index_method' : '_at_accessor', # method used for the index
+        'validators': (),
+        'index': None,   # "KeywordIndex" or "<index_type>:schema"
+        'index_method': '_at_accessor',  # method used for the index
                                          # _at_accessor an _at_edit_accessor
                                          # are the accessor and edit accessor
-        'schemata' : 'default',
-        'languageIndependent' : False,
+        'schemata': 'default',
+        'languageIndependent': False,
         }
 
     def __init__(self, name=None, **kwargs):
@@ -240,7 +242,6 @@ class Field(DefaultLayerContainer):
         properties['widget'] = widget.copy()
         name = name is not None and name or self.getName()
         return self.__class__(name, **properties)
-
 
     def __repr__(self):
         """
@@ -314,7 +315,7 @@ class Field(DefaultLayerContainer):
         if errors is None:
             errors = {}
         name = self.getName()
-        if errors and errors.has_key(name):
+        if errors and name in errors:
             return True
 
         if self.required:
@@ -405,7 +406,7 @@ class Field(DefaultLayerContainer):
                 label = translate(label, context=request)
             if isinstance(val, Message):
                 val = translate(val, context=request)
-            error = _( u'error_vocabulary',
+            error = _(u'error_vocabulary',
                 default=u'Values ${val} are not allowed for vocabulary of element ${label}.',
                 mapping={'val': unicode(badvalues), 'label': label})
             error = translate(error, context=request)
@@ -475,8 +476,8 @@ class Field(DefaultLayerContainer):
                 method = getattr(content_instance, value, None)
                 if method and callable(method):
                     args = []
-                    kw = {'content_instance' : content_instance,
-                          'field' : self}
+                    kw = {'content_instance': content_instance,
+                          'field': self}
                     value = mapply(method, *args, **kw)
             elif content_instance is not None and \
                  IVocabulary.providedBy(value):
@@ -528,7 +529,7 @@ class Field(DefaultLayerContainer):
             perm = self.read_permission
         else:
             return None
-        return getSecurityManager().checkPermission( perm, instance )
+        return getSecurityManager().checkPermission(perm, instance)
 
     security.declarePublic('writeable')
     def writeable(self, instance, debug=False):
@@ -661,16 +662,16 @@ class Field(DefaultLayerContainer):
         determining whether a schema has changed in the auto update
         function. Right now it's pretty crude."""
         # TODO fixme
-        s = '%s(%s): {' % ( self.__class__.__name__, self.__name__ )
+        s = '%s(%s): {' % (self.__class__.__name__, self.__name__)
         sorted_keys = self._properties.keys()
         sorted_keys.sort()
         for k in sorted_keys:
-            value = getattr( self, k, self._properties[k] )
+            value = getattr(self, k, self._properties[k])
             if k == 'widget':
                 value = value.__class__.__name__
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
-            s = s + '%s:%s,' % (k, value )
+            s = s + '%s:%s,' % (k, value)
         s = s + '}'
         return s
 
@@ -687,6 +688,7 @@ class Field(DefaultLayerContainer):
 
 setSecurity(Field)
 
+
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
     data. This layer implements the interface to IStorage and other
@@ -697,11 +699,11 @@ class ObjectField(Field):
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'object',
-        'default_content_type' : 'application/octet-stream',
+        'type': 'object',
+        'default_content_type': 'application/octet-stream',
         })
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
@@ -725,10 +727,10 @@ class ObjectField(Field):
             # self.accessor is None for fields wrapped by an I18NMixIn
             accessor = None
         kwargs.update({'field': self,
-                       'encoding':kwargs.get('encoding', None),
+                       'encoding': kwargs.get('encoding', None),
                      })
         if accessor is None:
-            args = [instance,]
+            args = [instance]
             return mapply(self.get, *args, **kwargs)
         return mapply(accessor, **kwargs)
 
@@ -801,8 +803,8 @@ class ObjectField(Field):
         # try to guess
         # guess_content_type can only handly ordinary strings, not unicode strings.
         # recode in utf-8 if the binary(!) content is handed over to it.
-        if type(raw)==type(u'unicode'):
-            raw=raw.encode('utf-8')
+        if type(raw) == type(u'unicode'):
+            raw = raw.encode('utf-8')
         if mimetype is None:
             mimetype, enc = guess_content_type('', str(raw), None)
         else:
@@ -831,18 +833,19 @@ class ObjectField(Field):
 
 setSecurity(ObjectField)
 
+
 class StringField(ObjectField):
     """A field that stores strings"""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'string',
+        'type': 'string',
         'default': '',
-        'default_content_type' : 'text/plain',
+        'default_content_type': 'text/plain',
         })
 
     implements(IStringField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
@@ -859,6 +862,7 @@ class StringField(ObjectField):
             value = decode(aq_base(value), instance, **kwargs)
         self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
 
+
 class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
@@ -867,15 +871,15 @@ class FileField(ObjectField):
 
     _properties = ObjectField._properties.copy()
     _properties.update({
-        'type' : 'file',
-        'default' : '',
-        'primary' : False,
-        'widget' : FileWidget,
-        'content_class' : File,
-        'default_content_type' : 'application/octet-stream',
+        'type': 'file',
+        'default': '',
+        'primary': False,
+        'widget': FileWidget,
+        'content_class': File,
+        'default_content_type': 'application/octet-stream',
         })
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('setContentType')
     def setContentType(self, instance, value):
@@ -942,8 +946,7 @@ class FileField(ObjectField):
                                      (type(value), klass))
         filename = filename[max(filename.rfind('/'),
                                 filename.rfind('\\'),
-                                filename.rfind(':'),
-                                )+1:]
+                                filename.rfind(':')) + 1:]
         file.manage_upload(value)
         if mimetype is None or mimetype == 'text/x-unknown-content-type':
             body = file.data
@@ -951,8 +954,8 @@ class FileField(ObjectField):
                 body = body.data
             mtr = getToolByName(instance, 'mimetypes_registry', None)
             if mtr is not None:
-                kw = {'mimetype':None,
-                      'filename':filename}
+                kw = {'mimetype': None,
+                      'filename': filename}
                 # this may split the encoded file inside a multibyte character
                 try:
                     d, f, mimetype = mtr(body[:8096], **kw)
@@ -1023,7 +1026,7 @@ class FileField(ObjectField):
             ObjectField.unset(self, instance, **kwargs)
             return
 
-        if not kwargs.has_key('mimetype'):
+        if 'mimetype' not in kwargs:
             kwargs['mimetype'] = None
 
         kwargs['default'] = self.getDefault(instance)
@@ -1098,7 +1101,7 @@ class FileField(ObjectField):
         """
         filename = self.getFilename(instance, fromBaseUnit=False)
         if not filename:
-            filename = '' # self.getName()
+            filename = ''  # self.getName()
         mimetype = self.getContentType(instance, fromBaseUnit=False)
         value = self.getRaw(instance) or self.getDefault(instance)
         if isinstance(aq_base(value), File):
@@ -1213,8 +1216,8 @@ class FileField(ObjectField):
             datastream = transforms.convertTo(
                 "text/plain",
                 str(f),
-                mimetype = orig_mt,
-                filename = self.getFilename(instance, 0),
+                mimetype=orig_mt,
+                filename=self.getFilename(instance, 0),
                 )
         except (ConflictError, KeyboardInterrupt):
             raise
@@ -1225,25 +1228,26 @@ class FileField(ObjectField):
         value = str(datastream)
         return value
 
+
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
 
     _properties = FileField._properties.copy()
     _properties.update({
-        'type' : 'text',
-        'default' : '',
+        'type': 'text',
+        'default': '',
         'widget': StringWidget,
-        'default_content_type' : None,
-        'default_output_type'  : 'text/plain',
-        'allowable_content_types' : None,
-        'primary' : False,
+        'default_content_type': None,
+        'default_output_type': 'text/plain',
+        'allowable_content_types': None,
+        'primary': False,
         'content_class': BaseUnit,
         })
 
     implements(ITextField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePublic('defaultView')
     def defaultView(self):
@@ -1340,15 +1344,15 @@ class TextField(FileField):
             filename = filename[max(filename.rfind('/'),
                                     filename.rfind('\\'),
                                     filename.rfind(':'),
-                                    )+1:]
+                                    ) + 1:]
 
         if mimetype is None or mimetype == 'text/x-unknown-content-type':
             if body is None:
                 body = value[:CHUNK]
             mtr = getToolByName(instance, 'mimetypes_registry', None)
             if mtr is not None:
-                kw = {'mimetype':None,
-                      'filename':filename}
+                kw = {'mimetype': None,
+                      'filename': filename}
                 d, f, mimetype = mtr(body, **kw)
             else:
                 mimetype, enc = guess_content_type(filename, body, mimetype)
@@ -1368,8 +1372,8 @@ class TextField(FileField):
         value = self.get(instance, raw=True, **kwargs)
         if raw or not IBaseUnit.providedBy(value):
             return value
-        kw = {'encoding':kwargs.get('encoding'),
-              'instance':instance}
+        kw = {'encoding': kwargs.get('encoding'),
+              'instance': instance}
         args = []
         return mapply(value.getRaw, *args, **kw)
 
@@ -1401,13 +1405,13 @@ class TextField(FileField):
         if mimetype is None:
             mimetype = self.default_output_type or 'text/plain'
 
-        if not shasattr(value, 'transform'): # oldBaseUnits have no transform
+        if not shasattr(value, 'transform'):  # oldBaseUnits have no transform
             return str(value)
         data = value.transform(instance, mimetype,
-                               encoding=kwargs.get('encoding',None))
+                               encoding=kwargs.get('encoding', None))
         if not data and mimetype != 'text/plain':
             data = value.transform(instance, 'text/plain',
-                                   encoding=kwargs.get('encoding',None))
+                                   encoding=kwargs.get('encoding', None))
         return data or ''
 
     security.declarePrivate('getBaseUnit')
@@ -1422,18 +1426,19 @@ class TextField(FileField):
         """
         return len(self.getBaseUnit(instance))
 
+
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'datetime',
-        'widget' : CalendarWidget,
+        'type': 'datetime',
+        'widget': CalendarWidget,
         })
 
     implements(IDateTimeField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
@@ -1446,7 +1451,6 @@ class DateTimeField(ObjectField):
             # required.
             result = value is not None
         return ObjectField.validate_required(self, instance, result, errors)
-
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1471,19 +1475,20 @@ class DateTimeField(ObjectField):
 
         ObjectField.set(self, instance, value, **kwargs)
 
+
 class LinesField(ObjectField):
     """For creating lines objects"""
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'lines',
-        'default' : (),
-        'widget' : LinesWidget,
+        'type': 'lines',
+        'default': (),
+        'widget': LinesWidget,
         })
 
     implements(ILinesField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
@@ -1494,7 +1499,7 @@ class LinesField(ObjectField):
         """
         __traceback_info__ = value, type(value)
         if isinstance(value, basestring):
-            value =  value.split('\n')
+            value = value.split('\n')
         value = [decode(v.strip(), instance, **kwargs)
                  for v in value if v and v.strip()]
         if config.ZOPE_LINES_IS_TUPLE_TYPE:
@@ -1518,9 +1523,9 @@ class LinesField(ObjectField):
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
-        size=0
+        size = 0
         for line in self.get(instance):
-            size+=len(str(line))
+            size += len(str(line))
         return size
 
 
@@ -1529,15 +1534,15 @@ class IntegerField(ObjectField):
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'integer',
-        'size' : '10',
-        'widget' : IntegerWidget,
-        'default' : None,
+        'type': 'integer',
+        'size': '10',
+        'widget': IntegerWidget,
+        'default': None,
         })
 
     implements(IIntegerField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
@@ -1551,8 +1556,8 @@ class IntegerField(ObjectField):
 
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
-        if value=='':
-            value=None
+        if value == '':
+            value = None
         elif value is not None:
             # should really blow if value is not valid
             __traceback_info__ = (self.getName(), instance, value, kwargs)
@@ -1560,17 +1565,18 @@ class IntegerField(ObjectField):
 
         ObjectField.set(self, instance, value, **kwargs)
 
+
 class FloatField(ObjectField):
     """A field that stores floats"""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'float',
+        'type': 'float',
         'default': None
         })
 
     implements(IFloatField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
     def validate_required(self, instance, value, errors):
@@ -1582,19 +1588,19 @@ class FloatField(ObjectField):
             result = True
         return ObjectField.validate_required(self, instance, result, errors)
 
-
     security.declarePrivate('set')
     def set(self, instance, value, **kwargs):
         """Convert passed-in value to a float. If failure, set value to
         None."""
-        if value=='':
-            value=None
+        if value == '':
+            value = None
         elif value is not None:
             # should really blow if value is not valid
             __traceback_info__ = (self.getName(), instance, value, kwargs)
             value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
+
 
 class FixedPointField(ObjectField):
     """A field for storing numerical data with fixed points
@@ -1610,16 +1616,16 @@ class FixedPointField(ObjectField):
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'fixedpoint',
-        'precision' : 2,
-        'default' : None,
-        'widget' : DecimalWidget,
-        'validators' : ('isDecimal'),
+        'type': 'fixedpoint',
+        'precision': 2,
+        'default': None,
+        'widget': DecimalWidget,
+        'validators': ('isDecimal'),
         })
 
     implements(IFixedPointField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     def _to_tuple(self, instance, value):
         """Turn the value into a tuple that we will store.
@@ -1685,7 +1691,7 @@ class FixedPointField(ObjectField):
         # * maybe the locale of the browser sending the value.
         # same should happen with the output.
         if isinstance(value, basestring):
-            value = value.replace(',','.')
+            value = value.replace(',', '.')
 
         value = value.split('.')
         __traceback_info__ = (self, value)
@@ -1742,29 +1748,29 @@ class ReferenceField(ObjectField):
 
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'reference',
-        'default' : None,
-        'widget' : ReferenceWidget,
+        'type': 'reference',
+        'default': None,
+        'widget': ReferenceWidget,
 
-        'relationship' : None, # required
-        'allowed_types' : (),  # a tuple of portal types, empty means allow all
-        'allowed_types_method' :None,
-        'vocabulary_display_path_bound': 5, # if len(vocabulary) > 5, we'll
-                                            # display path as well
-        'vocabulary_custom_label': None, # e.g. "b.getObject().title_or_id()".
-                                         # if given, this will
-                                         # override display_path_bound
-        'referenceClass' : Reference,
-        'referenceReferences' : False,
-        'keepReferencesOnCopy' : False,
-        'referencesSortable' : False,
+        'relationship': None,  # required
+        'allowed_types': (),   # a tuple of portal types, empty means allow all
+        'allowed_types_method': None,
+        'vocabulary_display_path_bound': 5,  # if len(vocabulary) > 5, we'll
+                                             # display path as well
+        'vocabulary_custom_label': None,  # e.g. "b.getObject().title_or_id()".
+                                          # if given, this will
+                                          # override display_path_bound
+        'referenceClass': Reference,
+        'referenceReferences': False,
+        'keepReferencesOnCopy': False,
+        'referencesSortable': False,
         'callStorageOnSet': False,
-        'index_method' : '_at_edit_accessor',
+        'index_method': '_at_edit_accessor',
         })
 
     implements(IReferenceField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     referencesSortable = False
 
@@ -1788,7 +1794,7 @@ class ReferenceField(ObjectField):
                 else:
                     res = None
 
-        if not self.referencesSortable or not hasattr( aq_base(instance), 'at_ordered_refs'):
+        if not self.referencesSortable or not hasattr(aq_base(instance), 'at_ordered_refs'):
             return res
 
         rd = {}
@@ -1882,7 +1888,8 @@ class ReferenceField(ObjectField):
         # tweak keyword arguments for addReference
         addRef_kw = kwargs.copy()
         addRef_kw.setdefault('referenceClass', self.referenceClass)
-        if addRef_kw.has_key('schema'): del addRef_kw['schema']
+        if 'schema' in addRef_kw:
+            del addRef_kw['schema']
 
         for uid in add:
             __traceback_info__ = (instance, uid, value, targetUIDs)
@@ -1893,10 +1900,10 @@ class ReferenceField(ObjectField):
             tool.deleteReference(instance, uid, self.relationship)
 
         if self.referencesSortable:
-            if not hasattr( aq_base(instance), 'at_ordered_refs'):
+            if not hasattr(aq_base(instance), 'at_ordered_refs'):
                 instance.at_ordered_refs = {}
 
-            instance.at_ordered_refs[self.relationship] = tuple( filter(None, uids) )
+            instance.at_ordered_refs[self.relationship] = tuple(filter(None, uids))
 
         if self.callStorageOnSet:
             #if this option is set the reference fields's values get written
@@ -1928,7 +1935,6 @@ class ReferenceField(ObjectField):
             return res
         return [r for r in order if r in res]
 
-
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
@@ -1959,20 +1965,20 @@ class ReferenceField(ObjectField):
         allowed_types = self.allowed_types
         allowed_types_method = getattr(self, 'allowed_types_method', None)
         if allowed_types_method:
-            meth = getattr(content_instance,allowed_types_method)
+            meth = getattr(content_instance, allowed_types_method)
             allowed_types = meth(self)
 
-        skw = allowed_types and {'portal_type':allowed_types} or {}
+        skw = allowed_types and {'portal_type': allowed_types} or {}
         brains = uc.searchResults(skw)
 
         if self.vocabulary_custom_label is not None:
-            label = lambda b:eval(self.vocabulary_custom_label, {'b': b})
+            label = lambda b: eval(self.vocabulary_custom_label, {'b': b})
         elif self.vocabulary_display_path_bound != -1 and len(brains) > self.vocabulary_display_path_bound:
             at = _(u'label_at', default=u'at')
-            label = lambda b:u'%s %s %s' % (self._brains_title_or_id(b, content_instance),
+            label = lambda b: u'%s %s %s' % (self._brains_title_or_id(b, content_instance),
                                              at, b.getPath())
         else:
-            label = lambda b:self._brains_title_or_id(b, content_instance)
+            label = lambda b: self._brains_title_or_id(b, content_instance)
 
         # The UID catalog is the correct catalog to pull this
         # information from, however the workflow and perms are not accounted
@@ -2004,7 +2010,7 @@ class ReferenceField(ObjectField):
             # now check if the results from the pc is the same as in uc.
             # so we verify that b is a result that was also returned by uc,
             # hence the check in abs_paths.
-            if abs_paths.has_key(b_path):
+            if b_path in abs_paths:
                 uid = abs_paths[b_path].UID
                 if uid is None:
                     # the brain doesn't have an uid because the catalog has a
@@ -2033,10 +2039,10 @@ class ComputedField(Field):
     """A field that always returns a computed."""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'computed',
+        'type': 'computed',
         'expression': None,
-        'widget' : ComputedWidget,
-        'mode' : 'r',
+        'widget': ComputedWidget,
+        'mode': 'r',
         'storage': ReadOnlyStorage(),
         })
 
@@ -2051,7 +2057,7 @@ class ComputedField(Field):
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
         """Return the computed value."""
-        return eval(self.expression, {'context': instance, 'here' : instance})
+        return eval(self.expression, {'context': instance, 'here': instance})
 
     security.declarePublic('get_size')
     def get_size(self, instance):
@@ -2061,19 +2067,20 @@ class ComputedField(Field):
         """
         return 0
 
+
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'boolean',
+        'type': 'boolean',
         'default': None,
-        'vocabulary': (('True','Yes', 'yes'),('False','No', 'no')),
-        'widget' : BooleanWidget,
+        'vocabulary': (('True', 'Yes', 'yes'), ('False', 'No', 'no')),
+        'widget': BooleanWidget,
         })
 
     implements(IBooleanField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     security.declarePrivate('get')
     def get(self, instance, **kwargs):
@@ -2106,22 +2113,23 @@ class BooleanField(ObjectField):
         """
         return True
 
+
 class CMFObjectField(ObjectField):
     """
     COMMENT TODO
     """
     _properties = Field._properties.copy()
     _properties.update({
-        'type' : 'object',
+        'type': 'object',
         'portal_type': 'File',
         'default': None,
         'default_mime_type': 'application/octet-stream',
-        'widget' : FileWidget,
+        'widget': FileWidget,
         'storage': ObjectManagedStorage(),
         'workflowable': True,
         })
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
@@ -2189,7 +2197,7 @@ class CMFObjectField(ObjectField):
 
 class Image(BaseImage):
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     def title(self):
         parent = aq_parent(aq_inner(self))
@@ -2204,6 +2212,7 @@ class Image(BaseImage):
     def isBinary(self):
         return True
 
+
 class ImageField(FileField):
     """ implements an image attribute. it stores
         it's data in an image sub-object
@@ -2213,7 +2222,7 @@ class ImageField(FileField):
 
         Format:
         sizes={'mini': (50,50),
-               'normal' : (100,100), ... }
+               'normal': (100,100), ... }
         syntax: {'name': (width,height), ... }
 
         the scaled versions can then be accessed as
@@ -2238,10 +2247,10 @@ class ImageField(FileField):
 
         ImageField('image',
             original_size=(600,600),
-            sizes={ 'mini' : (80,80),
-                    'normal' : (200,200),
-                    'big' : (300,300),
-                    'maxi' : (500,500)})
+            sizes={ 'mini': (80,80),
+                    'normal': (200,200),
+                    'big': (300,300),
+                    'maxi': (500,500)})
 
         will create an attribute called "image"
         with the sizes mini, normal, big, maxi as given
@@ -2276,16 +2285,16 @@ class ImageField(FileField):
 
     _properties = FileField._properties.copy()
     _properties.update({
-        'type' : 'image',
-        'default' : '',
+        'type': 'image',
+        'default': '',
         'original_size': None,
         'max_size': None,
-        'sizes' : {'thumb':(80,80)},
-        'swallowResizeExceptions' : False,
-        'pil_quality' : 88,
-        'pil_resize_algo' : PIL_ALGO,
-        'default_content_type' : 'image/png',
-        'allowable_content_types' : ('image/gif','image/jpeg','image/png'),
+        'sizes': {'thumb': (80, 80)},
+        'swallowResizeExceptions': False,
+        'pil_quality': 88,
+        'pil_resize_algo': PIL_ALGO,
+        'default_content_type': 'image/png',
+        'allowable_content_types': ('image/gif', 'image/jpeg', 'image/png'),
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'content_class': Image,
@@ -2293,7 +2302,7 @@ class ImageField(FileField):
 
     implements(IImageField)
 
-    security  = ClassSecurityInfo()
+    security = ClassSecurityInfo()
 
     default_view = "view"
 
@@ -2375,16 +2384,16 @@ class ImageField(FileField):
         if self.original_size or self.max_size:
             if not value:
                 return self.default
-            w=h=0
+            w = h = 0
             if self.max_size:
                 if value.width > self.max_size[0] or \
                        value.height > self.max_size[1]:
-                    factor = min(float(self.max_size[0])/float(value.width),
-                                 float(self.max_size[1])/float(value.height))
-                    w = int(factor*value.width)
-                    h = int(factor*value.height)
+                    factor = min(float(self.max_size[0]) / float(value.width),
+                                 float(self.max_size[1]) / float(value.height))
+                    w = int(factor * value.width)
+                    h = int(factor * value.height)
             elif self.original_size:
-                w,h = self.original_size
+                w, h = self.original_size
             if w and h:
                 __traceback_info__ = (self, value, w, h)
                 fvalue, format = self.scale(data, w, h)
@@ -2447,7 +2456,7 @@ class ImageField(FileField):
         filename = self.getFilename(instance)
 
         for n, size in sizes.items():
-            if size == (0,0):
+            if size == (0, 0):
                 continue
             w, h = size
             id = self.getName() + "_" + n
@@ -2483,14 +2492,14 @@ class ImageField(FileField):
         return self.content_class(id, title, file, content_type)
 
     security.declarePrivate('scale')
-    def scale(self, data, w, h, default_format = 'PNG'):
+    def scale(self, data, w, h, default_format='PNG'):
         """ scale image (with material from ImageTag_Hotfix)"""
         #make sure we have valid int's
         size = int(w), int(h)
 
-        original_file=StringIO(data)
+        original_file = StringIO(data)
         image = PIL.Image.open(original_file)
-        
+
         if image.format == 'GIF' and size[0] >= image.size[0] and size[1] >= image.size[1]:
             try:
                 image.seek(image.tell() + 1)
@@ -2501,7 +2510,7 @@ class ImageField(FileField):
             except EOFError:
                 # image is not animated
                 image.seek(0)
-        
+
         # consider image mode when scaling
         # source images can be mode '1','L,','P','RGB(A)'
         # convert to greyscale or RGBA before scaling
@@ -2579,7 +2588,7 @@ class ImageField(FileField):
                 except AttributeError:
                     pass
                 else:
-                    size+=data and data.get_size() or 0
+                    size += data and data.get_size() or 0
         return size
 
     security.declareProtected(permissions.View, 'tag')
@@ -2591,30 +2600,30 @@ class ImageField(FileField):
         if image:
             img_width, img_height = self.getSize(instance, scale=scale)
         else:
-            img_height=0
-            img_width=0
+            img_height = 0
+            img_width = 0
 
         if height is None:
-            height=img_height
+            height = img_height
         if width is None:
-            width=img_width
+            width = img_width
 
         url = instance.absolute_url()
         if scale:
-            url+= '/' + self.getScaleName(scale)
+            url += '/' + self.getScaleName(scale)
         else:
-            url+= '/' + self.getName()
+            url += '/' + self.getName()
 
         if alt is None:
             alt = instance.Title()
         if title is None:
             title = instance.Title()
 
-        values = {'src' : url,
-                  'alt' : escape(alt, quote=True),
-                  'title' : escape(title, quote=True),
-                  'height' : height,
-                  'width' : width,
+        values = {'src': url,
+                  'alt': escape(alt, quote=True),
+                  'title': escape(title, quote=True),
+                  'height': height,
+                  'width': width,
                  }
 
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\

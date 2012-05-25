@@ -29,6 +29,7 @@ from AccessControl import ClassSecurityInfo
 ##   * to lose refs
 ####
 
+
 class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
@@ -94,8 +95,8 @@ class Referenceable(CopySource):
         return []
 
     #aliases
-    getReferences=getRefs
-    getBackReferences=getBRefs
+    getReferences = getRefs
+    getBackReferences = getBRefs
 
     def getReferenceImpl(self, relationship=None, targetObject=None):
         # get all the reference objects for this object
@@ -115,7 +116,7 @@ class Referenceable(CopySource):
 
     def _optimizedGetObject(self, uid):
         tool = getToolByName(self, 'uid_catalog', None)
-        if tool is None: # pragma: no cover
+        if tool is None:  # pragma: no cover
             return ''
         tool = aq_inner(tool)
         traverse = aq_parent(tool).unrestrictedTraverse
@@ -139,7 +140,6 @@ class Referenceable(CopySource):
         if reference_manager is None:
             reference_manager = getToolByName(self, config.REFERENCE_CATALOG)
         reference_manager.registerObject(self)
-
 
     def _unregister(self):
         # unregister with the archetype tool, remove all references
@@ -224,14 +224,14 @@ class Referenceable(CopySource):
         isCopy = getattr(item, '_v_is_cp', None)
         # Before copying we take a copy of the references that are to be copied
         # on the new copy
-        rfields=self.Schema().filterFields(type="reference", keepReferencesOnCopy=1)
-        rrefs={}
+        rfields = self.Schema().filterFields(type="reference", keepReferencesOnCopy=1)
+        rrefs = {}
         if isCopy:
             # If the object is a copy of a existing object we
             # want to renew the UID, and drop all existing references
             # on the newly-created copy.
             for r in rfields:
-                rrefs[r.getName()]=r.get(self)
+                rrefs[r.getName()] = r.get(self)
             setattr(self, config.UUID_ATTR, None)
             self._delReferenceAnnotations()
 
@@ -242,8 +242,7 @@ class Referenceable(CopySource):
         # copy the references
         if isCopy:
             for r in rfields:
-                r.set(self,rrefs[r.getName()])
-
+                r.set(self, rrefs[r.getName()])
 
     def manage_afterClone(self, item):
         # Get a new UID (effectivly dropping reference)
@@ -260,9 +259,9 @@ class Referenceable(CopySource):
         # TODO Should we ever get here after the isCopy flag addition??
         # If the object has no UID or the UID already exists, then
         # we should get a new one
-        
+
         uuid = IUUID(self, None)
-        
+
         if (uuid is None or
             len(uc(UID=uuid))):
             setattr(self, config.UUID_ATTR, None)
@@ -304,8 +303,6 @@ class Referenceable(CopySource):
         # renamed, we still need to remove all UID/child refs
         self._uncatalogUID(container)
         self._uncatalogRefs(container)
-
-
 
     ## Catalog Helper methods
     def _catalogUID(self, aq, uc=None):
@@ -384,10 +381,10 @@ class Referenceable(CopySource):
         # This isn't really safe for concurrent usage, but the
         # worse case is not that bad and could be fixed with a reindex
         # on the archetype tool
-        if op==1:
+        if op == 1:
             self._v_cp_refs = 1
             self._v_is_cp = 0
-        if op==0:
+        if op == 0:
             self._v_cp_refs = 0
             self._v_is_cp = 1
 

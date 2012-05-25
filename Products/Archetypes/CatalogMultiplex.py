@@ -12,6 +12,7 @@ from Products.Archetypes.log import log
 from Products.Archetypes.Referenceable import Referenceable
 from Products.Archetypes.utils import shasattr, isFactoryContained
 
+
 class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
     security = ClassSecurityInfo()
 
@@ -84,8 +85,6 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                 # Recatalog with the same catalog uid.
                 catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
                                         update_metadata=0, uid=brain_path)
-
-
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=[]):

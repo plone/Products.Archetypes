@@ -1,5 +1,5 @@
 from Products.Archetypes import WebDAVSupport
-from Products.Archetypes.CatalogMultiplex  import CatalogMultiplex
+from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 from Products.Archetypes.ExtensibleMetadata import ExtensibleMetadata
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.event import WebDAVObjectInitializedEvent
@@ -53,7 +53,6 @@ class BaseFolderMixin(CatalogMultiplex,
     isAnObjectManager = 1
     __dav_marshall__ = False
 
-
     __call__ = PortalContent.__call__.im_func
 
     # This special value informs ZPublisher to use __call__
@@ -85,7 +84,7 @@ class BaseFolderMixin(CatalogMultiplex,
         BaseObject._notifyOfCopyTo(self, container, op=op)
         # keep reference info internally when op == 1 (move)
         # because in those cases we need to keep refs
-        if op==1:
+        if op == 1:
             self._v_cp_refs = 1
         for child in self.contentValues():
             if IReferenceable.providedBy(child):
@@ -124,9 +123,9 @@ class BaseFolderMixin(CatalogMultiplex,
         """Optionally you can suppress "hidden" files, or files that begin
         with a dot.
         """
-        contents=PortalFolder.listFolderContents(self, contentFilter=contentFilter)
+        contents = PortalFolder.listFolderContents(self, contentFilter=contentFilter)
         if suppressHiddenFiles:
-            contents=[obj for obj in contents if obj.getId()[:1]!='.']
+            contents = [obj for obj in contents if obj.getId()[:1] != '.']
 
         return contents
 
@@ -214,7 +213,7 @@ class BaseFolderMixin(CatalogMultiplex,
         """
         result = PortalFolder.MKCOL_handler(self, id, REQUEST, RESPONSE)
         new_folder = self._getOb(id)
-        if new_folder is not None: # Could it have been renamed?
+        if new_folder is not None:  # Could it have been renamed?
             new_folder.unmarkCreationFlag()
             event.notify(WebDAVObjectInitializedEvent(new_folder))
         self.manage_afterMKCOL(id, result, REQUEST, RESPONSE)

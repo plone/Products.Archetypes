@@ -78,8 +78,8 @@ content_type = Schema((
 
     StringField(
         name='id',
-        required=0, # Still actually required, but the widget will
-                    # supply the missing value on non-submits
+        required=0,  # Still actually required, but the widget will
+                     # supply the missing value on non-submits
         mode='rw',
         permission=permission_copy_or_move,
         accessor='getId',
@@ -90,7 +90,7 @@ content_type = Schema((
             description=_(u'help_shortname',
                           default=u'Should not contain spaces, underscores or mixed case. '
                                    'Short Name is part of the item\'s web address.'),
-            visible={'view' : 'invisible'}
+            visible={'view': 'invisible'}
         ),
     ),
 
@@ -102,12 +102,12 @@ content_type = Schema((
         accessor='Title',
         widget=StringWidget(
             label_msgid='label_title',
-            visible={'view' : 'invisible'},
+            visible={'view': 'invisible'},
             i18n_domain='plone',
         ),
     ),
 
-    ), marshall = RFC822Marshaller())
+    ), marshall=RFC822Marshaller())
 
 
 class BaseObject(Referenceable):
@@ -127,7 +127,7 @@ class BaseObject(Referenceable):
 
     installMode = ['type', 'actions', 'indexes']
 
-    _at_rename_after_creation = False # rename object according to title?
+    _at_rename_after_creation = False  # rename object according to title?
 
     implements(IBaseObject, IReferenceable)
 
@@ -379,7 +379,7 @@ class BaseObject(Referenceable):
         if not policy:
             policy = spec.getPolicy(None)
 
-        return DisplayList(map(lambda x: (x,x), policy.allowedVocabulary())), \
+        return DisplayList(map(lambda x: (x, x), policy.allowedVocabulary())), \
                policy.enforceVocabulary()
 
     security.declareProtected(permissions.View, 'Vocabulary')
@@ -411,8 +411,8 @@ class BaseObject(Referenceable):
 
         if key not in keys and not key.startswith('_'):
             # XXX Fix this in AT 1.4
-            value= getattr(aq_inner(self).aq_explicit, key, _marker) or \
-                   getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
+            value = getattr(aq_inner(self).aq_explicit, key, _marker) or \
+                    getattr(aq_parent(aq_inner(self)).aq_explicit, key, _marker)
             if value is _marker:
                 raise KeyError, key
             else:
@@ -425,7 +425,7 @@ class BaseObject(Referenceable):
 
         # This is the access mode used by external editor. We need the
         # handling provided by BaseUnit when its available
-        kw = {'raw':1, 'field': field.__name__}
+        kw = {'raw': 1, 'field': field.__name__}
         value = mapply(accessor, **kw)
         return value
 
@@ -530,12 +530,12 @@ class BaseObject(Referenceable):
                 continue
             method = field.getIndexAccessor(self)
             try:
-                datum =  method(mimetype="text/plain")
+                datum = method(mimetype="text/plain")
             except TypeError:
                 # Retry in case typeerror was raised because accessor doesn't
                 # handle the mimetype argument
                 try:
-                    datum =  method()
+                    datum = method()
                 except (ConflictError, KeyboardInterrupt):
                     raise
                 except:
@@ -573,7 +573,7 @@ class BaseObject(Referenceable):
             if site_properties is not None:
                 return site_properties.getProperty('default_charset')
             elif hasattr(properties, 'default_charset'):
-                return properties.getProperty('default_charset') # CMF
+                return properties.getProperty('default_charset')  # CMF
         return 'utf-8'
 
     security.declareProtected(permissions.View, 'get_size')
@@ -582,7 +582,7 @@ class BaseObject(Referenceable):
         """
         size = 0
         for field in self.Schema().fields():
-            size+=field.get_size(self)
+            size += field.get_size(self)
         return size
 
     security.declarePrivate('_processForm')
@@ -602,8 +602,10 @@ class BaseObject(Referenceable):
         elif fieldset is not None:
             fields = schemata[fieldset].fields()
         else:
-            if data: fields += schema.filterFields(isMetadata=0)
-            if metadata: fields += schema.filterFields(isMetadata=1)
+            if data:
+                fields += schema.filterFields(isMetadata=0)
+            if metadata:
+                fields += schema.filterFields(isMetadata=1)
 
         form_keys = form.keys()
 
@@ -884,14 +886,14 @@ class BaseObject(Referenceable):
         # Set a request variable to avoid resetting the newly created flag
         req = getattr(self, 'REQUEST', None)
         if req is not None:
-            req.set('SCHEMA_UPDATE','1')
+            req.set('SCHEMA_UPDATE', '1')
         self.initializeArchetype()
 
         for f in new_schema.fields():
             name = f.getName()
             kw = {}
-            if name not in excluded_fields and values.has_key(name):
-                if mimes.has_key(name):
+            if name not in excluded_fields and name in values:
+                if name in mimes:
                     kw['mimetype'] = mimes[name]
                 try:
                     self._migrateSetValue(name, values[name], **kw)
@@ -912,7 +914,7 @@ class BaseObject(Referenceable):
         # Migrate pre-AT 1.3 schemas.
         schema = fixSchema(schema)
         # First see if the new field name is managed by the current schema
-        field = schema.get(getattr(new_schema.get(name,None),'old_field_name',name), None)
+        field = schema.get(getattr(new_schema.get(name, None), 'old_field_name', name), None)
         if field:
             # At very first try to use the BaseUnit itself
             try:
@@ -1010,7 +1012,7 @@ class BaseObject(Referenceable):
             mutator = field.getMutator(self)
             if mutator is not None:
                 try:
-                    args = [value,]
+                    args = [value]
                     mapply(mutator, *args, **kw)
                     return
                 except (ConflictError, KeyboardInterrupt):
@@ -1115,15 +1117,15 @@ class BaseObject(Referenceable):
             if shasattr(self, name):
                 target = getattr(self, name)
         else:
-            if shasattr(self, name): # attributes of self come first
+            if shasattr(self, name):  # attributes of self come first
                 target = getattr(self, name)
-            else: # then views
+            else:  # then views
                 target = queryMultiAdapter((self, REQUEST), Interface, name)
                 if target is not None:
                     # We don't return the view, we raise an
                     # AttributeError instead (below)
                     target = None
-                else: # then acquired attributes
+                else:  # then acquired attributes
                     target = getattr(self, name, None)
 
         if target is not None:
@@ -1137,6 +1139,7 @@ class BaseObject(Referenceable):
             raise AttributeError(name)
 
 InitializeClass(BaseObject)
+
 
 class Wrapper(Explicit):
     """Wrapper object for access to sub objects."""

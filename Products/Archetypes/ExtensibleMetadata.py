@@ -4,8 +4,10 @@ from zope.component import queryUtility
 from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.Field import *
-from Products.Archetypes.Widget import *
+from Products.Archetypes.Field import BooleanField, LinesField, TextField, \
+    StringField, DateTimeField
+from Products.Archetypes.Widget import BooleanWidget, KeywordWidget, \
+    TextAreaWidget, StringWidget, LinesWidget, CalendarWidget, LanguageWidget
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces import IExtensibleMetadata
@@ -20,18 +22,18 @@ from DateTime.DateTime import DateTime
 from App.class_init import InitializeClass
 from App.special_dtml import DTMLFile
 from Products.CMFCore import permissions
-from Products.CMFCore.utils  import getToolByName
+from Products.CMFCore.utils import getToolByName
 from Products.CMFDefault.utils import _dtmldir
 from ComputedAttribute import ComputedAttribute
 
-_marker=[]
+_marker = []
 
 # http://www.zope.org/Collectors/CMF/325
 # http://www.zope.org/Collectors/CMF/476
 _zone = DateTime().timezone()
 
-FLOOR_DATE = DateTime(1000, 1) # always effective
-CEILING_DATE = DateTime(2500, 0) # never expires
+FLOOR_DATE = DateTime(1000, 1)  # always effective
+CEILING_DATE = DateTime(2500, 0)  # never expires
 
 # We import this conditionally, in order not to introduce a hard dependency
 try:
@@ -39,6 +41,7 @@ try:
     HAS_PLONE_I18N = True
 except ImportError:
     HAS_PLONE_I18N = False
+
 
 ## MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
@@ -87,8 +90,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             default='',
             searchable=1,
             accessor="Description",
-            default_content_type = 'text/plain',
-            allowable_content_types = ('text/plain',),
+            default_content_type='text/plain',
+            allowable_content_types=('text/plain',),
             widget=TextAreaWidget(
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
@@ -101,8 +104,8 @@ class ExtensibleMetadata(Persistence.Persistent):
             'location',
             # why no accessor? http://dev.plone.org/plone/ticket/6424
             searchable=True,
-            widget = StringWidget(
-                label = _(u'label_location', default=u'Location'),
+            widget=StringWidget(
+                label=_(u'label_location', default=u'Location'),
                 description=_(u'help_location_dc',
                               default=u'The geographical location associated with the item, if applicable.'),
                 ),
@@ -127,13 +130,13 @@ class ExtensibleMetadata(Persistence.Persistent):
                               default=u"Persons responsible for creating the content of "
                                        "this item. Please enter a list of user names, one "
                                        "per line. The principal creator should come first."),
-                rows = 3
+                rows=3
                 ),
         ),
         DateTimeField(
             'effectiveDate',
             mutator='setEffectiveDate',
-            languageIndependent = True,
+            languageIndependent=True,
             widget=CalendarWidget(
                 label=_(u'label_effective_date', u'Publishing Date'),
                 description=_(u'help_effective_date',
@@ -144,7 +147,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         DateTimeField(
             'expirationDate',
             mutator='setExpirationDate',
-            languageIndependent = True,
+            languageIndependent=True,
             widget=CalendarWidget(
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
@@ -156,8 +159,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         StringField(
             'language',
             accessor="Language",
-            default = config.LANGUAGE_DEFAULT,
-            default_method = 'defaultLanguage',
+            default=config.LANGUAGE_DEFAULT,
+            default_method='defaultLanguage',
             vocabulary='languages',
             widget=LanguageWidget(
                 label=_(u'label_language', default=u'Language'),
@@ -191,12 +194,12 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_creation_date', default=u'Creation Date'),
                 description=_(u'help_creation_date',
                               default=u'Date this object was created'),
-                visible={'edit':'invisible', 'view':'invisible'}),
+                visible={'edit': 'invisible', 'view': 'invisible'}),
         ),
         DateTimeField(
             'modification_date',
             accessor='modified',
-            mutator = 'setModificationDate',
+            mutator='setModificationDate',
             default_method=DateTime,
             languageIndependent=True,
             isMetadata=True,
@@ -207,7 +210,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                         default=u'Modification Date'),
                 description=_(u'help_modification_date',
                               default=u'Date this content was modified last'),
-                visible={'edit':'invisible', 'view':'invisible'}),
+                visible={'edit': 'invisible', 'view': 'invisible'}),
         ),
         ))
 
@@ -325,13 +328,13 @@ class ExtensibleMetadata(Persistence.Persistent):
             # Fall back to static definition
             if languages is None:
                 return DisplayList(
-                    (('en','English'), ('fr','French'), ('es','Spanish'),
-                     ('pt','Portuguese'), ('ru','Russian')))
+                    (('en', 'English'), ('fr', 'French'), ('es', 'Spanish'),
+                     ('pt', 'Portuguese'), ('ru', 'Russian')))
         else:
             languages = util.getLanguageListing(combined=use_combined)
-            languages.sort(key=lambda x:x[1])
+            languages.sort(key=lambda x: x[1])
             # Put language neutral at the top.
-            languages.insert(0,(u'',_(u'Language neutral')))
+            languages.insert(0, (u'', _(u'Language neutral')))
         return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################
@@ -346,7 +349,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # return unknown if never set properly
         return creation is None and 'Unknown' or creation.toZone(zone).ISO8601()
 
-    security.declareProtected( permissions.View, 'EffectiveDate')
+    security.declareProtected(permissions.View, 'EffectiveDate')
     def EffectiveDate(self, zone=None):
         """ Dublin Core element - date resource becomes effective.
         """
@@ -363,8 +366,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.View, 'effective_date')
     effective_date = ComputedAttribute(_effective_date, 1)
 
-
-    security.declareProtected( permissions.View, 'ExpirationDate')
+    security.declareProtected(permissions.View, 'ExpirationDate')
     def ExpirationDate(self, zone=None):
         """Dublin Core element - date resource expires.
         """
@@ -422,8 +424,8 @@ class ExtensibleMetadata(Persistence.Persistent):
         """
         effective = self.getField('effectiveDate').get(self)
         expires = self.getField('expirationDate').get(self)
-        pastEffective = ( effective is None or effective <= date )
-        beforeExpiration = ( expires is None or expires >= date )
+        pastEffective = (effective is None or effective <= date)
+        beforeExpiration = (expires is None or expires >= date)
         return pastEffective and beforeExpiration
 
     security.declareProtected(permissions.View, 'contentExpired')
@@ -527,7 +529,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             created = self._datify(creation_date)
         self.getField('creation_date').set(self, created)
 
-    security.declarePrivate( '_datify' )
+    security.declarePrivate('_datify')
     def _datify(self, date):
         """Try to convert something into a DateTime instance or None
         """
@@ -638,114 +640,114 @@ class ExtensibleMetadata(Persistence.Persistent):
         """ Return RFC-822-style headers.
         """
         hdrlist = []
-        hdrlist.append( ( 'Title', self.Title() ) )
-        hdrlist.append( ( 'Subject', string.join( self.Subject(), ', ' ) ) )
-        hdrlist.append( ( 'Publisher', self.Publisher() ) )
-        hdrlist.append( ( 'Description', self.Description() ) )
-        hdrlist.append( ( 'Contributors', string.join(
-            self.Contributors(), '; ' ) ) )
-        hdrlist.append( ( 'Creators', string.join(
-            self.Creators(), '; ' ) ) )
-        hdrlist.append( ( 'Effective_date', self.EffectiveDate() ) )
-        hdrlist.append( ( 'Expiration_date', self.ExpirationDate() ) )
-        hdrlist.append( ( 'Type', self.Type() ) )
-        hdrlist.append( ( 'Format', self.Format() ) )
-        hdrlist.append( ( 'Language', self.Language() ) )
-        hdrlist.append( ( 'Rights', self.Rights() ) )
+        hdrlist.append(('Title', self.Title()))
+        hdrlist.append(('Subject', string.join(self.Subject(), ', ')))
+        hdrlist.append(('Publisher', self.Publisher()))
+        hdrlist.append(('Description', self.Description()))
+        hdrlist.append(('Contributors', string.join(
+            self.Contributors(), '; ')))
+        hdrlist.append(('Creators', string.join(
+            self.Creators(), '; ')))
+        hdrlist.append(('Effective_date', self.EffectiveDate()))
+        hdrlist.append(('Expiration_date', self.ExpirationDate()))
+        hdrlist.append(('Type', self.Type()))
+        hdrlist.append(('Format', self.Format()))
+        hdrlist.append(('Language', self.Language()))
+        hdrlist.append(('Rights', self.Rights()))
         return hdrlist
 
     #
     #  Management tab methods
     #
 
-    security.declarePrivate( '_editMetadata' )
-    def _editMetadata(self
-                      , title=_marker
-                      , subject=_marker
-                      , description=_marker
-                      , contributors=_marker
-                      , effective_date=_marker
-                      , expiration_date=_marker
-                      , format=_marker
-                      , language=_marker
-                      , rights=_marker
+    security.declarePrivate('_editMetadata')
+    def _editMetadata(self,
+                      title=_marker,
+                      subject=_marker,
+                      description=_marker,
+                      contributors=_marker,
+                      effective_date=_marker,
+                      expiration_date=_marker,
+                      format=_marker,
+                      language=_marker,
+                      rights=_marker,
                       ):
         """ Update the editable metadata for this resource.
         """
         if title is not _marker:
-            self.setTitle( title )
+            self.setTitle(title)
         if subject is not _marker:
-            self.setSubject( subject )
+            self.setSubject(subject)
         if description is not _marker:
-            self.setDescription( description )
+            self.setDescription(description)
         if contributors is not _marker:
-            self.setContributors( contributors )
+            self.setContributors(contributors)
         if effective_date is not _marker:
-            self.setEffectiveDate( effective_date )
+            self.setEffectiveDate(effective_date)
         if expiration_date is not _marker:
-            self.setExpirationDate( expiration_date )
+            self.setExpirationDate(expiration_date)
         if format is not _marker:
-            self.setFormat( format )
+            self.setFormat(format)
         if language is not _marker:
-            self.setLanguage( language )
+            self.setLanguage(language)
         if rights is not _marker:
-            self.setRights( rights )
+            self.setRights(rights)
 
     security.declareProtected(permissions.ModifyPortalContent,
-                              'manage_metadata' )
+                              'manage_metadata')
     manage_metadata = DTMLFile('zmi_metadata', _dtmldir)
 
     security.declareProtected(permissions.ModifyPortalContent,
                                'manage_editMetadata')
-    def manage_editMetadata( self
-                           , title
-                           , subject
-                           , description
-                           , contributors
-                           , effective_date
-                           , expiration_date
-                           , format
-                           , language
-                           , rights
-                           , REQUEST
-                           ):
+    def manage_editMetadata(self,
+                            title,
+                            subject,
+                            description,
+                            contributors,
+                            effective_date,
+                            expiration_date,
+                            format,
+                            language,
+                            rights,
+                            REQUEST,
+                            ):
         """ Update metadata from the ZMI.
         """
-        self._editMetadata( title, subject, description, contributors
-                          , effective_date, expiration_date
-                          , format, language, rights
+        self._editMetadata(title, subject, description, contributors,
+                           effective_date, expiration_date,
+                           format, language, rights,
                           )
-        REQUEST[ 'RESPONSE' ].redirect( self.absolute_url()
+        REQUEST['RESPONSE'].redirect(self.absolute_url()
                                 + '/manage_metadata'
-                                + '?manage_tabs_message=Metadata+updated.' )
+                                + '?manage_tabs_message=Metadata+updated.')
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'editMetadata')
-    def editMetadata(self
-                     , title=''
-                     , subject=()
-                     , description=''
-                     , contributors=()
-                     , effective_date=None
-                     , expiration_date=None
-                     , format='text/html'
-                     , language='en-US'
-                     , rights=''
+    def editMetadata(self,
+                     title='',
+                     subject=(),
+                     description='',
+                     contributors=(),
+                     effective_date=None,
+                     expiration_date=None,
+                     format='text/html',
+                     language='en-US',
+                     rights='',
                      ):
         """
         used to be:  editMetadata = WorkflowAction(_editMetadata)
         Need to add check for webDAV locked resource for TTW methods.
         """
         self.failIfLocked()
-        self._editMetadata(title=title
-                           , subject=subject
-                           , description=description
-                           , contributors=contributors
-                           , effective_date=effective_date
-                           , expiration_date=expiration_date
-                           , format=format
-                           , language=language
-                           , rights=rights
+        self._editMetadata(title=title,
+                           subject=subject,
+                           description=description,
+                           contributors=contributors,
+                           effective_date=effective_date,
+                           expiration_date=expiration_date,
+                           format=format,
+                           language=language,
+                           rights=rights,
                            )
         self.reindexObject()
 

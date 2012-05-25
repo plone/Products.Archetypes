@@ -23,14 +23,15 @@ from Acquisition import aq_base
 
 _marker = []
 
+
 class TypesWidget(macrowidget, Base):
     _properties = macrowidget._properties.copy()
     _properties.update({
-        'modes' : ('view', 'edit'),
-        'populate' : True,  # should this field be populated in edit and view?
-        'postback' : True,  # should this field be repopulated with POSTed
+        'modes': ('view', 'edit'),
+        'populate': True,  # should this field be populated in edit and view?
+        'postback': True,  # should this field be repopulated with POSTed
                          # value when an error occurs?
-        'show_content_type' : False,
+        'show_content_type': False,
         'helper_js': (),
         'helper_css': (),
         'blurrable': False,
@@ -68,7 +69,7 @@ class TypesWidget(macrowidget, Base):
         The value for the attribute on the field may either be a dict with a
         mapping for edit and view::
 
-            visible = { 'edit' :'hidden', 'view' : 'invisible' }
+            visible = { 'edit' :'hidden', 'view': 'invisible' }
 
         Or a single value for all modes::
 
@@ -149,57 +150,60 @@ class TypesWidget(macrowidget, Base):
         """
         return False
 
-
 InitializeClass(TypesWidget)
+
 
 class StringWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/string",
-        'size' : '30',
-        'maxlength' : '255',
-        'blurrable' : True,
-        'placeholder' : '',
+        'macro': "widgets/string",
+        'size': '30',
+        'maxlength': '255',
+        'blurrable': True,
+        'placeholder': '',
         })
 
     security = ClassSecurityInfo()
+
 
 class DecimalWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/decimal",
-        'size' : '5',
-        'maxlength' : '255',
-        'dollars_and_cents' : False,
-        'whole_dollars' : False,
-        'thousands_commas' : False,
-        'blurrable' : True,
-        'placeholder' : '',
+        'macro': "widgets/decimal",
+        'size': '5',
+        'maxlength': '255',
+        'dollars_and_cents': False,
+        'whole_dollars': False,
+        'thousands_commas': False,
+        'blurrable': True,
+        'placeholder': '',
         })
 
     security = ClassSecurityInfo()
+
 
 class IntegerWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/integer",
-        'size' : '5',
-        'maxlength' : '255',
-        'blurrable' : True,
-        'placeholder' : '',
+        'macro': "widgets/integer",
+        'size': '5',
+        'maxlength': '255',
+        'blurrable': True,
+        'placeholder': '',
         })
 
     security = ClassSecurityInfo()
 
+
 class ReferenceWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/reference",
+        'macro': "widgets/reference",
         'checkbox_bound': 5,
 
-        'addable' : False, # create createObject link for every addable type
-        'destination_types' : None,
-        'destination' : None, # may be:
+        'addable': False,  # create createObject link for every addable type
+        'destination_types': None,
+        'destination': None,  # may be:
                               # - ".", context object;
                               # - None, any place where
                               #   Field.allowed_types can be added;
@@ -231,8 +235,8 @@ class ReferenceWidget(TypesWidget):
                 if typeinfo.globalAllow():
                     searchFor.append(regType.getId())
                 elif regType.filter_content_types and regType.allowed_content_types:
-                    act_dict = dict([ (act, 0) for act in regType.allowed_content_types ])
-                    if act_dict.has_key(typeinfo.getId()):
+                    act_dict = dict([(act, 0) for act in regType.allowed_content_types])
+                    if typeinfo.getId() in act_dict:
                         searchFor.append(regType.getId())
 
         catalog = getToolByName(purl, 'portal_catalog')
@@ -270,17 +274,17 @@ class ReferenceWidget(TypesWidget):
                 # The portal_type asked for was not
                 # installed/has been removed.
                 log("Warning: in Archetypes.Widget.lookupDestinationsFor: " \
-                    "portal type %s not found" % typeid )
+                    "portal type %s not found" % typeid)
                 continue
 
             if destination == None:
-                options[typeid]=[None]
+                options[typeid] = [None]
             elif isinstance(destination, DictType):
-                options[typeid]=destination.get(typeid, [None])
+                options[typeid] = destination.get(typeid, [None])
                 if not isinstance(options[typeid], ListType):
                     options[typeid] = [options[typeid]]
             elif isinstance(destination, ListType):
-                options[typeid]=destination
+                options[typeid] = destination
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
@@ -324,26 +328,28 @@ class ReferenceWidget(TypesWidget):
 
         return types
 
+
 class ComputedWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/computed",
+        'macro': "widgets/computed",
         })
 
     security = ClassSecurityInfo()
 
+
 class TextAreaWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/textarea",
-        'rows'  : 5,
-        'cols'  : 40,
+        'macro': "widgets/textarea",
+        'rows': 5,
+        'cols': 40,
         'format': 0,
         'append_only': False,
-        'timestamp' : False,
-        'divider':"\n\n========================\n\n",
         'timestamp': False,
-        'maxlength' : False,
+        'divider': "\n\n========================\n\n",
+        'timestamp': False,
+        'maxlength': False,
         'helper_js': ('widgets/js/textcount.js',),
         })
 
@@ -393,34 +399,37 @@ class TextAreaWidget(TypesWidget):
                     value = field.getEditAccessor(instance)()
         return value, kwargs
 
+
 class LinesWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/lines",
-        'rows'  : 5,
-        'cols'  : 40,
+        'macro': "widgets/lines",
+        'rows': 5,
+        'cols': 40,
         })
 
     security = ClassSecurityInfo()
+
 
 class BooleanWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/boolean",
+        'macro': "widgets/boolean",
         })
 
     security = ClassSecurityInfo()
 
+
 class CalendarWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/calendar",
-        'format' : '', # time.strftime string
-        'show_hm' : True,
-        'show_ymd' : True,
-        'starting_year' : None,
-        'ending_year' : None,
-        'future_years' : None,
+        'macro': "widgets/calendar",
+        'format': '',  # time.strftime string
+        'show_hm': True,
+        'show_ymd': True,
+        'starting_year': None,
+        'ending_year': None,
+        'future_years': None,
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
@@ -470,9 +479,9 @@ class CalendarWidget(TypesWidget):
 class SelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'format': "flex", # possible values: flex, select, radio
-        'macro' : "widgets/selection",
-        'blurrable' : True,
+        'format': "flex",  # possible values: flex, select, radio
+        'macro': "widgets/selection",
+        'blurrable': True,
         })
 
     security = ClassSecurityInfo()
@@ -485,20 +494,21 @@ class SelectionWidget(TypesWidget):
 class LanguageWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'format': "flex", # possible values: flex, select, radio
-        'macro' : "widgets/languagewidget",
-        'blurrable' : True,
+        'format': "flex",  # possible values: flex, select, radio
+        'macro': "widgets/languagewidget",
+        'blurrable': True,
         })
 
     security = ClassSecurityInfo()
 
+
 class MultiSelectionWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'format': "select", # possible values: select, checkbox
-        'macro' : "widgets/multiselection",
-        'size'  : 5,
-        'blurrable' : True,
+        'format': "select",  # possible values: select, checkbox
+        'macro': "widgets/multiselection",
+        'size': 5,
+        'blurrable': True,
         })
 
     security = ClassSecurityInfo()
@@ -528,11 +538,11 @@ class MultiSelectionWidget(TypesWidget):
 class KeywordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'format': "select", # possible values: select, checkbox
-        'macro' : "widgets/keyword",
-        'size'  : 5,
-        'vocab_source' : 'portal_catalog',
-        'roleBasedAdd' : True,
+        'format': "select",  # possible values: select, checkbox
+        'macro': "widgets/keyword",
+        'size': 5,
+        'vocab_source': 'portal_catalog',
+        'roleBasedAdd': True,
         'helper_js': ('widgets/js/keywordmultiselect.js',),
         })
 
@@ -561,7 +571,8 @@ class KeywordWidget(TypesWidget):
         value = existing_keywords + new_keywords
         value = [k for k in list(unique(value)) if k]
 
-        if not value and emptyReturnsMarker: return empty_marker
+        if not value and emptyReturnsMarker:
+            return empty_marker
 
         return value, {}
 
@@ -569,8 +580,8 @@ class KeywordWidget(TypesWidget):
 class FileWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/file",
-        'show_content_type' : True,
+        'macro': "widgets/file",
+        'show_content_type': True,
         })
 
     security = ClassSecurityInfo()
@@ -581,8 +592,11 @@ class FileWidget(TypesWidget):
         """form processing that deals with binary data"""
 
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete=='delete': return "DELETE_FILE", {}
-        if delete=='nochange' : return empty_marker
+        if delete == 'delete':
+            return "DELETE_FILE", {}
+
+        if delete == 'nochange':
+            return empty_marker
 
         value = None
 
@@ -605,9 +619,9 @@ class FileWidget(TypesWidget):
 class RichWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/rich",
-        'rows'  : 5,
-        'cols'  : 40,
+        'macro': "widgets/rich",
+        'rows': 5,
+        'cols': 40,
         'format': 1,
         'allow_file_upload': True,
         })
@@ -647,7 +661,8 @@ class RichWidget(TypesWidget):
             if text_format is not empty_marker and text_format:
                 kwargs['mimetype'] = text_format
 
-        if value is empty_marker: return empty_marker
+        if value is empty_marker:
+            return empty_marker
 
         if value and not isFile:
             # Value filled, no file uploaded
@@ -662,11 +677,11 @@ class RichWidget(TypesWidget):
 class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/zid",
+        'macro': "widgets/zid",
          # show IDs in edit boxes when they are autogenerated?
-        'display_autogenerated' : True,
+        'display_autogenerated': True,
         # script used to determine if an ID is autogenerated
-        'is_autogenerated' : 'isIDAutoGenerated',
+        'is_autogenerated': 'isIDAutoGenerated',
         # ignore global or by-member setting for visible ids?
         'ignore_visible_ids': False,
         })
@@ -681,6 +696,7 @@ class IdWidget(TypesWidget):
         if not value or value is empty_marker or not value.strip():
             value = instance.getId()
         return value,  {}
+
 
 class RequiredIdWidget(IdWidget):
     _properties = IdWidget._properties.copy()
@@ -699,7 +715,7 @@ class RequiredIdWidget(IdWidget):
 class ImageWidget(FileWidget):
     _properties = FileWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/image",
+        'macro': "widgets/image",
         # only display if size <= threshold, otherwise show link
         'display_threshold': 102400,
         # use this scale for the preview in the edit form, default to 'preview'
@@ -716,13 +732,16 @@ class ImageWidget(FileWidget):
         value = None
         ## check to see if the delete hidden was selected
         delete = form.get('%s_delete' % field.getName(), empty_marker)
-        if delete=='delete': return "DELETE_IMAGE", {}
-        if delete=='nochange' : return empty_marker
+        if delete == 'delete':
+            return "DELETE_IMAGE", {}
 
+        if delete == 'nochange':
+            return empty_marker
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
-        if fileobj is empty_marker: return empty_marker
+        if fileobj is empty_marker:
+            return empty_marker
 
         filename = getattr(fileobj, 'filename', '') or \
                    (isinstance(fileobj, FileType) and \
@@ -731,30 +750,33 @@ class ImageWidget(FileWidget):
         if filename:
             value = fileobj
 
-        if not value: return None
+        if not value:
+            return None
+
         return value, {}
 
     security.declarePublic('preview_tag')
     def preview_tag(self, instance, field):
         """Return a tag for a preview image, or None if no preview is found."""
-        img=field.get(instance)
+        img = field.get(instance)
         if not img:
             return None
 
         if self.preview_scale in field.getAvailableSizes(instance):
             return field.tag(instance, scale=self.preview_scale)
 
-        if img.getSize()<=self.display_threshold:
+        if img.getSize() <= self.display_threshold:
             return field.tag(instance)
 
         return None
+
 
 # LabelWidgets are used to display instructions on a form.  The widget only
 # displays the label for a value -- no values and no form elements.
 class LabelWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/label",
+        'macro': "widgets/label",
         })
 
     security = ClassSecurityInfo()
@@ -767,54 +789,58 @@ class LabelWidget(TypesWidget):
 class PasswordWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : 'widgets/password',
-        'modes' : ('edit',),
-        'populate' : False,
-        'postback' : False,
-        'size' : 20,
-        'maxlength' : '255',
+        'macro': 'widgets/password',
+        'modes': ('edit',),
+        'populate': False,
+        'postback': False,
+        'size': 20,
+        'maxlength': '255',
         })
 
     security = ClassSecurityInfo()
+
 
 class VisualWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/visual",
-        'rows'  : 25,      #rows of TextArea if VE is not available
-        'cols'  : 80,      #same for cols
-        'width' : '507px', #width of VE frame (if VE is avalilable)
-        'height': '400px', #same for height
+        'macro': "widgets/visual",
+        'rows': 25,  # rows of TextArea if VE is not available
+        'cols': 80,  # same for cols
+        'width': '507px',  # width of VE frame (if VE is avalilable)
+        'height': '400px',  # same for height
         'format': 0,
-        'append_only': False, #creates a textarea you can only add to, not edit
-        'divider': '\n\n<hr />\n\n', # default divider for append only divider
+        'append_only': False,  # creates a textarea you can only add to, not edit
+        'divider': '\n\n<hr />\n\n',  # default divider for append only divider
         })
 
     security = ClassSecurityInfo()
+
 
 class EpozWidget(TextAreaWidget):
     _properties = TextAreaWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/epoz",
+        'macro': "widgets/epoz",
         })
 
     security = ClassSecurityInfo()
 
+
 class InAndOutWidget(ReferenceWidget):
     _properties = ReferenceWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/inandout",
-        'size' : '6',
+        'macro': "widgets/inandout",
+        'size': '6',
         'helper_js': ('widgets/js/inandout.js',),
         })
 
     security = ClassSecurityInfo()
 
+
 class PicklistWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
-        'macro' : "widgets/picklist",
-        'size' : '6',
+        'macro': "widgets/picklist",
+        'size': '6',
         'helper_js': ('widgets/js/picklist.js',),
         })
 

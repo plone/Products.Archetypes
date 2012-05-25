@@ -1,9 +1,11 @@
 import sys
+
 from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Acquisition import ImplicitAcquisitionWrapper
 
 _marker = []
+
 
 class ArchetypesRenderer:
 
@@ -51,10 +53,10 @@ class ArchetypesRenderer:
         context.setLocal('widget', widget)
         context.setLocal('field', field)
         context.setLocal('mode', mode)
-        context.setLocal('UID',instance.UID())
-        
+        context.setLocal('UID', instance.UID())
+
         if kwargs:
-            for k,v in kwargs.items():
+            for k, v in kwargs.items():
                 context.setLocal(k, v)
 
         del frame

@@ -8,6 +8,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 _www = os.path.join(os.path.dirname(__file__), 'www')
 
+
 class ArchTTWTool(UniqueObject, Folder):
     """ Archetypes TTW Tool """
 
@@ -17,12 +18,12 @@ class ArchTTWTool(UniqueObject, Folder):
     security = ClassSecurityInfo()
     meta_types = all_meta_types = (())
 
-    manage_options=(
+    manage_options = (
         (Folder.manage_options[0],) +
         (
-        { 'label'  : 'Introspect',
-          'action' : 'manage_debugForm',
-          },
+        {'label': 'Introspect',
+         'action': 'manage_debugForm',
+         },
 
         )
         + Folder.manage_options[1:]

@@ -31,8 +31,9 @@ from plone.uuid.interfaces import IUUID, IUUIDAware
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 logger = logging.getLogger('Archetypes')
 
+
 def manage_addUIDCatalog(self, id, title,
-                         vocab_id=None, # Deprecated
+                         vocab_id=None,  # Deprecated
                          REQUEST=None):
     """Add the UID Catalog
     """
@@ -42,7 +43,7 @@ def manage_addUIDCatalog(self, id, title,
     self._setObject(id, c)
 
     if REQUEST is not None:
-        return self.manage_main(self, REQUEST,update_menu=1)
+        return self.manage_main(self, REQUEST, update_menu=1)
 
 
 class PluggableCatalog(Catalog):
@@ -62,9 +63,9 @@ class PluggableCatalog(Catalog):
         schema = self.schema
         scopy = schema.copy()
 
-        scopy['data_record_id_']=len(schema.keys())
-        scopy['data_record_score_']=len(schema.keys())+1
-        scopy['data_record_normalized_score_']=len(schema.keys())+2
+        scopy['data_record_id_'] = len(schema.keys())
+        scopy['data_record_score_'] = len(schema.keys()) + 1
+        scopy['data_record_normalized_score_'] = len(schema.keys()) + 2
 
         plugbrains.__record_schema__ = scopy
 
@@ -72,6 +73,7 @@ class PluggableCatalog(Catalog):
         self._v_result_class = plugbrains
 
 InitializeClass(PluggableCatalog)
+
 
 class UIDCatalogBrains(AbstractCatalogBrain):
     """fried my little brains"""
@@ -94,10 +96,10 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             try:
                 portal = getToolByName(self, 'portal_url').getPortalObject()
                 obj = portal.unrestrictedTraverse(self.getPath())
-                obj = aq_inner( obj )
+                obj = aq_inner(obj)
             except (ConflictError, KeyboardInterrupt):
                 raise
-            except: #NotFound # XXX bare exception
+            except:  # NotFound # XXX bare exception
                 pass
 
             if obj is None:
@@ -113,6 +115,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
                 'UIDCatalogBrains getObject raised an error', exc_info=True)
 
 InitializeClass(UIDCatalogBrains)
+
 
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
@@ -136,7 +139,8 @@ class IndexableObjectWrapper(object):
         except UnicodeDecodeError:
             return self._obj.getId()
 
-_marker=[]
+_marker = []
+
 
 #let rewrite Title indexer with plone.indexer
 @indexer(interface.Interface, IUIDCatalog)
@@ -149,9 +153,11 @@ def Title(obj):
     except UnicodeDecodeError:
         return obj.getId()
 
+
 @indexer(IUUIDAware, IUIDCatalog)
 def UID_indexer(obj):
     return IUUID(obj, None)
+
 
 class UIDResolver(Base):
 
@@ -196,6 +202,7 @@ class UIDResolver(Base):
 
 InitializeClass(UIDResolver)
 
+
 class UIDBaseCatalog(PluggableCatalog):
     BASE_CLASS = UIDCatalogBrains
 
@@ -209,7 +216,6 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     implements(IUIDCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
-
 
     def __init__(self, id, title='', vocab_id=None, container=None):
         """We hook up the brains now"""
@@ -244,9 +250,9 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
-        atool   = getToolByName(self, TOOL_NAME)
-        obj     = aq_parent(self)
-        path    = '/'.join(obj.getPhysicalPath())
+        atool = getToolByName(self, TOOL_NAME)
+        obj = aq_parent(self)
+        path = '/'.join(obj.getPhysicalPath())
         if not REQUEST:
             REQUEST = self.REQUEST
 

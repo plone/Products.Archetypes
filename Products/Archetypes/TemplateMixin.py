@@ -13,18 +13,19 @@ from Acquisition import aq_inner
 from ExtensionClass import Base
 from zope.interface import implements
 
+
 TemplateMixinSchema = Schema((
     # TemplateMixin
     StringField('layout',
         write_permission=permissions.ModifyPortalContent,
         default_method="getDefaultLayout",
         vocabulary="_voc_templates",
-        widget=SelectionWidget(label = _(u'label_template_mixin',
-                                         default=u'View template'),
+        widget=SelectionWidget(label=_(u'label_template_mixin',
+                                       default=u'View template'),
                                description=_(u'help_template_mixin',
                                              default=u'Choose a template that will be used for viewing this item.'),
-                               visible={'view' : 'hidden',
-                                        'edit' : 'visible'},)
+                               visible={'view': 'hidden',
+                                        'edit': 'visible'},)
                ),
     ))
 
@@ -35,10 +36,10 @@ class TemplateMixin(Base):
     schema = TemplateMixinSchema
 
     actions = (
-        { 'id': 'view',
-          'name': 'View',
-          'action': 'string:${object_url}/',
-          'permissions': (permissions.View,),
+        {'id': 'view',
+         'name': 'View',
+         'action': 'string:${object_url}/',
+         'permissions': (permissions.View,),
         },
         )
 
@@ -56,7 +57,7 @@ class TemplateMixin(Base):
 
     security = ClassSecurityInfo()
 
-    index_html = None # setting index_html to None forces the usage of __call__
+    index_html = None  # setting index_html to None forces the usage of __call__
 
     def __call__(self):
         """return a view based on layout"""
@@ -77,7 +78,7 @@ class TemplateMixin(Base):
     def getLayout(self, **kw):
         """Get the current layout or the default layout if the current one is None
         """
-        if kw.has_key('schema'):
+        if 'schema' in kw:
             schema = kw['schema']
         else:
             schema = self.Schema()

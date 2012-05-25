@@ -11,11 +11,12 @@ from Products.Archetypes.event import WebDAVObjectEditedEvent
 from Products.Archetypes.utils import shasattr, mapply
 from zope.interface import implements, Interface
 
+
 class PdataStreamIterator(object):
 
     implements(IStreamIterator)
 
-    def __init__(self, data, size, streamsize=1<<16):
+    def __init__(self, data, size, streamsize=1 << 16):
         # Consume the whole data into a TemporaryFile when
         # constructing, otherwise we might end up loading the whole
         # file in memory or worse, loading objects after the
@@ -48,6 +49,7 @@ class PdataStreamIterator(object):
 
 _marker = []
 
+
 def collection_check(self):
     if not shasattr(self, '__dav_marshall__'):
         # Backwards-compatible, if property not set ignore.
@@ -57,6 +59,7 @@ def collection_check(self):
         # marshalling.
         raise MethodNotAllowed, 'Method not supported.'
 
+
 def PUT(self, REQUEST=None, RESPONSE=None):
     """ HTTP PUT handler with marshalling support
     """
@@ -65,7 +68,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
     if not RESPONSE:
         RESPONSE = REQUEST.RESPONSE
     if not self.Schema().hasLayer('marshall'):
-        RESPONSE.setStatus(501) # Not implemented
+        RESPONSE.setStatus(501)  # Not implemented
         return RESPONSE
 
     self.dav__init(REQUEST, RESPONSE)
@@ -109,17 +112,17 @@ def PUT(self, REQUEST=None, RESPONSE=None):
     marshaller = self.Schema().getLayerImpl('marshall')
 
     args = [self, data]
-    kwargs = {'file':file,
-              'context':context,
-              'mimetype':mimetype,
-              'filename':filename,
-              'REQUEST':REQUEST,
-              'RESPONSE':RESPONSE}
+    kwargs = {'file': file,
+              'context': context,
+              'mimetype': mimetype,
+              'filename': filename,
+              'REQUEST': REQUEST,
+              'RESPONSE': RESPONSE}
     ddata = mapply(marshaller.demarshall, *args, **kwargs)
 
     if (shasattr(self, 'demarshall_hook') and self.demarshall_hook):
         self.demarshall_hook(ddata)
-    self.manage_afterPUT(data, marshall_data = ddata, **kwargs)
+    self.manage_afterPUT(data, marshall_data=ddata, **kwargs)
     self.reindexObject()
     self.unmarkCreationFlag()
 
@@ -130,6 +133,7 @@ def PUT(self, REQUEST=None, RESPONSE=None):
 
     RESPONSE.setStatus(204)
     return RESPONSE
+
 
 def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     """Get the raw content for this object (also used for the WebDAV source)
@@ -142,7 +146,7 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         RESPONSE = REQUEST.RESPONSE
 
     if not self.Schema().hasLayer('marshall'):
-        RESPONSE.setStatus(501) # Not implemented
+        RESPONSE.setStatus(501)  # Not implemented
         return RESPONSE
 
     self.dav__init(REQUEST, RESPONSE)
@@ -173,6 +177,7 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
         or not issubclass(IStreamIterator, Interface) and IStreamIterator.IsImplementedBy(data)):
         return data
     return PdataStreamIterator(data, length)
+
 
 def manage_afterPUT(self, data, marshall_data, file, context, mimetype,
                     filename, REQUEST, RESPONSE):

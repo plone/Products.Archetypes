@@ -2,7 +2,6 @@ import os.path
 from zope.interface import implements
 
 from Products.Archetypes.interfaces import IBaseUnit
-from Products.Archetypes.config import *
 from Products.Archetypes.log import log
 from Products.Archetypes.utils import shasattr
 from logging import ERROR
@@ -16,6 +15,7 @@ from Products.MimetypesRegistry.interfaces import IMimetype
 from webdav.interfaces import IWriteLock
 
 _marker = []
+
 
 class BaseUnit(File):
     implements(IBaseUnit, IWriteLock)
@@ -46,7 +46,7 @@ class BaseUnit(File):
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
-        context  = kw.get('context', instance)
+        context = kw.get('context', instance)
 
         adapter = getToolByName(context, 'mimetypes_registry')
         data, filename, mimetype = adapter(data, **kw)
@@ -105,8 +105,8 @@ class BaseUnit(File):
         if data:
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
-            portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+            portal_encoding = kwargs.get('encoding', None) or \
+                              self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding \
                        or portal_encoding
             if portal_encoding != encoding:
@@ -117,8 +117,8 @@ class BaseUnit(File):
         # return the raw data if it's not binary data
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
-            portal_encoding = kwargs.get('encoding',None) or \
-	                      self.portalEncoding(instance)
+            portal_encoding = kwargs.get('encoding', None) or \
+                              self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
@@ -161,7 +161,7 @@ class BaseUnit(File):
             return self.raw
         if encoding is None:
             if instance is None:
-                encoding ='utf-8'
+                encoding = 'utf-8'
             else:
                 # FIXME: fallback to portal encoding or original encoding ?
                 encoding = self.portalEncoding(instance)
@@ -238,12 +238,12 @@ class BaseUnit(File):
         return ''
 
     ### webDAV me this, webDAV me that
-    security.declareProtected( permissions.ModifyPortalContent, 'PUT')
+    security.declareProtected(permissions.ModifyPortalContent, 'PUT')
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)
         self.dav__simpleifhandler(REQUEST, RESPONSE, refresh=1)
-        mimetype=REQUEST.get_header('Content-Type', None)
+        mimetype = REQUEST.get_header('Content-Type', None)
 
         file = REQUEST.get('BODYFILE', _marker)
         if file is _marker:

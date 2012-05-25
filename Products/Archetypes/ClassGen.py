@@ -13,18 +13,18 @@ AT_GENERATE_METHOD = []
 
 
 _modes = {
-    'r' : { 'prefix'   : 'get',
-            'attr'     : 'accessor',
-            'security' : 'read_permission',
-            },
-    'm' : { 'prefix'   : 'getRaw',
-            'attr'     : 'edit_accessor',
-            'security' : 'write_permission',
-            },
-    'w' : { 'prefix'   : 'set',
-            'attr'     : 'mutator',
-            'security' : 'write_permission',
-            },
+    'r': {'prefix': 'get',
+          'attr': 'accessor',
+          'security': 'read_permission',
+          },
+    'm': {'prefix': 'getRaw',
+          'attr': 'edit_accessor',
+          'security': 'write_permission',
+          },
+    'w': {'prefix': 'set',
+          'attr': 'mutator',
+          'security': 'write_permission',
+          },
     }
 
 
@@ -39,7 +39,7 @@ class Generator:
                             (field.getName(), mode))
 
         prefix = _modes[mode]['prefix']
-        name   = capitalize(field.getName())
+        name = capitalize(field.getName())
         return "%s%s" % (prefix, name)
 
     def makeMethod(self, klass, field, mode, methodName):
@@ -48,7 +48,7 @@ class Generator:
         if mode == "r":
             def generatedAccessor(self, **kw):
                 """Default Accessor."""
-                if kw.has_key('schema'):
+                if 'schema' in kw:
                     schema = kw['schema']
                 else:
                     schema = self.Schema()
@@ -58,7 +58,7 @@ class Generator:
         elif mode == "m":
             def generatedEditAccessor(self, **kw):
                 """Default Edit Accessor."""
-                if kw.has_key('schema'):
+                if 'schema' in kw:
                     schema = kw['schema']
                 else:
                     schema = self.Schema()
@@ -68,7 +68,7 @@ class Generator:
         elif mode == "w":
             def generatedMutator(self, value, **kw):
                 """Default Mutator."""
-                if kw.has_key('schema'):
+                if 'schema' in kw:
                     schema = kw['schema']
                 else:
                     schema = self.Schema()
@@ -77,10 +77,10 @@ class Generator:
             method = generatedMutator
         else:
             raise GeneratorError("""Unhandled mode for method creation:
-            %s:%s -> %s:%s""" %(klass.__name__,
-                                name,
-                                methodName,
-                                mode))
+            %s:%s -> %s:%s""" % (klass.__name__,
+                                 name,
+                                 methodName,
+                                 mode))
 
         # Zope security requires all security protected methods to have a
         # function name. It uses this name to determine which roles are allowed
@@ -94,6 +94,7 @@ class Generator:
                           method.func_closure,
                          )
         setattr(klass, methodName, method)
+
 
 class ClassGenerator:
     def updateSecurity(self, klass, field, mode, methodName):
@@ -150,7 +151,7 @@ class ClassGenerator:
             # Make sure we want to muck with the class for this field
             if "c" not in field.generateMode: continue
             type = getattr(klass, 'schema')
-            for mode in field.mode: #(r, w)
+            for mode in field.mode:  # (r, w)
                 self.handle_mode(klass, generator, type, field, mode)
                 if mode == 'w':
                     self.handle_mode(klass, generator, type, field, 'm')
@@ -167,14 +168,13 @@ class ClassGenerator:
         # Avoid name space conflicts
         if not hasattr(klass, methodName) \
                or getattr(klass, methodName) is AT_GENERATE_METHOD:
-            if type.has_key(methodName):
+            if methodName in type:
                 raise GeneratorError("There is a conflict"
                                      "between the Field(%s) and the attempt"
                                      "to generate a method of the same name on"
                                      "class %s" % (
                     methodName,
                     klass.__name__))
-
 
             # Make a method for this klass/field/mode
             generator.makeMethod(klass, field, mode, methodName)
@@ -189,6 +189,7 @@ class ClassGenerator:
         attr = _modes[mode]['attr']
         setattr(field, attr, methodName)
 
+
 def generateCtor(name, module):
     # self is a App.FactoryDispater, Destination() is the real folder
     ctor = """
@@ -199,9 +200,10 @@ def add%(name)s(self, id, **kwargs):
     obj.manage_afterAdd(obj, self)
     obj.initializeArchetype(**kwargs)
     return obj.getId()
-""" % {'name' : name}
+""" % {'name': name}
     exec ctor in module.__dict__
     return getattr(module, "add%s" % name)
+
 
 def generateZMICtor(name, module):
     zmi_ctor = """
@@ -218,7 +220,7 @@ def manage_add%(name)s(self, id, REQUEST=None):
         url = obj.absolute_url()
         REQUEST.RESPONSE.redirect(url + '/manage_edit%(name)sForm?manage_tabs_message=' + manage_tabs_message)
     return id
-""" % {'name':name}
+""" % {'name': name}
     exec zmi_ctor in module.__dict__
     return getattr(module, "manage_add%s" % name)
 

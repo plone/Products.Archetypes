@@ -27,6 +27,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes.ArchetypeTool import listTypes
 
+
 class AllowedTypesByIfaceMixin:
     """An approach to restrict allowed content types in a container by
     the interfaces they implement.
@@ -92,14 +93,14 @@ class AllowedTypesByIfaceMixin:
     # XXX: This class depends heavily on implementation details in CMF's
     #      PortalFolder.
 
-    allowed_interfaces = () # Don't allow anything, subclasses overwrite!
+    allowed_interfaces = ()  # Don't allow anything, subclasses overwrite!
 
     def allowedContentTypes(self):
         """Redefines CMF PortalFolder's allowedContentTypes."""
         at = getToolByName(self, 'archetype_tool')
         return at.listPortalTypesWithInterfaces(self.allowed_interfaces)
 
-    def invokeFactory(self, type_name, id, RESPONSE = None, *args, **kwargs):
+    def invokeFactory(self, type_name, id, RESPONSE=None, *args, **kwargs):
         """Invokes the portal_types tool.
 
         Overrides PortalFolder.invokeFactory."""
@@ -120,7 +121,9 @@ class AllowedTypesByIfaceMixin:
 
         args = (type_name, self, id, RESPONSE) + args
         new_id = pt.constructContent(*args, **kwargs)
-        if not new_id: new_id = id
+        if not new_id:
+            new_id = id
+
         return new_id
 
     def _verifyObjectPaste(self, object, validate_src=1):

@@ -1,11 +1,13 @@
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.exceptions import ReferenceException
 
+
 class HoldingReference(Reference):
     def beforeTargetDeleteInformSource(self):
         raise ReferenceException, ("Can't delete target, "
                                    "its held by %s" %
                                    self.getSourceObject().absolute_url())
+
 
 class CascadeReference(Reference):
     def beforeSourceDeleteInformTarget(self):
@@ -14,7 +16,7 @@ class CascadeReference(Reference):
         parent._delObject(tObj.id)
 
 
-FOLDERISH_REFERENCE="at_folder_reference"
+FOLDERISH_REFERENCE = "at_folder_reference"
 class FolderishReference(Reference):
     """Used by reference folder under the covers of the folderish API"""
 

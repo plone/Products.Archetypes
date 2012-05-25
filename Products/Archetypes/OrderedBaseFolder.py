@@ -7,9 +7,7 @@ from zope.interface import implements
 
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
-from DocumentTemplate import sequence
 from OFS.OrderSupport import OrderSupport
-from OFS.interfaces import IOrderedContainer
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.interfaces import IDynamicType
 from Products.CMFCore import permissions
@@ -27,7 +25,7 @@ class OrderedContainer(OrderSupport):
 
     security.declareProtected(permissions.ModifyPortalContent, 'moveObject')
     def moveObject(self, id, position):
-        obj_idx  = self.getObjectPosition(id)
+        obj_idx = self.getObjectPosition(id)
         if obj_idx == position:
             return None
         elif position < 0:
@@ -44,7 +42,8 @@ class OrderedContainer(OrderSupport):
         """
         ttool = getToolByName(self, 'portal_types')
         cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
-        return [obj['id'] for obj in objs if obj['meta_type'] in cmf_meta_types ]
+        return [obj['id'] for obj in objs
+                          if obj['meta_type'] in cmf_meta_types]
 
     # BBB
     getCMFObjectsSubsetIds = getIdsSubset

@@ -1,15 +1,18 @@
-from Products.Archetypes.SQLMethod import SQLMethod
-from Products.Archetypes.interfaces.storage import ISQLStorage
+from zope.interface import implements
+
+from Acquisition import aq_base, aq_inner, aq_parent
+from OFS.ObjectManager import BeforeDeleteException
+from ZODB.POSException import ConflictError
+
+from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
 from Products.Archetypes.interfaces.field import IObjectField
 from Products.Archetypes.interfaces.layer import ILayer
-from Products.Archetypes.config import TOOL_NAME, MYSQL_SQLSTORAGE_TABLE_TYPE
+from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.log import log
+from Products.Archetypes.SQLMethod import SQLMethod
 from Products.Archetypes.Storage import StorageLayer, type_map
-from Acquisition import aq_base, aq_inner, aq_parent
 from Products.CMFCore.utils import getToolByName
-from ZODB.POSException import ConflictError
-from OFS.ObjectManager import BeforeDeleteException
-from zope.interface import implements
+
 
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """
@@ -19,7 +22,7 @@ class BaseSQLStorage(StorageLayer):
     query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '
                     'PARENTUID char(50), <dtml-var columns>)')
-    query_drop   = ('drop table <dtml-var table>')
+    query_drop = ('drop table <dtml-var table>')
     query_select = ('select <dtml-var field> from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
     query_insert = ('insert into <dtml-var table> '
@@ -32,9 +35,9 @@ class BaseSQLStorage(StorageLayer):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    sqlm_type_map = {'integer':'int'}
+    sqlm_type_map = {'integer': 'int'}
 
-    db_type_map = {'fixedpoint' : 'integer'}
+    db_type_map = {'fixedpoint': 'integer'}
 
     def map_object(self, field, value):
         if value is None:
@@ -130,9 +133,9 @@ class BaseSQLStorage(StorageLayer):
             getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
-        factory = getToolByName(instance,'portal_factory')
+        factory = getToolByName(instance, 'portal_factory')
         if factory.isTemporary(instance):
-          return
+            return
 
         fields = instance.Schema().fields()
         fields = [f for f in fields if IObjectField.providedBy(f) \
@@ -192,7 +195,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        args['db_encoding']=kwargs.get('db_encoding',None)
+        args['db_encoding'] = kwargs.get('db_encoding', None)
         args['field'] = name
         result = self._query(instance, self.query_select, args)
         result = result[0][0]
@@ -222,7 +225,7 @@ class BaseSQLStorage(StorageLayer):
         if default:
             if type == 'string':
                 default = "'%s'" % default
-            field_name =  "%s=%s" % (name, default)
+            field_name = "%s=%s" % (name, default)
         args[field_name] = name
         args['field'] = name
         if value is not None:
@@ -271,6 +274,7 @@ class BaseSQLStorage(StorageLayer):
         except (AttributeError, KeyError):
             pass
 
+
 class GadflySQLStorage(BaseSQLStorage):
 
     query_create = ('create table <dtml-var table> '
@@ -290,19 +294,19 @@ class GadflySQLStorage(BaseSQLStorage):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    sqlm_type_map = {'integer':'string',
-                     'float':'string'}
+    sqlm_type_map = {'integer': 'string',
+                     'float': 'string'}
 
-    db_type_map = {'object'     : 'varchar',
-                   'string'     : 'varchar',
-                   'text'       : 'varchar',
-                   'datetime'   : 'varchar',
-                   'integer'    : 'varchar',
-                   'float'      : 'varchar',
-                   'fixedpoint' : 'integer',
-                   'lines'      : 'varchar',
-                   'reference'  : 'varchar',
-                   'boolean'    : 'integer',
+    db_type_map = {'object': 'varchar',
+                   'string': 'varchar',
+                   'text': 'varchar',
+                   'datetime': 'varchar',
+                   'integer': 'varchar',
+                   'float': 'varchar',
+                   'fixedpoint': 'integer',
+                   'lines': 'varchar',
+                   'reference': 'varchar',
+                   'boolean': 'integer',
                    }
 
     def map_datetime(self, field, value):
@@ -365,6 +369,7 @@ class GadflySQLStorage(BaseSQLStorage):
         else:
             return 1
 
+
 class MySQLSQLStorage(BaseSQLStorage):
 
     query_create = ('create table `<dtml-var table>` '
@@ -383,18 +388,19 @@ class MySQLSQLStorage(BaseSQLStorage):
     query_delete = ('delete from `<dtml-var table>` '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    db_type_map = {'object'     : 'text',
-                   'string'     : 'text',
-                   'fixedpoint' : 'integer',
-                   'lines'      : 'text',
-                   'reference'  : 'text',
-                   'boolean'    : 'tinyint',
+    db_type_map = {'object': 'text',
+                   'string': 'text',
+                   'fixedpoint': 'integer',
+                   'lines': 'text',
+                   'reference': 'text',
+                   'boolean': 'tinyint',
                    }
 
     def table_exists(self, instance):
-        result =  [r[0].lower() for r in
+        result = [r[0].lower() for r in
                    self._query(instance, '''show tables''', {})]
         return instance.portal_type.lower() in result
+
 
 class PostgreSQLStorage(BaseSQLStorage):
 
@@ -414,12 +420,12 @@ class PostgreSQLStorage(BaseSQLStorage):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    db_type_map = {'object'     : 'text',
-                   'string'     : 'text',
-                   'datetime'   : 'timestamp',
-                   'fixedpoint' : 'integer',
-                   'lines'      : 'text',
-                   'reference'  : 'text',
+    db_type_map = {'object': 'text',
+                   'string': 'text',
+                   'datetime': 'timestamp',
+                   'fixedpoint': 'integer',
+                   'lines': 'text',
+                   'reference': 'text',
                    }
 
     def table_exists(self, instance):
@@ -427,6 +433,7 @@ class PostgreSQLStorage(BaseSQLStorage):
                            ('select relname from pg_class where '
                             '<dtml-sqltest relname op="eq" type="string">'),
                            {'relname': instance.portal_type.lower()})
+
 
 class SQLServerStorage(BaseSQLStorage):
 
@@ -449,14 +456,14 @@ class SQLServerStorage(BaseSQLStorage):
     query_delete = ('delete from <dtml-var table> '
                     'where <dtml-sqltest UID op="eq" type="string">')
 
-    db_type_map = {'object'     : 'varchar',
-                   'string'     : 'varchar',
-                   'text'       : 'varchar',
-                   'datetime'   : 'timestamp',
-                   'fixedpoint' : 'integer',
-                   'lines'      : 'varchar',
-                   'reference'  : 'varchar',
-                   'boolean'    : 'integer',
+    db_type_map = {'object': 'varchar',
+                   'string': 'varchar',
+                   'text': 'varchar',
+                   'datetime': 'timestamp',
+                   'fixedpoint': 'integer',
+                   'lines': 'varchar',
+                   'reference': 'varchar',
+                   'boolean': 'integer',
                    }
 
     def table_exists(self, instance):
@@ -465,4 +472,4 @@ class SQLServerStorage(BaseSQLStorage):
                             'sysobjects where '
                             'xtype=char(85) and uid=1 and '
                             '<dtml-sqltest name op="eq" type="string">'),
-                           {'name':instance.portal_type.lower()})
+                           {'name': instance.portal_type.lower()})

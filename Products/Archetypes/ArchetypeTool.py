@@ -29,7 +29,6 @@ from Products.CMFCore import permissions
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
 from Products.CMFCore.TypesTool import FactoryTypeInformation
 from Products.CMFCore.utils import getToolByName
-from Products.CMFCore.utils import registerToolInterface
 from Products.CMFCore.utils import UniqueObject
 from Products.CMFCore.interfaces import ICatalogTool
 from Products.CMFCore.ActionInformation import ActionInformation
@@ -44,6 +43,7 @@ from Products.ZCatalog.interfaces import IZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from ZODB.POSException import ConflictError
 import transaction
+
 
 class BoundPageTemplateFile(PageTemplateFile):
 
@@ -67,47 +67,48 @@ folder_icon = os.path.join(_zmi, 'icons', 'folder_icon.gif')
 
 # This is the template that we produce our custom types from
 base_factory_type_information = (
-    { 'id': 'Archetype'
-      , 'content_icon': 'document_icon.gif'
-      , 'meta_type': 'Archetype'
-      , 'description': ('Archetype for flexible types')
-      , 'product': 'Unknown Package'
-      , 'factory': 'addContent'
-      , 'immediate_view': 'base_edit'
-      , 'global_allow': True
-      , 'filter_content_types': False
-      , 'allow_discussion': False
-      , 'fti_meta_type' : FactoryTypeInformation.meta_type
-      , 'aliases' : {'(Default)' : 'base_view',
-                     'view' : '(Default)',
-                     'index.html' : '(Default)',
-                     'edit' : 'base_edit',
-                     'properties' : 'base_metadata',
-                     'gethtml' : '',
-                     'mkdir' : '',
-                     }
-      , 'actions': (
-                     { 'id': 'view',
-                       'title': 'View',
-                       'action': Expression('string:${object_url}/view'),
-                       'permissions': (permissions.View,),
-                       },
+    {'id': 'Archetype',
+     'content_icon': 'document_icon.gif',
+     'meta_type': 'Archetype',
+     'description': ('Archetype for flexible types'),
+     'product': 'Unknown Package',
+     'factory': 'addContent',
+     'immediate_view': 'base_edit',
+     'global_allow': True,
+     'filter_content_types': False,
+     'allow_discussion': False,
+     'fti_meta_type': FactoryTypeInformation.meta_type,
+     'aliases': {'(Default)': 'base_view',
+                 'view': '(Default)',
+                 'index.html': '(Default)',
+                 'edit': 'base_edit',
+                 'properties': 'base_metadata',
+                 'gethtml': '',
+                 'mkdir': '',
+                 },
+      'actions': (
+                     {'id': 'view',
+                      'title': 'View',
+                      'action': Expression('string:${object_url}/view'),
+                      'permissions': (permissions.View,),
+                      },
 
-                     { 'id': 'edit',
-                       'title': 'Edit',
-                       'action': Expression('string:${object_url}/edit'),
-                       'permissions': (permissions.ModifyPortalContent,),
-                       'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
-                       },
+                     {'id': 'edit',
+                      'title': 'Edit',
+                      'action': Expression('string:${object_url}/edit'),
+                      'permissions': (permissions.ModifyPortalContent,),
+                      'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
+                      },
 
-                     { 'id': 'metadata',
-                       'title': 'Properties',
-                       'action': Expression('string:${object_url}/properties'),
-                       'permissions': (permissions.ModifyPortalContent,),
-                       },
+                     {'id': 'metadata',
+                      'title': 'Properties',
+                      'action': Expression('string:${object_url}/properties'),
+                      'permissions': (permissions.ModifyPortalContent,),
+                      },
 
-                     )
+                     ),
       }, )
+
 
 def fixActionsForType(portal_type, typesTool):
     if 'actions' in portal_type.installMode:
@@ -143,13 +144,13 @@ def fixActionsForType(portal_type, typesTool):
 
                 # Change action and condition into expressions, if
                 # they are still strings
-                if action.has_key('action') and \
+                if 'action' in action and \
                        type(action['action']) in (type(''), type(u'')):
                     action['action'] = Expression(action['action'])
-                if action.has_key('condition') and \
+                if 'condition' in action and \
                        type(action['condition']) in (type(''), type(u'')):
                     action['condition'] = Expression(action['condition'])
-                if action.has_key('name'):
+                if 'name' in action:
                     action['title'] = action['name']
                     del action['name']
                 if hits:
@@ -208,7 +209,7 @@ def modify_fti(fti, klass, pkg_name):
         fti[0]['actions'] = tuple(actions)
 
     # Remove folderlisting action from non folderish content types
-    if not getattr(klass,'isPrincipiaFolderish', None):
+    if not getattr(klass, 'isPrincipiaFolderish', None):
         actions = []
         for action in fti[0]['actions']:
             if action['id'] != 'folderlisting':
@@ -292,21 +293,22 @@ def process_types(types, pkg_name):
 
 _types = {}
 
+
 def registerType(klass, package):
     # Registering a class results in classgen doing its thing
     # Set up accessor/mutators and sane meta/portal_type
     generateClass(klass)
 
     data = {
-        'klass' : klass,
-        'name' : klass.__name__,
+        'klass': klass,
+        'name': klass.__name__,
         'identifier': klass.meta_type.capitalize().replace(' ', '_'),
         'meta_type': klass.meta_type,
         'portal_type': klass.portal_type,
-        'package' : package,
-        'module' : sys.modules[klass.__module__],
-        'schema' : klass.schema,
-        'signature' : klass.schema.signature(),
+        'package': package,
+        'module': sys.modules[klass.__module__],
+        'schema': klass.schema,
+        'signature': klass.schema.signature(),
         }
 
     key = '%s.%s' % (package, data['meta_type'])
@@ -318,6 +320,7 @@ def registerType(klass, package):
             'has already been registered.  The new type %s ' \
             'is going to override %s' % (key, override_name, existing_name))
     _types[key] = data
+
 
 def fixAfterRenameType(context, old_portal_type, new_portal_type):
     """Helper method to fix some vars after renaming a type in portal_types
@@ -340,6 +343,7 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     old_templates = at_tool._templates.get(old_portal_type)
     at_tool._templates[new_portal_type] = deepcopy(old_templates)
 
+
 def registerClasses(context, package, types=None):
     registered = listTypes(package)
     if types is not None:
@@ -358,19 +362,19 @@ def registerClasses(context, package, types=None):
         setattr(module, addFormName,
                 BoundPageTemplateFile('base_add.pt', _zmi,
                                       __name__=addFormName,
-                                      extra={'constructor':ctorName,
-                                             'type':meta_type,
-                                             'package':package,
-                                             'portal_type':portal_type}
+                                      extra={'constructor': ctorName,
+                                             'type': meta_type,
+                                             'package': package,
+                                             'portal_type': portal_type}
                                       ))
         editFormName = 'manage_edit%sForm' % typeName
         setattr(klass, editFormName,
                 BoundPageTemplateFile('base_edit.pt', _zmi,
                                       __name__=editFormName,
-                                      extra={'handler':'processForm',
-                                             'type':meta_type,
-                                             'package':package,
-                                             'portal_type':portal_type}
+                                      extra={'handler': 'processForm',
+                                             'type': meta_type,
+                                             'package': package,
+                                             'portal_type': portal_type}
                                       ))
 
         position = False
@@ -380,17 +384,17 @@ def registerClasses(context, package, types=None):
             position += 1
         folderish = getattr(klass, 'isPrincipiaFolderish', position)
         options = list(klass.manage_options)
-        options.insert(position, {'label' : 'Edit',
-                                  'action' : editFormName
+        options.insert(position, {'label': 'Edit',
+                                  'action': editFormName
                                   })
         klass.manage_options = tuple(options)
         generatedForm = getattr(module, addFormName)
         icon = folderish and folder_icon or document_icon
-        if klass.__dict__.has_key('content_icon'):
+        if 'content_icon' in klass.__dict__:
             icon = klass.content_icon
         elif hasattr(klass, 'factory_type_information'):
             factory_type_information = klass.factory_type_information
-            if factory_type_information.has_key('content_icon'):
+            if 'content_icon' in factory_type_information:
                 icon = factory_type_information['content_icon']
 
         context.registerClass(
@@ -400,6 +404,7 @@ def registerClasses(context, package, types=None):
             icon=icon
             )
 
+
 def listTypes(package=None):
     values = _types.values()
     if package:
@@ -407,9 +412,11 @@ def listTypes(package=None):
 
     return values
 
+
 def getType(name, package):
     key = '%s.%s' % (package, name)
     return _types[key]
+
 
 class WidgetWrapper:
     """Wrapper used for drawing widgets without an instance.
@@ -427,6 +434,7 @@ class WidgetWrapper:
 
 last_load = DateTime()
 
+
 class ArchetypeTool(UniqueObject, ActionProviderBase, \
                     SQLStorageConfig, Folder):
     """Archetypes tool, manage aspects of Archetype instances.
@@ -436,7 +444,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     implements(IArchetypeTool)
 
-    isPrincipiaFolderish = True # Show up in the ZMI
+    isPrincipiaFolderish = True  # Show up in the ZMI
 
     security = ClassSecurityInfo()
 
@@ -444,29 +452,29 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     manage_options = (
         (
-        { 'label'  : 'Types',
-          'action' : 'manage_debugForm',
-          },
+        {'label': 'Types',
+         'action': 'manage_debugForm',
+         },
 
-        {  'label'  : 'Catalogs',
-           'action' : 'manage_catalogs',
-           },
+        {'label': 'Catalogs',
+         'action': 'manage_catalogs',
+         },
 
-        { 'label'  : 'Templates',
-          'action' : 'manage_templateForm',
-          },
+        {'label': 'Templates',
+         'action': 'manage_templateForm',
+         },
 
-        {  'label'  : 'UIDs',
-           'action' : 'manage_uids',
-           },
+        {'label': 'UIDs',
+         'action': 'manage_uids',
+         },
 
-        { 'label'  : 'Update Schema',
-          'action' : 'manage_updateSchemaForm',
-          },
+        {'label': 'Update Schema',
+         'action': 'manage_updateSchemaForm',
+         },
 
-        { 'label'  : 'Migration',
-          'action' : 'manage_migrationForm',
-          },
+        {'label': 'Migration',
+         'action': 'manage_migrationForm',
+         },
 
         ) + SQLStorageConfig.manage_options
         )
@@ -476,7 +484,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     manage_uids = PageTemplateFile('viewContents', _www)
     security.declareProtected(permissions.ManagePortal,
                               'manage_templateForm')
-    manage_templateForm = PageTemplateFile('manageTemplates',_www)
+    manage_templateForm = PageTemplateFile('manageTemplates', _www)
     security.declareProtected(permissions.ManagePortal,
                               'manage_debugForm')
     manage_debugForm = PageTemplateFile('generateDebug', _www)
@@ -493,14 +501,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                               'manage_catalogs')
     manage_catalogs = PageTemplateFile('manage_catalogs', _www)
 
-
     def __init__(self):
         self._schemas = PersistentMapping()
         self._templates = PersistentMapping()
         self._registeredTemplates = PersistentMapping()
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
-        self.catalog_map['Reference'] = [] # References not in portal_catalog
+        self.catalog_map['Reference'] = []  # References not in portal_catalog
         # DM (avoid persistency bug): "_types" now maps known schemas to signatures
         self._types = {}
 
@@ -540,7 +547,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 name = template
 
         self._registeredTemplates[template] = name
-
 
     security.declareProtected(permissions.View, 'lookupTemplates')
     def lookupTemplates(self, instance_or_portaltype=None):
@@ -600,7 +606,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def typeImplementsInterfaces(self, type, interfaces):
         """Checks if an type uses one of the given interfaces.
         """
-        if isinstance(type, dict) and type.has_key('klass'):
+        if isinstance(type, dict) and 'klass' in type:
             type = type['klass']
         for iface in interfaces:
             res = iface.implementedBy(type)
@@ -655,7 +661,9 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
-            if v != False: return v
+            if v != False:
+                return v
+
             c = cmp(a['klass'].__class__.__name__,
                     b['klass'].__class__.__name__)
 
@@ -671,10 +679,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # need to check against the content_meta_type of each type-info
             ttool = getToolByName(self, 'portal_types')
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
-	    if portalTypes:
-                values = [v for v in values if v['portal_type'] in types]
-            else:
-                values = [v for v in values if v['meta_type'] in types]
+        if portalTypes:
+            values = [v for v in values if v['portal_type'] in types]
+        else:
+            values = [v for v in values if v['meta_type'] in types]
 
         return values
 
@@ -720,7 +728,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             typesTool._delObject(typeName)
         except (ConflictError, KeyboardInterrupt):
             raise
-        except: # XXX bare exception
+        except:  # XXX bare exception
             pass
         if uninstall is not None:
             if REQUEST:
@@ -795,10 +803,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 # as different widgets with the same name
                 # on different schemas means only the first
                 # one found will be used
-                indexes=self.portal_catalog.indexes()
+                indexes = self.portal_catalog.indexes()
                 fields = [f for f in fields
                           if (f.accessor and
-                              not w_keys.has_key(f.accessor)
+                              not f.accessor in w_keys
                               and f.accessor in indexes)]
             if f_names is not None:
                 fields = filter(lambda f: f.getName() in f_names, fields)
@@ -808,7 +816,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 accessor = field.getAccessor(instance)
                 if mode == 'search':
                     field.required = False
-                    field.addable = False # for ReferenceField
+                    field.addable = False  # for ReferenceField
                     if not isinstance(field.vocabulary, DisplayList):
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
@@ -844,8 +852,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 if IBaseObject.providedBy(o):
                     callback(o, *args, **kwargs)
             else:
-                log('no object for brain: %s:%s' % (b,b.getURL()))
-
+                log('no object for brain: %s:%s' % (b, b.getURL()))
 
     security.declareProtected(permissions.View, 'enum')
     def enum(self, callback, *args, **kwargs):
@@ -858,7 +865,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             else:
                 log('No object for %s' % uid)
 
-
     security.declareProtected(permissions.View, 'Content')
     def Content(self):
         """Return a list of all the content ids.
@@ -868,8 +874,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         results = catalog(dict(UID=keys))
         return results
 
-
-    ## Management Forms
+    # Management Forms
     security.declareProtected(permissions.ManagePortal,
                               'manage_doGenerate')
     def manage_doGenerate(self, sids=(), REQUEST=None):
@@ -917,7 +922,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     def _listAllTypes(self):
         """List all types -- either currently known or known to us.
         """
-        allTypes = _types.copy(); allTypes.update(self._types)
+        allTypes = _types.copy()
+        allTypes.update(self._types)
         return allTypes.keys()
 
     security.declareProtected(permissions.ManagePortal,
@@ -950,7 +956,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         if modified:
             self._p_changed = True
         return list
-
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchema')
@@ -1071,7 +1076,6 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         self.catalog_map[portal_type] = catalogList
 
-
     security.declareProtected(permissions.View, 'getCatalogsByType')
     def getCatalogsByType(self, portal_type):
         """Return the catalog objects assoicated with a given type.
@@ -1121,7 +1125,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         """
         vis_dict = field.widget.visible
         value = ''
-        if vis_dict.has_key(vis_key):
+        if vis_key in vis_dict:
             value = field.widget.visible[vis_key]
         if value == vis_value:
             return True

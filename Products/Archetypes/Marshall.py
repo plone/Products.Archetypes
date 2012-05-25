@@ -26,6 +26,7 @@ mixedCase: a MiXeD case keyword
 This is the body.
 """
 
+
 class NonLoweringMessage(Message):
     """A RFC 822 Message class that doesn't lower header names
 
@@ -54,8 +55,7 @@ class NonLoweringMessage(Message):
     get = getheader
 
 
-
-def formatRFC822Headers( headers ):
+def formatRFC822Headers(headers):
 
     """ Convert the key-value pairs in 'headers' to valid RFC822-style
         headers, including adding leading whitespace to elements which
@@ -64,14 +64,15 @@ def formatRFC822Headers( headers ):
         code based on old cmf1.4 impl
     """
     munged = []
-    linesplit = re.compile( r'[\n\r]+?' )
+    linesplit = re.compile(r'[\n\r]+?')
 
     for key, value in headers:
 
-        vallines = linesplit.split( value )
-        munged.append( '%s: %s' % ( key, '\r\n  '.join( vallines ) ) )
+        vallines = linesplit.split(value)
+        munged.append('%s: %s' % (key, '\r\n  '.join(vallines)))
 
-    return '\r\n'.join( munged )
+    return '\r\n'.join(munged)
+
 
 def parseRFC822(body):
     """Parse a RFC 822 (email) style string
@@ -100,6 +101,7 @@ def parseRFC822(body):
         headers[key] = '\n'.join(message.getheaders(key))
 
     return headers, buffer.read()
+
 
 class Marshaller:
     implements(IMarshall, ILayer)
@@ -142,6 +144,7 @@ class Marshaller:
 
 InitializeClass(Marshaller)
 
+
 class PrimaryFieldMarshaller(Marshaller):
 
     security = ClassSecurityInfo()
@@ -168,7 +171,7 @@ class PrimaryFieldMarshaller(Marshaller):
         if IBaseUnit.providedBy(data):
             content_type = data.getContentType()
             length = data.get_size()
-            data   = data.getRaw()
+            data = data.getRaw()
         elif isinstance(data, File):
             content_type = data.content_type
             length = data.get_size()
@@ -205,6 +208,7 @@ class PrimaryFieldMarshaller(Marshaller):
 
 InitializeClass(PrimaryFieldMarshaller)
 
+
 class RFC822Marshaller(Marshaller):
 
     security = ClassSecurityInfo()
@@ -213,7 +217,7 @@ class RFC822Marshaller(Marshaller):
 
     def demarshall(self, instance, data, **kwargs):
         # We don't want to pass file forward.
-        if kwargs.has_key('file'):
+        if 'file' in kwargs:
             if not data:
                 # TODO Yuck! Shouldn't read the whole file, never.
                 # OTOH, if you care about large files, you should be
@@ -247,7 +251,7 @@ class RFC822Marshaller(Marshaller):
         # Gather/Guess content type
         if IBaseUnit.providedBy(body):
             content_type = str(body.getContentType())
-            body   = body.getRaw()
+            body = body.getRaw()
         else:
             if p and hasattr(p, 'getContentType'):
                 content_type = p.getContentType(instance) or 'text/plain'
@@ -263,7 +267,7 @@ class RFC822Marshaller(Marshaller):
             accessor = field.getEditAccessor(instance)
             if not accessor:
                 continue
-            kw = {'raw':1, 'field': field.__name__}
+            kw = {'raw': 1, 'field': field.__name__}
             value = mapply(accessor, **kw)
             if type(value) in [ListType, TupleType]:
                 value = '\n'.join([str(v) for v in value])

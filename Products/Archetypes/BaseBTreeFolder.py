@@ -79,7 +79,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
 
     def __getitem__(self, key):
         """ Override BTreeFolder __getitem__ """
-        if key in self.Schema().keys() and key[:1] != "_": #XXX 2.2
+        if key in self.Schema().keys() and key[:1] != "_":  # XXX 2.2
             accessor = self.Schema()[key].getAccessor(self)
             if accessor is not None:
                 return accessor()
@@ -124,12 +124,12 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     def index_html(self):
         """ Allow creation of .
         """
-        if self.has_key('index_html'):
+        if 'index_html' in self:
             return self._getOb('index_html')
         request = getattr(self, 'REQUEST', None)
-        if request and request.has_key('REQUEST_METHOD'):
+        if request and 'REQUEST_METHOD' in request:
             if (request.maybe_webdav_client and
-                request['REQUEST_METHOD'] in  ['PUT']):
+                request['REQUEST_METHOD'] in ['PUT']):
                 # Very likely a WebDAV client trying to create something
                 nr = NullResource(self, 'index_html')
                 nr.__replaceable__ = REPLACEABLE

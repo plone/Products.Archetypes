@@ -5,7 +5,8 @@ from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
 from App.Extensions import getBrain
 from cStringIO import StringIO
-import sys, types
+import sys
+import types
 from ZODB.POSException import ConflictError
 
 from string import atoi
@@ -14,20 +15,21 @@ from time import time
 try:
     from IOBTree import Bucket
 except:
-    Bucket = lambda:{}
+    Bucket = lambda: {}
 
-_defaults = {'max_rows_':1000,
-             'cache_time_':0,
+_defaults = {'max_rows_': 1000,
+             'cache_time_': 0,
              'max_cache_': 100,
              'class_name_': '',
              'class_file_': '',
              'template_class': SQL
              }
 
+
 class SQLMethod(Aqueduct.BaseQuery):
 
-    _arg=None
-    _col=None
+    _arg = None
+    _col = None
 
     def __init__(self, context):
         self.context = context
@@ -60,7 +62,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         self.src = template
         self.template = t = context.template_class(template)
         t.cook()
-        context._v_query_cache={}, Bucket()
+        context._v_query_cache = {}, Bucket()
 
     def advanced_edit(self, max_rows=1000, max_cache=100, cache_time=0,
                         class_name='', class_file='',
@@ -115,10 +117,10 @@ class SQLMethod(Aqueduct.BaseQuery):
     def _cached_result(self, DB__, query):
         context = self.context
         # Try to fetch from cache
-        if hasattr(context,'_v_sql_cache'):
+        if hasattr(context, '_v_sql_cache'):
             cache = context._v_sql_cache
         else:
-            cache = context._v_sql_cache={}, Bucket()
+            cache = context._v_sql_cache = {}, Bucket()
         cache, tcache = cache
         max_cache = context.max_cache_
         now = time()
@@ -134,9 +136,10 @@ class SQLMethod(Aqueduct.BaseQuery):
                     del cache[q]
                 del keys[-1]
 
-        if cache.has_key(query):
+        if query in cache:
             k, r = cache[query]
-            if k > t: return r
+            if k > t:
+                return r
 
         result = apply(DB__.query, query)
         if context.cache_time_ > 0:
@@ -200,23 +203,25 @@ class SQLMethod(Aqueduct.BaseQuery):
             if 'client' in msg:
                 raise NameError("'client' may not be used as an " +
                                 "argument name in this context")
-            else: raise
+            else:
+                raise
 
         __traceback_info__ = query
 
-        if src__: return query
+        if src__:
+            return query
 
         # Get the encoding arguments
         # We have two possible kw arguments:
         #   db_encoding:        The encoding used in the external database
         #   site_encoding:      The uncoding used for the site
         #                       If not specified, we use sys.getdefaultencoding()
-        db_encoding = kw.get('db_encoding',None)
+        db_encoding = kw.get('db_encoding', None)
 
         try:
             site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
         except AttributeError, KeyError:
-            site_encoding = kw.get('site_encoding',sys.getdefaultencoding())
+            site_encoding = kw.get('site_encoding', sys.getdefaultencoding())
 
         if type(query) == type(u''):
             if db_encoding:
@@ -226,7 +231,6 @@ class SQLMethod(Aqueduct.BaseQuery):
                     query = query.encode(site_encoding)
                 except UnicodeEncodeError:
                     query = query.encode('UTF-8')
-
 
         if context.cache_time_ > 0 and context.max_cache_ > 0:
             result = self._cached_result(DB__, (query, context.max_rows_))
@@ -241,8 +245,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         if hasattr(context, '_v_sql_brain'):
             brain = context._v_sql_brain
         else:
-            brain=context._v_sql_brain = getBrain(context.class_file_,
-                                                context.class_name_)
+            brain = context._v_sql_brain = getBrain(context.class_file_,
+                                                    context.class_name_)
 
         if type(result) is type(''):
             f = StringIO()
@@ -262,7 +266,7 @@ class SQLMethod(Aqueduct.BaseQuery):
                     for col in row:
                         if isinstance(col, types.StringType):
                             # coerce column to unicode with database encoding
-                            newcol = unicode(col,db_encoding)
+                            newcol = unicode(col, db_encoding)
                             # Encode column as string with site_encoding
                             newcol = newcol.encode(site_encoding)
                         else:
@@ -272,18 +276,19 @@ class SQLMethod(Aqueduct.BaseQuery):
 
                     encoded_result.append(columns)
 
-                result = (result[0],encoded_result)
+                result = (result[0], encoded_result)
 
             result = Results(result, brain, p, None)
 
         columns = result._searchable_result_columns()
 
         if test__ and columns != self._col:
-            self._col=columns
+            self._col = columns
 
         # If run in test mode, return both the query and results so
         # that the template doesn't have to be rendered twice!
-        if test__: return query, result
+        if test__:
+            return query, result
 
         return result
 
@@ -294,7 +299,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         except ConflictError:
             raise
         except:
-            log_exc(msg = 'Database abort failed')
+            log_exc(msg='Database abort failed')
 
     def connectionIsValid(self):
         context = self.context

@@ -2,6 +2,7 @@ from Acquisition import Implicit, aq_parent
 from Products.CMFCore.utils import _checkPermission as checkPerm
 from Products.Archetypes.Storage import AttributeStorage
 
+
 class AttributeValidator(Implicit):
     """(Ab)Use the security policy implementation.
 
@@ -27,7 +28,7 @@ class AttributeValidator(Implicit):
     def __call__(self, name, value):
         context = aq_parent(self)
         schema = context.Schema()
-        if not schema.has_key(name):
+        if name not in schema:
             return 1
         field = schema[name]
         if not isinstance(field.getStorage(), AttributeStorage):

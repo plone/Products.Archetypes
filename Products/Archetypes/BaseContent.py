@@ -58,7 +58,7 @@ class BaseContentMixin(CatalogMultiplex,
         BaseObject._notifyOfCopyTo(self, container, op=op)
         # keep reference info internally when op == 1 (move)
         # because in those cases we need to keep refs
-        if op==1:
+        if op == 1:
             self._v_cp_refs = 1
 
     security.declareProtected(permissions.ModifyPortalContent, 'PUT')
@@ -71,6 +71,7 @@ class BaseContentMixin(CatalogMultiplex,
     manage_afterPUT = WebDAVSupport.manage_afterPUT
 
 InitializeClass(BaseContentMixin)
+
 
 class BaseContent(BaseContentMixin,
                   ExtensibleMetadata,

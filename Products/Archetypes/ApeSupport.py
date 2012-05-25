@@ -32,19 +32,15 @@ ApeSupport is tested with Ape 1.0 and PostgreSQL
 """
 
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import Master, __builtin__
 from types import ClassType
 
-from apelib.core.interfaces import ISerializer
-from apelib.sql.sqlbase import SQLGatewayBase
+from apelib.core.interfaces import ISerializer, IFullSerializationEvent
 from apelib.sql.structure import RowSequenceSchema
 from apelib.sql.properties import SQLFixedProperties
 from apelib.zodb3.serializers import RemainingState as RemainingBase
 from apelib.zodb3.serializers import encode_to_text
 
-
-from apelib.core.interfaces \
-     import ISerializer, IFullSerializationEvent, IFullDeserializationEvent
 from Persistence import Persistent, PersistentMapping
 from StringIO import StringIO
 from cPickle import Pickler, UnpickleableError
@@ -52,62 +48,67 @@ import os
 
 from zope.interface import implements
 
-#map types between APE and Archetypes Schemas
+# map types between APE and Archetypes Schemas
 
-typemap={
-    'text':'string',
-    'datetime':'string',
-    'boolean':'int',
-    'integer':'int',
-    #'reference':'string:list',
-    'computed':'string' #ouch!!
-}
+typemap = {
+    'text': 'string',
+    'datetime': 'string',
+    'boolean': 'int',
+    'integer': 'int',
+    #'reference': 'string:list',
+    'computed': 'string'  # ouch!!
+    }
+
 
 def AtType2ApeType(f):
-    t=f._properties['type']
-    if t=='reference':
+    t = f._properties['type']
+    if t == 'reference':
         #print 'REF:',f.getName(),f.multiValued
         if f.multiValued:
             return 'string'
         else:
             return 'string'
-    if t=='computed':
+    if t == 'computed':
         return None
 
-    return typemap.get(t,t)
+    return typemap.get(t, t)
+
 
 def AtSchema2ApeSchema(atschema):
-    schema=RowSequenceSchema()
-    column_defs=[]
+    schema = RowSequenceSchema()
+    column_defs = []
     for f in atschema.fields():
         if f.isMetadata:
             continue
-        pk=0
+        pk = 0
         name = f.getName()
         t = AtType2ApeType(f)
-        if not t: # then dont add it to the schema
+        if not t:  # then dont add it to the schema
             continue
-        if name=='id':pk=1
+        if name == 'id':
+            pk = 1
         schema.add(name, t, pk)
-        column_defs.append((name,t,pk))
+        column_defs.append((name, t, pk))
 
-    #print schema,tuple(column_defs)
-    return schema,tuple(column_defs)
+    #print schema, tuple(column_defs)
+    return schema, tuple(column_defs)
+
 
 # creates a generic gateway instance based on
 # the klass's Schema
 def constructGateway(klass):
     table_name = klass.__name__.lower()
     schema, column_defs = AtSchema2ApeSchema(klass.schema)
-    res=SQLFixedProperties('db', table_name, schema)
+    res = SQLFixedProperties('db', table_name, schema)
     return res
+
 
 # creates a generic serializer instance based on
 # the klass's Schema
 def constructSerializer(klass):
-    res=ArcheSerializer()
-    res.klass=klass
-    res.schema=AtSchema2ApeSchema(klass.schema)[0]
+    res = ArcheSerializer()
+    res.klass = klass
+    res.schema = AtSchema2ApeSchema(klass.schema)[0]
     return res
 
 
@@ -143,7 +144,8 @@ class ArcheSerializer:
 
     def deserialize(self, event, state):
         for id, t, v in state:
-            event.obj.__dict__.update({id:v})
+            event.obj.__dict__.update({id: v})
+
 
 # this replacement of RemainingState is necessary in order to
 # replace the BaseUnit members by string data because
@@ -152,22 +154,21 @@ class ArcheSerializer:
 # correctly
 class RemainingState(RemainingBase):
 
-    def cleanDictCopy(self,dict):
+    def cleanDictCopy(self, dict):
         ''' cleans out the baseUnit instances of the dict, because the are not picklable '''
-        res={}
+        res = {}
 
         for k in dict.keys():
-            v=dict[k]
-            if type(v) == type({}) or ec_isinstance(v,PersistentMapping):
-                v1=self.cleanDictCopy(v)
-            elif ec_isinstance(v,BaseUnit):
-                v1=v.getRaw()
+            v = dict[k]
+            if type(v) == type({}) or ec_isinstance(v, PersistentMapping):
+                v1 = self.cleanDictCopy(v)
+            elif ec_isinstance(v, BaseUnit):
+                v1 = v.getRaw()
             else:
-                v1=v
-            res[k]=v1
+                v1 = v
+            res[k] = v1
 
         return res
-
 
     def serialize(self, event):
         assert IFullSerializationEvent.providedBy(event)
@@ -182,7 +183,7 @@ class RemainingState(RemainingBase):
             if key.startswith('_v_'):
                 del state[key]
         for attrname in event.get_seralized_attributes():
-            if state.has_key(attrname):
+            if attrname in state:
                 del state[attrname]
         if not state:
             # No data needs to be stored
@@ -247,10 +248,11 @@ class RemainingState(RemainingBase):
         s = outfile.getvalue()
         return encode_to_text(s, state.keys(), len(unmanaged))
 
+
 # helper functions for issubclass and isinstance
 # with extension classes.
 # borrowed from Greg Ward (thanx Greg :)
-def ec_issubclass (class1, class2):
+def ec_issubclass(class1, class2):
     """A version of 'issubclass' that works with extension classes
     as well as regular Python classes.
     """
@@ -289,7 +291,8 @@ def ec_issubclass (class1, class2):
 
 # ec_issubclass ()
 
-def ec_isinstance (object, klass):
+
+def ec_isinstance(object, klass):
     """A version of 'isinstance' that works with extension classes
     as well as regular Python classes."""
 

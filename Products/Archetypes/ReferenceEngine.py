@@ -42,6 +42,7 @@ from Referenceable import Referenceable
 from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
+
 class Reference(Referenceable, SimpleItem):
     ## Added base level support for referencing References
     ## They respond to the UUID protocols, but are not
@@ -58,13 +59,9 @@ class Reference(Referenceable, SimpleItem):
 
     # XXX FIXME more security
 
-    manage_options = (
-        (
-        {'label':'View', 'action':'manage_view',
-         },
-        )+
-        SimpleItem.manage_options
-        )
+    manage_options = ((
+        {'label': 'View', 'action': 'manage_view'},
+        ) + SimpleItem.manage_options)
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_view')
@@ -81,7 +78,9 @@ class Reference(Referenceable, SimpleItem):
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return "<Reference sid:%s tid:%s rel:%s>" %(self.sourceUID, self.targetUID, self.relationship)
+        return "<Reference sid:%s tid:%s rel:%s>" % (self.sourceUID,
+                                                     self.targetUID,
+                                                     self.relationship)
 
     def UID(self):
         """the uid method for compat"""
@@ -147,13 +146,14 @@ class Reference(Referenceable, SimpleItem):
 
     def manage_beforeDelete(self, item, container):
         Referenceable.manage_beforeDelete(self, item, container)
-        rc  = getToolByName(container, REFERENCE_CATALOG)
+        rc = getToolByName(container, REFERENCE_CATALOG)
         url = getRelURL(container, self.getPhysicalPath())
         rc.uncatalog_object(url)
 
 InitializeClass(Reference)
 
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
+
 
 class ContentReference(ObjectManager, Reference):
     '''Subclass of Reference to support contentish objects inside references '''
@@ -163,26 +163,25 @@ class ContentReference(ObjectManager, Reference):
     def __init__(self, *args, **kw):
         Reference.__init__(self, *args, **kw)
 
-
     security = ClassSecurityInfo()
     # XXX FIXME more security
 
     def addHook(self, *args, **kw):
         # creates the content instance
-        if type(self.contentType) in (type(''),type(u'')):
+        if type(self.contentType) in (type(''), type(u'')):
             # type given as string
-            tt=getToolByName(self,'portal_types')
+            tt = getToolByName(self, 'portal_types')
             tt.constructContent(self.contentType, self,
                                 REFERENCE_CONTENT_INSTANCE_NAME)
         else:
             # type given as class
             setattr(self, REFERENCE_CONTENT_INSTANCE_NAME,
                     self.contentType(REFERENCE_CONTENT_INSTANCE_NAME))
-            getattr(self, REFERENCE_CONTENT_INSTANCE_NAME)._md=PersistentMapping()
+            getattr(self, REFERENCE_CONTENT_INSTANCE_NAME)._md = PersistentMapping()
 
     def delHook(self, *args, **kw):
         # remove the content instance
-        if type(self.contentType) in (type(''),type(u'')):
+        if type(self.contentType) in (type(''), type(u'')):
             # type given as string
             self._delObject(REFERENCE_CONTENT_INSTANCE_NAME)
         else:
@@ -202,26 +201,27 @@ class ContentReference(ObjectManager, Reference):
 
 InitializeClass(ContentReference)
 
+
 class ContentReferenceCreator:
     '''Helper class to construct ContentReference instances based
        on a certain content type '''
 
     security = ClassSecurityInfo()
 
-    def __init__(self,contentType):
-        self.contentType=contentType
+    def __init__(self, contentType):
+        self.contentType = contentType
 
-    def __call__(self,*args,**kw):
+    def __call__(self, *args, **kw):
         #simulates the constructor call to the reference class in addReference
-        res=ContentReference(*args,**kw)
-        res.contentType=self.contentType
+        res = ContentReference(*args, **kw)
+        res.contentType = self.contentType
 
         return res
 
 InitializeClass(ContentReferenceCreator)
 
-# The brains we want to use
 
+# The brains we want to use
 class ReferenceCatalogBrains(UIDCatalogBrains):
     pass
 
@@ -243,9 +243,9 @@ class PluggableCatalog(Catalog):
         schema = self.schema
         scopy = schema.copy()
 
-        scopy['data_record_id_']=len(schema.keys())
-        scopy['data_record_score_']=len(schema.keys())+1
-        scopy['data_record_normalized_score_']=len(schema.keys())+2
+        scopy['data_record_id_'] = len(schema.keys())
+        scopy['data_record_score_'] = len(schema.keys()) + 1
+        scopy['data_record_normalized_score_'] = len(schema.keys()) + 2
 
         plugbrains.__record_schema__ = scopy
 
@@ -253,6 +253,7 @@ class PluggableCatalog(Catalog):
         self._v_result_class = plugbrains
 
 InitializeClass(PluggableCatalog)
+
 
 class ReferenceBaseCatalog(PluggableCatalog):
     BASE_CLASS = ReferenceCatalogBrains
@@ -318,7 +319,6 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                     # from the source objects annotation, which we have
                     annotation = sobj._getReferenceAnnotations()
                     annotation._delObject(existing.id)
-
 
         rID = self._makeName(sID, tID)
         if not referenceClass:
@@ -391,7 +391,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """query reference catalog for object matching the info we are
         given, returns brains
         """
-        if not uid: # pragma: no cover
+        if not uid:  # pragma: no cover
             return []
 
         _catalog = self._catalog
@@ -456,10 +456,9 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         brains = self._queryFor(tid=sID)
         res = {}
         for b in brains:
-            res[b.relationship]=1
+            res[b.relationship] = 1
 
         return res.keys()
-
 
     def isReferenceable(self, object):
         return (IReferenceable.providedBy(object) or
@@ -490,7 +489,6 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         uc = getToolByName(self, UID_CATALOG)
         uc.uncatalog_object(object._getURL())
 
-
     ######
     ## Private/Internal
     def _objectByUUID(self, uuid):
@@ -512,14 +510,17 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """
 
         query = {}
-        if sid: query['sourceUID'] = sid
-        if tid: query['targetUID'] = tid
-        if relationship: query['relationship'] = relationship
-        if targetId: query['targetId'] = targetId
+        if sid:
+            query['sourceUID'] = sid
+        if tid:
+            query['targetUID'] = tid
+        if relationship:
+            query['relationship'] = relationship
+        if targetId:
+            query['targetId'] = targetId
         brains = self.searchResults(query, merge=merge)
 
         return brains
-
 
     def _uidFor(self, obj):
         # We should really check for the interface but I have an idea
@@ -532,7 +533,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             uuid = IUUID(uobject, None)
             if uuid is None:
                 uuid = self._getUUIDFor(uobject)
-                
+
         else:
             uuid = obj
             obj = None
@@ -581,25 +582,23 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def __nonzero__(self):
         return 1
 
-    def _catalogReferencesFor(self,obj,path):
+    def _catalogReferencesFor(self, obj, path):
         if IReferenceable.providedBy(obj):
             obj._catalogRefs(self)
 
-    def _catalogReferences(self,root=None,**kw):
+    def _catalogReferences(self, root=None, **kw):
         ''' catalogs all references, where the optional parameter 'root'
            can be used to specify the tree that has to be searched for references '''
 
         if not root:
-            root=getToolByName(self,'portal_url').getPortalObject()
+            root = getToolByName(self, 'portal_url').getPortalObject()
 
         path = '/'.join(root.getPhysicalPath())
 
         results = self.ZopeFindAndApply(root,
                                         search_sub=1,
                                         apply_func=self._catalogReferencesFor,
-                                        apply_path=path,**kw)
-
-
+                                        apply_path=path, **kw)
 
     security.declareProtected(permissions.ManagePortal, 'manage_catalogFoundItems')
     def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
@@ -612,18 +611,17 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         """ Find object according to search criteria and Catalog them
         """
 
-
         elapse = time.time()
         c_elapse = time.clock()
 
         words = 0
         obj = REQUEST.PARENTS[1]
 
-        self._catalogReferences(obj,obj_metatypes=obj_metatypes,
-                                 obj_ids=obj_ids, obj_searchterm=obj_searchterm,
-                                 obj_expr=obj_expr, obj_mtime=obj_mtime,
-                                 obj_mspec=obj_mspec, obj_roles=obj_roles,
-                                 obj_permission=obj_permission)
+        self._catalogReferences(obj, obj_metatypes=obj_metatypes,
+                                obj_ids=obj_ids, obj_searchterm=obj_searchterm,
+                                obj_expr=obj_expr, obj_mtime=obj_mtime,
+                                obj_mspec=obj_mspec, obj_roles=obj_roles,
+                                obj_permission=obj_permission)
 
         elapse = time.time() - elapse
         c_elapse = time.clock() - c_elapse
@@ -677,13 +675,13 @@ InitializeClass(ReferenceCatalog)
 
 
 def manage_addReferenceCatalog(self, id, title,
-                               vocab_id=None, # Deprecated
+                               vocab_id=None,  # Deprecated
                                REQUEST=None):
     """Add a ReferenceCatalog object
     """
-    id=str(id)
-    title=str(title)
-    c=ReferenceCatalog(id, title, vocab_id, self)
+    id = str(id)
+    title = str(title)
+    c = ReferenceCatalog(id, title, vocab_id, self)
     self._setObject(id, c)
     if REQUEST is not None:
-        return self.manage_main(self, REQUEST,update_menu=1)
+        return self.manage_main(self, REQUEST, update_menu=1)

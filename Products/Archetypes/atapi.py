@@ -93,9 +93,7 @@ from Products.Archetypes.fieldproperty import ATDateTimeFieldProperty
 # dynamicly calculate which modules should be exported
 import sys
 skipExports = ('skipExports', 'sys',)
-__all__ = tuple([ export
-                  for export in dir(sys.modules[__name__])
-                  if export not in skipExports and not export.startswith('_')
+__all__ = tuple([export
+                 for export in dir(sys.modules[__name__])
+                 if export not in skipExports and not export.startswith('_')
                 ])
-
-

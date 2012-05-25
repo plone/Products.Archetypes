@@ -1,16 +1,16 @@
 import inspect
-import os
+import logging
+import pprint
 import sys
 import traceback
-import pprint
-from types import StringType
 import warnings
-import logging
+
+from types import StringType
 
 from Products.Archetypes.config import DEBUG
 
-
 logger = logging.getLogger('Archetypes')
+
 
 class SafeFileWrapper:
     def __init__(self, fp):
@@ -50,7 +50,6 @@ class Log:
 
         self.fp = SafeFileWrapper(fp)
 
-
     def _close(self):
         if self.closeable:
             self.fp.close()
@@ -70,7 +69,6 @@ class Log:
         self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1)
         if msg: self.log(msg, collapse=0, deep=0, *args, **kwargs)
 
-
     def __call__(self, msg):
         self.log(msg)
 
@@ -78,7 +76,10 @@ class Log:
 class NullLog(Log):
     def __init__(self, target):
         pass
-    def log(self, msg, **kwargs): pass
+
+    def log(self, msg, **kwargs):
+        pass
+
 
 class ClassLog(Log):
     last_frame_msg = None
@@ -107,11 +108,11 @@ class ClassLog(Log):
     def munge_message(self, msg, **kwargs):
         deep = kwargs.get("deep", 1)
         collapse = kwargs.get("collapse", 1)
-        offset   = kwargs.get("offset", 0) + 3
+        offset = kwargs.get("offset", 0) + 3
 
         frame = ''
         try:
-            frames = self.generateFrames(offset, offset+deep)
+            frames = self.generateFrames(offset, offset + deep)
             res = []
             for f in frames:
                 res.insert(0, self._process_frame(f))
@@ -128,7 +129,7 @@ class ClassLog(Log):
             else:
                 self.last_frame_msg = frame
 
-        msg = "%s%s" %(frame, msg)
+        msg = "%s%s" % (frame, msg)
         return msg
 
 
@@ -141,6 +142,7 @@ class ZPTLogger(ClassLog):
             print f
         return frames
 
+
 class ZLogger(ClassLog):
     def log(self, msg, *args, **kwargs):
         level = kwargs.get('level', logging.INFO)
@@ -152,6 +154,7 @@ class ZLogger(ClassLog):
     def log_exc(self, msg=None, *args, **kwargs):
         logger.exception(msg)
 
+
 def warn(msg, level=3):
     # level is the stack level
     #   1: the line below
@@ -160,6 +163,7 @@ def warn(msg, level=3):
     #      called this function
     if DEBUG:
         warnings.warn(msg, UserWarning, level)
+
 
 def deprecated(msg, level=3):
     # level is the stack level
@@ -174,4 +178,4 @@ _default_logger = ClassLog()
 _zlogger = ZLogger()
 
 log = zlog = _zlogger.log
-log_exc    = _zlogger.log_exc
+log_exc = _zlogger.log_exc
