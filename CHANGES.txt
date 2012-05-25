@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.15 (unreleased)
+1.8.0 (unreleased)
 -------------------
 
 - PEP 8 (ignoring W602, W604, E231, E241, E301, E302, E501 and E701).
