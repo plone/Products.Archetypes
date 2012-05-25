@@ -679,10 +679,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             # need to check against the content_meta_type of each type-info
             ttool = getToolByName(self, 'portal_types')
             types = [ti.Metatype() for ti in ttool.listTypeInfo()]
-        if portalTypes:
-            values = [v for v in values if v['portal_type'] in types]
-        else:
-            values = [v for v in values if v['meta_type'] in types]
+            if portalTypes:
+                values = [v for v in values if v['portal_type'] in types]
+            else:
+                values = [v for v in values if v['meta_type'] in types]
 
         return values
 
