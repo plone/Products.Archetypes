@@ -22,14 +22,11 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
+
+from unittest import TestSuite, makeSuite
 
 import os
-
 import PIL
-
-from StringIO import StringIO
 
 from zope.annotation.interfaces import IAttributeAnnotatable
 from zope.interface import implements, alsoProvides
@@ -43,11 +40,10 @@ from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import Schema, DisplayList, BaseContentMixin, TextField
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
-from Products.Archetypes import config
 from Products import PortalTransforms
 from OFS.Image import File, Image
 from DateTime import DateTime
@@ -59,7 +55,7 @@ test_fields = [
           ('FileField', 'filefield'),
           ('TextField', 'textfield'),
           ('DateTimeField', 'datetimefield'),
-          ('LinesField','linesfield'),
+          ('LinesField', 'linesfield'),
           ('IntegerField', 'integerfield'),
           ('FloatField', 'floatfield'),
           ('FixedPointField', 'fixedpointfield1'),
@@ -79,44 +75,44 @@ img_content = img_file.read()
 animated_gif_file = open(os.path.join(PACKAGE_HOME, 'input', 'animated.gif'), 'rb')
 animated_gif_content = animated_gif_file.read()
 
-field_values = {'objectfield':'objectfield',
-                'stringfield':'stringfield',
-                'filefield_file':txt_file,
-                'textfield':'textfield',
-                'datetimefield':'',
-                'datetimefield_year':'2003',
-                'datetimefield_month':'01',
-                'datetimefield_day':'01',
-                'datetimefield_hour':'03',
-                'datetimefield_minute':'04',
-                'linesfield':'bla\nbla',
-                'integerfield':'1',
-                'floatfield':'1.5',
+field_values = {'objectfield': 'objectfield',
+                'stringfield': 'stringfield',
+                'filefield_file': txt_file,
+                'textfield': 'textfield',
+                'datetimefield': '',
+                'datetimefield_year': '2003',
+                'datetimefield_month': '01',
+                'datetimefield_day': '01',
+                'datetimefield_hour': '03',
+                'datetimefield_minute': '04',
+                'linesfield': 'bla\nbla',
+                'integerfield': '1',
+                'floatfield': '1.5',
                 'fixedpointfield1': '1.5',
                 'fixedpointfield2': '1,5',
-                'booleanfield':'1',
-                'imagefield_file':img_file}
+                'booleanfield': '1',
+                'imagefield_file': img_file}
 
-expected_values = {'objectfield':'objectfield',
-                   'stringfield':'stringfield',
-                   'filefield':txt_content,
-                   'textfield':'textfield',
-                   'datetimefield':DateTime(2003, 01, 01, 03, 04),
-                   'linesfield':('bla', 'bla'),
+expected_values = {'objectfield': 'objectfield',
+                   'stringfield': 'stringfield',
+                   'filefield': txt_content,
+                   'textfield': 'textfield',
+                   'datetimefield': DateTime(2003, 01, 01, 03, 04),
+                   'linesfield': ('bla', 'bla'),
                    'integerfield': 1,
                    'floatfield': 1.5,
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
-                   'imagefield':'<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
+                   'imagefield': '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
                    }
 
-empty_values = {'objectfield':None,
-                   'stringfield':'',
-                   'filefield':None,
-                   'textfield':'',
-                   'datetimefield':'2007-00-00',
-                   'linesfield':(),
+empty_values = {'objectfield': None,
+                   'stringfield': '',
+                   'filefield': None,
+                   'textfield': '',
+                   'datetimefield': '2007-00-00',
+                   'linesfield': (),
                    'integerfield': None,
                    'floatfield': None,
                    'fixedpointfield1': None,
@@ -127,10 +123,13 @@ empty_values = {'objectfield':None,
 schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
+
 class sampleInterfaceVocabulary:
     implements(IVocabulary)
+
     def getDisplayList(self, instance):
         return sampleDisplayList
+
 
 class Dummy(BaseContentMixin):
     def Title(self):
@@ -143,6 +142,7 @@ class Dummy(BaseContentMixin):
     def default_val(self):
         return "World"
 
+
 class DummyVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -150,6 +150,7 @@ class DummyVocabulary(object):
         return SimpleVocabulary.fromItems([("title1", "value1"), ("t2", "v2")])
 
 DummyVocabFactory = DummyVocabulary()
+
 
 class FakeRequest:
 
@@ -219,9 +220,9 @@ class ProcessingTest(ATSiteTestCase):
 
         image_field = dummy.getField('imagefield')
 
-        scaled_image_file, img_format = image_field.scale(img_content, 5, 5)        
+        scaled_image_file, img_format = image_field.scale(img_content, 5, 5)
         self.assertEqual("gif", img_format)
-        
+
         image = PIL.Image.open(scaled_image_file)
         self.assertEqual("GIF", image.format)
 
@@ -230,9 +231,9 @@ class ProcessingTest(ATSiteTestCase):
 
         image_field = dummy.getField('imagefield')
 
-        scaled_image_file, img_format = image_field.scale(animated_gif_content, 100, 100)        
+        scaled_image_file, img_format = image_field.scale(animated_gif_content, 100, 100)
         self.assertEqual("gif", img_format)
-        
+
         image = PIL.Image.open(scaled_image_file)
         self.assertEqual("GIF", image.format)
         image.seek(image.tell() + 1)
@@ -248,7 +249,7 @@ class ProcessingTest(ATSiteTestCase):
         for k, v in expected_values.items():
             field = dummy.getField(k)
             s = field.get_size(dummy)
-            size+=s
+            size += s
             self.assertTrue(s, 'got: %s, field: %s' % (s, k))
         self.assertEqual(size, dummy.get_size())
 
@@ -299,8 +300,6 @@ class ProcessingTest(ATSiteTestCase):
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
         self.assertFalse(errors, errors)
-
-
 
     def test_required(self):
         request = FakeRequest()
@@ -412,8 +411,10 @@ class ProcessingTest(ATSiteTestCase):
 
         class DefaultFor(object):
             implements(IFieldDefaultProvider)
+
             def __init__(self, context):
                 self.context = context
+
             def __call__(self):
                 return "Adapted"
 
@@ -425,8 +426,8 @@ class ProcessingTest(ATSiteTestCase):
         # http://dev.plone.org/plone/ticket/7597
         dummy = self.makeDummy()
         request = FakeRequest()
-        field = dummy.Schema().fields()[3] # textfield
-        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin' )
+        field = dummy.Schema().fields()[3]  # textfield
+        field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin')
         encoding = field.getRaw(self.portal, raw=1).original_encoding
         self.assertEqual(encoding, 'latin')
 
@@ -467,8 +468,8 @@ class DownloadTest(ATSiteTestCase):
         self.assertEqual(self.response.headers['content-disposition'],
                          'attachment; filename="uberzeugen"')
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ProcessingTest))
     suite.addTest(makeSuite(DownloadTest))

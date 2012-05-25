@@ -1,3 +1,5 @@
+from unittest import TestSuite, makeSuite
+
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.atapi import BaseSchema
@@ -29,7 +31,7 @@ class LanguageVocabularyTest(ATSiteTestCase):
     def test_no_combined_codes(self):
         tool = getToolByName(self.portal, 'portal_languages', None)
         defaultLanguage = 'en'
-        supportedLanguages = ['en','de','no']
+        supportedLanguages = ['en', 'de', 'no']
         if tool is not None:
             tool.manage_setLanguageSettings(defaultLanguage,
                                             supportedLanguages,
@@ -42,7 +44,7 @@ class LanguageVocabularyTest(ATSiteTestCase):
     def test_combined_codes(self):
         tool = getToolByName(self.portal, 'portal_languages', None)
         defaultLanguage = 'pt-br'
-        supportedLanguages = ['pt-br','en','de','no']
+        supportedLanguages = ['pt-br', 'en', 'de', 'no']
         if tool is not None:
             tool.manage_setLanguageSettings(defaultLanguage,
                                             supportedLanguages,
@@ -55,8 +57,8 @@ class LanguageVocabularyTest(ATSiteTestCase):
         else:
             self.assertTrue('pt-br' in vocab.keys())
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(LanguageVocabularyTest))
     return suite

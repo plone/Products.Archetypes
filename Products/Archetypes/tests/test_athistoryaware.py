@@ -18,8 +18,10 @@ KEY1 = AT_ANN_STORAGE + '-monty'
 KEY2 = AT_ANN_STORAGE + '-python'
 KEY3 = AT_ANN_STORAGE + '-lumberjack'
 
+
 class DummyAnnotation(persistent.Persistent):
     spam = 'eggs'
+
 
 class DummyObject(Acquisition.Implicit, persistent.Persistent,
                   ATHistoryAwareMixin):
@@ -31,13 +33,14 @@ class DummyObject(Acquisition.Implicit, persistent.Persistent,
         annotations[KEY2] = DummyAnnotation()
         setattr(self, '__annotations__', annotations)
 
+
 class ATHistoryAwareTests(unittest.TestCase):
     def setUp(self):
         # Set up a ZODB and Application object. We can't use DemoStorage
         # as it doesn't support the history() API.
         self._dir = tempfile.mkdtemp()
         self._storage = FileStorage(
-            os.path.join(self._dir,'test_athistoryaware.fs'),
+            os.path.join(self._dir, 'test_athistoryaware.fs'),
             create=True)
         self._connection = ZODB.DB(self._storage).open()
         root = self._connection.root()
@@ -48,7 +51,7 @@ class ATHistoryAwareTests(unittest.TestCase):
         self.app.object = DummyObject()
         self.object = self.app.object
         t = transaction.get()
-        t.description = None # clear initial transaction note
+        t.description = None  # clear initial transaction note
         t.note('Transaction 1')
         t.setUser('User 1')
         t.commit()
@@ -123,7 +126,7 @@ class ATHistoryAwareTests(unittest.TestCase):
 
     def test_annotationlifetime(self):
         """Addition and deletion of subkeys is tracked"""
-        key3_history = (bool(e[0].__annotations__.has_key(KEY3))
+        key3_history = (bool(KEY3 in e[0].__annotations__)
                         for e in self.object.getHistories())
         expected = (False, False, True, False, False)
         self.assertEqual(tuple(key3_history), expected)
@@ -131,6 +134,7 @@ class ATHistoryAwareTests(unittest.TestCase):
     def test_maxReturned(self):
         history = list(self.object.getHistories(max=2))
         self.assertEqual(len(history), 2)
+
 
 def test_suite():
     suite = unittest.TestSuite()

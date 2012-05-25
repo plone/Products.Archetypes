@@ -1,13 +1,14 @@
+import unittest
 
 import textwrap
 from AccessControl import Unauthorized
 
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.examples.SimpleType import TestView, TestWrite
+
 
 class AttributeProtectionTest(ATSiteTestCase):
 
@@ -103,7 +104,7 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.assertEqual(title, p.Title())
 
         title = p.Title()
-        p.processForm(data=True, values={'title':'Bla'})
+        p.processForm(data=True, values={'title': 'Bla'})
         self.assertEqual(title, p.Title())
 
     def test_field_write_has_perm(self):
@@ -118,7 +119,7 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.assertEqual(p.Title(), 'Bla2')
 
         title = p.Title()
-        p.processForm(data=True, values={'title':'Bla3'})
+        p.processForm(data=True, values={'title': 'Bla3'})
         self.assertEqual(p.Title(), 'Bla3')
 
     def test_import_transaction_note(self):
@@ -146,8 +147,8 @@ class AttributeProtectionTest(ATSiteTestCase):
         """ % {'object_id': self.object_id}
         self.checkUnauthorized(test)
 
+
 def test_suite():
-    import unittest
     suite = unittest.TestSuite()
     tests = []
     tests.append(AttributeProtectionTest)

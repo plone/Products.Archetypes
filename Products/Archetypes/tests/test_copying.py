@@ -24,9 +24,9 @@
 ################################################################################
 """
 Unittests for a copying/cutting and pasting archetypes objects.
-
-$Id$
 """
+
+from unittest import TestSuite, makeSuite
 
 import os
 
@@ -43,6 +43,7 @@ from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.atsitetestcase import default_user
 
 from Products.Archetypes.tests.utils import PACKAGE_HOME
+
 
 class CutPasteCopyPasteTests(ATSiteTestCase):
 
@@ -72,11 +73,12 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         self.assertFalse('tourist' in ffrom.contentIds())
         self.assertFalse('tourist' not in fto.contentIds())
 
+
 class PortalCopyTests(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        self.setRoles(['Manager',])
+        self.setRoles(['Manager'])
 
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')
         self._image = open(imgpath).read()
@@ -300,7 +302,6 @@ class PortalCopyTests(ATSiteTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
     suite.addTest(makeSuite(PortalCopyTests))

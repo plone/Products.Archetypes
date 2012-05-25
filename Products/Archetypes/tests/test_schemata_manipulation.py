@@ -25,14 +25,13 @@
 """
 """
 
-from Testing import ZopeTestCase
-
 from Products.Archetypes.tests.attestcase import ATTestCase
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import StringField
 from Products.Archetypes.Schema import ManagedSchema
 
-class SchemataManipulationTest( ATTestCase ):
+
+class SchemataManipulationTest(ATTestCase):
 
     def afterSetUp(self):
         self.schema = ManagedSchema(
@@ -52,7 +51,7 @@ class SchemataManipulationTest( ATTestCase ):
 
     def testBasic(self):
         self.assertEqual(self.fields2names(self.schema.fields()),
-                        ['a','d','x', 'b','e','y','c','f','z'])
+                        ['a', 'd', 'x', 'b', 'e', 'y', 'c', 'f', 'z'])
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
         self.schema.addField(StringField('p', schemata='waldi'))
         self.schema.addField(StringField('hello_world', schemata='helloworld'))
@@ -66,22 +65,23 @@ class SchemataManipulationTest( ATTestCase ):
                         ['d', 'e', 'f'])
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('edgar')),
                         ['x', 'y', 'z'])
+
     def testDelField(self):
         self.schema.delField('x')
         self.schema.delField('b')
         self.schema.delField('z')
         self.assertEqual(self.fields2names(self.schema.fields()),
-                        ['a','d','e','y','c','f'])
+                        ['a', 'd', 'e', 'y', 'c', 'f'])
         self.schema.addField(StringField('z'))
         self.schema.addField(StringField('b'))
         self.schema.addField(StringField('x'))
         self.assertEqual(self.fields2names(self.schema.fields()),
-                        ['a','d','e','y','c','f','z','b','x'])
+                        ['a', 'd', 'e', 'y', 'c', 'f', 'z', 'b', 'x'])
         self.schema.delField('b')
         self.schema.delField('z')
         self.schema.delField('x')
         self.assertEqual(self.fields2names(self.schema.fields()),
-                        ['a','d','e','y','c','f'])
+                        ['a', 'd', 'e', 'y', 'c', 'f'])
 
     def testDelSchemata(self):
         self.schema.delSchemata('nasbaer')
@@ -95,10 +95,10 @@ class SchemataManipulationTest( ATTestCase ):
         self.assertEqual(len(self.schema.getSchemataFields('otto')), 1)
 
     def testFieldChangeSchemata(self):
-        self.schema.changeSchemataForField('z','otto')
+        self.schema.changeSchemataForField('z', 'otto')
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar', 'otto'])
         self.assertEqual(self.fields2names(self.schema.getSchemataFields('otto')), ['z'])
-        self.schema.changeSchemataForField('z','waldi')
+        self.schema.changeSchemataForField('z', 'waldi')
         self.assertEqual(self.schema.getSchemataNames(), ['waldi', 'nasbaer', 'edgar'])
 
     def testMoveSchemata1(self):
@@ -122,13 +122,13 @@ class SchemataManipulationTest( ATTestCase ):
         self.assertEqual(self.schema.getSchemataNames(), ['edgar', 'waldi', 'nasbaer'])
 
     def testMoveField(self):
-        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a','b','c'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a', 'b', 'c'])
         self.schema.moveField('a', -1)
-        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a','b','c'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['a', 'b', 'c'])
         self.schema.moveField('a', 1)
-        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b','a','c'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b', 'a', 'c'])
         self.schema.moveField('a', 1)
-        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b','c','a'])
+        self.assertEqual(self.fields2names(self.schema.getSchemataFields('waldi')), ['b', 'c', 'a'])
 
     def testReplaceField(self):
         f1 = StringField('f1')
@@ -138,7 +138,7 @@ class SchemataManipulationTest( ATTestCase ):
         self.schema.replaceField('e', f2)
         self.schema.replaceField('z', f3)
         self.assertEqual(self.fields2names(self.schema.fields()),
-                        ['f1','d','x', 'b','f2','y','c','f','f3'])
+                        ['f1', 'd', 'x', 'b', 'f2', 'y', 'c', 'f', 'f3'])
 
 
 def test_suite():

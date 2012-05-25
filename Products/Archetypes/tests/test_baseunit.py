@@ -22,8 +22,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
+
+from unittest import TestSuite, makeSuite
 
 import os
 import glob
@@ -31,12 +31,12 @@ import glob
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import normalize_html
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import BaseUnit
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 
 
-class BaseUnitTest( ATSiteTestCase ):
+class BaseUnitTest(ATSiteTestCase):
 
     def testSame(self):
         gen_dummy()
@@ -82,7 +82,6 @@ for f in input_files:
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     for test in tests:
         suite.addTest(makeSuite(test))

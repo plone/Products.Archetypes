@@ -53,6 +53,7 @@ def gen_class(klass, schema=None):
     registerType(klass, 'Archetypes')
     content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
 
+
 def mkDummyInContext(klass, oid, context, schema=None):
     gen_class(klass, schema)
     dummy = klass(oid=oid).__of__(context)
@@ -60,13 +61,16 @@ def mkDummyInContext(klass, oid, context, schema=None):
     dummy.initializeArchetype()
     return dummy
 
-def makeContent( container, portal_type, id='document', **kw ):
-    container.invokeFactory( type_name=portal_type, id=id )
-    return getattr( container, id )
+
+def makeContent(container, portal_type, id='document', **kw):
+    container.invokeFactory(type_name=portal_type, id=id)
+    return getattr(container, id)
+
 
 class Dummy(BaseContent):
     def Title(self):
         return 'title'
+
 
 def normalize_html(s):
     s = re.sub(r"\s+", " ", s)
@@ -74,11 +78,13 @@ def normalize_html(s):
     s = re.sub(r"(?s)>\s+", ">", s)
     return s
 
+
 def nicerange(lo, hi):
-    if hi <= lo+1:
-        return str(lo+1)
+    if hi <= lo + 1:
+        return str(lo + 1)
     else:
-        return "%d,%d" % (lo+1, hi)
+        return "%d,%d" % (lo + 1, hi)
+
 
 def showdiff(a, b):
     cruncher = ndiff.SequenceMatcher(ndiff.IS_LINE_JUNK, a, b)
@@ -90,6 +96,7 @@ def showdiff(a, b):
         if a and b:
             print '---'
         ndiff.dump('>', b, blo, bhi)
+
 
 def populateFolder(folder, folder_type, doc_type):
     """ Creates a structure like:
@@ -147,6 +154,7 @@ ORIG_NAME = '__at_original_method_name__'
 def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
+
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
     if isWrapperMethod(old_method):
@@ -157,6 +165,7 @@ def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     setattr(method, ORIG_NAME, new_name)
     setattr(method, WRAPPER, True)
     setattr(klass, name, method)
+
 
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
@@ -174,11 +183,12 @@ class SimpleView(BrowserView):
     def __call__(self):
         return 'SimpleView simple output'
 
+
 def aputrequest(file, content_type):
     resp = HTTPResponse(stdout=sys.stdout)
     environ = {}
-    environ['SERVER_NAME']='foo'
-    environ['SERVER_PORT']='80'
+    environ['SERVER_NAME'] = 'foo'
+    environ['SERVER_PORT'] = '80'
     environ['REQUEST_METHOD'] = 'PUT'
     environ['CONTENT_TYPE'] = content_type
     req = HTTPRequest(stdin=file, environ=environ, response=resp)

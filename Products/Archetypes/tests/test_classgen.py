@@ -26,6 +26,7 @@
 """
 
 import unittest
+from unittest import TestSuite, makeSuite
 
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
@@ -33,7 +34,7 @@ from AccessControl.SecurityInfo import ACCESS_PUBLIC, ACCESS_PRIVATE
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
-from Products.Archetypes.atapi import *
+from Products.Archetypes import atapi
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.ClassGen import generateMethods
 from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
@@ -48,72 +49,80 @@ Subtitle
 --------
 """
 
-schema = BaseSchema + Schema((
-    TextField('atextfield',
+schema = atapi.BaseSchema + atapi.Schema((
+    atapi.TextField('atextfield',
               default_content_type='text/x-rst',
               default=default_text,
-              widget=RichWidget(description="Just a text field for the testing",
+              widget=atapi.RichWidget(description="Just a text field for the testing",
                                   label="A Text Field",
                                   )),
 
-    FileField('afilefield',
+    atapi.FileField('afilefield',
               primary=1,
-              widget=RichWidget(description="Just a file field for the testing",
+              widget=atapi.RichWidget(description="Just a file field for the testing",
                                   label="A File Field",
                                   )),
 
-    FileField('anotherfilefield', widget=FileWidget),
+    atapi.FileField('anotherfilefield', widget=atapi.FileWidget),
 
-    LinesField('alinesfield', widget=LinesWidget),
+    atapi.LinesField('alinesfield', widget=atapi.LinesWidget),
 
-    DateTimeField('adatefield',
-                  widget=CalendarWidget(description="A date field",
+    atapi.DateTimeField('adatefield',
+                  widget=atapi.CalendarWidget(description="A date field",
                                         label="A Date Field")),
 
-    ObjectField('anobjectfield',
-                widget=StringWidget(description="An object field",
+    atapi.ObjectField('anobjectfield',
+                widget=atapi.StringWidget(description="An object field",
                                     label="An Object Field"),
                 validators=('isURL',),
                 ),
 
-    FixedPointField('afixedpointfield',
-                    widget=DecimalWidget(description="A fixed point field",
+    atapi.FixedPointField('afixedpointfield',
+                    widget=atapi.DecimalWidget(description="A fixed point field",
                                          label="A Fixed Point Field"),
                     ),
-    StringField('awriteonlyfield', mode="w"),
+    atapi.StringField('awriteonlyfield', mode="w"),
 
-    StringField('areadonlyfield', mode="r"),
+    atapi.StringField('areadonlyfield', mode="r"),
     ))
 
+
 class DummyDiscussionTool:
-    def isDiscussionAllowedFor( self, content ):
+    def isDiscussionAllowedFor(self, content):
         return False
+
     def overrideDiscussionFor(self, content, allowDiscussion):
         pass
 
+
 class SiteProperties:
     default_charset = 'UTF-8'
+
     def getProperty(self, name, default=None):
         return getattr(self, name, default)
 
     def hasProperty(self, name):
         return hasattr(self, name)
 
+
 class PortalProperties:
     site_properties = SiteProperties()
 
-class Dummy(BaseContent):
+
+class Dummy(atapi.BaseContent):
     portal_properties = PortalProperties()
     portal_discussion = DummyDiscussionTool()
     mimetypes_registry = MimeTypesTool()
+
     def __init__(self, oid='test', init_transforms=0, **kwargs):
-        BaseContent.__init__(self, oid, **kwargs)
+        atapi.BaseContent.__init__(self, oid, **kwargs)
         self.portal_transforms = TransformTool()
         if init_transforms:
             from Products.PortalTransforms import transforms
             transforms.initialize(self.portal_transforms)
 
-BaseUnit.portal_properties = PortalProperties()
+atapi.BaseUnit.portal_properties = PortalProperties()
+
 
 def gen_dummy():
     gen_class(Dummy, schema)
@@ -203,39 +212,49 @@ class ClassGenTest(ATSiteTestCase):
                              'implement BaseUnit: %s' %
                              (field.__class__, type(bu))))
 
+
 class SecDummy1:
     schema = {}
     sec = ClassSecurityInfo()
     sec.declareProtected('View', 'makeFoo')
+
     def makeFoo(self):
         return 'foo'
+
 
 class SecDummy2:
     schema = {}
+
     def makeFoo(self):
         return 'foo'
 
+
 class SecDummy3:
     schema = {}
+
 
 class SecDummy4:
     schema = {}
     sec = ClassSecurityInfo()
     sec.declarePublic('makeFoo')
+
     def makeFoo(self):
         return 'foo'
+
 
 class SecDummy5:
     schema = {}
     sec = ClassSecurityInfo()
     sec.declarePrivate('makeFoo')
+
     def makeFoo(self):
         return 'foo'
 
-foo_field = StringField('foo',
+foo_field = atapi.StringField('foo',
                         accessor='makeFoo',
                         read_permission='Modify portal content',
                         write_permission='Modify portal content')
+
 
 class ClassGenSecurityTest(unittest.TestCase):
 
@@ -305,8 +324,8 @@ class ClassGenSecurityTest(unittest.TestCase):
                      ('makeFoo', 'setFoo', 'getRawFoo')),)
         self.assertEquals(got, expected)
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     tests = (
         ClassGenSecurityTest,

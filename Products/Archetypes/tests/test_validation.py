@@ -55,13 +55,11 @@ class TestValidation(ATTestCase):
 
         self.assertEqual(v('(212) 555-1212'), 1)
 
-
     def test_isURL(self):
         v = validationService.validatorFor('isURL')
         self.assertEqual(v('http://foo.bar:8080/manage'), 1)
         self.assertNotEqual(v('http://\n'), 1)
         self.assertNotEqual(v('../foo/bar'), 1)
-
 
     def test_isEmail(self):
         v = validationService.validatorFor('isEmail')
@@ -75,8 +73,8 @@ class TestValidation(ATTestCase):
         self.assertEqual(v('a_123456'), 1)
         self.assertNotEqual(v('123'), 1)
         self.assertNotEqual(v('ab.c'), 1)
-        self.assertNotEqual(v('ab,c'),1 )
-        self.assertNotEqual(v('aaaaaaaab'), 1) # too long
+        self.assertNotEqual(v('ab,c'), 1)
+        self.assertNotEqual(v('aaaaaaaab'), 1)  # too long
 
 
 def test_suite():
@@ -84,4 +82,3 @@ def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(TestValidation))
     return suite
-

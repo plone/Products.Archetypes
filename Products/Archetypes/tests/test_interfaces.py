@@ -26,6 +26,8 @@
 # @@ auto generating tests is bullshit. this should go somewhere more
 # easily auditable, like doctests.  DWM
 
+from unittest import TestSuite, makeSuite
+
 from Testing import ZopeTestCase
 
 from zope.interface import providedBy, implementedBy
@@ -33,21 +35,11 @@ from zope.interface.verify import verifyClass, verifyObject
 from zope.interface.exceptions import BrokenImplementation, DoesNotImplement,\
     BrokenMethodImplementation
 
-#from Products.Archetypes.interfaces.base import *
-#from Products.Archetypes.interfaces.field import *
-#from Products.Archetypes.interfaces.layer import *
-#from Products.Archetypes.interfaces.marshall import *
-#from Products.Archetypes.interfaces.metadata import *
-#from Products.Archetypes.interfaces.orderedfolder import *
-#from Products.Archetypes.interfaces.referenceable import *
-#from Products.Archetypes.interfaces.storage import *
-from Products.Archetypes.interfaces import *
-
 from Products.Archetypes.BaseObject import BaseObject
 from Products.Archetypes.BaseContent import BaseContent
 from Products.Archetypes.BaseFolder import BaseFolder
 from Products.Archetypes.BaseUnit import BaseUnit
-from Products.Archetypes import Field as at_field# use __all__ field
+from Products.Archetypes import Field as at_field  # use __all__ field
 from Products.Archetypes.Marshall import Marshaller, PrimaryFieldMarshaller, \
     RFC822Marshaller
 from Products.Archetypes.OrderedBaseFolder import OrderedBaseFolder
@@ -59,6 +51,7 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
 from Products.Archetypes.atapi import registerType
 from Products.Archetypes.tests.layer import ZCML
 
+
 def className(klass):
     """ get the short class name """
     # remove <>
@@ -67,6 +60,7 @@ def className(klass):
 
 # list of tests
 tests = []
+
 
 class InterfaceTest(ZopeTestCase.ZopeTestCase):
     """general interface testing class
@@ -83,9 +77,9 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 
     """
     layer = ZCML
-    klass = None    # test this class
-    instance = None # test this instance
-    forcedImpl = () # class must implement this tuple of interfaces
+    klass = None  # test this class
+    instance = None  # test this instance
+    forcedImpl = ()  # class must implement this tuple of interfaces
 
     def interfaceImplementedByInstanceOf(self, klass, interface):
         """ tests if the klass implements the interface in the right way """
@@ -155,14 +149,15 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
 ###                         testing starts here                             ###
 ###############################################################################
 
+
 class FieldInterfaceTest(InterfaceTest):
     """ test all field classes from Field.Field.__all__"""
 
-    klass = at_field.Field # not used but set to class Field
+    klass = at_field.Field  # not used but set to class Field
     forcedImpl = ()
 
     def testFieldInterface(self):
-       for fieldname in at_field.__all__:
+        for fieldname in at_field.__all__:
             klass = getattr(at_field, fieldname)
             instance = klass()
             self.doesImplementByInstanceOf(klass, self.forcedImpl)
@@ -187,11 +182,20 @@ testClasses = [
 PROJECTNAME = 'Archetypes.tests'
 #class EM(ExtensibleMetadata): pass
 #registerType(EM, PROJECTNAME)
-class BC(BaseContent): pass
+
+
+class BC(BaseContent):
+    pass
 registerType(BC, PROJECTNAME)
-class BF(BaseFolder): pass
+
+
+class BF(BaseFolder):
+    pass
 registerType(BF, PROJECTNAME)
-class OBF(OrderedBaseFolder): pass
+
+
+class OBF(OrderedBaseFolder):
+    pass
 registerType(OBF, PROJECTNAME)
 
 for testClass in testClasses:
@@ -201,7 +205,7 @@ for testClass in testClasses:
 
     class KlassInterfaceTest(InterfaceTest):
         """ implementation for %s """ % name
-        klass      = klass
+        klass = klass
         forcedImpl = forcedImpl
         layer = ZCML
 
@@ -215,7 +219,7 @@ for testInstance in (BC, BF, OBF):
 
     class InstanceInterfaceTest(InterfaceTest):
         """ implementation for %s """ % name
-        instance   = testInstance
+        instance = testInstance
         forcedImpl = ()
         layer = ZCML
 
@@ -225,7 +229,6 @@ for testInstance in (BC, BF, OBF):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     for test in tests:
         suite.addTest(makeSuite(test))

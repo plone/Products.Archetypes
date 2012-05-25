@@ -28,8 +28,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 # need this to initialize new BU for tests
 from Products.Archetypes.tests.test_classgen import Dummy
 
-from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.atapi import *
+from Products.Archetypes import atapi
 from Products.Archetypes.config import PKG_NAME, LANGUAGE_DEFAULT
 from Products.Archetypes.interfaces.layer import ILayerContainer
 from Products.CMFCore import permissions
@@ -39,17 +38,18 @@ from Products.validation import ValidationChain
 
 from DateTime import DateTime
 
-Dummy.schema = BaseSchema
+Dummy.schema = atapi.BaseSchema
 
 EmptyValidator = ValidationChain('isEmpty')
 EmptyValidator.appendSufficient('isEmpty')
+
 
 class BaseSchemaTest(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
-        registerType(Dummy, 'Archetypes')
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        atapi.registerType(Dummy, 'Archetypes')
+        content_types, constructors, ftis = atapi.process_types(atapi.listTypes(), PKG_NAME)
         portal = self.portal
         dummy = Dummy(oid='dummy')
         # put dummy in context of portal
@@ -58,7 +58,6 @@ class BaseSchemaTest(ATSiteTestCase):
 
         dummy.initializeArchetype()
         self._dummy = dummy
-
 
     def test_id(self):
         dummy = self._dummy
@@ -80,13 +79,13 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'veVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'string')
-        self.assertTrue(isinstance(field.storage, AttributeStorage))
-        self.assertTrue(field.getLayerImpl('storage') == AttributeStorage())
+        self.assertTrue(isinstance(field.storage, atapi.AttributeStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.AttributeStorage())
         self.assertTrue(ILayerContainer.providedBy(field))
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, IdWidget))
+        self.assertTrue(isinstance(field.widget, atapi.IdWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_title(self):
@@ -109,12 +108,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'veVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'string')
-        self.assertTrue(isinstance(field.storage, AttributeStorage))
-        self.assertTrue(field.getLayerImpl('storage') == AttributeStorage())
+        self.assertTrue(isinstance(field.storage, atapi.AttributeStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.AttributeStorage())
         self.assertTrue(field.validators == ())
-        self.assertTrue(isinstance(field.widget, StringWidget))
+        self.assertTrue(isinstance(field.widget, atapi.StringWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     ### Metadata Properties
@@ -138,10 +137,10 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'boolean')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, BooleanWidget))
+        self.assertTrue(isinstance(field.widget, atapi.BooleanWidget))
 
     def test_subject(self):
         dummy = self._dummy
@@ -164,12 +163,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'lines')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, KeywordWidget))
+        self.assertTrue(isinstance(field.widget, atapi.KeywordWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_description(self):
@@ -193,12 +192,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'text')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, TextAreaWidget))
+        self.assertTrue(isinstance(field.widget, atapi.TextAreaWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_contributors(self):
@@ -222,12 +221,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'lines')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, LinesWidget))
+        self.assertTrue(isinstance(field.widget, atapi.LinesWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_effectivedate(self):
@@ -251,12 +250,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'datetime')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, CalendarWidget))
+        self.assertTrue(isinstance(field.widget, atapi.CalendarWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_expirationdate(self):
@@ -280,16 +279,16 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'datetime')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, CalendarWidget))
+        self.assertTrue(isinstance(field.widget, atapi.CalendarWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     def test_language(self):
-        default=LANGUAGE_DEFAULT
+        default = LANGUAGE_DEFAULT
         dummy = self._dummy
         field = dummy.getField('language')
 
@@ -310,12 +309,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'string')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, LanguageWidget))
+        self.assertTrue(isinstance(field.widget, atapi.LanguageWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(vocab == dummy.languages())
 
     def test_rights(self):
@@ -339,12 +338,12 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(field.generateMode == 'mVc')
         self.assertTrue(field.force == '')
         self.assertTrue(field.type == 'text')
-        self.assertTrue(isinstance(field.storage, MetadataStorage))
-        self.assertTrue(field.getLayerImpl('storage') == MetadataStorage())
+        self.assertTrue(isinstance(field.storage, atapi.MetadataStorage))
+        self.assertTrue(field.getLayerImpl('storage') == atapi.MetadataStorage())
         self.assertTrue(field.validators == EmptyValidator)
-        self.assertTrue(isinstance(field.widget, TextAreaWidget))
+        self.assertTrue(isinstance(field.widget, atapi.TextAreaWidget))
         vocab = field.Vocabulary(dummy)
-        self.assertTrue(isinstance(vocab, DisplayList))
+        self.assertTrue(isinstance(vocab, atapi.DisplayList))
         self.assertTrue(tuple(vocab) == ())
 
     # metadata utility accessors (DublinCore)

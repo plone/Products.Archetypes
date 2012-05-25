@@ -23,20 +23,16 @@
 #
 ################################################################################
 
-import os
+from unittest import TestSuite, makeSuite
 import sys
 
 from ZPublisher.HTTPRequest import HTTPRequest
 from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import mkDummyInContext
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import TextField, BaseSchema, Schema, BaseContent
 
-import shutil
-
-from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.ArchetypeTool import registerType
 
 textfield1 = TextField('TEXTFIELD1', required=True, default='A')
@@ -216,6 +212,7 @@ class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
         """
         return [ti[0] for ti in self.attool.getChangedSchema() if ti[1]]
 
+
 class TestBasicSchemaUpdate(ATSiteTestCase):
     """Tests for update schema behavior which depend only on the basic
        types, and examine baseline behavior when no real schema changes have
@@ -245,7 +242,7 @@ An rst Document
 
         # update schema for all DDocuments and check if our type is preserved
         request = HTTPRequest(sys.stdin,
-                              {'SERVER_NAME':'test', 'SERVER_PORT': '8080'},
+                              {'SERVER_NAME': 'test', 'SERVER_PORT': '8080'},
                               {})
         request.form['Archetypes.DDocument'] = True
         request.form['update_all'] = True
@@ -255,9 +252,7 @@ An rst Document
         self.assertEqual(mimetype, 'text/x-rst')
 
 
-
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestUpdateSchema))
     suite.addTest(makeSuite(TestBasicSchemaUpdate))

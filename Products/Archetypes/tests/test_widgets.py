@@ -32,13 +32,13 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
-from Products.Archetypes.atapi import *
 from DateTime import DateTime
 
 stub_text_file = None
 stub_text_content = ''
 stub_bin_file = None
 stub_bin_content = ''
+
 
 class WidgetTests(ATSiteTestCase):
 
@@ -62,33 +62,33 @@ class WidgetTests(ATSiteTestCase):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
-        form = {'subject_keywords':['bla','ble'],
-                'subject_existing_keywords':['bli']
+        form = {'subject_keywords': ['bla', 'ble'],
+                'subject_existing_keywords': ['bli']
                 }
         expected = ['bla', 'ble', 'bli']
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-        form = {'subject_keywords':['bla'],
-                'subject_existing_keywords':['ble','bli']
+        form = {'subject_keywords': ['bla'],
+                'subject_existing_keywords': ['ble', 'bli']
                 }
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-        form = {'subject_keywords':[],
-                'subject_existing_keywords':['bla', 'ble','bli']
+        form = {'subject_keywords': [],
+                'subject_existing_keywords': ['bla', 'ble', 'bli']
                 }
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-        form = {'subject_keywords':['bla', 'ble','bli'],
-                'subject_existing_keywords':['bla', 'ble','bli']
+        form = {'subject_keywords': ['bla', 'ble', 'bli'],
+                'subject_existing_keywords': ['bla', 'ble', 'bli']
                 }
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-        form = {'subject_keywords':['bla', 'ble','bli'],
-                'subject_existing_keywords':[]
+        form = {'subject_keywords': ['bla', 'ble', 'bli'],
+                'subject_existing_keywords': []
                 }
         result = widget.process_form(doc, field, form)
         result[0].sort()
@@ -98,12 +98,12 @@ class WidgetTests(ATSiteTestCase):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['selectionlinesfield3']
         widget = field.widget
-        form = {'selectionlinesfield3':['bla','ble']}
+        form = {'selectionlinesfield3': ['bla', 'ble']}
         expected = ['bla', 'ble']
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
-        form = {'selectionlinesfield3':'bla\nble'}
+        form = {'selectionlinesfield3': 'bla\nble'}
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
@@ -114,8 +114,8 @@ class WidgetTests(ATSiteTestCase):
         widget = field.widget
         empty_marker = object()
         # test when the widget is rendered and returns empty lists
-        form = {'subject_keywords':[''],
-                'subject_existing_keywords':[]
+        form = {'subject_keywords': [''],
+                'subject_existing_keywords': []
                 }
         expected = []
         result = widget.process_form(doc, field, form, empty_marker)
@@ -170,7 +170,7 @@ class WidgetTests(ATSiteTestCase):
         field = doc.Schema()['textarea_appendonly']
         widget = field.widget
 
-        form = {'textarea_appendonly':''}
+        form = {'textarea_appendonly': ''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
@@ -195,7 +195,7 @@ class WidgetTests(ATSiteTestCase):
         field = doc.Schema()['textarea_appendonly_timestamp']
         widget = field.widget
 
-        form = {'textarea_appendonly_timestamp':''}
+        form = {'textarea_appendonly_timestamp': ''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
@@ -232,7 +232,7 @@ class WidgetTests(ATSiteTestCase):
         field = doc.Schema()['textarea_maxlength']
         widget = field.widget
 
-        form = {'textarea_maxlength':''}
+        form = {'textarea_maxlength': ''}
         result = widget.process_form(doc, field, form)
         expected = '', {}
         self.assertEqual(expected, result)
@@ -248,83 +248,81 @@ class WidgetTests(ATSiteTestCase):
         result = widget.process_form(doc, field, form)
         #self.assertEqual(expected, result)
 
-
     def test_rich_text_widget(self):
         request = FakeRequest()
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['richtextfield']
         widget = field.widget
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':stub_bin_file,
-                'richtextfield':'',
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': stub_bin_file,
+                'richtextfield': '',
                 }
         expected = stub_bin_file, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':stub_bin_file,
-                'richtextfield':stub_text_file,
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': stub_bin_file,
+                'richtextfield': stub_text_file,
                 }
         expected = stub_bin_file, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':stub_text_file,
-                'richtextfield':'',
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': stub_text_file,
+                'richtextfield': '',
                 }
         expected = stub_text_file, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':stub_text_file,
-                'richtextfield':stub_text_content,
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': stub_text_file,
+                'richtextfield': stub_text_content,
                 }
         expected = stub_text_file, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':'',
-                'richtextfield':stub_text_content,
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': '',
+                'richtextfield': stub_text_content,
                 }
-        expected = stub_text_content, {'mimetype':'text/x-rst'}
+        expected = stub_text_content, {'mimetype': 'text/x-rst'}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_file':stub_text_file}
+        form = {'richtextfield_file': stub_text_file}
         request.form.update(form)
         doc.processForm(REQUEST=request)
         self.assertEqual(field.getContentType(doc), 'text/x-rst')
 
         # XXX: This makes wv-1.0.3 spin.
-        #form = {'richtextfield_file':stub_bin_file}
+        #form = {'richtextfield_file': stub_bin_file}
         #request.form.update(form)
         #doc.processForm(REQUEST=request)
         #self.assertEqual(field.getContentType(doc), 'application/msword')
         #self.assertEqual(str(doc[field.getName()]), stub_bin_content)
 
-        form = {'richtextfield_text_format':'text/x-rst',
-                'richtextfield_file':'',
-                'richtextfield':stub_text_content,
+        form = {'richtextfield_text_format': 'text/x-rst',
+                'richtextfield_file': '',
+                'richtextfield': stub_text_content,
                 }
-        expected = stub_text_content, {'mimetype':'text/x-rst'}
+        expected = stub_text_content, {'mimetype': 'text/x-rst'}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_text_format':'',
-                'richtextfield_file':'',
-                'richtextfield':stub_text_content,
+        form = {'richtextfield_text_format': '',
+                'richtextfield_file': '',
+                'richtextfield': stub_text_content,
                 }
         expected = stub_text_content, {}
         result = widget.process_form(doc, field, form)
         self.assertEqual(expected, result)
 
-        form = {'richtextfield_text_format':'text/plain',
-                'richtextfield_file':stub_text_file,
+        form = {'richtextfield_text_format': 'text/plain',
+                'richtextfield_file': stub_text_file,
                 }
         request.form.update(form)
         doc.processForm(REQUEST=request)

@@ -22,34 +22,36 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
 
-from Testing import ZopeTestCase
+from unittest import TestSuite, makeSuite
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import BaseSchema, Schema, StringField, \
+    AnnotationStorage, MetadataAnnotationStorage, AT_MD_STORAGE, \
+    getAnnotation, AT_ANN_STORAGE
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_class
 from Products.Archetypes.tests.test_classgen import gen_dummy
 from Acquisition import aq_base
 
+
 class AnnDummy(Dummy): pass
 
 annschema = BaseSchema + Schema((
      StringField('string',
-         default = u'stringdefault',
-         storage = AnnotationStorage(),
+         default=u'stringdefault',
+         storage=AnnotationStorage(),
          ),
      StringField('meta',
-         default = 'metadefault',
-         storage = MetadataAnnotationStorage(),
+         default='metadefault',
+         storage=MetadataAnnotationStorage(),
          ),
     ))
 
 
 def gen_anndummy():
     gen_class(AnnDummy, annschema)
+
 
 class AnnotationTest(ATSiteTestCase):
 
@@ -87,17 +89,17 @@ class AnnotationTest(ATSiteTestCase):
         ann['test'] = 'test1'
         self.assertEqual(ann['test'], 'test1')
         self.assertEqual(ann.get('test'), 'test1')
-        self.assertTrue(ann.has_key('test'))
+        self.assertTrue('test' in ann)
         self.assertEqual(ann.get('none', default='default'), 'default')
 
     def test_del(self):
         ann = self.ann
         ann['test'] = 'test1'
         del ann['test']
-        self.assertFalse(ann.has_key('test'))
+        self.assertFalse('test' in ann)
         ann.setSubkey('test', 'test3', subkey='testsub')
         ann.delSubkey('test', subkey='testsub')
-        self.assertFalse(ann.has_key('test-testsub'))
+        self.assertFalse('test-testsub' in ann)
         self.assertFalse(ann.hasSubkey('test', subkey='testsub'))
 
 
@@ -124,6 +126,7 @@ class MetadataAnnotationStorageTest(ATSiteTestCase):
         dummy.setMeta('egg')
         self.assertEqual(dummy.getMeta(), 'egg')
         self.assertEqual(ann.getSubkey(AT_MD_STORAGE, subkey='meta'), 'egg')
+
 
 class AnnotationStorageTest(ATSiteTestCase):
 
@@ -205,7 +208,6 @@ class AnnotationStorageTest(ATSiteTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(AnnotationTest))
     suite.addTest(makeSuite(MetadataAnnotationStorageTest))

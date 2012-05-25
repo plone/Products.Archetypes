@@ -22,11 +22,8 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-Unittests for a renaming archetypes objects.
 
-$Id$
-"""
+from unittest import TestSuite, makeSuite
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
@@ -42,13 +39,14 @@ from Products.Archetypes.config import UUID_ATTR
 import transaction
 import warnings
 
+
 class Counter:
 
     def __init__(self):
         self.ids = {}
 
     def add(self, uid):
-        if not self.ids.has_key(uid):
+        if uid not in self.ids:
             self.ids[uid] = 0
         self.ids[uid] += 1
 
@@ -56,7 +54,7 @@ class Counter:
         self.__init__()
 
     def get(self, uid):
-        if not self.ids.has_key(uid):
+        if uid not in self.ids:
             self.ids[uid] = 0
         return self.ids[uid]
 
@@ -67,9 +65,11 @@ CLONE_COUNTER = Counter()
 WARNING_LEVEL = 2
 DEBUG_CALL = False
 
+
 def UID(obj):
     uid = shasattr(obj, UUID_ATTR) and obj.UID() or obj.absolute_url()
     return uid
+
 
 def manage_afterAdd(self, item, container):
     res = self.__test_manage_afterAdd__(item, container)
@@ -82,6 +82,7 @@ def manage_afterAdd(self, item, container):
                       WARNING_LEVEL)
     return res
 
+
 def manage_beforeDelete(self, item, container):
     uid = UID(self)
     DELETE_COUNTER.add(uid)
@@ -91,6 +92,7 @@ def manage_beforeDelete(self, item, container):
                       UserWarning,
                       WARNING_LEVEL)
     return self.__test_manage_beforeDelete__(item, container)
+
 
 def manage_afterClone(self, item):
     uid = UID(self)
@@ -103,10 +105,11 @@ def manage_afterClone(self, item):
     return self.__test_manage_afterClone__(item)
 
 counts = (ADD_COUNTER, DELETE_COUNTER, CLONE_COUNTER)
-meths = {'manage_afterAdd':manage_afterAdd,
-         'manage_beforeDelete':manage_beforeDelete,
-         'manage_afterClone':manage_afterClone
+meths = {'manage_afterAdd': manage_afterAdd,
+         'manage_beforeDelete': manage_beforeDelete,
+         'manage_afterClone': manage_afterClone
          }
+
 
 class RenameTests(ATSiteTestCase):
 
@@ -169,7 +172,7 @@ class RenameTests(ATSiteTestCase):
         # Rename the parent folder
         self.folder.folder2.folder22.manage_renameObject('folder221',
                                                          'new_folder221')
-        expected = (d_count[0]+1, d_count[1]+1, d_count[2]+0)
+        expected = (d_count[0] + 1, d_count[1] + 1, d_count[2] + 0)
         got = self.getCounts(d)
         self.assertEquals(got, expected)
 
@@ -179,7 +182,7 @@ class RenameTests(ATSiteTestCase):
         # Rename the root folder
         self.folder.manage_renameObject('folder2', 'new_folder2')
 
-        expected = (d_count[0]+1, d_count[1]+1, d_count[2]+0)
+        expected = (d_count[0] + 1, d_count[1] + 1, d_count[2] + 0)
         got = self.getCounts(d)
         self.assertEquals(got, expected)
 
@@ -202,8 +205,8 @@ class RenameTests(ATSiteTestCase):
         # the *new* object.
         self.assertEquals(got, (1, 0, 1))
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(RenameTests))
     return suite

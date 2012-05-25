@@ -2,6 +2,8 @@
 Unittests for the events fired by Archetypes.
 """
 
+from unittest import TestSuite, makeSuite
+
 from zope.interface import implements, Interface, directlyProvides
 from zope import component
 
@@ -20,20 +22,25 @@ from Products.Archetypes.interfaces import IObjectEditedEvent
 
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
+
 class IObject1(Interface):
     pass
+
 
 class IObject2(Interface):
     pass
 
+
 class IObject3(Interface):
     pass
+
 
 class Dummy(BaseContent):
     pass
 utils.gen_class(Dummy)
 
 # Subscription adapters for validation
+
 
 class PreValidation(object):
     implements(IObjectPreValidation)
@@ -44,6 +51,7 @@ class PreValidation(object):
     def __call__(self, request):
         return dict(foo="Foo was invalid.")
 
+
 class PostValidation(object):
     implements(IObjectPostValidation)
 
@@ -53,14 +61,18 @@ class PostValidation(object):
     def __call__(self, request):
         return dict(bar="Bar was invalid.")
 
+
 def created_handler(ob, event):
     ob._createdCaught = True
+
 
 def initialized_handler(ob, event):
     ob._initializedCaught = True
 
+
 def edited_handler(ob, event):
     ob._editedCaught = True
+
 
 class ValidationEventTests(ATSiteTestCase):
 
@@ -84,7 +96,7 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject2)
         errors = ob.validate()
-        self.assertFalse(errors.has_key('foo'))
+        self.assertFalse('foo' in errors)
         del ob
 
         ob = Dummy('dummy')
@@ -110,7 +122,7 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
         errors = ob.validate()
-        self.assertFalse(errors.has_key('bar'))
+        self.assertFalse('bar' in errors)
         del ob
 
         ob = Dummy('dummy')
@@ -122,7 +134,7 @@ class ValidationEventTests(ATSiteTestCase):
         ob = Dummy('dummy')
         directlyProvides(ob, IObject3)
         errors = ob.validate()
-        self.assertTrue(errors.has_key('bar'))
+        self.assertTrue('bar' in errors)
         del ob
 
         sm = component.getSiteManager()
@@ -161,7 +173,6 @@ class ValidationEventTests(ATSiteTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ValidationEventTests))
     return suite

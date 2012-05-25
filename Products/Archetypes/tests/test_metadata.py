@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Acquisition import aq_base
 from Acquisition import aq_parent
 
@@ -32,15 +34,12 @@ from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import schema
 
-from types import FunctionType, ListType, TupleType
+from types import FunctionType
 
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import BaseFolder
 from Products.Archetypes import config
-from Products.Archetypes.interfaces.field import IObjectField
-from Products.Archetypes.config import PKG_NAME
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from Products.CMFCore.utils import getToolByName
 
 fieldList = [
     # (accessor, mutator, field),
@@ -65,9 +64,11 @@ fieldList = [
     ('allowDiscussion','isDiscussable','allowDiscussion'),
   ]
 
+
 class DummyPortalMembership:
     def checkPermission(self, *args, **kwargs):
         return True
+
 
 def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time=1980):
     """ """
@@ -80,6 +81,7 @@ def addMetadataTo(obj, data='default', mimetype='application/octet-stream', time
     obj.setFormat(mimetype)
     obj.setLanguage(data)
     obj.setRights(data)
+
 
 def compareMetadataOf(test, obj, data='default',
                       mimetype='application/octet-stream', time=1980):
@@ -160,7 +162,7 @@ class ExtensibleMetadataTest(ATSiteTestCase):
             if not meta: continue
             md = aq_base(obj)._md
             field = aq_base(obj).Schema()[meta]
-            self.assertTrue(md.has_key(meta), 'Missing field %s' % meta)
+            self.assertTrue(meta in md, 'Missing field %s' % meta)
             _marker = []
             value = md.get(meta, _marker)
             # We are checking here if the metadata
@@ -291,7 +293,6 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.assertEqual(pfield.getContentType(dummy), 'image/gif')
         self.assertEqual(pfield.get(dummy).content_type, 'image/gif')
 
-
     def testMultipleChanges(self):
         dummy = self._parent.dummy
         pfield = dummy.getPrimaryField()
@@ -326,7 +327,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
 
     def testDiscussionEditAccessorDoesConversions(self):
         # Use a DDocument because the dummy is too dumb for this
-        self.folder.invokeFactory('DDocument','bogus_item')
+        self.folder.invokeFactory('DDocument', 'bogus_item')
         dummy = self.folder.bogus_item
         # Set Allow discussion
         dummy.allowDiscussion(True)
@@ -347,7 +348,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         # but temporarily set an allow_discussion attribute on the class.
         from Products.Archetypes.examples.DDocument import DDocument
         DDocument.allow_discussion = True
-        self.folder.invokeFactory('DDocument','bogus_item')
+        self.folder.invokeFactory('DDocument', 'bogus_item')
         dummy = self.folder.bogus_item
         dummy.allowDiscussion(None)
         # clear our bogus attribute
@@ -389,8 +390,8 @@ class TimeZoneTest(ATSiteTestCase):
         self.assertEqual(item.ExpirationDate('US/Eastern'),
                          '2007-01-01T07:00:00-05:00')
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ExtensibleMetadataTest))
     suite.addTest(makeSuite(ExtMetadataContextTest))

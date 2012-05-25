@@ -27,8 +27,8 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         # no properties tool nor properties sheet
         self.assertEqual(getDefaultContentType(self.portal), 'text/plain')
 
+
 def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(TestDefaultMimeTypes))
     return suite
-

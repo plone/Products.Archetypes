@@ -26,12 +26,13 @@
 # Load fixture
 import os
 import unittest
-from Testing import ZopeTestCase
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from OFS.Image import File
 
 from Products.Archetypes.atapi import MetadataStorage, BaseContent
 from Products.Archetypes.tests.utils import PACKAGE_HOME
+
 
 class FileLike:
 
@@ -111,10 +112,10 @@ class FileFieldTest(ATSiteTestCase):
         fp = TemporaryFile('w+b')
         fp.write('x' * (1 << 19))
         fp.seek(0)
-        env = {'REQUEST_METHOD':'PUT'}
-        headers = {'content-type':'text/plain',
+        env = {'REQUEST_METHOD': 'PUT'}
+        headers = {'content-type': 'text/plain',
                    'content-length': 1 << 19,
-                   'content-disposition':'attachment; filename=test.txt'}
+                   'content-disposition': 'attachment; filename=test.txt'}
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f, instance=self.instance)
@@ -129,10 +130,10 @@ class FileFieldTest(ATSiteTestCase):
         fp = TemporaryFile('w+b')
         fp.write('\x00' + 'x' * (1 << 19))
         fp.seek(0)
-        env = {'REQUEST_METHOD':'PUT'}
-        headers = {'content-type':'text/plain',
+        env = {'REQUEST_METHOD': 'PUT'}
+        headers = {'content-type': 'text/plain',
                    'content-length': 1 << 19,
-                   'content-disposition':'attachment; filename=test.bin'}
+                   'content-disposition': 'attachment; filename=test.bin'}
         fs = FieldStorage(fp=fp, environ=env, headers=headers)
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f, instance=self.instance)
@@ -366,6 +367,7 @@ class TextFieldTest(FileFieldTest):
         # For TextField, we should really return a string for
         # backwards compatibility.
         self.assertTrue(isinstance(result, str), type(result))
+
 
 def test_suite():
     suite = unittest.TestSuite()

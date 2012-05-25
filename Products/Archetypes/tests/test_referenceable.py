@@ -23,16 +23,19 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Acquisition import aq_base
 import transaction
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-from Products.Archetypes.examples import *
-from Products.Archetypes.config import *
+from Products.Archetypes.config import REFERENCE_CATALOG, UID_CATALOG, UUID_ATTR
+
 from Products.Archetypes.atapi import DisplayList
 from plone.uuid.interfaces import IUUIDAware, IUUID
+
 
 class BaseReferenceableTests(ATSiteTestCase):
 
@@ -57,33 +60,32 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertFalse(None in robjects, """bad ref catalog resolution""")
         return uobjects, robjects
 
-    def test_hasUID( self ):
-        doc = makeContent( self.folder
-                           , portal_type='DDocument'
-                           , title='Foo' )
+    def test_hasUID(self):
+        doc = makeContent(self.folder,
+                          portal_type='DDocument',
+                          title='Foo')
 
         self.assertTrue(hasattr(aq_base(doc), UUID_ATTR))
         self.assertTrue(getattr(aq_base(doc), UUID_ATTR, None))
 
     def test_uuid(self):
-        doc = makeContent( self.folder
-                           , portal_type='DDocument'
-                           , title='Foo' )
+        doc = makeContent(self.folder,
+                          portal_type='DDocument',
+                          title='Foo')
 
         self.assertTrue(IUUIDAware.providedBy(doc))
         uuid = IUUID(doc, None)
         self.assertTrue(uuid == doc.UID())
 
-    def test_renamedontchangeUID( self ):
+    def test_renamedontchangeUID(self):
         catalog = self.portal.uid_catalog
 
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
-        doc = makeContent(self.folder
-                          , portal_type='DDocument'
-                          , title='Foo'
-                          , id=obj_id)
-
+        doc = makeContent(self.folder,
+                          portal_type='DDocument',
+                          title='Foo',
+                          id=obj_id)
 
         UID = doc.UID()
         # This test made an assumption about other UIDs in the system
@@ -95,7 +97,6 @@ class BaseReferenceableTests(ATSiteTestCase):
         doc = getattr(self.folder, new_id)
         self.assertTrue(UID in catalog.uniqueValuesFor('UID'))
         self.assertEquals(doc.UID(), UID)
-
 
     def test_renameKeepsReferences(self):
         container = makeContent(self.folder,
@@ -132,7 +133,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         self.verifyBrains()
 
-    def test_renamecontainerKeepsReferences( self ):
+    def test_renamecontainerKeepsReferences(self):
         # test for #956677: renaming the container causes contained objects
         #                   to lose their refs
         container = makeContent(self.folder,
@@ -150,7 +151,7 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         obj1.addReference(obj2)
 
-        a,b = self.verifyBrains()
+        a, b = self.verifyBrains()
         transaction.savepoint(optimistic=True)
 
         self.assertEquals(obj2.getBRefs(), [obj1])
@@ -166,7 +167,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(obj2.getBRefs(), [obj1])
         self.assertEquals(obj1.getRefs(), [obj2])
 
-    def test_renamecontainerKeepsReferences2( self ):
+    def test_renamecontainerKeepsReferences2(self):
         # test for [ 1013363 ] References break on folder rename
         folderA = makeContent(self.folder,
                                 portal_type=self.FOLDER_TYPE,
@@ -205,15 +206,15 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(objB.getBRefs(), [objA])
         self.assertEquals(objA.getRefs(), [objB])
 
-    def test_UIDclash( self ):
+    def test_UIDclash(self):
         catalog = getattr(self.portal, UID_CATALOG)
 
         obj_id = 'demodoc'
         new_id = 'new_demodoc'
-        doc = makeContent( self.folder
-                           , portal_type='DDocument'
-                           , title='Foo'
-                           , id=obj_id)
+        doc = makeContent(self.folder,
+                          portal_type='DDocument',
+                          title='Foo',
+                          id=obj_id)
 
         UID = doc.UID()
         # ensure object has a _p_jar
@@ -221,10 +222,10 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
 
         #now, make a new one with the same ID and check it gets a different UID
-        doc2 = makeContent( self.folder
-                            , portal_type='DDocument'
-                            , title='Foo'
-                            , id=obj_id)
+        doc2 = makeContent(self.folder,
+                           portal_type='DDocument',
+                           title='Foo',
+                           id=obj_id)
 
         UID2 = doc2.UID()
         self.assertFalse(UID == UID2)
@@ -233,7 +234,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertTrue(UID2 in uniq, (UID, uniq))
 
     def test_setUID_keeps_relationships(self):
-        obj_id   = 'demodoc'
+        obj_id = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
 
@@ -307,17 +308,17 @@ class BaseReferenceableTests(ATSiteTestCase):
 
     def test_relationships(self):
 
-        obj_id   = 'demodoc'
+        obj_id = 'demodoc'
         known_id = 'known_doc'
         owned_id = 'owned_doc'
         other_id = 'other_doc'
 
-        a = makeContent( self.folder, portal_type='DDocument',
-                         title='Foo', id=obj_id)
-        b = makeContent( self.folder, portal_type='DDocument',
-                         title='Foo', id=known_id)
-        c = makeContent( self.folder, portal_type='DDocument',
-                         title='Foo', id=owned_id)
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=obj_id)
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=known_id)
+        c = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=owned_id)
 
         #Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -337,15 +338,15 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(c.getBRefs(), [])
 
         #test querying references using the targetObject parameter
-        d = makeContent( self.folder, portal_type='DDocument',
-                         title='Foo', id=other_id)
+        d = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id=other_id)
 
-        a.addReference(d,'Owns')
-        a.addReference(d,'KnowsAbout')
+        a.addReference(d, 'Owns')
+        a.addReference(d, 'KnowsAbout')
 
-        self.assertEqual(len(a.getReferenceImpl()),3)
+        self.assertEqual(len(a.getReferenceImpl()), 3)
         #get only refs to d
-        self.assertEqual(len(a.getReferenceImpl(targetObject=d)),2)
+        self.assertEqual(len(a.getReferenceImpl(targetObject=d)), 2)
 
     def test_back_relationships(self):
 
@@ -355,17 +356,17 @@ class BaseReferenceableTests(ATSiteTestCase):
         future_payment_id = 'cta_receber'
         payment2_id = 'quitacao'
 
-        account = makeContent( self.folder, portal_type='DDocument',
-                               title='Account', id=account_id)
-        invoice = makeContent( self.folder, portal_type='DDocument',
-                               title='Invoice', id=invoice_id)
-        payment = makeContent( self.folder, portal_type='DDocument',
-                               title='Payment', id=payment_id)
-        future_payment = makeContent( self.folder, portal_type='DDocument',
-                                      title='Future Payment',
-                                      id=future_payment_id)
-        payment2 = makeContent( self.folder, portal_type='DDocument',
-                                title='Payment 2', id=payment2_id)
+        account = makeContent(self.folder, portal_type='DDocument',
+                              title='Account', id=account_id)
+        invoice = makeContent(self.folder, portal_type='DDocument',
+                              title='Invoice', id=invoice_id)
+        payment = makeContent(self.folder, portal_type='DDocument',
+                              title='Payment', id=payment_id)
+        future_payment = makeContent(self.folder, portal_type='DDocument',
+                                     title='Future Payment',
+                                     id=future_payment_id)
+        payment2 = makeContent(self.folder, portal_type='DDocument',
+                               title='Payment 2', id=payment2_id)
 
         invoice.addReference(payment, "Owns")
         invoice.addReference(future_payment, "Owns")
@@ -399,8 +400,8 @@ class BaseReferenceableTests(ATSiteTestCase):
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
 
         #Add the same ref twice
         a.addReference(b, "KnowsAbout")
@@ -416,8 +417,8 @@ class BaseReferenceableTests(ATSiteTestCase):
     def test_multipleReferences(self):
         # If you provide updateReferences=False to addReference, it
         # will add, not replace the reference
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
+        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
 
         #Add the same ref twice
         a.addReference(b, "KnowsAbout", updateReferences=False)
@@ -430,15 +431,14 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
         self.assertEquals(len(a.getRefs()), 3)
 
-
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
         at = self.portal.archetype_tool
 
-        folder = makeContent( self.folder, portal_type=self.FOLDER_TYPE,
-                              title='Foo', id='folder')
-        nonRef = makeContent( folder, portal_type='Document',
-                              title='Foo', id='nonRef')
+        folder = makeContent(self.folder, portal_type=self.FOLDER_TYPE,
+                             title='Foo', id='folder')
+        nonRef = makeContent(folder, portal_type='Document',
+                             title='Foo', id='nonRef')
 
         fuid = folder.UID()
         nuid = nonRef.UID()
@@ -448,9 +448,9 @@ class BaseReferenceableTests(ATSiteTestCase):
         # XXX: assert fuid != nuid
 
     def test_hasRelationship(self):
-        a = makeContent(self.folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent(self.folder, portal_type='DDocument',title='Foo', id='b')
-        c = makeContent(self.folder, portal_type='DDocument',title='Foo', id='c')
+        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument', title='Foo', id='c')
 
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -467,8 +467,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.folder.invokeFactory(type_name="Folder", id="reftest")
         folder = getattr(self.folder, "reftest")
 
-        a = makeContent(folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent(folder, portal_type='DDocument',title='Bar', id='b')
+        a = makeContent(folder, portal_type='DDocument', title='Foo', id='a')
+        b = makeContent(folder, portal_type='DDocument', title='Bar', id='b')
         a.addReference(b, "KnowsAbout")
 
         # Again, lets assert the sanity of the UID and Ref Catalogs
@@ -508,9 +508,9 @@ class BaseReferenceableTests(ATSiteTestCase):
         # metamodel)
         rc = self.portal.reference_catalog
 
-        a = makeContent( self.folder, portal_type='DDocument',title='Foo', id='a')
-        b = makeContent( self.folder, portal_type='DDocument',title='Foo', id='b')
-        c = makeContent( self.folder, portal_type='DDocument',title='Foo', id='c')
+        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument', title='Foo', id='c')
         a.addReference(b)
 
         ref = a._getReferenceAnnotations().objectValues()[0]
@@ -619,7 +619,6 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertEqual(a.getRefs(), copy_a.getRefs())
         self.assertTrue(copy_a in b.getBRefs())
 
-
         # Original object should keep references
         self.assertEqual(a.getRefs(), [b])
         # Original non-copied object should point to both the original and the copied object
@@ -656,7 +655,6 @@ class BaseReferenceableTests(ATSiteTestCase):
         # The copy shouldn't have references
         self.assertEqual(copy_a.getRefs(), [])
         self.assertFalse(copy_a in b.getBRefs())
-
 
         # Original object should keep references
         self.assertEqual(a.getRefs(), [b])
@@ -768,11 +766,12 @@ class BaseReferenceableTests(ATSiteTestCase):
 class SimpleFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleFolder'
 
+
 class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleBTreeFolder'
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(SimpleFolderReferenceableTests))
     suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))

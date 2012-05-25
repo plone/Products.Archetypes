@@ -23,11 +23,11 @@
 #
 ################################################################################
 
-from Products.Archetypes.atapi import *
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.CMFCore.utils import getToolByName
+
 
 class TemplateMixinTest(ATSiteTestCase):
 
@@ -38,6 +38,7 @@ class TemplateMixinTest(ATSiteTestCase):
     def test_isTemplateEnabledType(self):
         at = getToolByName(self.portal, TOOL_NAME)
         self.assertTrue(at.isTemplateEnabled(dict(klass=TemplateMixin)))
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

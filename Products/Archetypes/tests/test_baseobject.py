@@ -23,47 +23,53 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 
 from Products.Archetypes import PloneMessageFactory as _
-from Products.Archetypes.atapi import *
+from Products.Archetypes import atapi
+
 
 class DummyDiscussionTool:
-    def isDiscussionAllowedFor( self, content ):
+    def isDiscussionAllowedFor(self, content):
         return False
+
     def overrideDiscussionFor(self, content, allowDiscussion):
         pass
 
-MULTIPLEFIELD_LIST = DisplayList(
+MULTIPLEFIELD_LIST = atapi.DisplayList(
     (
     ('1', _(u'Option 1 : printemps')),
-    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')), # e-acute t e-acute
+    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')),  # e-acute t e-acute
     ('3', u'Option 3 : automne'),
     ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
 
-schema = BaseSchema + Schema((
-    LinesField(
+schema = atapi.BaseSchema + atapi.Schema((
+    atapi.LinesField(
         'MULTIPLEFIELD',
-        searchable = 1,
-        vocabulary = MULTIPLEFIELD_LIST,
-        widget = MultiSelectionWidget(
-            i18n_domain = 'plone',
+        searchable=1,
+        vocabulary=MULTIPLEFIELD_LIST,
+        widget=atapi.MultiSelectionWidget(
+            i18n_domain='plone',
             ),
         ),
-    TextField(
+    atapi.TextField(
         'TEXTFIELD',
         primary=True,
         ),
 ))
 
-class Dummy(BaseContent):
+
+class Dummy(atapi.BaseContent):
 
     portal_discussion = DummyDiscussionTool()
 
     def getCharset(self):
         return 'utf-8'
+
 
 class BaseObjectTest(ATSiteTestCase):
 
@@ -79,14 +85,14 @@ class BaseObjectTest(ATSiteTestCase):
         dummy = self._dummy
 
         # Set a multiple field
-        dummy.setMULTIPLEFIELD(['1','2'])
+        dummy.setMULTIPLEFIELD(['1', '2'])
         searchable = dummy.SearchableText()
 
         self.assertTrue(isinstance(searchable, basestring))
         self.assertEquals(searchable,
             '1 2 Option 1 : printemps [[plone][Option 2 : \xc3\xa9t\xc3\xa9]]')
 
-        dummy.setMULTIPLEFIELD(['3','4'])
+        dummy.setMULTIPLEFIELD(['3', '4'])
         searchable = dummy.SearchableText()
 
         self.assertEquals(searchable,
@@ -102,14 +108,16 @@ class BaseObjectTest(ATSiteTestCase):
         dummy = self._dummy
 
         # This is where we left off in the previous test
-        dummy.setMULTIPLEFIELD(['1','2'])
+        dummy.setMULTIPLEFIELD(['1', '2'])
         searchable = dummy.SearchableText()
         self.assertTrue(searchable.startswith('1 2 Option 1 : printemps'))
 
         # Now we set another index_method and expect it to be used:
         dummy.getField('MULTIPLEFIELD').index_method = 'myMethod'
+
         def myMethod(self):
             return "What do you expect of a Dummy?"
+
         Dummy.myMethod = myMethod
         searchable = dummy.SearchableText()
         self.assertTrue(searchable.startswith("What do you expect of a Dummy"))
@@ -139,7 +147,6 @@ class BaseObjectTest(ATSiteTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(BaseObjectTest))
     return suite

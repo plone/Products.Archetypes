@@ -30,6 +30,7 @@ from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import make_uuid
 
+
 class UidGeneratorTest(ATTestCase):
     """Some ppl have reported problems with uids. This test isn't mathematical
     correct but should show the issue on plattform. I suspect it's Windows :|
@@ -37,11 +38,12 @@ class UidGeneratorTest(ATTestCase):
 
     def test_uuid(self):
         uids = {}
-        loop_length = 10**5 # about 1.5 seconds on a fast cpu
+        loop_length = 10 ** 5  # about 1.5 seconds on a fast cpu
         for i in xrange(loop_length):
             uid = make_uuid()
             uids[uid] = 1
         self.assertEqual(len(uids), loop_length)
+
 
 class DisplayListTest(ATTestCase):
 
@@ -65,7 +67,7 @@ class DisplayListTest(ATTestCase):
     def test_item(self):
         ta = ('a', 'b', 'c')
         l = zip(ta, ta)
-        for i in range(0,2):
+        for i in range(0, 2):
             item = ta[i]
             self.assertTrue(DisplayList(l)[i] == item)
 
@@ -124,9 +126,9 @@ class DisplayListTest(ATTestCase):
         self.assertTrue(dl()[:] == l)
 
     def test_sort(self):
-        a = (('a','a',), ('b','b'), ('c', 'c'))
-        b = (('z','Z',), ('y','Y'), ('x', 'X'))
-        c = (('a','Z',), ('c','Y'), ('b', 'X'))
+        a = (('a', 'a',), ('b', 'b'), ('c', 'c'))
+        b = (('z', 'Z',), ('y', 'Y'), ('x', 'X'))
+        c = (('a', 'Z',), ('c', 'Y'), ('b', 'X'))
         dla = DisplayList(a)
         dlb = DisplayList(b)
         dlc = DisplayList(c)

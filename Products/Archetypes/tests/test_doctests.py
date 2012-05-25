@@ -18,6 +18,7 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
 
+
 def test_suite():
     suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
                              extraglobs={},

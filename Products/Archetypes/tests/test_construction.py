@@ -14,7 +14,8 @@ class FactoryTest(ATSiteTestCase):
         self.folder.invokeFactory(id="dummy", type_name="MySimpleType")
         self.assertEqual(self.folder.dummy.getPtype(), "My Simple Type")
 
+
 def test_suite():
-    suite=unittest.TestSuite()
+    suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(FactoryTest))
     return suite

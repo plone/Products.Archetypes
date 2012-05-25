@@ -22,17 +22,15 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
+
+from unittest import TestSuite, makeSuite
+
 from zope import component
 from zope import interface
 from zope.event import notify
 from zope.lifecycleevent import ObjectCreatedEvent
 from plone.indexer.interfaces import IIndexableObject
 from Products.ZCatalog.interfaces import IZCatalog
-"""
-Unittests for a reference Catalog
-
-$Id$
-"""
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
@@ -44,6 +42,7 @@ import transaction
 
 from plone.uuid.interfaces import IAttributeUUID, IUUID
 from plone.indexer import wrapper
+
 
 class DexterityLike(object):
     """Create a new class non based on Archetypes"""
@@ -64,7 +63,7 @@ class DexterityLike(object):
 
     def manage_fixupOwnershipAfterAdd(self):
         pass
-    
+
     def getId(self):
         return self.id
 
@@ -172,7 +171,6 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.assertTrue(refs[0].sourceUID == b[0].UID() == uid2)
         self.verifyBrains()
 
-
     def test_holdingref(self):
         rc = getattr(self.portal, config.REFERENCE_CATALOG)
         uc = getattr(self.portal, config.UID_CATALOG)
@@ -227,7 +225,6 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uid1 = obj1.UID()
         uid2 = obj2.UID()
 
-
         #Make a reference
         obj1.addReference(obj2, relationship="example")
 
@@ -242,8 +239,8 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.assertFalse(uid1 in uc.uniqueValuesFor('UID'))
         self.assertTrue(uid2 in uc.uniqueValuesFor('UID'))
 
-        sourceRefs = rc(sourceUID = uid1)
-        targetRefs = rc(targetUID = uid1)
+        sourceRefs = rc(sourceUID=uid1)
+        targetRefs = rc(targetUID=uid1)
 
         assert len(sourceRefs) == 0
         assert len(targetRefs) == 0
@@ -272,13 +269,12 @@ class ReferenceCatalogTests(ATSiteTestCase):
         ref = rc.getReferences(obj1)[0]
         ref.attribute1 = "some_value"
         ruid = ref.UID()
-        self.assertTrue(ref.attribute1=='some_value')
-
+        self.assertTrue(ref.attribute1 == 'some_value')
 
         transaction.savepoint(optimistic=True)
         # update schema
-        self.app.REQUEST.form['Archetypes.Refnode']=1
-        self.app.REQUEST.form['update_all']=1
+        self.app.REQUEST.form['Archetypes.Refnode'] = 1
+        self.app.REQUEST.form['update_all'] = 1
         self.portal.archetype_tool.manage_updateSchema(REQUEST=self.app.REQUEST)
         del obj1
 
@@ -293,10 +289,10 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.assertEqual(ref.attribute1, 'some_value')
 
     def test_sortable_references(self):
-        obj1 = makeContent(self.folder, portal_type='Refnode',id='refone')
-        obj2 = makeContent(self.folder, portal_type='Refnode',id='reftwo')
-        obj3 = makeContent(self.folder, portal_type='Refnode',id='refthree')
-        obj4 = makeContent(self.folder, portal_type='Refnode',id='reffour')
+        obj1 = makeContent(self.folder, portal_type='Refnode', id='refone')
+        obj2 = makeContent(self.folder, portal_type='Refnode', id='reftwo')
+        obj3 = makeContent(self.folder, portal_type='Refnode', id='refthree')
+        obj4 = makeContent(self.folder, portal_type='Refnode', id='reffour')
 
         o2U = obj2.UID()
         o3U = obj3.UID()
@@ -313,6 +309,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         links3 = [o3U, o2U]
         obj1.update(sortedlinks=links3)
         self.assertEqual(obj1.getRawSortedlinks(), links3)
+
     def test_TitleIndexer(self):
         uc = getattr(self.portal, config.UID_CATALOG)
         dext = DexterityLike()
@@ -320,16 +317,16 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.folder[dext.id] = dext
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
         results = uc(Title=dext.Title())
-        self.assertTrue(len(results)==1)
-        self.assertTrue(type(dext.Title())==unicode)
-        self.assertTrue(type(results[0].Title)==str)
+        self.assertTrue(len(results) == 1)
+        self.assertTrue(type(dext.Title()) == unicode)
+        self.assertTrue(type(results[0].Title) == str)
 
     def test_UIDIndexer(self):
         uc = getattr(self.portal, config.UID_CATALOG)
         dext = DexterityLike()
         dext.path = list(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
-        notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
+        notify(ObjectCreatedEvent(dext))  # it supposed to add uuid attribute
 
         #catalog dext instance
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
@@ -338,27 +335,27 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uuid = IUUID(dext, None)
         results = uc(UID=uuid)
 
-        self.assertTrue(len(results)==1)
-        self.assertTrue(results[0].UID==uuid)
-        self.assertTrue(results[0].Title==str(dext.Title()))
+        self.assertTrue(len(results) == 1)
+        self.assertTrue(results[0].UID == uuid)
+        self.assertTrue(results[0].Title == str(dext.Title()))
 
     def test_reference_non_archetypes_content(self):
         # create a archetype based content instance
-        ob = makeContent(self.folder, portal_type='DDocument',id='mydocument')
+        ob = makeContent(self.folder, portal_type='DDocument', id='mydocument')
         uc = getattr(self.portal, config.UID_CATALOG)
         uc.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
         # create a non archetype based content
         dext = DexterityLike()
         dext.path = list(self.folder.getPhysicalPath())
         self.folder[dext.id] = dext
-        notify(ObjectCreatedEvent(dext)) #it supposed to add uuid attribute
+        notify(ObjectCreatedEvent(dext))  # it supposed to add uuid attribute
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
         # create the relation between those
         ob.setRelated(dext)
         self.assertEqual(ob.getRelated()[0], dext)
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ReferenceCatalogTests))
     return suite

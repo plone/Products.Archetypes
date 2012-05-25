@@ -23,19 +23,23 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import BaseSchema, BaseContent, Schema, \
+    StringField, registerType, process_types, listTypes
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.VariableSchemaSupport import VariableSchemaSupport
 
 schema = BaseSchema
-schema1= BaseSchema + Schema((StringField('additionalField'),))
+schema1 = BaseSchema + Schema((StringField('additionalField'),))
 
-class Dummy(VariableSchemaSupport,BaseContent):
+
+class Dummy(VariableSchemaSupport, BaseContent):
     schema = schema
 
 
-class VarSchemataTest( ATTestCase ):
+class VarSchemataTest(ATTestCase):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')
@@ -45,19 +49,18 @@ class VarSchemataTest( ATTestCase ):
         self.folder.dummy = Dummy(oid='dummy')
         dummy = self.folder.dummy
         dummy.setTitle('dummy1')
-        self.assertEqual(dummy.Title(),'dummy1')
+        self.assertEqual(dummy.Title(), 'dummy1')
 
         #change the schema
-        dummy.schema=schema1
+        dummy.schema = schema1
         #try to read an old value using the new schema
-        self.assertEqual(dummy.Title(),'dummy1')
+        self.assertEqual(dummy.Title(), 'dummy1')
         dummy.setAdditionalField('flurb')
         #check if we can read the new field using the new schema
-        self.assertEqual(dummy.getAdditionalField(),'flurb')
+        self.assertEqual(dummy.getAdditionalField(), 'flurb')
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(VarSchemataTest))
     return suite

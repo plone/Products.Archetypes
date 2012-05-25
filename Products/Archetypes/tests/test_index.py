@@ -22,16 +22,16 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
+
+from unittest import TestSuite, makeSuite
 
 import time
-from Testing import ZopeTestCase
-from Products.Archetypes.atapi import *
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.tests.utils import makeContent
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
+
 
 class ETagTest(ATSiteTestCase):
 
@@ -67,7 +67,7 @@ class ETagTest(ATSiteTestCase):
     def test_etag_update_on_processform(self):
         before = self.inst.http__etag(readonly=True)
         time.sleep(1)
-        self.inst.processForm(data=1, values={'title':'Bla'})
+        self.inst.processForm(data=1, values={'title': 'Bla'})
         after = self.inst.http__etag(readonly=True)
         self.assertFalse(before == after)
 
@@ -150,7 +150,6 @@ class MultiplexTest(ATSiteTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(ETagTest))
     suite.addTest(makeSuite(ReindexTest))

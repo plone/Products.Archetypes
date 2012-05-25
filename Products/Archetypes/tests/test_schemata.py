@@ -22,13 +22,14 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-"""
+
+from unittest import TestSuite, makeSuite
 
 import operator
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.atapi import *
+from Products.Archetypes.atapi import BaseSchema, BaseContent, registerType, \
+    process_types, listTypes, StringWidget
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.Schema import Schemata
 from Products.Archetypes.Schema import getNames
@@ -38,11 +39,12 @@ from Products.CMFCore.permissions import ModifyPortalContent
 
 schema = BaseSchema
 
+
 class Dummy(BaseContent):
     schema = schema
 
 
-class SchemataTest( ATSiteTestCase ):
+class SchemataTest(ATSiteTestCase):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')
@@ -179,17 +181,17 @@ class SchemataTest( ATSiteTestCase ):
             StringField(
                 'f1',
                 mutator='setF1',
-                write_permission = ModifyPortalContent,
+                write_permission=ModifyPortalContent,
                 widget=StringWidget(visible={'edit': 'invisible'}),
             ),
             StringField('f2',
                 mutator='setF2',
-                write_permission = ModifyPortalContent,
+                write_permission=ModifyPortalContent,
                 widget=StringWidget(visible={'edit': 'hidden'}),
             ),
             StringField('f3',
                 mutator='setF3',
-                write_permission = ModifyPortalContent,
+                write_permission=ModifyPortalContent,
                 widget=StringWidget(condition='python:False',),
             ),
         )
@@ -214,8 +216,8 @@ class SchemataTest( ATSiteTestCase ):
         self.assertTrue('f2' in editable_field_ids)
         self.assertTrue('f3' not in editable_field_ids)
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(SchemataTest))
     return suite

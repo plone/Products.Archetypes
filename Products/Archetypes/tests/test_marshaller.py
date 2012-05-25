@@ -22,22 +22,20 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ################################################################################
-"""
-Unittests for marshaller
 
-$Id$
-"""
+from unittest import TestCase, TestSuite, makeSuite
 
 import os
-from unittest import TestCase
 from OFS.Image import Pdata
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import aputrequest
 from Products.Archetypes.tests.utils import PACKAGE_HOME
-from Products.Archetypes.atapi import *
+
 from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
+
 
 class MarshallerTests(ATSiteTestCase):
 
@@ -106,13 +104,13 @@ class MarshallerTests(ATSiteTestCase):
         if ctr.getPredicate('text'):
             # ATCT has a predict
             ctr.removePredicate('text')
-        ctr.addPredicate('text', 'major_minor' )
-        ctr.getPredicate('text' ).edit('text', '' )
+        ctr.addPredicate('text', 'major_minor')
+        ctr.getPredicate('text').edit('text', '')
         ctr.assignTypeName('text', 'DDocument')
         ctr.reorderPredicate('text', 0)
 
-        ctr.addPredicate('msword', 'major_minor' )
-        ctr.getPredicate('msword' ).edit( 'application', 'msword' )
+        ctr.addPredicate('msword', 'major_minor')
+        ctr.getPredicate('msword').edit('application', 'msword')
         ctr.assignTypeName('msword', 'DDocument')
         ctr.reorderPredicate('msword', 1)
 
@@ -143,6 +141,7 @@ class MarshallerTests(ATSiteTestCase):
         self.assertEqual(str(word.getBody(raw=1)), data)
         self.assertEqual(word.getContentType('body'), 'application/msword')
 
+
 class PdataStreamTests(TestCase):
 
     def test_iterator(self):
@@ -154,8 +153,8 @@ class PdataStreamTests(TestCase):
         expected = ['blobbl', 'ablabl', 'ablabl', 'a']
         self.assertEquals(list(iterator), expected)
 
+
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(MarshallerTests))
     suite.addTest(makeSuite(PdataStreamTests))

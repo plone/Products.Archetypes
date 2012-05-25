@@ -23,16 +23,18 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Acquisition import Explicit
 
-from Products.Archetypes.atapi import *
-from Products.Archetypes.config import *
+from Products.Archetypes.atapi import Field, IntegerField
 from Products.Archetypes.BaseObject import BaseObject
 from Products.validation import validation as validationService
 from Products.validation.interfaces.IValidator import IValidator
 from zope.interface import implements
+
 
 class MyValidator:
     implements(IValidator)
@@ -45,32 +47,32 @@ class MyValidator:
         return self.fun(value)
 
 # never validates
-validationService.register(MyValidator('v1', lambda val:val))
+validationService.register(MyValidator('v1', lambda val: val))
 # always validates
-validationService.register(MyValidator('v2', lambda val:1))
+validationService.register(MyValidator('v2', lambda val: 1))
 # never validates
-validationService.register(MyValidator('v3', lambda val:[]))
+validationService.register(MyValidator('v3', lambda val: []))
 
 settings = [
-    {'field': {}, # this is the dict of field properties
+    {'field': {},  # this is the dict of field properties
      'value': None,
-     'assertion': lambda result:result is None, # result of field.validate()
+     'assertion': lambda result: result is None,  # result of field.validate()
      },
 
-    {'field': {'required': 1}, # required
-     'value': None,            # ... but no value given
-     'assertion': lambda result:result is not None},
+    {'field': {'required': 1},  # required
+     'value': None,  # ... but no value given
+     'assertion': lambda result: result is not None},
 
     ]
 
-for req in 0,1: # 0 == not required, 1 == required
+for req in 0, 1:  # 0 == not required, 1 == required
 
     for validator in (('v2', 'v1'), ('v1',)):
         # Make sure that for both sets of validators, v1 returns an error.
         settings.append(
             {'field': {'required': req, 'validators': validator},
              'value': 'bass',
-             'assertion': lambda result:result.find('bass') > -1}
+             'assertion': lambda result: result.find('bass') > -1}
             )
 
     # the trombone is in the vocabulary
@@ -78,7 +80,7 @@ for req in 0,1: # 0 == not required, 1 == required
         {'field': {'required': req, 'enforceVocabulary': 1,
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': 'trombone',
-         'assertion': lambda result:result is None}
+         'assertion': lambda result: result is None}
         )
 
     # tuba is not in vocabulary, so this must fail
@@ -86,7 +88,7 @@ for req in 0,1: # 0 == not required, 1 == required
         {'field': {'required': req, 'enforceVocabulary': 1,
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': 'tuba',
-         'assertion': lambda result:result is not None}
+         'assertion': lambda result: result is not None}
         )
 
     # tuba is not in vocabulary, so this must fail
@@ -95,19 +97,19 @@ for req in 0,1: # 0 == not required, 1 == required
                    'multiValued': 1,
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': ('tuba', 'trombone'),
-         'assertion': lambda result:result is not None}
+         'assertion': lambda result: result is not None}
         )
 
     # enforceVocabulary, but no vocabulary given
     settings.append(
         {'field': {'required': req, 'enforceVocabulary': 1},
          'value': 'cello',
-         'assertion': lambda result:result is not None}
+         'assertion': lambda result: result is not None}
         )
 
 
 class FakeType(Explicit, BaseObject):
-    def unicodeEncode(self, v): return v # don't
+    def unicodeEncode(self, v): return v  # don't
 
 
 class TestSettings(ATTestCase):
@@ -142,7 +144,6 @@ class TestValidation(ATTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(TestSettings))
     suite.addTest(makeSuite(TestValidation))
