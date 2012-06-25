@@ -67,4 +67,11 @@
       allowed_attributes="getSelected lookupMime"
       />
 
+  <browser:page
+      for="*"
+      name="at_validate_field"
+      class=".validation.InlineValidationView"
+      permission="zope2.View"
+      />
+
 </configure>
