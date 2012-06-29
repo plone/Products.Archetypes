@@ -829,7 +829,7 @@ class BaseObject(Referenceable):
         return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
-    def _updateSchema(self, excluded_fields=[], out=None,
+    def _updateSchema(self, excluded_fields=None, out=None,
                       remove_instance_schemas=False):
         """Updates an object's schema when the class schema changes.
 
@@ -843,6 +843,8 @@ class BaseObject(Referenceable):
         at the same time -- you really should restart zope after doing
         a schema update).
         """
+        if excluded_fields is None:
+            excluded_fields = []
         if out is not None:
             print >> out, 'Updating %s' % (self.getId())
 
