@@ -106,8 +106,10 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.DeleteObjects,
                               'manage_delObjects')
-    def manage_delObjects(self, ids=[], REQUEST=None):
+    def manage_delObjects(self, ids=None, REQUEST=None):
         """We need to enforce security."""
+        if ids is None:
+            ids = []
         if isinstance(ids, basestring):
             ids = [ids]
         for id in ids:
