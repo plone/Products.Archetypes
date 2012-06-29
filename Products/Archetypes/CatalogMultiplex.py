@@ -87,7 +87,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                                         update_metadata=0, uid=brain_path)
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
-    def reindexObject(self, idxs=[]):
+    def reindexObject(self, idxs=None):
         """update indexes of this object in all registered catalogs.
 
         Catalogs are registered per 'meta_type' in archetypes tool.
@@ -96,6 +96,8 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         indexes are refreshed. If a index does not exist in catalog its
         silently ignored.
         """
+        if idxs is None:
+            idxs = []
         if isFactoryContained(self):
             return
         if idxs == [] and shasattr(self, 'notifyModified'):
