@@ -223,9 +223,11 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         self._catalog = UIDBaseCatalog()
 
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
-    def catalog_object(self, object, uid, idxs=[],
+    def catalog_object(self, object, uid, idxs=None,
                        update_metadata=1, pghandler=None):
 
+        if idxs is None:
+            idxs = []
         w = object
         if not IIndexableObject.providedBy(object):
             # This is the CMF 2.2 compatible approach, which should be used going forward
