@@ -33,8 +33,10 @@ def getAllowableContentTypes(context):
     portal_transforms = getToolByName(context, 'portal_transforms')
     return portal_transforms.listAvailableTextInputs()
 
-def setForbiddenContentTypes(context, forbidden_contenttypes=[]):
+def setForbiddenContentTypes(context, forbidden_contenttypes=None):
     """ Convenience method for settng the site property 'forbidden_contenttypes'."""
+    if forbidden_contenttypes is None:
+        forbidden_contenttypes = []
     portal_properties = getToolByName(context, 'portal_properties', None)
     if portal_properties is not None:
         site_properties = getattr(portal_properties, 'site_properties', None)
