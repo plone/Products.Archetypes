@@ -4,7 +4,9 @@ Changelog
 1.8.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- BaseObject.py, CatalogMultiplex.py, mimetype_utils.py, UIDCatalog.py:
+  Don't use list as default parameter value.
+  [kleist]
 
 
 1.8 (2012-05-25)
