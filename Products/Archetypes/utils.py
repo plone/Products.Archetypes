@@ -883,6 +883,7 @@ def addStatusMessage(request, message, type='info'):
 def transaction_note(note):
     """ Write human legible note """
 
+
     if type(note) == unicode:
         import unicodedata
         note = unicodedata.normalize('NFKD', note).encode('utf-8', 'ignore')
