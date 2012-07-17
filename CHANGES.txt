@@ -4,7 +4,9 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- BaseObject.setId(): Remove leading/trailing space from given id.
+  Fixes http://dev.plone.org/ticket/8338 (test still needed).
+  [patch by stxnext, applied by kleist]
 
 
 1.8.1 (2012-07-02)
