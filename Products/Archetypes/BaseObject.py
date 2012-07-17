@@ -197,6 +197,9 @@ class BaseObject(Referenceable):
     def setId(self, value):
         """Sets the object id.
         """
+        # avoid CopyError in OFS.CopySupport.manage_renameObject(),
+        # see http://dev.plone.org/ticket/8338
+        value = value.strip()
         if value != self.getId():
             parent = aq_parent(aq_inner(self))
             if parent is not None:
