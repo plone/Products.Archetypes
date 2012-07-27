@@ -4,8 +4,8 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
-- tiff images scales are generated in jpeg format.
-  Fixes, thumbnail view and main view for image contents with tif file.
+- tiff and eps images scales are generated in jpeg format.
+  Fixes, thumbnail view and main view for image contents with tif or eps file.
   Refs https://dev.plone.org/ticket/13077
   [thomasdesvenain]
 
