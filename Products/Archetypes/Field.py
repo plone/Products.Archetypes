@@ -2519,7 +2519,7 @@ class ImageField(FileField):
         # PNG compression is OK for RGBA thumbnails
         original_mode = image.mode
         img_format = image.format and image.format or default_format
-        if img_format in ('TIFF', 'EPS'):
+        if img_format in ('TIFF', 'EPS', 'PSD'):
             # non web image format have jpeg thumbnails
             target_format = 'JPEG'
         else:
