@@ -218,10 +218,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         #                       If not specified, we use sys.getdefaultencoding()
         db_encoding = kw.get('db_encoding', None)
 
-        try:
-            site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
-        except AttributeError, KeyError:
-            site_encoding = kw.get('site_encoding', sys.getdefaultencoding())
+        site_encoding = kw.get('site_encoding', 'utf-8')
 
         if type(query) == type(u''):
             if db_encoding:

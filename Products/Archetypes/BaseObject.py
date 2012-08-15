@@ -527,7 +527,6 @@ class BaseObject(Referenceable):
         here for indexing purpose.
         """
         data = []
-        charset = self.getCharset()
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
@@ -553,14 +552,14 @@ class BaseObject(Referenceable):
                     datum = ' '.join(datum)
                 elif isinstance(datum, basestring):
                     if isinstance(datum, unicode):
-                        datum = datum.encode(charset)
+                        datum = datum.encode('utf-8')
                     value = vocab.getValue(datum, '')
                     if isinstance(value, unicode):
-                        value = value.encode(charset)
+                        value = value.encode('utf-8')
                     datum = "%s %s" % (datum, value, )
 
                 if isinstance(datum, unicode):
-                    datum = datum.encode(charset)
+                    datum = datum.encode('utf-8')
                 data.append(str(datum))
 
         data = ' '.join(data)
@@ -570,13 +569,6 @@ class BaseObject(Referenceable):
     def getCharset(self):
         """Returns the site default charset, or utf-8.
         """
-        properties = getToolByName(self, 'portal_properties', None)
-        if properties is not None:
-            site_properties = getattr(properties, 'site_properties', None)
-            if site_properties is not None:
-                return site_properties.getProperty('default_charset')
-            elif hasattr(properties, 'default_charset'):
-                return properties.getProperty('default_charset')  # CMF
         return 'utf-8'
 
     security.declareProtected(permissions.View, 'get_size')
@@ -732,8 +724,7 @@ class BaseObject(Referenceable):
             return None
 
         if not isinstance(title, unicode):
-            charset = self.getCharset()
-            title = unicode(title, charset)
+            title = unicode(title, 'utf-8')
 
         request = getattr(self, 'REQUEST', None)
         if request is not None:
