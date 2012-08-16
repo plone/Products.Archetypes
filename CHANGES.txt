@@ -4,6 +4,13 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
+- tiff, psd and eps images scales are generated, in jpeg format.
+  Fixes thumbnail view and main view for image contents with tif, psd or eps file.
+  With tif files, scales were generated but couldn't be seen in Plone UI ;
+  psd and eps scales weren't generated.
+  Refs https://dev.plone.org/ticket/13077
+  [thomasdesvenain]
+
 - BaseObject.setId(): Remove leading/trailing space from given id.
   Fixes http://dev.plone.org/ticket/8338 (test still needed).
   [patch by stxnext, applied by kleist]
