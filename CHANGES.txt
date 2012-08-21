@@ -4,8 +4,7 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
-- Fixed i18n regression in skins/archetypes/widgets/addable_support.pt
-  introduced in 1.8.
+- Fixed i18n regression introduced in 1.8 in several templates.
   [vincentfretin]
 
 - tiff, psd and eps images scales are generated, in jpeg format.
