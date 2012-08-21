@@ -4,6 +4,10 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
+- Fixed i18n regression in skins/archetypes/widgets/addable_support.pt
+  introduced in 1.8.
+  [vincentfretin]
+
 - tiff, psd and eps images scales are generated, in jpeg format.
   Fixes thumbnail view and main view for image contents with tif, psd or eps file.
   With tif files, scales were generated but couldn't be seen in Plone UI ;
