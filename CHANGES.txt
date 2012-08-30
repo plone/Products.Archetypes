@@ -1,11 +1,14 @@
 Changelog
 =========
 
-1.8.2 (unreleased)
+1.8.3 (2012-08-23)
 ------------------
 
 - Fixed i18n regression introduced in 1.8 in several templates.
   [vincentfretin]
+
+1.8.2 (2012-08-18)
+------------------
 
 - tiff, psd and eps images scales are generated, in jpeg format.
   Fixes thumbnail view and main view for image contents with tif, psd or eps file.
