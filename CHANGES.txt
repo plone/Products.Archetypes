@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.8.2 (2012-08-29)
+1.8.2 (unreleased)
 ------------------
 
 - Fixed i18n regression introduced in 1.8 in several templates.
