@@ -31,123 +31,123 @@
                         site_props context/portal_properties/site_properties|nothing;
                         format widget/format | string:select;
                         allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
-            
-                    <div tal:condition="allowedKeywords" id="existingTagsSection">
-                        <tal:comment tal:replace="nothing">
-                            dl semantically associates selector name with values
-                        </tal:comment>
-                        <dl id="existingTags">
-                            <label for="subject">
-                                <dt id="existingTagsTitle">
-                                    <span i18n:translate="label_select_existing_tags">
-                                        Select from existing tags. 
-                                    </span>
-                                </dt>
-                                <span id="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
-                                    Use Control/Command/Shift keys to select multiple tags.
-                                </span>
-                                <tal:comment tal:replace="nothing">
-                                    Type-to-skip functionality with javascript enabled 
-                                    could be described as 
-                                    "Hover and type the first letter to skip through tags." 
-                                    However, on touch-driven devices, vertical hover typically 
-                                    scrolls the page, so horizontal hover is necessary to enable this.  
-                                    Alternatively, clicking any of the tags also enables type-to-skip.  
-                                    So the help could technically be extended to handle this special case 
-                                    as "Hover or click and type the first letter to skip through tags.", 
-                                    but I think this would be confusing to the majority of users.
-									The decision at this point is to not try to explain any of this on the page.
-                                </tal:comment>
-                            </label>
-                            <div class="visualClear"><!-- --></div>
-                            <select id="predefined_subjects"
-                                name="predefined_subjects:list"
-                                size="14"
-                                multiple="multiple"
-                                tal:condition="python:format!='checkbox'"
-                                tal:attributes="id string:${fieldName};
-                                                name string:${fieldName}_existing_keywords:list;">
-                                <option value="#" tal:repeat="keyword allowedKeywords"
-                                    tal:content="keyword" tal:attributes="value keyword;
-                                    selected python:test(context.unicodeTestIn(keyword, value), 'selected', None)">
-                                    An existing tag
-                                </option>
-                            </select>
-                            <tal:comment tal:replace="nothing">
-                                These spans are hidden by css, and used by the JavaScript called below.
-                            </tal:comment>
-                            <span id="noTagsSelected" i18n:translate="label_noTagsSelected">No tags currently selected.</span>
-                            <span id="oneOrMoreTagsSelected" i18n:translate="label_oneOrMoreTagsSelected">% tags currently selected.</span>
-                            <tal:comment tal:replace="nothing">
-                                Call js to modify this widget with both a scrollbar and checkboxes.
-                                There may be a better place to put this js call; 
-                                examples exist in others' widget.py and js files,
-                                but having it here covers cases where some but not all select elements 
-                                call js to be modified.
-                                Todo: The #subject should eventually refer to the template variable.
-                            </tal:comment>
-                            <script type="text/javascript">
-                                jq(document).ready( function() {
-                                    jq("#subject").multiSelect();
-                                });
-                            </script>
-                            <input type="hidden"
-                                   value=""
-                                   tal:condition="not:field/required | nothing"
-                                   tal:attributes="name string:${fieldName}_existing_keywords:default:list" />
-                            <tal:loop tal:repeat="keyword allowedKeywords"
-                                      tal:condition="python:format=='checkbox'">
-                                <div class="ArchetypesKeywordValue" id=""
-                                     tal:attributes="id string:archetypes-value-${fieldName}_${repeat/keyword/number}">
-                                    <input class="blurrable"
-                                        tal:attributes="
-                                            type string:checkbox;
-                                            name string:${fieldName}_existing_keywords:list;
-                                            id string:${fieldName}_${repeat/keyword/number};
-                                            checked python:test(context.unicodeTestIn(keyword, value), 'checked', None);
-                                            value keyword" />
-                                    <label 
-                                        tal:content="keyword"
-                                        tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
-                                        An existing tag
-                                    </label>
-                                </div>
-                            </tal:loop>
-                        </dl>
-                        <dl id="selectedTagsSection">
-                            <dt id="selectedTagsHeading" class="formHelp"></dt>
-                            <dd id="selectedTags"></dd>
-                        </dl>
-                        <div class="visualClear"><!-- --></div>
-                    </div>
-                    
-                    <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
-                        <dl id="newTagsSection">
-                            <label for="subject_keywords">
-                                <dt id="newTagsTitle">
-                                    <span i18n:translate="label_create_new_tags">
-                                        Create and apply new tags. 
-                                    </span>
-                                </dt>
-                                <span id="newTagsHelp" i18n:translate="label_newTagsHelp" class="formHelp">
-                                    Enter one tag per line, multiple words allowed.
-                                </span>
-                            </label>
-                            <br />
-                            <dd id="newTags">
-                                <textarea 
-                                    id="entered_subjects"
-                                    name="subject:lines"
-                                    rows="4"
-                                    tal:attributes="id string:${fieldName}_keywords;
-                                                    name string:${fieldName}_keywords:lines;"
-                                    tal:define="subject python:[item for item in value if not context.unicodeTestIn(item,allowedKeywords)]"
-                                    tal:content="python:'\n'.join(subject)">
-                                    A new tag
-                                </textarea>
-                            </dd>
-                        </dl>
-                    </tal:condition>
+                        	
+            		<div tal:attributes="id string:$fieldName-tags;"
+					     class="tagsContainer">
+	                    <div tal:condition="allowedKeywords" class="existingTagsSection">
+	                        <tal:comment tal:replace="nothing">
+	                            dl semantically associates selector name with values
+	                        </tal:comment>
+	                        <dl class="existingTags">
+	                            <label tal:attributes="for fieldName">
+	                                <dt id="existingTagsTitle">
+	                                    <span i18n:translate="label_select_existing_tags">
+	                                        Select from existing tags. 
+	                                    </span>
+	                                </dt>
+	                                <span class="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
+	                                    Use Control/Command/Shift keys to select multiple tags.
+	                                </span>
+	                                <tal:comment tal:replace="nothing">
+	                                    Type-to-skip functionality with javascript enabled 
+	                                    could be described as 
+	                                    "Hover and type the first letter to skip through tags." 
+	                                    However, on touch-driven devices, vertical hover typically 
+	                                    scrolls the page, so horizontal hover is necessary to enable this.  
+	                                    Alternatively, clicking any of the tags also enables type-to-skip.  
+	                                    So the help could technically be extended to handle this special case 
+	                                    as "Hover or click and type the first letter to skip through tags.", 
+	                                    but I think this would be confusing to the majority of users.
+										The decision at this point is to not try to explain any of this on the page.
+	                                </tal:comment>
+	                            </label>
+	                            <div class="visualClear"><!-- --></div>
+	                            <select id="predefined_subjects"
+	                                name="predefined_subjects:list"
+	                                size="14"
+	                                multiple="multiple"
+	                                tal:condition="python:format!='checkbox'"
+	                                tal:attributes="id string:${fieldName};
+	                                                name string:${fieldName}_existing_keywords:list;">
+	                                <option value="#" tal:repeat="keyword allowedKeywords"
+	                                    tal:content="keyword" tal:attributes="value keyword;
+	                                    selected python:test(context.unicodeTestIn(keyword, value), 'selected', None)">
+	                                    An existing tag
+	                                </option>
+	                            </select>
+	                            <tal:comment tal:replace="nothing">
+	                                These spans are hidden by css, and used by the JavaScript called below.
+	                            </tal:comment>
+	                            <span class="noTagsSelected" i18n:translate="label_noTagsSelected">No tags currently selected.</span>
+	                            <span class="oneOrMoreTagsSelected" i18n:translate="label_oneOrMoreTagsSelected">% tags currently selected.</span>
+	                            <tal:comment tal:replace="nothing">
+	                                Call js to modify this widget with both a scrollbar and checkboxes.
+	                                There may be a better place to put this js call; 
+	                                examples exist in others' widget.py and js files,
+	                                but having it here covers cases where some but not all select elements 
+	                                call js to be modified.
+	                                Todo: The #subject should eventually refer to the template variable.
+	                            </tal:comment>
+	                            <script type="text/javascript" 
+	                                    tal:content="string:(function($){$(document).ready( function() {$('#${fieldName}').multiSelect();});})(jQuery)">
+	                            </script>
+	                            <input type="hidden"
+	                                   value=""
+	                                   tal:condition="not:field/required | nothing"
+	                                   tal:attributes="name string:${fieldName}_existing_keywords:default:list" />
+	                            <tal:loop tal:repeat="keyword allowedKeywords"
+	                                      tal:condition="python:format=='checkbox'">
+	                                <div class="ArchetypesKeywordValue" id=""
+	                                     tal:attributes="id string:archetypes-value-${fieldName}_${repeat/keyword/number}">
+	                                    <input class="blurrable" type="checkbox"
+	                                        tal:attributes="
+	                                            name string:${fieldName}_existing_keywords:list;
+	                                            id string:${fieldName}_${repeat/keyword/number};
+	                                            checked python:test(context.unicodeTestIn(keyword, value), 'checked', None);
+	                                            value keyword" />
+	                                    <label 
+	                                        tal:content="keyword"
+	                                        tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
+	                                        An existing tag
+	                                    </label>
+	                                </div>
+	                            </tal:loop>
+	                        </dl>
+	                        <dl class="selectedTagsSection">
+	                            <dt class="selectedTagsHeading" class="formHelp"></dt>
+	                            <dd class="selectedTags"></dd>
+	                        </dl>
+	                        <div class="visualClear"><!-- --></div>
+	                    </div>
+	                    
+	                    <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
+	                        <dl class="newTagsSection">
+	                            <label for="subject_keywords">
+	                                <dt class="newTagsTitle">
+	                                    <span i18n:translate="label_create_new_tags">
+	                                        Create and apply new tags. 
+	                                    </span>
+	                                </dt>
+	                                <span class="newTagsHelp formHelp" i18n:translate="label_newTagsHelp">
+	                                    Enter one tag per line, multiple words allowed.
+	                                </span>
+	                            </label>
+	                            <br />
+	                            <dd class="newTags">
+	                                <textarea 
+	                                    id="entered_subjects"
+	                                    name="subject:lines"
+	                                    rows="4"
+	                                    tal:attributes="id string:${fieldName}_keywords;
+	                                                    name string:${fieldName}_keywords:lines;"
+	                                    tal:define="subject python:[item for item in value if not context.unicodeTestIn(item,allowedKeywords)]"
+	                                    tal:content="python:'\n'.join(subject)">
+	                                    A new tag
+	                                </textarea>
+	                            </dd>
+	                        </dl>
+	                    </tal:condition>
+					</div>
               
                 </tal:define>
             </metal:use>
