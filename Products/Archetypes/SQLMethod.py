@@ -3,7 +3,7 @@ from Products.Archetypes.debug import log_exc
 from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
-from App.Extensions import getBrain
+from Shared.DC.ZRDB.DA import getBrain
 from cStringIO import StringIO
 import sys
 import types
