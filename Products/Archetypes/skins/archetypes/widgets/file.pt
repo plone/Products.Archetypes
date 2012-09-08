@@ -20,13 +20,15 @@
                            size_kb python:size/1024;
 						   display_size_kb python:'{0:n} kB'.format(size_kb) if size_kb > 0 else '';
 						   display_size_bytes python:' ({0:n} bytes)'.format(size) if display_size_kb else '{0:n} bytes'.format(size);
-						   display_size python:'{0}{1}'.format(display_size_kb, display_size_bytes)"
+						   display_size python:'{0}{1}'.format(display_size_kb, display_size_bytes);
+                                                   doc_type python:context.lookupMime(field.getContentType(here));"
                    condition="python:size &gt; 0">
 
           <tal:link condition="showLink">
               <a href="" tal:attributes="href string:${context/absolute_url}/at_download/$fieldName">
                 <img tal:condition="icon" src="" alt=""
-                     tal:attributes="src string:${context/portal_url}/$icon"/>
+                     tal:attributes="src string:${context/portal_url}/$icon;
+                                     alt string:${doc_type} icon"/>
                 <tal:filename tal:replace="filename | fieldName"/>
               </a>
               <span class="discreet">
@@ -37,10 +39,11 @@
           </tal:link>
           <span tal:condition="not:showLink">
               <img tal:condition="icon" src="" alt=""
-                   tal:attributes="src string:${context/portal_url}/$icon"/>
+                   tal:attributes="src string:${context/portal_url}/$icon;
+                                   alt string:${doc_type} icon""/>
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">
-                  <span tal:content="python:context.lookupMime(field.getContentType(here))">ContentType</span> &mdash;
+                  <span tal:content="python:doc_type">ContentType</span> &mdash;
                   <tal:size content="display_size">?</tal:size>
               </span>
           </span>
