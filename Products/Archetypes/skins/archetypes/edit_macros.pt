@@ -199,7 +199,7 @@
             </tal:comment>
             <input type="hidden"
                    name="last_referer"
-                   tal:define="last_referer python:here.session_restore_value('HTTP_REFERER', request.form.get('last_referer', request.get('HTTP_REFERER')))"
+                   tal:define="last_referer python:request.form.get('last_referer', request.get('HTTP_REFERER'))"
                    tal:attributes="value python:(last_referer and '%s/%s' % (here.absolute_url(), template.id) not in last_referer) and last_referer or (here.getParentNode() and here.getParentNode().absolute_url())"
                    />
 

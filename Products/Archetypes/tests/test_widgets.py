@@ -52,8 +52,6 @@ class WidgetTests(ATSiteTestCase):
         stub_bin_file = open(os.path.join(PACKAGE_HOME, 'input', 'word.doc'))
         stub_bin_content = stub_bin_file.read()
         stub_bin_file.seek(0)
-        # Make SESSION var available
-        self.app.REQUEST['SESSION'] = {}
 
     def beforeTearDown(self):
         global stub_text_file, stub_bin_file
