@@ -40,7 +40,7 @@
           <span tal:condition="not:showLink">
               <img tal:condition="icon" src="" alt=""
                    tal:attributes="src string:${context/portal_url}/$icon;
-                                   alt string:${doc_type} icon""/>
+                                   alt string:${doc_type} icon"/>
               <tal:filename tal:replace="filename | fieldName"/>
               <span class="discreet">
                   <span tal:content="python:doc_type">ContentType</span> &mdash;
