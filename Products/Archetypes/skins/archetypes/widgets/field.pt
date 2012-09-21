@@ -103,7 +103,7 @@
                      i18n:translate="">
                   Help
                 </span>
-                <div class="fieldErrorBox"
+                <div class="fieldErrorBox" role="alert"
                      tal:content="error_id" i18n:translate="">Validation Error</div>
             </label>
           </tal:ifLabel>

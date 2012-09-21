@@ -52,7 +52,7 @@
                               tal:condition="field/required"
                               title="Required"
                               i18n:attributes="title title_required;">&nbsp;</span>
-                        <div class="fieldErrorBox"
+                        <div class="fieldErrorBox" role="alert"
                              tal:content="error_id" i18n:translate="">Validation Error</div>
                         <span class="formHelp"
                              tal:define="description python:widget.Description(here)"
@@ -95,7 +95,7 @@
                               tal:condition="field/required"
                               title="Required"
                               i18n:attributes="title title_required;">&nbsp;</span>
-                        <div class="fieldErrorBox"
+                        <div class="fieldErrorBox" role="alert"
                              tal:content="error_id" i18n:translate="">Validation Error</div>
                         <span class="formHelp"
                              tal:define="description python:widget.Description(here)"
