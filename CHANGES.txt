@@ -4,6 +4,9 @@ Changelog
 1.8.4 (unreleased)
 ------------------
 
+- Update object creation date on paste; closes https://dev.plone.org/ticket/9896 .
+  [davidblewett]
+
 - Import ``getBrain`` from Products.ZSQLMethods and declare dependency for Zope
   trunk compatibility.
   [elro]
