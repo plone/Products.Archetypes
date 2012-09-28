@@ -4,6 +4,9 @@ Changelog
 1.8.4 (unreleased)
 ------------------
 
+- Fixed some problems with IntDisplayList.
+  [maurits]
+
 - Update object creation date on paste; closes https://dev.plone.org/ticket/9896 .
   [davidblewett]
 

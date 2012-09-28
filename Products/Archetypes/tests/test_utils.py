@@ -28,6 +28,7 @@
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import IntDisplayList
 from Products.Archetypes.utils import make_uuid
 
 
@@ -50,7 +51,6 @@ class DisplayListTest(ATTestCase):
     def test_cmp(self):
         ta = ('a', 'b', 'c')
         tb = ('a', 'c', 'b')
-        tc = ('a', 'c', 'c')
         td = ('c', 'b', 'a')
         self.assertTrue(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, ta)))
         self.assertFalse(DisplayList(zip(ta, ta)) == DisplayList(zip(ta, tb)))
@@ -140,9 +140,104 @@ class DisplayListTest(ATTestCase):
         assert dlc_s.values() == ['Z', 'X', 'Y']
 
 
+class IntDisplayListTest(ATTestCase):
+
+    def test_cmp(self):
+        ta = (1, 2, 3)
+        tb = (1, 3, 2)
+        td = (3, 2, 1)
+        self.assertTrue(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(ta, ta)))
+        self.assertFalse(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(ta, tb)))
+        self.assertTrue(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(td, td)))
+        self.assertTrue(IntDisplayList(zip(tb, ta)) == IntDisplayList(zip(tb, ta)))
+        self.assertRaises(TypeError, cmp, IntDisplayList(), '')
+
+    def test_slice(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        sub = l[1:]
+        self.assertTrue(IntDisplayList(l)[1:] == sub)
+
+    def test_item(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        for i in range(0, 2):
+            item = ta[i]
+            self.assertTrue(IntDisplayList(l)[i] == item)
+
+    def test_add(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)[:]
+        self.assertTrue(dl == l)
+        l.append((4, 4))
+        dl.append((4, 4))
+        self.assertTrue(dl == l)
+
+    def test_len(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(len(dl) == len(l))
+
+    def test_keys(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(tuple(dl.keys()) == ta)
+
+    def test_values(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(tuple(dl.values()) == ta)
+
+    def test_items(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(dl.items() == tuple(l))
+
+    def test_repr(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(repr(dl).find(str(l)))
+
+    def test_str(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(str(dl) == str(l))
+
+    def test_call(self):
+        ta = (1, 2, 3)
+        l = zip(ta, ta)
+        dl = IntDisplayList(l)
+        self.assertTrue(dl == dl)
+        self.assertTrue(dl() == dl())
+        self.assertTrue(dl[:] == l)
+        self.assertTrue(dl()[:] == l)
+
+    def test_sort(self):
+        a = ((1, 'a',), (2, 'b'), (3, 'c'))
+        b = ((10, 'Z',), (9, 'Y'), (8, 'X'))
+        c = ((1, 'Z',), (3, 'Y'), (2, 'X'))
+        dla = IntDisplayList(a)
+        dlb = IntDisplayList(b)
+        dlc = IntDisplayList(c)
+
+        assert dla.values() == ['a', 'b', 'c']
+        dlb_s = dlb.sortedByValue()
+        assert dlb_s.values() == ['X', 'Y', 'Z']
+        dlc_s = dlc.sortedByKey()
+        assert dlc_s.values() == ['Z', 'X', 'Y']
+
+
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     suite.addTest(makeSuite(DisplayListTest))
+    suite.addTest(makeSuite(IntDisplayListTest))
     suite.addTest(makeSuite(UidGeneratorTest))
     return suite
