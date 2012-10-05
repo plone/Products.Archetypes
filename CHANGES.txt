@@ -4,6 +4,9 @@ Changelog
 1.8.4 (unreleased)
 ------------------
 
+- Add support for non-KSS-based inline validation.
+  [davisagli]
+
 - Fixed some problems with IntDisplayList.
   [maurits]
 
@@ -13,6 +16,7 @@ Changelog
 - Import ``getBrain`` from Products.ZSQLMethods and declare dependency for Zope
   trunk compatibility.
   [elro]
+
 - Always add alt to image when shown in file widget 
   [maartenkling]
 
