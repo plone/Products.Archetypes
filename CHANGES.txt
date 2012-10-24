@@ -4,7 +4,8 @@ Changelog
 1.8.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix inline validation for items in the portal_factory.
+  [davisagli]
 
 
 1.8.4 (2012-10-15)

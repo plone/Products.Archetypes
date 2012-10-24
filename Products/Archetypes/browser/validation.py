@@ -15,6 +15,9 @@ class InlineValidationView(BrowserView):
 
         rc = getToolByName(aq_inner(self.context), 'reference_catalog')
         instance = rc.lookupObject(uid)
+        # make sure this works for portal_factory items
+        if instance is None:
+            instance = self.context
 
         field = instance.getField(fname)
         if field.type not in SKIP_VALIDATION_FIELDTYPES:        
