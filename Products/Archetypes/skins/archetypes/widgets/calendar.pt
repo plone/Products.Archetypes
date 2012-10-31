@@ -55,6 +55,7 @@
                               starting_year widget/starting_year|nothing;
                               ending_year widget/ending_year|nothing;
                               future_years widget/future_years|nothing;
+                              minute_step widget/minute_step|nothing;
                               inputname fieldName;
                               formname string:edit_form;
                               inputvalue python:test(value!='None', value, '');">

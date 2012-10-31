@@ -430,6 +430,7 @@ class CalendarWidget(TypesWidget):
         'starting_year': None,
         'ending_year': None,
         'future_years': None,
+        'minute_step': 5,
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
