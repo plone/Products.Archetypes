@@ -4,6 +4,9 @@ Changelog
 1.8.6 (unreleased)
 ------------------
 
+- Remember selected tags entry on form error
+  [maartenkling]
+
 - Add missing security declarations on the UIDResolver class.
   https://plone.org/products/plone/security/advisories/20121106/08
   [davisagli]
@@ -37,6 +40,8 @@ Changelog
   [do3cc]
 
 
+=======
+>>>>>>> update changes
 1.8.4 (2012-10-15)
 ------------------
 
@@ -53,7 +58,7 @@ Changelog
   trunk compatibility.
   [elro]
 
-- Always add alt to image when shown in file widget 
+- Always add alt to image when shown in file widget
   [maartenkling]
 
 1.8.3 (2012-08-23)
@@ -3314,4 +3319,3 @@ Changelog
 
 * Fixed [ 988898 ] Don't swallow ConflictError (SQL missing)
   [tiran]
-
