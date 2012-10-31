@@ -73,6 +73,7 @@
           <tal:from define="id fieldName;
                             show_hm widget/show_hm|nothing;
                             show_ymd widget/show_ymd|nothing;
+                            minute_step widget/minute_step|nothing;
                             inputname fieldName;
                             formname string:search_form;
                             inputvalue python:min(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('1975-05-26',)).strip();">
@@ -83,6 +84,7 @@
           -
           <tal:to define="id fieldName;
                           inputname fieldName;
+                          minute_step widget/minute_step|nothing;
                           formname string:search_form;
                           inputvalue python:max(request.form.get(fieldName, None) or request.other.get(fieldName, None) or ('2975-05-26',)).strip();">
             <metal:box use-macro="here/calendar_macros/macros/calendarDatePickerBox|default">
