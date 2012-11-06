@@ -4,6 +4,10 @@ Changelog
 1.8.5 (unreleased)
 ------------------
 
+- Add minute_step to CalendarWidget so we can define another minute step than
+  hardcoded 5 for now
+  [gbastien]
+
 - If form tabbing is allowed, make sure we can still track the current fieldset
   if form submission returns to the edit form.
   [davisagli]
