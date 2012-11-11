@@ -4,7 +4,10 @@ Changelog
 1.7.15 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Disallow downloading files via the at_download script if the user does not
+  have the field's read_permission.  This addresses a security vulnerability
+  discussed at http://plone.org/products/plone/security/advisories/20121106/17
+  [davisagli]
 
 
 1.7.14 (2012-05-07)

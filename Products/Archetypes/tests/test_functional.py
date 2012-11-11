@@ -221,6 +221,20 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
 
         self.app.REQUEST.set('REQUEST_METHOD','GET')
 
+    def test_at_download_checks_read_permission(self):
+        self.setRoles(['Manager'])
+        self.portal.invokeFactory('SimpleFile', 'test')
+        self.portal.portal_workflow.doActionFor(self.portal.test, 'publish')
+
+        # give it a file field with a restricted read_permission
+        schema = self.portal.test.schema = self.portal.test.Schema().copy()
+        from Products.Archetypes.Field import FileField
+        schema['file'] = FileField('file', read_permission = 'Manage portal')
+
+        # make sure at_download disallows even though the user has View permission
+        res = self.publish('/cmf/test/at_download/file')
+        self.assertEqual(res.status, 401)
+
 
 import doctest
 OPTIONFLAGS = (doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
