@@ -35,7 +35,7 @@
 
     <subscriber
         for=".interfaces.IBaseContent
-             zope.lifecycleevent.interfaces.IObjectCopiedEvent"
+             OFS.interfaces.IObjectClonedEvent"
         handler=".subscribers.updateCreationOnCopy"
         />
 

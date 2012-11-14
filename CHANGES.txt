@@ -20,6 +20,10 @@ Changelog
 - Fix inline validation for items in the portal_factory.
   [davisagli]
 
+- Change used event to update metadata during copy&paste fixes #13326 and makes
+  1.8.5 compatible with LinguaPlone again.
+  [do3cc]
+
 
 1.8.4 (2012-10-15)
 ------------------
