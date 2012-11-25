@@ -333,6 +333,12 @@ class WidgetTests(ATSiteTestCase):
         doc = makeContent(self.folder, 'SimpleType', id='doc')
         self.assertEqual(doc.getBestIcon(), 'txt.png')
 
+    def test_helpers(self):
+        self.loginAsPortalOwner()
+        doc = makeContent(self.portal, 'SimpleType', id='doc')
+        fields = [f for f in doc.Schema().values()]
+        self.assertIn('jscalendar/calendar-en.js', 
+                      doc.getUniqueWidgetAttr(fields, 'helper_js'))
 
 def test_suite():
     from unittest import TestSuite, makeSuite
