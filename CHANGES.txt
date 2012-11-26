@@ -4,7 +4,13 @@ Changelog
 1.8.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add missing security declarations on the UIDResolver class.
+  https://plone.org/products/plone/security/advisories/20121106/08
+  [davisagli]
+
+- Sanitize input to go_back script. This fixes
+  https://plone.org/products/plone/security/advisories/20121106/11
+  [davisagli]
 
 
 1.8.5 (2012-11-15)

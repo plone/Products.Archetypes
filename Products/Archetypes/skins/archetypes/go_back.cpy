@@ -14,6 +14,10 @@ from Products.CMFCore.utils import getToolByName
 
 REQUEST = context.REQUEST
 
+# Sanitize input
+if last_referer is not None:
+    last_referer = last_referer.replace('$', '$$')
+
 # Tell the world that we cancelled
 lifecycle_view = context.restrictedTraverse('@@at_lifecycle_view')
 lifecycle_view.cancel_edit()
