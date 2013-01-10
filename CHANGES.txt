@@ -12,6 +12,10 @@ Changelog
   https://plone.org/products/plone/security/advisories/20121106/11
   [davisagli]
 
+- Provide sane defaults for minute_step, which is an integer
+  everywhere else.
+  [tomgross]
+
 
 1.8.5 (2012-11-15)
 ------------------
