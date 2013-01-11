@@ -1,16 +1,8 @@
 Changelog
 =========
 
-1.8.6 (unreleased)
+1.8.7 (unreleased)
 ------------------
-
-- Add missing security declarations on the UIDResolver class.
-  https://plone.org/products/plone/security/advisories/20121106/08
-  [davisagli]
-
-- Sanitize input to go_back script. This fixes
-  https://plone.org/products/plone/security/advisories/20121106/11
-  [davisagli]
 
 - Provide sane defaults for minute_step, which is an integer
   everywhere else.
@@ -20,6 +12,18 @@ Changelog
   field.getAccessor return None, so to let integrator do sth we
   need to said index name is equal to field name.
   [toutpt]
+
+
+1.8.6 (2012-12-09)
+------------------
+
+- Add missing security declarations on the UIDResolver class.
+  https://plone.org/products/plone/security/advisories/20121106/08
+  [davisagli]
+
+- Sanitize input to go_back script. This fixes
+  https://plone.org/products/plone/security/advisories/20121106/11
+  [davisagli]
 
 1.8.5 (2012-11-15)
 ------------------
