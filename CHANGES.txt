@@ -16,6 +16,10 @@ Changelog
   everywhere else.
   [tomgross]
 
+- Fix when using archetypes.schemaextender. the keyword widget call to
+  field.getAccessor return None, so to let integrator do sth we
+  need to said index name is equal to field name.
+  [toutpt]
 
 1.8.5 (2012-11-15)
 ------------------
