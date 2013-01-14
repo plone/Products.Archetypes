@@ -13,6 +13,8 @@ Changelog
   need to said index name is equal to field name.
   [toutpt]
 
+- Don't fail if contenttype can not be acquired (eg PFG)
+  [tomgross]
 
 1.8.6 (2012-12-09)
 ------------------
