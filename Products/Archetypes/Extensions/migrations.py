@@ -55,7 +55,7 @@ def fixArchetypesTool(portal, out):
     if not hasattr(at, 'catalog_map'):
         at.catalog_map = PersistentMapping()
 
-    install_uidcatalog(portal, out)
+    install_uidcatalog(out, portal)
 
 
 def migrateReferences(portal, out):
