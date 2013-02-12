@@ -4,6 +4,11 @@ Changelog
 1.8.7 (unreleased)
 ------------------
 
+- Provide fix for issue #9774 (https://dev.plone.org/ticket/9774)
+  change import target and update order params in install_uidcatalog 
+  from setuphandlers has different order params
+  [bogdangi]
+
 - Provide sane defaults for minute_step, which is an integer
   everywhere else.
   [tomgross]
