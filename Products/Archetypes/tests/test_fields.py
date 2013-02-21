@@ -394,7 +394,7 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_allowable_content_types_ok(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
+        request = TestRequest()
         request.form.update(field_values)
         request.form['fieldset'] = 'default'
         dummy.REQUEST = request
@@ -404,7 +404,7 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_allowable_content_types_fail(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
+        request = TestRequest()
         request.form.update(field_values)
         request.form.update({'imagefield_file': pdf_file})
         request.form['fieldset'] = 'default'
