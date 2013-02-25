@@ -422,7 +422,7 @@ class Field(DefaultLayerContainer):
 
     def validate_content_types(self, instance, value, errors):
         """make sure the value's content-type is allowed"""
-        if not value:
+        if value == "DELETE_IMAGE" or value is None:
             return None
         body = ''
         if isinstance(value, FileType):
