@@ -424,6 +424,7 @@ class Field(DefaultLayerContainer):
         """make sure the value's content-type is allowed"""
         if not value:
             return None
+        body = ''
         if isinstance(value, FileType):
             tell = value.tell()
             value.seek(0)
