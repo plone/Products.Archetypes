@@ -4,6 +4,10 @@ Changelog
 1.8.7 (unreleased)
 ------------------
 
+- Before validating the field, make sure you actually have the field
+  objects for the type
+  [vangheem]
+
 - Fix issue #7556 (https://dev.plone.org/ticket/7556) by adding 
   validation of uploaded blobs by checking the allowable_content_types
   attribute of a field
