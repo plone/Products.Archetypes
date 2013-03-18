@@ -30,6 +30,9 @@ Changelog
 - Don't fail if contenttype can not be acquired (eg PFG)
   [tomgross]
 
+- Translate selection values in base_view, fix #7627 (https://dev.plone.org/ticket/7627)
+  [kiorky]
+
 1.8.6 (2012-12-09)
 ------------------
 

@@ -74,4 +74,14 @@
       permission="zope2.View"
       />
 
+
+  <browser:page
+      for="*"
+      name="at_utils"
+      class=".utils.Utils"
+      allowed_interface="..interfaces.utils.IUtils"
+      permission="zope2.View"
+      />
+ 
+
 </configure>
