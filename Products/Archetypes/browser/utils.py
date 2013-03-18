@@ -4,11 +4,11 @@ from Products.Archetypes.interfaces.utils import IUtils
 from zope.i18n import translate
 
 
-domain = 'plone'
 class Utils(BrowserView):
     implements(IUtils)
 
     def translate(self, vocab, value, widget=None):
+        domain = 'plone'
         context = self.context
         if isinstance(value, basestring):
             value = [value]
