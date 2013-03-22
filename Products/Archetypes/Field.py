@@ -424,6 +424,9 @@ class Field(DefaultLayerContainer):
         """make sure the value's content-type is allowed"""
         if value in ("DELETE_IMAGE", "DELETE_FILE", None, ''):
             return None
+        # plone.app.blob.field.BlobWrapper cannot be imported
+        # at startup due to circular imports
+        from plone.app.blob.field import BlobWrapper
         body = ''
         if isinstance(value, FileType):
             tell = value.tell()
@@ -432,6 +435,12 @@ class Field(DefaultLayerContainer):
             value.seek(tell)
         elif isinstance(value, StringType):
             body = value
+        elif isinstance(value, BlobWrapper):
+            body = value.data
+
+        if isinstance(value, (FileType, BlobWrapper)) and body in (None, ''):
+            return None
+
         mtr = getToolByName(instance, 'mimetypes_registry', None)
         if mtr is not None:
             orig_filename = getattr(value, 'filename',

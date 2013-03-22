@@ -4,6 +4,9 @@ Changelog
 1.8.7 (unreleased)
 ------------------
 
+- Ignore missing file and blob uploads during content_type validation
+  [pjstevns]
+
 - Before validating the field, make sure you actually have the field
   objects for the type
   [vangheem]
