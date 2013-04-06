@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.8.7 (unreleased)
+1.8.7 (2013-04-06)
 ------------------
 
 - Ignore missing file and blob uploads during content_type validation
