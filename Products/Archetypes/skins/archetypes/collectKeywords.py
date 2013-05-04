@@ -8,6 +8,11 @@
 ##parameters=name, index, vocab_source='portal_catalog'
 REQUEST = context.REQUEST
 
+#when using archetypes.schemaextender the keyword widget call to
+#field.getAccessor return None, so to let integrator do sth we
+#need to said index name is equal to field name.
+if index is None:
+    index = name
 
 ## With the advent of multi-cataloging we need to pass an optional
 ## catalog id to use for the widget.

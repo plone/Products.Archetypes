@@ -328,6 +328,11 @@ class Field(DefaultLayerContainer):
             if res is not None:
                 return res
 
+        if getattr(self, 'allowable_content_types', None):
+            res = self.validate_content_types(instance, value, errors)
+            if res is not None:
+                return res
+
         res = instance.validate_field(name, value, errors)
         if res is not None:
             return res
@@ -412,6 +417,63 @@ class Field(DefaultLayerContainer):
             error = translate(error, context=request)
             errors[self.getName()] = error
         return error
+
+    security.declarePrivate('validate_content_types')
+
+    def validate_content_types(self, instance, value, errors):
+        """make sure the value's content-type is allowed"""
+        if value in ("DELETE_IMAGE", "DELETE_FILE", None, ''):
+            return None
+        # plone.app.blob.field.BlobWrapper cannot be imported
+        # at startup due to circular imports
+        from plone.app.blob.field import BlobWrapper
+        body = ''
+        if isinstance(value, FileType):
+            tell = value.tell()
+            value.seek(0)
+            body = value.read()
+            value.seek(tell)
+        elif isinstance(value, StringType):
+            body = value
+        elif isinstance(value, BlobWrapper):
+            body = value.data
+
+        if isinstance(value, (FileType, BlobWrapper)) and body in (None, ''):
+            return None
+
+        mtr = getToolByName(instance, 'mimetypes_registry', None)
+        if mtr is not None:
+            orig_filename = getattr(value, 'filename',
+                                    getattr(value, 'name', ''))
+            kw = dict(mimetype=None,
+                      filename=orig_filename)
+            try:
+                d, f, mimetype = mtr(body[:8096], **kw)
+            except UnicodeDecodeError:
+                d, f, mimetype = mtr(len(body) < 8096 and body or '', **kw)
+        else:
+            mimetype, enc = guess_content_type(
+                value.filename, value.read(), None)
+
+        mimetype = str(mimetype).split(';')[0].strip()
+        if mimetype not in self.allowable_content_types:
+            request = aq_get(instance, 'REQUEST')
+            label = self.widget.Label(instance)
+            name = self.getName()
+            if isinstance(label, Message):
+                label = translate(label, context=request)
+            error = _(u'error_allowable_content_types',
+                      default=u'Mimetype ${mimetype} is not allowed '
+                      'on ${name}, please correct.',
+                      mapping={
+                          'mimetype': mimetype,
+                          'name': label
+                      })
+            error = translate(error, context=request)
+            errors[name] = error
+            return error
+
+        return None
 
     security.declarePublic('Vocabulary')
     def Vocabulary(self, content_instance=None):

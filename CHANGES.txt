@@ -1,9 +1,46 @@
 Changelog
 =========
 
-1.8.7 (unreleased)
+1.8.8 (unreleased)
 ------------------
 
+- Nothing changed yet.
+
+
+1.8.7 (2013-04-06)
+------------------
+
+- Ignore missing file and blob uploads during content_type validation
+  [pjstevns]
+
+- Before validating the field, make sure you actually have the field
+  objects for the type
+  [vangheem]
+
+- Fix issue #7556 (https://dev.plone.org/ticket/7556) by adding 
+  validation of uploaded blobs by checking the allowable_content_types
+  attribute of a field
+  [pjstevns]
+
+- Provide fix for issue #9774 (https://dev.plone.org/ticket/9774)
+  change import target and update order params in install_uidcatalog 
+  from setuphandlers has different order params
+  [bogdangi]
+
+- Provide sane defaults for minute_step, which is an integer
+  everywhere else.
+  [tomgross]
+
+- Fix when using archetypes.schemaextender. the keyword widget call to
+  field.getAccessor return None, so to let integrator do sth we
+  need to said index name is equal to field name.
+  [toutpt]
+
+- Don't fail if contenttype can not be acquired (eg PFG)
+  [tomgross]
+
+- Translate selection values in base_view, fix #7627 (https://dev.plone.org/ticket/7627)
+  [kiorky]
 
 1.8.6 (2012-12-09)
 ------------------
@@ -15,7 +52,6 @@ Changelog
 - Sanitize input to go_back script. This fixes
   https://plone.org/products/plone/security/advisories/20121106/11
   [davisagli]
-
 
 1.8.5 (2012-11-15)
 ------------------

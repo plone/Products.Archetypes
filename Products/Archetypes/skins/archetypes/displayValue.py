@@ -5,21 +5,8 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=vocab, value
+##parameters=vocab, value, widget=None
 
+t = context.restrictedTraverse('@@at_utils').translate
+return t(vocab, value, widget)
 
-try:
-    # Maybe a string?
-    value.capitalize()
-except AttributeError:
-    try:
-        # Maybe a list?
-        return ', '.join([vocab.getValue(context.unicodeEncode(v),
-                                         context.unicodeEncode(v)) \
-                          for v in value if v])
-    except TypeError:
-        pass
-
-# Try to convert to a string and do the dirty job.
-return vocab.getValue(context.unicodeEncode(value),
-                      context.unicodeEncode(value))

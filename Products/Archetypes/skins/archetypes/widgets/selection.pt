@@ -24,7 +24,8 @@
             <span metal:define-slot="inside"
                 tal:define="vocab python:field.Vocabulary(context);
                             value python:accessor();
-                            display python:context.displayValue(vocab, value)"
+                            display python:context.displayValue(vocab, value, widget)"
+                            i18n:translate=""
                 tal:replace="structure display" />
         </span>
     </metal:view_macro>
