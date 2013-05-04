@@ -1,0 +1,94 @@
+
+/* Base kss resource for Archetypes */
+
+input.blurrable:blur,
+select.blurrable:blur,
+textarea.blurrable:blur {
+    action-server:                kssValidateField;
+    kssValidateField-fieldname:   kssAttr('atfieldname', true);
+    kssValidateField-value:       currentFormVar();
+    kssValidateField-uid:         kssAttr('atuid', true);
+}
+
+form[action=criterion_edit_form] input.blurrable:blur,
+form[action=criterion_edit_form] select.blurrable:blur,
+form[action=criterion_edit_form] textarea.blurrable:blur {
+    action-cancel: kssValidateField;
+}
+
+.inlineEditable:click {
+    evt-click-allowbubbling: true;
+    action-server: replaceField;
+    replaceField-fieldname: kssAttr('atfieldname', true);
+    replaceField-macro: kssAttr('macro', true);
+    replaceField-templateId: kssAttr('templateId', true);
+    replaceField-uid: kssAttr('atuid', true);
+    replaceField-target: kssAttr('target', true);
+    replaceField-edit: true;
+}
+
+form.inlineForm input[name=kss-save]:click {
+    evt-click-preventdefault: true;
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-kssSubmitForm: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
+    saveField-target: kssAttr('target', true);
+}
+
+/* XXX Note you can't use comma separation for selectors! */
+
+form.inlineForm input[name=kss-cancel]:click {
+    evt-click-preventdefault: true;
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
+    replaceWithView-edit: true;
+}
+
+form.inlineForm input.blurrable:keypress(inlineescape),
+form.inlineForm select.blurrable:keypress(inlineescape),
+form.inlineForm textarea.blurrable:keypress(inlineescape) {
+    evt-keypress-keycodes: '27';
+    action-server: replaceWithView;
+    replaceWithView-fieldname: kssAttr('atfieldname', true);
+    replaceWithView-macro: kssAttr('macro', true);
+    replaceWithView-templateId: kssAttr('templateId', true);
+    replaceWithView-uid: kssAttr('atuid', true);
+    replaceWithView-target: kssAttr('target', true);
+    replaceWithView-edit: true;
+}
+
+/* Since some browsers (mainly, some version of Safari)
+   do a little bit of fireworks with the events (yeah,
+   cause it fires them up all together) we disable the
+   default on all of them */
+form.inlineForm input[type="text"].blurrable:keydown,
+form.inlineForm input[type="text"].blurrable:keypress {
+    evt-keydown-preventdefault: true;
+    evt-keydown-keycodes: 13;
+    evt-keypress-preventdefault: true;
+    evt-keypress-keycodes: 13;
+}
+
+form.inlineForm input[type="text"].blurrable:keyup {
+    evt-keyup-preventdefault: true;
+    evt-keyup-keycodes: 13;
+    action-client: log;
+    action-server: saveField;
+    saveField-fieldname: kssAttr('atfieldname', true);
+    saveField-kssSubmitForm: currentForm();
+    saveField-macro: kssAttr('macro', true);
+    saveField-templateId: kssAttr('templateId', true);
+    saveField-uid: kssAttr('atuid', true);
+    saveField-target: kssAttr('target', true);
+}
+
+.inlineEditable a:click {
+    evt-click-preventbubbling: true;
+}

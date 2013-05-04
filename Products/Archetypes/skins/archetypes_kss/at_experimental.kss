@@ -1,0 +1,11 @@
+
+/* This resource contains experimental features.
+ * It comes disabled by default.
+ */
+
+input[name="form.button.save"]:click {
+    evt-click-preventdefault:     true;
+    action-server:                kssValidateForm;
+    kssValidateForm-data:         currentForm();
+}
+
