@@ -653,9 +653,11 @@ class BaseObject(Referenceable):
         is_new_object = self.checkCreationFlag()
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
-        self.unmarkCreationFlag()
+
         if self._at_rename_after_creation and is_new_object:
             self._renameAfterCreation(check_auto_id=True)
+
+        self.unmarkCreationFlag()
 
         # Post create/edit hooks
         if is_new_object:
