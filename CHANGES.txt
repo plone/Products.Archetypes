@@ -4,8 +4,10 @@ Changelog
 1.8.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Unmark creation_flag after object rename so we still know that the object
+  is in the creation process in sub methods around the renaming functionnality
+  (setId calls manage_beforeDelete, 'onDelete' event, ...)
+  [gbastien]
 
 1.8.7 (2013-04-06)
 ------------------
@@ -17,13 +19,13 @@ Changelog
   objects for the type
   [vangheem]
 
-- Fix issue #7556 (https://dev.plone.org/ticket/7556) by adding 
+- Fix issue #7556 (https://dev.plone.org/ticket/7556) by adding
   validation of uploaded blobs by checking the allowable_content_types
   attribute of a field
   [pjstevns]
 
 - Provide fix for issue #9774 (https://dev.plone.org/ticket/9774)
-  change import target and update order params in install_uidcatalog 
+  change import target and update order params in install_uidcatalog
   from setuphandlers has different order params
   [bogdangi]
 
@@ -93,7 +95,7 @@ Changelog
   trunk compatibility.
   [elro]
 
-- Always add alt to image when shown in file widget 
+- Always add alt to image when shown in file widget
   [maartenkling]
 
 1.8.3 (2012-08-23)
@@ -3354,4 +3356,3 @@ Changelog
 
 * Fixed [ 988898 ] Don't swallow ConflictError (SQL missing)
   [tiran]
-
