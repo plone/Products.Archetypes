@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.8.8 (unreleased)
+1.9.0 (2013-05-23)
 ------------------
 
 - Unmark creation_flag after object rename so we still know that the object
