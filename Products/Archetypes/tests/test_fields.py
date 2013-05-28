@@ -58,11 +58,13 @@ test_fields = [
     ('LinesField', 'linesfield'),
     ('IntegerField', 'integerfield'),
     ('FloatField', 'floatfield'),
+    ('FloatField', 'floatfield2'),
     ('FixedPointField', 'fixedpointfield1'),
     ('FixedPointField', 'fixedpointfield2'),
     ('BooleanField', 'booleanfield'),
     ('ImageField', 'imagefield'),
     ]
+
 
 field_instances = []
 for type, name in test_fields:
@@ -90,6 +92,7 @@ field_values = {'objectfield': 'objectfield',
                 'linesfield': 'bla\nbla',
                 'integerfield': '1',
                 'floatfield': '1.5',
+                'floatfield2': '1,2',
                 'fixedpointfield1': '1.5',
                 'fixedpointfield2': '1,5',
                 'booleanfield': '1',
@@ -104,6 +107,7 @@ expected_values = {
     'linesfield': ('bla', 'bla'),
     'integerfield': 1,
     'floatfield': 1.5,
+    'floatfield2': 1.2,
     'fixedpointfield1': '1.50',
     'fixedpointfield2': '1.50',
     'booleanfield': 1,
@@ -119,6 +123,7 @@ empty_values = {
     'linesfield': (),
     'integerfield': None,
     'floatfield': None,
+    'floatfield2': None,
     'fixedpointfield1': None,
     'fixedpointfield2': None,
     'booleanfield': None,
