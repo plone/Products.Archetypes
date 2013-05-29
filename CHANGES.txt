@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.1 (unreleased)
+1.9.1 (2013-05-29)
 ------------------
 
 - Fix computed widget, use getParentNode to get the parent object instead of aq_parent,
