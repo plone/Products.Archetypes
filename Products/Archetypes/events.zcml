@@ -26,11 +26,17 @@
         handler="plone.locking.events.unlockAfterModification"
         />
 
-	<subscriber
+    <subscriber
         zcml:condition="installed plone.locking"
         for="plone.locking.interfaces.ITTWLockable
              .interfaces.IObjectInitializedEvent"
         handler="plone.locking.events.unlockAfterModification"
+        />
+
+    <subscriber
+        for=".interfaces.IBaseContent
+             OFS.interfaces.IObjectClonedEvent"
+        handler=".subscribers.updateCreationOnCopy"
         />
 
 </configure>

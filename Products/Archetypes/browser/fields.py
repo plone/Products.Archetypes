@@ -12,5 +12,5 @@ class DefaultFieldDecoratorView(BrowserView):
     def getKssClasses(self, fieldname, templateId=None, macro=None):
         return ''
 
-    def getKssClassesInlineEditable(self, fieldname, templateId, macro=None):
+    def getKssClassesInlineEditable(self, fieldname, templateId, macro=None, target=None):
         return ''

@@ -162,8 +162,8 @@ def UID_indexer(obj):
 class UIDResolver(Base):
 
     security = ClassSecurityInfo()
-    # XXX FIXME more security
 
+    security.declarePrivate('resolve_url')
     def resolve_url(self, path, REQUEST):
         """Strip path prefix during resolution, This interacts with
         the default brains.getObject model and allows and fakes the
@@ -176,6 +176,7 @@ class UIDResolver(Base):
             # ObjectManager may raise a KeyError when the object isn't there
             return None
 
+    security.declarePrivate('catalog_object')
     def catalog_object(self, obj, uid=None, **kwargs):
         """Use the relative path from the portal root as uid
 

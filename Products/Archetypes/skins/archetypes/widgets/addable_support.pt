@@ -41,7 +41,7 @@
               <fieldset>
                 <legend i18n:translate="legend_add_new">Add new</legend>
                 <div class="field">
-                  <label i18n:translate="label_what">What
+                  <label><tal:label i18n:translate="label_what">What</tal:label>
                     <span class="formHelp"
                          i18n:translate="help_select_content_to_create">
                       Select what content type you wish to create.
@@ -58,7 +58,7 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label i18n:translate="label_where">Where
+                  <label><tal:label i18n:translate="label_where">Where</tal:label>
                     <span class="formHelp"
                          i18n:translate="help_select_where_to_create">
                       Select where you want to create that.

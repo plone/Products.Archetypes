@@ -14,7 +14,7 @@
      class="field"
      tal:define="text_format python:request.get('text_format', getattr(here,'text_format','structured-text'))">
 
-    <label for="text_format" i18n:translate="label_format">Format
+     <label for="text_format"><tal:label i18n:translate="label_format">Format</tal:label>
         <span class="formHelp" i18n:translate="help_format_wysiwyg">
         If you are unsure of which format to use, just select Plain
         Text and type the document as you usually do.

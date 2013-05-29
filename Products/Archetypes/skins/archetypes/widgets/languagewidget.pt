@@ -12,7 +12,7 @@
     <metal:view_macro define-macro="view"
                       tal:define="vocab python:field.Vocabulary(context);
                                   value python:accessor();
-                                  display python:context.displayValue(vocab, value)"
+                                  display python:context.displayValue(vocab, value, widget)"
                       tal:replace="structure display" />
 
     <metal:define define-macro="edit">

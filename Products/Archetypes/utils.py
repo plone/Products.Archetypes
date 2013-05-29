@@ -320,7 +320,12 @@ class DisplayList:
         msgids = self._i18n_msgids
         msgids.update(getattr(other, '_i18n_msgids', {}))
 
-        v = DisplayList(a + b)
+        if isinstance(self, IntDisplayList):
+            # IntDisplayList keys need to be ints, so to avoid
+            # problems we create an IntDisplayList here.
+            v = IntDisplayList(a + b)
+        else:
+            v = DisplayList(a + b)
         v._i18n_msgids = msgids
         return v
 
@@ -386,7 +391,10 @@ class DisplayList:
             return cmp(a[1], b[1])
         values = list(self.items())
         values.sort(_cmp)
-        return DisplayList(values)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(values)
+        else:
+            return DisplayList(values)
 
     def sortedByKey(self):
         """return a new display list sorted by key"""
@@ -394,11 +402,14 @@ class DisplayList:
             return cmp(a[0], b[0])
         values = list(self.items())
         values.sort(_cmp)
-        return DisplayList(values)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(values)
+        else:
+            return DisplayList(values)
 
     def __cmp__(self, dest):
         if not isinstance(dest, DisplayList):
-            raise TypeError, 'Cant compare DisplayList to %s' % (type(dest))
+            raise TypeError, 'Cannot compare DisplayList to %s' % (type(dest))
 
         return cmp(self.sortedByKey()[:], dest.sortedByKey()[:])
 
@@ -416,7 +427,10 @@ class DisplayList:
                 r.append((self._itor[i], self.getValue(self._itor[i]), ))
             except IndexError:
                 return r
-        return DisplayList(r)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(r)
+        else:
+            return DisplayList(r)
 
     slice = __getslice__
 
@@ -455,7 +469,7 @@ class IntDisplayList(DisplayList):
     You can use only ints as keys
     >>> idl.add(object(), 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'object'>
+    TypeError: IntDisplayList keys must be ints, got <type 'object'>
 
     >>> idl.add(42, object())
     Traceback (most recent call last):
@@ -463,11 +477,11 @@ class IntDisplayList(DisplayList):
 
     >>> idl.add('stringkey', 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'str'>
+    TypeError: IntDisplayList keys must be ints, got <type 'str'>
 
     >>> idl.add(u'unicodekey', 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'unicode'>
+    TypeError: IntDisplayList keys must be ints, got <type 'unicode'>
 
     GOTCHA
     Adding a value a second time does overwrite the key, too!
@@ -489,7 +503,7 @@ class IntDisplayList(DisplayList):
 
     def add(self, key, value, msgid=None):
         if not isinstance(key, int):
-            raise TypeError('DisplayList keys must be ints, got %s' %
+            raise TypeError('IntDisplayList keys must be ints, got %s' %
                             type(key))
         if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %

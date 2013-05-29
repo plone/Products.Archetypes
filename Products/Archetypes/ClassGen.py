@@ -169,9 +169,9 @@ class ClassGenerator:
         if not hasattr(klass, methodName) \
                or getattr(klass, methodName) is AT_GENERATE_METHOD:
             if methodName in type:
-                raise GeneratorError("There is a conflict"
-                                     "between the Field(%s) and the attempt"
-                                     "to generate a method of the same name on"
+                raise GeneratorError("There is a conflict "
+                                     "between the Field(%s) and the attempt "
+                                     "to generate a method of the same name on "
                                      "class %s" % (
                     methodName,
                     klass.__name__))
