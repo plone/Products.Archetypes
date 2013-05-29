@@ -6,6 +6,7 @@ Changelog
 
 - Fix computed widget, use getParentNode to get the parent object instead of aq_parent,
   like in field.pt (avoid Unauthorized error)
+  [jfroche]
 
 
 1.9.0 (2013-05-23)
