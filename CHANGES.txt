@@ -4,7 +4,8 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Pass request to field validation so errors are translated properly.
+  [davisagli]
 
 
 1.9.1 (2013-05-29)
