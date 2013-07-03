@@ -2,6 +2,7 @@ from zope.interface import implements
 from Products.Five import BrowserView
 from Products.Archetypes.interfaces.utils import IUtils
 from zope.i18n import translate
+from zope.i18nmessageid import Message
 
 
 class Utils(BrowserView):
@@ -25,17 +26,13 @@ class Utils(BrowserView):
             for v in value:
                 if not v:
                     continue
-                vocab_value = vocab.getValue(
-                    context.unicodeEncode(v),
-                    context.unicodeEncode(v))
-                # avoid UnicodeDecodeError if v contains special chars
-                if not isinstance(v, unicode):
-                    v = unicode(v, 'utf-8')
-                # be sure not to have already translated
-                # the text
-                trans_value = _(v)
-                if vocab_value != trans_value:
-                    vocab_value = trans_value
+                v_encoded = context.unicodeEncode(v)
+                vocab_value = vocab.getValue(v_encoded, v)
+                # avoid UnicodeDecodeError if value contains special chars
+                if not isinstance(vocab_value, unicode):
+                    vocab_value = unicode(vocab_value, 'utf-8')
+                # translate explicitly
+                vocab_value = _(vocab_value)
                 nvalues.append(vocab_value)
             value =  ', '.join(nvalues)
         return value
