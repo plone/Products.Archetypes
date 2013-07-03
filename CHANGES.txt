@@ -6,6 +6,7 @@ Changelog
 
 - Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
   Protect ReferenceEngine's getReferences and getBackReferences.
+  Add security declarations to functions in utils.py.
   (Security fixes from PloneHotfix20130618)
   [davisagli]
 
