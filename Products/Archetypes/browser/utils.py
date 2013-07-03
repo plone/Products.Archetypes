@@ -2,6 +2,7 @@ from zope.interface import implements
 from Products.Five import BrowserView
 from Products.Archetypes.interfaces.utils import IUtils
 from zope.i18n import translate
+from zope.i18nmessageid import Message
 
 
 class Utils(BrowserView):
