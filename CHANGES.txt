@@ -4,6 +4,11 @@ Changelog
 1.8.8 (unreleased)
 ------------------
 
+- Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
+  Protect ReferenceEngine's getReferences and getBackReferences.
+  (Security fixes from PloneHotfix20130618)
+  [davisagli]
+
 - Revert a change in KSS that broke Plone 4.2 compatibility.
   [esteele]
 
