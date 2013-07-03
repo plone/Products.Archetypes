@@ -10,7 +10,6 @@ from App.class_init import InitializeClass
 from App.special_dtml import DTMLFile
 from ExtensionClass import Base
 from ZODB.POSException import ConflictError
-from zExceptions import NotFound
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import manage_zcatalog_entries as ManageZCatalogEntries
 from Acquisition import aq_base, aq_parent, aq_inner
@@ -80,6 +79,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
 
     security = ClassSecurityInfo()
 
+    security.declarePrivate('getObject')
     def getObject(self, REQUEST=None):
         """
         Used to resolve UIDs into real objects. This also must be
@@ -162,19 +162,6 @@ def UID_indexer(obj):
 class UIDResolver(Base):
 
     security = ClassSecurityInfo()
-
-    security.declarePrivate('resolve_url')
-    def resolve_url(self, path, REQUEST):
-        """Strip path prefix during resolution, This interacts with
-        the default brains.getObject model and allows and fakes the
-        ZCatalog protocol for traversal
-        """
-        portal_object = self.portal_url.getPortalObject()
-        try:
-            return portal_object.unrestrictedTraverse(path)
-        except (KeyError, AttributeError, NotFound):
-            # ObjectManager may raise a KeyError when the object isn't there
-            return None
 
     security.declarePrivate('catalog_object')
     def catalog_object(self, obj, uid=None, **kwargs):
