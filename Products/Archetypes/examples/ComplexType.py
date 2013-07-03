@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 from Products.Archetypes import atapi
 from Products.Archetypes import Field
 from SimpleType import SimpleType
 from Products.Archetypes.config import PKG_NAME
+from zope.i18nmessageid import MessageFactory
+
 
 fields = ['StringField',
           'FileField', 'TextField', 'DateTimeField', 'LinesField',
@@ -58,6 +61,10 @@ schema = atapi.Schema(tuple(field_instances) + (
     )) + atapi.ExtensibleMetadata.schema
 
 
+_domain1 = MessageFactory('domain1')
+_domain2 = MessageFactory('domain2')
+
+
 class ComplexType(SimpleType):
     """A simple archetype"""
     schema = SimpleType.schema + schema
@@ -65,10 +72,20 @@ class ComplexType(SimpleType):
     portal_type = 'ComplexType'
 
     def _get_selection_vocab(self):
-        return atapi.DisplayList((('Test', 'Test'), ))
+        return atapi.DisplayList((
+            ('foo', u'Foo'),
+            ('complex', u'C\xf6mpl\xe8x'),
+            ('bar', _domain1(u'Bar')),
+            ('hello', _domain2(u'Hello')),
+            ))
 
     def _get_selection_vocab2(self):
-        return atapi.DisplayList((('Test', 'Test'), ('Test2', 'Test2'), ))
+        return atapi.DisplayList((
+            ('foo2', u'Foo 2'),
+            ('complex2', u'C\xf6mpl\xe8x 2'),
+            ('bar2', _domain1(u'Bar 2')),
+            ('hello2', _domain2(u'Hello 2')),
+            ))
 
 
 atapi.registerType(ComplexType, PKG_NAME)
