@@ -333,6 +333,121 @@ class WidgetTests(ATSiteTestCase):
         doc = makeContent(self.folder, 'SimpleType', id='doc')
         self.assertEqual(doc.getBestIcon(), 'txt.png')
 
+    def test_vocabulary_enforced(self):
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field_name = 'selectionlinesfield1'
+        field = doc.Schema()[field_name]
+        # Try a wrong key
+        errors = {}
+        field.validate(['spoon'], doc, errors)
+        self.assertTrue(field_name in errors)
+        # Try a correct key
+        errors = {}
+        field.validate(['foo'], doc, errors)
+        self.assertTrue(field_name not in errors)
+        # Try a correct key as simple string
+        errors = {}
+        field.validate('foo', doc, errors)
+        self.assertTrue(field_name not in errors)
+
+    def test_vocabulary_display(self):
+        # Displaying the value of a vocabulary means checking if the
+        # key is in there, getting the value for the key, possibly
+        # translate it if it is a message id or try to translate it
+        # anyway if the value is a simple string.  This may be tricky,
+        # as can be seen in https://dev.plone.org/ticket/7627
+        #
+        # Note that below you may see some really strange looking
+        # results, but that is because during the tests a test
+        # translation domain factory is used as fallback, which simply
+        # reports the domain and the original msgid in square
+        # brackets, without looking up actual translations.  The good
+        # thing is that now we can easily check if a translation has
+        # been tried for the correct domain and if translation has not
+        # been done twice.
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field_name = 'selectionlinesfield1'
+        field = doc.Schema()[field_name]
+        widget = field.widget
+        vocab = field.Vocabulary(doc)
+        # This view can be used for displaying and translating a value.
+        trans = doc.restrictedTraverse('@@at_utils').translate
+
+        # The key 'foo' has the value 'Foo' and we also try to
+        # translate it in the plone domain.  XXX Not sure if that last
+        # part is really wanted.  It might be an okay default though.
+        result = trans(vocab, ['foo'], widget)
+        self.assertEqual(result, u'[[plone][Foo]]')
+        result = trans(vocab, ['complex'], widget)
+        self.assertEqual(result, u'[[plone][C\xf6mpl\xe8x]]')
+        # For the next two, the values are message ids.
+        result = trans(vocab, ['bar'], widget)
+        self.assertEqual(result, u'[[domain1][Bar]]')
+        result = trans(vocab, ['hello'], widget)
+        self.assertEqual(result, u'[[domain2][Hello]]')
+        # Try a non-existing value.
+        result = trans(vocab, ['spoon'], widget)
+        self.assertEqual(result, u'[[plone][spoon]]')
+
+        # We try the displayValue Python skin script as well, which
+        # serves as a front for the new @@at_utils view.
+        result = doc.displayValue(vocab, ['foo'], widget)
+        self.assertEqual(result, u'[[plone][Foo]]')
+        result = doc.displayValue(vocab, ['complex'], widget)
+        self.assertEqual(result, u'[[plone][C\xf6mpl\xe8x]]')
+        # For the next two, the values are message ids.
+        result = doc.displayValue(vocab, ['bar'], widget)
+        self.assertEqual(result, u'[[domain1][Bar]]')
+        result = doc.displayValue(vocab, ['hello'], widget)
+        self.assertEqual(result, u'[[domain2][Hello]]')
+        # Try a non-existing value.
+        result = doc.displayValue(vocab, ['spoon'], widget)
+        self.assertEqual(result, u'[[plone][spoon]]')
+
+    def test_vocabulary_alternate_domain(self):
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field_name = 'selectionlinesfield2'
+        field = doc.Schema()[field_name]
+        widget = field.widget
+        vocab = field.Vocabulary(doc)
+        trans = doc.restrictedTraverse('@@at_utils').translate
+        result = trans(vocab, ['foo'], widget)
+        self.assertEqual(result, u'[[attesti18n][Foo]]')
+        result = trans(vocab, ['complex'], widget)
+        self.assertEqual(result, u'[[attesti18n][C\xf6mpl\xe8x]]')
+        # For the next two, the values are message ids.
+        result = trans(vocab, ['bar'], widget)
+        self.assertEqual(result, u'[[domain1][Bar]]')
+        result = trans(vocab, ['hello'], widget)
+        self.assertEqual(result, u'[[domain2][Hello]]')
+        # Try a non-existing value.
+        result = trans(vocab, ['spoon'], widget)
+        self.assertEqual(result, u'[[attesti18n][spoon]]')
+
+    def test_vocabulary_multi_selection(self):
+        doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
+        field_name = 'selectionlinesfield3'
+        field = doc.Schema()[field_name]
+        widget = field.widget
+        vocab = field.Vocabulary(doc)
+        trans = doc.restrictedTraverse('@@at_utils').translate
+        result = trans(vocab, ['foo2'], widget)
+        self.assertEqual(result, u'[[attesti18n][Foo 2]]')
+        result = trans(vocab, ['complex2'], widget)
+        self.assertEqual(result, u'[[attesti18n][C\xf6mpl\xe8x 2]]')
+        # For the next two, the values are message ids.
+        result = trans(vocab, ['bar2'], widget)
+        self.assertEqual(result, u'[[domain1][Bar 2]]')
+        result = trans(vocab, ['hello2'], widget)
+        self.assertEqual(result, u'[[domain2][Hello 2]]')
+        # Try a non-existing value.
+        result = trans(vocab, ['spoon2'], widget)
+        self.assertEqual(result, u'[[attesti18n][spoon2]]')
+        # Combine all.
+        result = trans(vocab, ['complex2','bar2', 'spoon2'], widget)
+        self.assertEqual(result,
+            u'[[attesti18n][C\xf6mpl\xe8x 2]], [[domain1][Bar 2]], [[attesti18n][spoon2]]')
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
