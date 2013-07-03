@@ -4,6 +4,11 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
+- Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
+  Protect ReferenceEngine's getReferences and getBackReferences.
+  (Security fixes from PloneHotfix20130618)
+  [davisagli]
+
 - Pass request to field validation so errors are translated properly.
   [davisagli]
 
