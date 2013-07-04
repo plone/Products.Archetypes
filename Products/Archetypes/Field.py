@@ -1659,6 +1659,8 @@ class FloatField(ObjectField):
         elif value is not None:
             # should really blow if value is not valid
             __traceback_info__ = (self.getName(), instance, value, kwargs)
+            if isinstance(value, basestring):
+                value = value.replace(',', '.')
             value = float(value)
 
         ObjectField.set(self, instance, value, **kwargs)
