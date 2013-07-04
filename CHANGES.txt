@@ -4,6 +4,11 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
+- Allow commas as decimal marks for inputs in float fields. The comma is then
+  replaced by Python's standard decimal mark, the dot. Commas as separators
+  between the decimal and fractional part are quite common in Central Europe.
+  [rnix]
+
 - Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
   Protect ReferenceEngine's getReferences and getBackReferences.
   Add security declarations to functions in utils.py.
