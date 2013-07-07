@@ -4,6 +4,9 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
+- Make some methods of TypesWidget unpublishable.
+  [davisagli]
+
 - Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
   Protect ReferenceEngine's getReferences and getBackReferences.
   Add security declarations to functions in utils.py.
