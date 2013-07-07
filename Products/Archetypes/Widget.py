@@ -97,17 +97,17 @@ class TypesWidget(macrowidget, Base):
 
     security.declarePublic('setCondition')
     def setCondition(self, condition):
-        """Set the widget expression condition."""
+        # Set the widget expression condition.
         self.condition = condition
 
     security.declarePublic('getCondition')
     def getCondition(self):
-        """Return the widget text condition."""
+        # Return the widget text condition.
         return self.condition
 
     security.declarePublic('testCondition')
     def testCondition(self, folder, portal, object):
-        """Test the widget condition."""
+        # Test the widget condition.
         try:
             if self.condition:
                 if folder is None and object is not None:
