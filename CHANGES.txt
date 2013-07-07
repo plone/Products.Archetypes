@@ -4,6 +4,9 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
+- Make some methods of TypesWidget unpublishable.
+  [davisagli]
+
 - Allow commas as decimal marks for inputs in float fields. The comma is then
   replaced by Python's standard decimal mark, the dot. Commas as separators
   between the decimal and fractional part are quite common in Central Europe.
