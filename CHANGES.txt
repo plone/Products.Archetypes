@@ -4,6 +4,14 @@ Changelog
 1.9.2 (unreleased)
 ------------------
 
+- i18n languages vocabulary.
+  [thomasdesvenain]
+
+- Load calendar language js related to user preferred language.
+  Calendar popup is now translated.
+  Refs http://dev.plone.org/ticket/13189
+  [thomasdesvenain]
+
 - Make some methods of TypesWidget unpublishable.
   [davisagli]
 
@@ -135,14 +143,6 @@ Changelog
 
 1.8.2 (2012-08-18)
 ------------------
-
-- i18n languages vocabulary.
-  [thomasdesvenain]
-
-- Load calendar language js related to user preferred language.
-  Calendar popup is now translated.
-  Refs http://dev.plone.org/ticket/13189
-  [thomasdesvenain]
 
 - tiff, psd and eps images scales are generated, in jpeg format.
   Fixes thumbnail view and main view for image contents with tif, psd or eps file.
