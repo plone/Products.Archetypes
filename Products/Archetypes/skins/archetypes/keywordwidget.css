@@ -1,0 +1,82 @@
+/**
+ * Styles for the Archetypes KeywordWidget
+ */
+
+/* @group jQuery Tag multiple selector */
+
+.optionsBox {
+    overflow-y: auto;
+    border: solid 1px #999999;
+    background: #FFFFFF;
+    height: 14em;
+    width: 100%;
+}
+/* IE7: fixes super-wide div for JavaScript Tag selector */
+/* .ie7 is set on <html> by Modernizr library */
+.ie7 div.optionsBox {
+    width: 50%;
+}
+.optionsBox LABEL {
+    padding: 2px 0 0 0;
+    display: block;
+    line-height: 1em;
+    font-weight: normal;
+}
+.optionsBox input{
+    vertical-align: middle;
+    margin: 1px 4px 4px 6px;
+}
+/* IE7: fixes super-wide div for JavaScript Tag selector */
+/* .ie7 is set on <html> by Modernizr library */
+.ie7 .optionsBox input {
+    margin: 0px;
+}
+.optionsBox LABEL.checked {
+    background-color: #EEEEEE;
+}
+.optionsBox LABEL.hover {
+    background-color: #777777;
+    color: #FFFFFF;
+}
+.ArchetypesKeywordWidget .formHelp {
+    font-weight: normal;
+}
+.existingTagsSection {
+    position: relative;
+    margin-left: 3em;
+}
+.existingTags {
+    float: left;
+    width: 50%;
+}
+#content .existingTags dd {
+    margin-bottom: 1px;
+    margin-left: 0;
+}
+#content .selectedTags, #content .newTags {
+    margin-bottom: 0;
+    margin-left: 0;
+}
+#content .selectedTagsSection {
+    margin-left: 3em;
+    float: left;
+    width: 43%;
+    margin-bottom: 0;
+}
+.newTagsSection {
+    width: 48%;
+    margin-left: 3em;
+}
+#content p.selectedTag {
+    margin-bottom: .4em;
+}
+.existingTagsTitle, .newTagsTitle {
+    float: left;
+}
+.existingTagsHelp, .newTagsHelp {
+    float: right;
+}
+.noTagsSelected, .oneOrMoreTagsSelected {
+    display: none;
+}
+/* @end */

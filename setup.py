@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.8.2.dev0'
+version = '1.9.2.dev0'
 
 setup(name='Products.Archetypes',
       version=version,
@@ -58,6 +58,7 @@ setup(name='Products.Archetypes',
           'Products.MimetypesRegistry>=2.0.3',
           'Products.PlacelessTranslationService',
           'Products.PortalTransforms',
+          'Products.ZSQLMethods',
           'Products.statusmessages',
           'Products.validation',
           'plone.folder',

@@ -38,7 +38,7 @@
             tal:condition="not:python:hasattr(field, 'relationship')"
             tal:define="vocab python:field.Vocabulary(here);
                         value python:accessor();
-                        display python:context.displayValue(vocab, value);"
+                        display python:context.displayValue(vocab, value, widget);"
             tal:replace="structure display" />
 
     </metal:view_macro>

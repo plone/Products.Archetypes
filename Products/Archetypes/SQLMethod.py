@@ -3,7 +3,7 @@ from Products.Archetypes.debug import log_exc
 from Shared.DC.ZRDB import Aqueduct, RDB
 from Shared.DC.ZRDB.Results import Results
 from Shared.DC.ZRDB.DA import SQL
-from App.Extensions import getBrain
+from Shared.DC.ZRDB.DA import getBrain
 from cStringIO import StringIO
 import sys
 import types
@@ -218,10 +218,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         #                       If not specified, we use sys.getdefaultencoding()
         db_encoding = kw.get('db_encoding', None)
 
-        try:
-            site_encoding = kw.get('site_encoding', context.portal_properties.site_properties.default_charset)
-        except AttributeError, KeyError:
-            site_encoding = kw.get('site_encoding', sys.getdefaultencoding())
+        site_encoding = kw.get('site_encoding', 'utf-8')
 
         if type(query) == type(u''):
             if db_encoding:

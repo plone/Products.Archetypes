@@ -130,7 +130,7 @@
 	    <input type="hidden"
 		   name="fieldset"
 		   tal:attributes="value fieldset"
-		   tal:condition="python: fieldsets and not allow_tabbing"
+		   tal:condition="python: fieldsets"
 		   />
 
 	

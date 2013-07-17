@@ -97,17 +97,17 @@ class TypesWidget(macrowidget, Base):
 
     security.declarePublic('setCondition')
     def setCondition(self, condition):
-        """Set the widget expression condition."""
+        # Set the widget expression condition.
         self.condition = condition
 
     security.declarePublic('getCondition')
     def getCondition(self):
-        """Return the widget text condition."""
+        # Return the widget text condition.
         return self.condition
 
     security.declarePublic('testCondition')
     def testCondition(self, folder, portal, object):
-        """Test the widget condition."""
+        # Test the widget condition.
         try:
             if self.condition:
                 if folder is None and object is not None:
@@ -430,6 +430,7 @@ class CalendarWidget(TypesWidget):
         'starting_year': None,
         'ending_year': None,
         'future_years': None,
+        'minute_step': 5,
         'helper_js': ('jscalendar/calendar_stripped.js',
                       'jscalendar/calendar-en.js'),
         'helper_css': ('jscalendar/calendar-system.css',),
@@ -544,6 +545,7 @@ class KeywordWidget(TypesWidget):
         'vocab_source': 'portal_catalog',
         'roleBasedAdd': True,
         'helper_js': ('widgets/js/keywordmultiselect.js',),
+        'helper_css': ('keywordwidget.css',),
         })
 
     security = ClassSecurityInfo()

@@ -12,6 +12,7 @@ from zope.i18n import translate
 from zope.i18nmessageid import Message
 
 from AccessControl import ClassSecurityInfo
+from AccessControl import ModuleSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 
 from Acquisition import aq_base, aq_inner, aq_parent
@@ -23,6 +24,11 @@ from Products.Archetypes.config import DEBUG_SECURITY
 from Products.statusmessages.interfaces import IStatusMessage
 
 from plone.uuid.interfaces import IUUIDGenerator
+
+security = ModuleSecurityInfo()
+security.declarePrivate('transaction')
+security.declarePrivate('ClassSecurityInfo')
+security.declarePrivate('InitializeClass')
 
 
 def make_uuid(*args):
@@ -45,6 +51,7 @@ def fixSchema(schema):
 _marker = []
 
 
+security.declarePrivate('mapply')
 def mapply(method, *args, **kw):
     """ Inspect function and apply positional and keyword arguments as possible.
 
@@ -320,7 +327,12 @@ class DisplayList:
         msgids = self._i18n_msgids
         msgids.update(getattr(other, '_i18n_msgids', {}))
 
-        v = DisplayList(a + b)
+        if isinstance(self, IntDisplayList):
+            # IntDisplayList keys need to be ints, so to avoid
+            # problems we create an IntDisplayList here.
+            v = IntDisplayList(a + b)
+        else:
+            v = DisplayList(a + b)
         v._i18n_msgids = msgids
         return v
 
@@ -386,7 +398,10 @@ class DisplayList:
             return cmp(a[1], b[1])
         values = list(self.items())
         values.sort(_cmp)
-        return DisplayList(values)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(values)
+        else:
+            return DisplayList(values)
 
     def sortedByKey(self):
         """return a new display list sorted by key"""
@@ -394,11 +409,14 @@ class DisplayList:
             return cmp(a[0], b[0])
         values = list(self.items())
         values.sort(_cmp)
-        return DisplayList(values)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(values)
+        else:
+            return DisplayList(values)
 
     def __cmp__(self, dest):
         if not isinstance(dest, DisplayList):
-            raise TypeError, 'Cant compare DisplayList to %s' % (type(dest))
+            raise TypeError, 'Cannot compare DisplayList to %s' % (type(dest))
 
         return cmp(self.sortedByKey()[:], dest.sortedByKey()[:])
 
@@ -416,7 +434,10 @@ class DisplayList:
                 r.append((self._itor[i], self.getValue(self._itor[i]), ))
             except IndexError:
                 return r
-        return DisplayList(r)
+        if isinstance(self, IntDisplayList):
+            return IntDisplayList(r)
+        else:
+            return DisplayList(r)
 
     slice = __getslice__
 
@@ -455,7 +476,7 @@ class IntDisplayList(DisplayList):
     You can use only ints as keys
     >>> idl.add(object(), 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'object'>
+    TypeError: IntDisplayList keys must be ints, got <type 'object'>
 
     >>> idl.add(42, object())
     Traceback (most recent call last):
@@ -463,11 +484,11 @@ class IntDisplayList(DisplayList):
 
     >>> idl.add('stringkey', 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'str'>
+    TypeError: IntDisplayList keys must be ints, got <type 'str'>
 
     >>> idl.add(u'unicodekey', 'error')
     Traceback (most recent call last):
-    TypeError: DisplayList keys must be ints, got <type 'unicode'>
+    TypeError: IntDisplayList keys must be ints, got <type 'unicode'>
 
     GOTCHA
     Adding a value a second time does overwrite the key, too!
@@ -489,7 +510,7 @@ class IntDisplayList(DisplayList):
 
     def add(self, key, value, msgid=None):
         if not isinstance(key, int):
-            raise TypeError('DisplayList keys must be ints, got %s' %
+            raise TypeError('IntDisplayList keys must be ints, got %s' %
                             type(key))
         if not isinstance(value, basestring) and not isinstance(value, int):
             raise TypeError('DisplayList values must be strings or ints, got %s' %
@@ -569,6 +590,7 @@ class Vocabulary(DisplayList):
 InitializeClass(Vocabulary)
 
 
+security.declarePrivate('OrderedDict')
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for
        keys() and items()."""
@@ -707,10 +729,12 @@ def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
 
+security.declarePrivate('call_original')
 def call_original(self, __name__, __pattern__, *args, **kw):
     return getattr(self, __pattern__ % __name__)(*args, **kw)
 
 
+security.declarePrivate('wrap_method')
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
     if isWrapperMethod(old_method):
@@ -723,6 +747,7 @@ def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     setattr(klass, name, method)
 
 
+security.declarePrivate('unwrap_method')
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
     if not isWrapperMethod(old_method):
@@ -780,6 +805,7 @@ def _getSecurity(klass, create=True):
     return security
 
 
+security.declarePrivate('mergeSecurity')
 def mergeSecurity(klass):
     # This method looks into all the base classes and tries to
     # merge the security declarations into the current class.
@@ -810,6 +836,7 @@ def mergeSecurity(klass):
             security.names[name] = v
 
 
+security.declarePrivate('setSecurity')
 def setSecurity(klass, defaultAccess=None, objectPermission=None):
     """Set security of classes
 

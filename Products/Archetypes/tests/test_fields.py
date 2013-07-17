@@ -58,6 +58,7 @@ test_fields = [
           ('LinesField', 'linesfield'),
           ('IntegerField', 'integerfield'),
           ('FloatField', 'floatfield'),
+          ('FloatField', 'floatfield2'),
           ('FixedPointField', 'fixedpointfield1'),
           ('FixedPointField', 'fixedpointfield2'),
           ('BooleanField', 'booleanfield'),
@@ -74,6 +75,8 @@ img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'), 'rb')
 img_content = img_file.read()
 animated_gif_file = open(os.path.join(PACKAGE_HOME, 'input', 'animated.gif'), 'rb')
 animated_gif_content = animated_gif_file.read()
+pdf_file = open(os.path.join(PACKAGE_HOME, 'input', 'webdav.pdf'), 'rb')
+pdf_content = pdf_file.read()
 
 field_values = {'objectfield': 'objectfield',
                 'stringfield': 'stringfield',
@@ -88,6 +91,7 @@ field_values = {'objectfield': 'objectfield',
                 'linesfield': 'bla\nbla',
                 'integerfield': '1',
                 'floatfield': '1.5',
+                'floatfield2': '1,2',
                 'fixedpointfield1': '1.5',
                 'fixedpointfield2': '1,5',
                 'booleanfield': '1',
@@ -101,6 +105,7 @@ expected_values = {'objectfield': 'objectfield',
                    'linesfield': ('bla', 'bla'),
                    'integerfield': 1,
                    'floatfield': 1.5,
+                   'floatfield2': 1.2,
                    'fixedpointfield1':  '1.50',
                    'fixedpointfield2': '1.50',
                    'booleanfield': 1,
@@ -115,6 +120,7 @@ empty_values = {'objectfield': None,
                    'linesfield': (),
                    'integerfield': None,
                    'floatfield': None,
+                   'floatfield2': None,
                    'fixedpointfield1': None,
                    'fixedpointfield2': None,
                    'booleanfield': None,
@@ -168,6 +174,7 @@ class ProcessingTest(ATSiteTestCase):
                                        schema=schema)
         txt_file.seek(0)
         img_file.seek(0)
+        pdf_file.seek(0)
 
     def makeDummy(self):
         return self._dummy
@@ -388,6 +395,27 @@ class ProcessingTest(ATSiteTestCase):
         getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
         self.assertEqual(field.Vocabulary(dummy), expected)
         getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
+
+    def test_allowable_content_types_ok(self):
+        dummy = self.makeDummy()
+        request = TestRequest()
+        request.form.update(field_values)
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        errors = {}
+        dummy.validate(REQUEST=request, errors=errors)
+        self.assertFalse(errors, errors)
+
+    def test_allowable_content_types_fail(self):
+        dummy = self.makeDummy()
+        request = TestRequest()
+        request.form.update(field_values)
+        request.form.update({'imagefield_file': pdf_file})
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        errors = {}
+        dummy.validate(REQUEST=request, errors=errors)
+        self.assertTrue(errors, errors)
 
     def test_defaults(self):
         dummy = self.makeDummy()

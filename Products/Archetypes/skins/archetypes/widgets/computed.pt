@@ -19,7 +19,7 @@
     <metal:define define-macro="edit">
         <div class="field"
              tal:define="visState python:widget.isVisible(here, mode);
-                         visCondition python:field.widget.testCondition(context.aq_inner.aq_parent, portal, context);"
+                         visCondition python:field.widget.testCondition(context.aq_inner.getParentNode(), portal, context);"
              tal:condition="python:visState == 'visible' and visCondition">
           <label class="formQuestion" i18n:translate=""
                  tal:content="python:widget.Label(here)"

@@ -356,12 +356,14 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         for b in self.getBackReferences(object, relationship):
             self._deleteReference(b)
 
+    security.declarePrivate('getReferences')
     def getReferences(self, object, relationship=None, targetObject=None,
                       objects=True):
         # return a collection of reference objects
         return self._optimizedReferences(object, relationship=relationship,
             targetObject=targetObject, objects=objects, attribute='sourceUID')
 
+    security.declarePrivate('getBackReferences')
     def getBackReferences(self, object, relationship=None, targetObject=None,
                           objects=True):
         # return a collection of reference objects

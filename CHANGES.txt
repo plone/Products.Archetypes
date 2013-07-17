@@ -1,7 +1,139 @@
 Changelog
 =========
 
-1.8.2 (unreleased)
+1.9.2 (unreleased)
+------------------
+
+- Make some methods of TypesWidget unpublishable.
+  [davisagli]
+
+- Allow commas as decimal marks for inputs in float fields. The comma is then
+  replaced by Python's standard decimal mark, the dot. Commas as separators
+  between the decimal and fractional part are quite common in Central Europe.
+  [rnix]
+
+- Remove UIDResolver's resolve_url and protect UIDCatalogBrains' getObject.
+  Protect ReferenceEngine's getReferences and getBackReferences.
+  Add security declarations to functions in utils.py.
+  (Security fixes from PloneHotfix20130618)
+  [davisagli]
+
+- Pass request to field validation so errors are translated properly.
+  [davisagli]
+
+
+1.9.1 (2013-05-29)
+------------------
+
+- Fix computed widget, use getParentNode to get the parent object instead of aq_parent,
+  like in field.pt (avoid Unauthorized error)
+  [jfroche]
+
+
+1.9.0 (2013-05-23)
+------------------
+
+- Unmark creation_flag after object rename so we still know that the object
+  is in the creation process in sub methods around the renaming functionnality
+  (setId calls manage_beforeDelete, 'onDelete' event, ...)
+  [gbastien]
+
+1.8.7 (2013-04-06)
+------------------
+
+- Ignore missing file and blob uploads during content_type validation
+  [pjstevns]
+
+- Before validating the field, make sure you actually have the field
+  objects for the type
+  [vangheem]
+
+- Fix issue #7556 (https://dev.plone.org/ticket/7556) by adding
+  validation of uploaded blobs by checking the allowable_content_types
+  attribute of a field
+  [pjstevns]
+
+- Provide fix for issue #9774 (https://dev.plone.org/ticket/9774)
+  change import target and update order params in install_uidcatalog
+  from setuphandlers has different order params
+  [bogdangi]
+
+- Provide sane defaults for minute_step, which is an integer
+  everywhere else.
+  [tomgross]
+
+- Fix when using archetypes.schemaextender. the keyword widget call to
+  field.getAccessor return None, so to let integrator do sth we
+  need to said index name is equal to field name.
+  [toutpt]
+
+- Don't fail if contenttype can not be acquired (eg PFG)
+  [tomgross]
+
+- Translate selection values in base_view, fix #7627 (https://dev.plone.org/ticket/7627)
+  [kiorky]
+
+1.8.6 (2012-12-09)
+------------------
+
+- Add missing security declarations on the UIDResolver class.
+  https://plone.org/products/plone/security/advisories/20121106/08
+  [davisagli]
+
+- Sanitize input to go_back script. This fixes
+  https://plone.org/products/plone/security/advisories/20121106/11
+  [davisagli]
+
+1.8.5 (2012-11-15)
+------------------
+
+- Disallow downloading files via the at_download script if the user does not
+  have the field's read_permission.  This addresses a security vulnerability
+  discussed at http://plone.org/products/plone/security/advisories/20121106/17
+  [davisagli]
+
+- Add minute_step to CalendarWidget so we can define another minute step than
+  hardcoded 5 for now
+  [gbastien]
+
+- If form tabbing is allowed, make sure we can still track the current fieldset
+  if form submission returns to the edit form.
+  [davisagli]
+
+- Fix inline validation for items in the portal_factory.
+  [davisagli]
+
+- Change used event to update metadata during copy&paste fixes #13326 and makes
+  1.8.5 compatible with LinguaPlone again.
+  [do3cc]
+
+
+1.8.4 (2012-10-15)
+------------------
+
+- Add support for non-KSS-based inline validation.
+  [davisagli]
+
+- Fixed some problems with IntDisplayList.
+  [maurits]
+
+- Update object creation date on paste; closes https://dev.plone.org/ticket/9896 .
+  [davidblewett]
+
+- Import ``getBrain`` from Products.ZSQLMethods and declare dependency for Zope
+  trunk compatibility.
+  [elro]
+
+- Always add alt to image when shown in file widget
+  [maartenkling]
+
+1.8.3 (2012-08-23)
+------------------
+
+- Fixed i18n regression introduced in 1.8 in several templates.
+  [vincentfretin]
+
+1.8.2 (2012-08-18)
 ------------------
 
 - i18n languages vocabulary.
@@ -23,6 +155,8 @@ Changelog
   Fixes http://dev.plone.org/ticket/8338 (test still needed).
   [patch by stxnext, applied by kleist]
 
+- Changed deprecated getSiteEncoding to hardcoded `utf-8`
+  [tom_gross]
 
 1.8.1 (2012-07-02)
 ------------------
@@ -73,6 +207,12 @@ Changelog
   id="parent-fieldname-$fieldName-$UID" on text fields.
   Closes http://dev.plone.org/ticket/12465
   [esteele]
+
+- Fixed the KeywordWidget template and JavaScript source. the widget can
+  now be used for fields with name different from "subject". Also multiple
+  istances of this field can be used in the same page.
+  See http://dev.plone.org/ticket/12218
+  [keul]
 
 1.7.12 (2012-02-07)
 -------------------
@@ -3253,4 +3393,3 @@ Changelog
 
 * Fixed [ 988898 ] Don't swallow ConflictError (SQL missing)
   [tiran]
-
