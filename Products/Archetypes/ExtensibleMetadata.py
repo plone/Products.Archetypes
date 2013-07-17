@@ -1,6 +1,6 @@
 import string
 from logging import DEBUG
-from zope.component import queryUtility
+from zope.component import queryUtility, queryMultiAdapter
 from zope.interface import implements
 
 from Products.Archetypes import PloneMessageFactory as _
@@ -309,8 +309,15 @@ class ExtensibleMetadata(Persistence.Persistent):
     def languages(self):
         """Vocabulary method for the language field
         """
-        util = None
+        # Sort languages by their title
+        portal_state = queryMultiAdapter((self, self.REQUEST),
+                                         name=u'plone_portal_state')
+        if portal_state:
+            i18n_language_titles = portal_state.locale().displayNames.languages
+        else:
+            i18n_language_titles = {}
 
+        util = None
         use_combined = False
         # Respect the combined language code setting from PloneLanguageTool
         lt = getToolByName(self, 'portal_languages', None)
@@ -320,6 +327,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         # Try the utility first
         if HAS_PLONE_I18N:
             util = queryUtility(IMetadataLanguageAvailability)
+
         # Fall back to acquiring availableLanguages
         if util is None:
             languages = getattr(self, 'availableLanguages', None)
@@ -328,13 +336,22 @@ class ExtensibleMetadata(Persistence.Persistent):
             # Fall back to static definition
             if languages is None:
                 return DisplayList(
-                    (('en', 'English'), ('fr', 'French'), ('es', 'Spanish'),
-                     ('pt', 'Portuguese'), ('ru', 'Russian')))
+                    (('en', i18n_language_titles.get('en', 'English')),
+                     ('fr', i18n_language_titles.get('fr', 'French')),
+                     ('es', i18n_language_titles.get('es', 'Spanish')),
+                     ('es', i18n_language_titles.get('pt', 'Portuguese')),
+                     ('es', i18n_language_titles.get('ru', 'Russian')),
+                    ))
         else:
             languages = util.getLanguageListing(combined=use_combined)
+            if len(i18n_language_titles) > 0:
+                languages = [(code, i18n_language_titles.get(code, title))
+                             for code, title in languages]
+
             languages.sort(key=lambda x: x[1])
             # Put language neutral at the top.
             languages.insert(0, (u'', _(u'Language neutral')))
+
         return DisplayList(languages)
 
     #  DublinCore interface query methods #####################################

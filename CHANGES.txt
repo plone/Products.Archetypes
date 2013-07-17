@@ -4,8 +4,11 @@ Changelog
 1.8.2 (unreleased)
 ------------------
 
+- i18n languages vocabulary.
+  [thomasdesvenain]
+
 - Load calendar language js related to user preferred language.
-  Calendar popup is now translated. 
+  Calendar popup is now translated.
   Refs http://dev.plone.org/ticket/13189
   [thomasdesvenain]
 
