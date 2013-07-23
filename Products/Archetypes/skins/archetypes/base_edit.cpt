@@ -51,7 +51,6 @@
     <tal:js condition="js"
             repeat="item js">
       <script type="text/javascript"
-              charset="iso-8859-1"
               tal:condition="python:exists('portal/%s' % item)"
               tal:attributes="src string:$portal_url/$item">
       </script>
