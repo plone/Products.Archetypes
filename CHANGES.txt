@@ -9,6 +9,10 @@ Changelog
   discussed at http://plone.org/products/plone/security/advisories/20121106/17
   [davisagli]
 
+- Add a transaction note when setting a default value for a field which doesn't
+  have a storage yet
+  [frapell]
+
 
 1.7.14 (2012-05-07)
 -------------------
