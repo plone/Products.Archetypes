@@ -16,6 +16,10 @@ Changelog
 - Revert a change in KSS that broke Plone 4.2 compatibility.
   [esteele]
 
+- Add a transaction note when setting a default value for a field which doesn't
+  have a storage yet
+  [frapell]
+
 
 1.8.7 (2013-04-06)
 ------------------
