@@ -16,6 +16,10 @@ Changelog
 - Pass request to field validation so errors are translated properly.
   [davisagli]
 
+- Add a transaction note when setting a default value for a field which doesn't
+  have a storage yet
+  [frapell]
+
 
 1.9.1 (2013-05-29)
 ------------------
