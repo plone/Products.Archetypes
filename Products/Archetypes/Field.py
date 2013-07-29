@@ -1,3 +1,5 @@
+import transaction
+
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
@@ -714,6 +716,10 @@ class ObjectField(Field):
             # @@ and at every other possible occurence of an AttributeError?!!
             default = self.getDefault(instance)
             if not kwargs.get('_initializing_', False):
+                transaction.get().note("'%s' field missing value on instance "
+                                       "'%s'; setting default value." %
+                                       (self.getName(),
+                                        '/'.join(instance.getPhysicalPath())))
                 self.set(instance, default, _initializing_=True, **kwargs)
             return default
 
@@ -1391,6 +1397,10 @@ class TextField(FileField):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', False):
+                transaction.get().note("'%s' field missing value on instance "
+                                       "'%s'; setting default value." %
+                                       (self.getName(),
+                                        '/'.join(instance.getPhysicalPath())))
                 self.set(instance, self.getDefault(instance),
                          _initializing_=True, **kwargs)
             value = self._wrapValue(instance, self.getDefault(instance))
