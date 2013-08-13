@@ -27,6 +27,7 @@ from ExtensionClass import Base
 from OFS.Image import File
 from OFS.Image import Pdata
 from OFS.Image import Image as BaseImage
+from OFS.interfaces import ITraversable
 from ZPublisher.HTTPRequest import FileUpload
 from ZODB.POSException import ConflictError
 
@@ -716,10 +717,17 @@ class ObjectField(Field):
             # @@ and at every other possible occurence of an AttributeError?!!
             default = self.getDefault(instance)
             if not kwargs.get('_initializing_', False):
-                transaction.get().note("'%s' field missing value on instance "
-                                       "'%s'; setting default value." %
-                                       (self.getName(),
-                                        '/'.join(instance.getPhysicalPath())))
+                msg = "'%s' field missing value " % self.getName()
+
+                if ITraversable.providedBy(instance):
+                    msg += ("on instance '%s'; setting default value." %
+                            '/'.join(instance.getPhysicalPath()))
+                else:
+                    msg += ("on content type '%s' with id '%s'; "
+                            "setting default value." %
+                            (instance.portal_type, instance.id))
+
+                transaction.get().note(msg)
                 self.set(instance, default, _initializing_=True, **kwargs)
             return default
 
@@ -1397,10 +1405,17 @@ class TextField(FileField):
         except AttributeError:
             # happens if new Atts are added and not yet stored in the instance
             if not kwargs.get('_initializing_', False):
-                transaction.get().note("'%s' field missing value on instance "
-                                       "'%s'; setting default value." %
-                                       (self.getName(),
-                                        '/'.join(instance.getPhysicalPath())))
+                msg = "'%s' field missing value " % self.getName()
+
+                if ITraversable.providedBy(instance):
+                    msg += ("on instance '%s'; setting default value." %
+                            '/'.join(instance.getPhysicalPath()))
+                else:
+                    msg += ("on content type '%s' with id '%s'; "
+                            "setting default value." %
+                            (instance.portal_type, instance.id))
+
+                transaction.get().note(msg)
                 self.set(instance, self.getDefault(instance),
                          _initializing_=True, **kwargs)
             value = self._wrapValue(instance, self.getDefault(instance))
