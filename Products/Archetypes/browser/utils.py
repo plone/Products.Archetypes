@@ -2,6 +2,7 @@ from zope.interface import implements
 from Products.Five import BrowserView
 from Products.Archetypes.interfaces.utils import IUtils
 from zope.i18n import translate
+from zope.i18nmessageid import Message
 
 
 class Utils(BrowserView):
@@ -17,22 +18,22 @@ class Utils(BrowserView):
             if custom_domain:
                 domain = custom_domain
         def _(value):
-            return translate(value, 
-                             domain=domain, 
+            return translate(value,
+                             domain=domain,
                              context=self.request)
+        _marker = object()
         if value:
             nvalues = []
             for v in value:
-                if not v: continue
-                vocab_value = vocab.getValue(
-                    context.unicodeEncode(v),
-                    context.unicodeEncode(v))
-                # be sure not to have already translated
-                # the text
-                trans_value = _(v)
-                if vocab_value != trans_value:
-                    vocab_value = trans_value
+                if not v:
+                    continue
+                v_encoded = context.unicodeEncode(v)
+                vocab_value = vocab.getValue(v_encoded, _marker)
+                # translate explicitly
+                if vocab_value is _marker:
+                    vocab_value = _(v)
+                else:
+                    vocab_value = _(vocab_value)
                 nvalues.append(vocab_value)
-            value =  ', '.join(nvalues)
+            value = ', '.join(nvalues)
         return value
-
