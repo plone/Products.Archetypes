@@ -29,8 +29,8 @@ class Utils(BrowserView):
                     context.unicodeEncode(v),
                     context.unicodeEncode(v))
                 # avoid UnicodeDecodeError if v contains special chars
-                #if not isinstance(v, unicode):
-                #    v = unicode(v, 'utf-8')
+                if not isinstance(v, unicode):
+                    v = unicode(v, 'utf-8')
                 # be sure not to have already translated
                 # the text
                 trans_value = _(v)
