@@ -17,16 +17,20 @@ class Utils(BrowserView):
             if custom_domain:
                 domain = custom_domain
         def _(value):
-            return translate(value, 
-                             domain=domain, 
+            return translate(value,
+                             domain=domain,
                              context=self.request)
         if value:
             nvalues = []
             for v in value:
-                if not v: continue
+                if not v:
+                    continue
                 vocab_value = vocab.getValue(
                     context.unicodeEncode(v),
                     context.unicodeEncode(v))
+                # avoid UnicodeDecodeError if v contains special chars
+                if not isinstance(v, unicode):
+                    v = unicode(v, 'utf-8')
                 # be sure not to have already translated
                 # the text
                 trans_value = _(v)
@@ -35,4 +39,3 @@ class Utils(BrowserView):
                 nvalues.append(vocab_value)
             value =  ', '.join(nvalues)
         return value
-
