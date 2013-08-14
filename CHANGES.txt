@@ -20,6 +20,8 @@ Changelog
   have a storage yet
   [frapell]
 
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains special chars
+  [gbastien]
 
 1.8.7 (2013-04-06)
 ------------------
