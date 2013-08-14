@@ -1,10 +1,12 @@
 Changelog
 =========
 
-1.9.3 (unreleased)
+1.9.3 (2013-08-14)
 ------------------
 
-- Nothing changed yet.
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains 
+  special chars
+  [gbastien]
 
 
 1.9.2 (2013-08-13)
@@ -26,8 +28,6 @@ Changelog
   have a storage yet
   [frapell]
 
-- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains special chars
-  [gbastien]
 
 1.9.1 (2013-05-29)
 ------------------
