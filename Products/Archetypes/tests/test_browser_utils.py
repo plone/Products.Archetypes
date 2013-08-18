@@ -3,7 +3,7 @@ from unittest import TestSuite, makeSuite
 from zope.component import getMultiAdapter
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.atapi import DisplayList
+from Products.Archetypes.atapi import DisplayList, IntDisplayList
 
 
 class UtilsMethodsTests(ATSiteTestCase):
@@ -16,6 +16,12 @@ class UtilsMethodsTests(ATSiteTestCase):
         self.failUnless(utilsView.translate(vocab, value='Sp\xc3\xa9cial char key'))
         self.failUnless(utilsView.translate(vocab, value='normal_key'))
 
+    def test_translate_vocab_with_integer_keys(self):
+        vocab = IntDisplayList(((0, 'zero'),
+                             (1, 'one'), ))
+        utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
+        self.failUnless(utilsView.translate(vocab, value=1))
+        self.failUnless(utilsView.translate(vocab, value=0))
 
 def test_suite():
     suite = TestSuite()
