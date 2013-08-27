@@ -18,6 +18,9 @@ Changelog
 1.9.2 (2013-08-13)
 ------------------
 
+- fix transaction note so long notes do not bork the transaction
+  [vangheem]
+
 - Make some methods of TypesWidget unpublishable.
   [davisagli]
 
