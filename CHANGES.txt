@@ -1,15 +1,26 @@
 Changelog
 =========
 
-1.9.2 (unreleased)
+1.9.4 (unreleased)
 ------------------
-
 - Fixed error of validate_content_types when checking a field that was an 
   instance of OFS.Image.File
   [ichim-david]
 
 - fix transaction note so long notes do not bork the transaction
   [vangheem]
+
+
+1.9.3 (2013-08-14)
+------------------
+
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains 
+  special chars
+  [gbastien]
+
+
+1.9.2 (2013-08-13)
+------------------
 
 - Make some methods of TypesWidget unpublishable.
   [davisagli]
@@ -32,8 +43,6 @@ Changelog
   have a storage yet
   [frapell]
 
-- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains special chars
-  [gbastien]
 
 1.9.1 (2013-05-29)
 ------------------
