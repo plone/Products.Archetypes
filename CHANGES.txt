@@ -18,6 +18,10 @@ Changelog
 1.9.2 (2013-08-13)
 ------------------
 
+- Fixed error of validate_content_types when checking a field that was an 
+  instance of OFS.Image.File
+  [ichim-david]
+
 - fix transaction note so long notes do not bork the transaction
   [vangheem]
 

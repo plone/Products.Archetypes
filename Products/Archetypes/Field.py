@@ -439,7 +439,9 @@ class Field(DefaultLayerContainer):
             value.seek(tell)
         elif isinstance(value, StringType):
             body = value
-        elif isinstance(value, BlobWrapper):
+        elif isinstance(value, BlobWrapper) or isinstance(value, File):
+            # get data if value is an instance of BlobWrapper or 
+            # is of OFS.Image.File based
             body = value.data
 
         if isinstance(value, (FileType, BlobWrapper)) and body in (None, ''):
