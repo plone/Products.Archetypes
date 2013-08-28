@@ -13,8 +13,12 @@ class UtilsMethodsTests(ATSiteTestCase):
         vocab = DisplayList((('Sp\xc3\xa9cial char key', 'Sp\xc3\xa9cial char value'),
                              ('normal_key', 'With sp\xc3\xa9cial char'), ))
         utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
-        self.failUnless(utilsView.translate(vocab, value='Sp\xc3\xa9cial char key'))
-        self.failUnless(utilsView.translate(vocab, value='normal_key'))
+        # Note that due to the test setup, the result is expected to
+        # be u'[[domain][translation]]'.
+        self.assertEqual(utilsView.translate(vocab, value='Sp\xc3\xa9cial char key'),
+                         u'[[plone][Sp\xe9cial char value]]')
+        self.assertEqual(utilsView.translate(vocab, value='normal_key'),
+                         u'[[plone][With sp\xe9cial char]]')
 
 
 def test_suite():
