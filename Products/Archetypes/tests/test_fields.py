@@ -406,6 +406,28 @@ class ProcessingTest(ATSiteTestCase):
         dummy.validate(REQUEST=request, errors=errors)
         self.assertFalse(errors, errors)
 
+    def test_allowable_content_types_ofs_image_field(self):
+        dummy = self.makeDummy()
+        request = TestRequest()
+        request.form.update(field_values)
+        image = dummy.getField('imagefield')
+        image.set(dummy, img_file)
+        image = image.getAccessor(dummy)()
+        # we need to set the filename to blank otherwise the mimetypes_registry
+        # will pick up the correct mimetype from the filename and we need to 
+        # test a situation where the image field is of type Image from 
+        # Archetypes fields and the OFS image uploaded within it has no 
+        # filename set
+        image.filename = ""
+        image_file = image.data
+
+        request.form.update({'imagefield_file': image_file})
+        request.form['fieldset'] = 'default'
+        dummy.REQUEST = request
+        errors = {}
+        dummy.validate(REQUEST=request, errors=errors)
+        self.assertFalse(errors, errors)
+
     def test_allowable_content_types_fail(self):
         dummy = self.makeDummy()
         request = TestRequest()
