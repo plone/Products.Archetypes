@@ -4,7 +4,12 @@ Changelog
 1.9.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed error of validate_content_types when checking a field that was an 
+  instance of OFS.Image.File
+  [ichim-david]
+
+- fix transaction note so long notes do not bork the transaction
+  [vangheem]
 
 
 1.9.3 (2013-08-14)
@@ -17,13 +22,6 @@ Changelog
 
 1.9.2 (2013-08-13)
 ------------------
-
-- Fixed error of validate_content_types when checking a field that was an 
-  instance of OFS.Image.File
-  [ichim-david]
-
-- fix transaction note so long notes do not bork the transaction
-  [vangheem]
 
 - Make some methods of TypesWidget unpublishable.
   [davisagli]
