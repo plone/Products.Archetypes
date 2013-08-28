@@ -25,7 +25,6 @@ class Utils(BrowserView):
         tuple.  When there are multiple values, we iterate over them.
         """
         domain = 'plone'
-        context = self.context
         # Make sure value is an iterable.  There are really too many
         # iterable and non-iterable types (and half-iterable like
         # strings, which we definitely do not want to iterate over) so
@@ -45,10 +44,14 @@ class Utils(BrowserView):
             for v in value:
                 if not v:
                     continue
-                v_encoded = context.unicodeEncode(v)
-                vocab_value = vocab.getValue(v_encoded, v)
+                original = v
+                if isinstance(v, unicode):
+                    v = v.encode('utf-8')
+                # Get the value with key v from the vocabulary,
+                # falling back to the original input value.
+                vocab_value = vocab.getValue(v, original)
                 if not isinstance(vocab_value, basestring):
-                    # May be integer.
+                    # May be an integer.
                     vocab_value = str(vocab_value)
                 elif not isinstance(vocab_value, unicode):
                     # avoid UnicodeDecodeError if value contains special chars
