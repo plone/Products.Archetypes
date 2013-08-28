@@ -20,6 +20,11 @@ class UtilsMethodsTests(ATSiteTestCase):
                          u'[[plone][Sp\xe9cial char value]]')
         self.assertEqual(utilsView.translate(vocab, value='normal_key'),
                          u'[[plone][With sp\xe9cial char]]')
+        # Try with unicode as input value
+        self.assertEqual(utilsView.translate(vocab, value=u'Sp\xe9cial char key'),
+                         u'[[plone][Sp\xe9cial char value]]')
+        self.assertEqual(utilsView.translate(vocab, value=u'normal_key'),
+                         u'[[plone][With sp\xe9cial char]]')
 
     def test_translate_integer_display_list(self):
         vocab = IntDisplayList(((1, 'Sp\xc3\xa9cial char value'),
