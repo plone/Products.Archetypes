@@ -22,6 +22,10 @@ Changelog
 1.9.2 (2013-08-13)
 ------------------
 
+- Fix translate for select field with IntDisplayList,
+  and display translated value in base_view.
+  [davismr]
+
 - Make some methods of TypesWidget unpublishable.
   [davisagli]
 
