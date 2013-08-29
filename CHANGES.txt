@@ -8,7 +8,7 @@ Changelog
   instance of OFS.Image.File
   [ichim-david]
 
-- fix transaction note so long notes do not bork the transaction
+- Fix transaction note so long notes do not bork the transaction
   [vangheem]
 
 
