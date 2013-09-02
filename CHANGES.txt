@@ -3,6 +3,15 @@ Changelog
 
 1.9.4 (unreleased)
 ------------------
+
+- Various vocabulary fixes, mostly for translations and
+  IntDisplayLists.
+  [maurits]
+
+
+1.9.4 (2013-08-29)
+------------------
+
 - Fixed error of validate_content_types when checking a field that was an 
   instance of OFS.Image.File
   [ichim-david]
