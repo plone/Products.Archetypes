@@ -582,8 +582,13 @@ class Vocabulary(DisplayList):
             if not msg:
                 return ''
 
-            return translate(msg, self._i18n_domain,
-                             context=self._instance.REQUEST, default=value)
+            # We used to explicitly translate here, but all other code
+            # paths did not return a translation.  So create a Message
+            # that can be translated elsewhere.
+            if not isinstance(msg, basestring):
+                # Possibly a marker object, for example None.  Do not touch it.
+                return msg
+            return Message(msg, domain=self._i18n_domain, default=value)
         else:
             return value
 
