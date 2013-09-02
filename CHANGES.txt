@@ -4,7 +4,9 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Various vocabulary fixes, mostly for translations and
+  IntDisplayLists.
+  [maurits]
 
 
 1.9.4 (2013-08-29)
