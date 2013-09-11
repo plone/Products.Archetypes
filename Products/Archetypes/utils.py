@@ -8,7 +8,6 @@ from UserDict import UserDict as BaseDict
 
 import transaction
 from zope.component import getUtility
-from zope.i18n import translate
 from zope.i18nmessageid import Message
 
 from AccessControl import ClassSecurityInfo
@@ -357,7 +356,8 @@ class DisplayList:
     def getKey(self, value, default=None):
         """get key"""
         v = self._values.get(value, None)
-        if v: return v[1]
+        if v:
+            return v[1]
         for k, v in self._values.items():
             if repr(value) == repr(k):
                 return v[1]
@@ -369,7 +369,8 @@ class DisplayList:
             raise TypeError('DisplayList keys must be strings, got %s' %
                             type(key))
         v = self._keys.get(key, None)
-        if v: return v[1]
+        if v:
+            return v[1]
         for k, v in self._keys.items():
             if repr(key) == repr(k):
                 return v[1]
@@ -416,7 +417,7 @@ class DisplayList:
 
     def __cmp__(self, dest):
         if not isinstance(dest, DisplayList):
-            raise TypeError, 'Cannot compare DisplayList to %s' % (type(dest))
+            raise TypeError('Cannot compare DisplayList to %s' % (type(dest)))
 
         return cmp(self.sortedByKey()[:], dest.sortedByKey()[:])
 
@@ -532,7 +533,8 @@ class IntDisplayList(DisplayList):
         else:
             raise TypeError("Key must be string or int")
         v = self._keys.get(key, None)
-        if v: return v[1]
+        if v:
+            return v[1]
         for k, v in self._keys.items():
             if repr(key) == repr(k):
                 return v[1]
@@ -659,7 +661,7 @@ class OrderedDict(BaseDict):
 
     def popitem(self):
         if not self.data:
-            raise KeyError, 'dictionary is empty'
+            raise KeyError('dictionary is empty')
         k = self._keys.pop()
         v = self.data.get(k)
         del self.data[k]
@@ -756,7 +758,7 @@ security.declarePrivate('unwrap_method')
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
     if not isWrapperMethod(old_method):
-        raise ValueError, ('Non-wrapped method %s.%s' % (klass.__name__, name))
+        raise ValueError('Non-wrapped method %s.%s' % (klass.__name__, name))
     orig_name = getattr(old_method, ORIG_NAME)
     new_method = getattr(klass, orig_name)
     delattr(klass, orig_name)
