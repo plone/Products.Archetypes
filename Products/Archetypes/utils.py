@@ -579,15 +579,18 @@ class Vocabulary(DisplayList):
             if isinstance(msg, Message):
                 return msg
 
+            if not isinstance(msg, basestring):
+                # Possibly a marker object, for example None.  Do not touch it.
+                return msg
+
             if not msg:
                 return ''
 
             # We used to explicitly translate here, but all other code
             # paths did not return a translation.  So create a Message
             # that can be translated elsewhere.
-            if not isinstance(msg, basestring):
-                # Possibly a marker object, for example None.  Do not touch it.
-                return msg
+            if not isinstance(msg, unicode):
+                msg = msg.decode('utf-8')
             return Message(msg, domain=self._i18n_domain, default=value)
         else:
             return value

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ################################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -29,6 +30,7 @@
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.utils import DisplayList
 from Products.Archetypes.utils import IntDisplayList
+from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import make_uuid
 
 
@@ -139,6 +141,25 @@ class DisplayListTest(ATTestCase):
         dlc_s = dlc.sortedByKey()
         assert dlc_s.values() == ['Z', 'X', 'Y']
 
+    def test_getValue(self):
+        a = (('a', 'A',), ('b', '\xc3\xab'), ('c', u'xeb'), ('d', 42))
+        dla = DisplayList(a)
+        self.assertEqual(dla.getValue('a'), 'A')
+        self.assertEqual(dla.getValue('b'), '\xc3\xab')
+        self.assertEqual(dla.getValue('c'), u'xeb')
+        self.assertEqual(dla.getValue('d'), 42)
+        self.assertEqual(dla.getValue('e'), None)
+        self.assertEqual(dla.getValue('e', 'default'), 'default')
+
+        # Switch the keys and values around.
+        b = (('A', 'a',), ('\xc3\xab', 'b'), (u'xeb', 'c'))
+        dlb = DisplayList(b)
+        self.assertEqual(dlb.getValue('A'), 'a')
+        self.assertEqual(dlb.getValue('\xc3\xab'), 'b')
+        self.assertEqual(dlb.getValue(u'xeb'), 'c')
+        self.assertEqual(dlb.getValue('e'), None)
+        self.assertEqual(dlb.getValue('e', 'default'), 'default')
+
 
 class IntDisplayListTest(ATTestCase):
 
@@ -233,10 +254,88 @@ class IntDisplayListTest(ATTestCase):
         dlc_s = dlc.sortedByKey()
         assert dlc_s.values() == ['Z', 'X', 'Y']
 
+    def test_getValue(self):
+        a = ((1, 'A',), (2, '\xc3\xab'), (3, u'xeb'), (4, 42))
+        dla = IntDisplayList(a)
+        self.assertEqual(dla.getValue(1), 'A')
+        self.assertEqual(dla.getValue(2), '\xc3\xab')
+        self.assertEqual(dla.getValue(3), u'xeb')
+        self.assertEqual(dla.getValue(4), 42)
+        self.assertEqual(dla.getValue(5), None)
+        self.assertEqual(dla.getValue(5, 'default'), 'default')
+
+
+class VocabularyTest(ATTestCase):
+
+    def test_getValue(self):
+        a = (('a', 'A',), ('b', '\xc3\xab'), ('c', u'xeb'), ('d', 42))
+        dla = DisplayList(a)
+        va = Vocabulary(dla, instance=None, i18n_domain=None)
+        self.assertEqual(va.getValue('a'), 'A')
+        self.assertEqual(va.getValue('b'), '\xc3\xab')
+        self.assertEqual(va.getValue('c'), u'xeb')
+        self.assertEqual(va.getValue('d'), 42)
+        self.assertEqual(va.getValue('e'), None)
+        self.assertEqual(va.getValue('e', 'default'), 'default')
+
+        b = (('A', 'a',), ('\xc3\xab', 'b'), (u'xeb', 'c'))
+        dlb = DisplayList(b)
+        vb = Vocabulary(dlb, instance=None, i18n_domain=None)
+        self.assertEqual(vb.getValue('A'), 'a')
+        self.assertEqual(vb.getValue('\xc3\xab'), 'b')
+        self.assertEqual(vb.getValue(u'xeb'), 'c')
+        self.assertEqual(vb.getValue('e'), None)
+        self.assertEqual(vb.getValue('e', 'default'), 'default')
+
+        c = ((1, 'A',), (2, '\xc3\xab'), (3, u'xeb'), (4, 42))
+        dlc = IntDisplayList(c)
+        vb = Vocabulary(dlc, instance=None, i18n_domain=None)
+        self.assertEqual(dlc.getValue(1), 'A')
+        self.assertEqual(dlc.getValue(2), '\xc3\xab')
+        self.assertEqual(dlc.getValue(3), u'xeb')
+        self.assertEqual(dlc.getValue(4), 42)
+        self.assertEqual(dlc.getValue(5), None)
+        self.assertEqual(dlc.getValue(5, 'default'), 'default')
+
+    def test_translating_getValue(self):
+        # We use the same base displaylists as above (hopefully), but
+        # now we pass an instance and an i18n_domain.  The instance is
+        # expected to be an Archetypes object, but currently it only
+        # needs to have a True boolean value.
+        a = (('a', 'A',), ('b', '\xc3\xab'), ('c', u'xeb'), ('d', 42))
+        dla = DisplayList(a)
+        va = Vocabulary(dla, instance=object(), i18n_domain='plone')
+        self.assertEqual(va.getValue('a'), 'A')
+        self.assertEqual(va.getValue('b'), '\xc3\xab'.decode('utf-8'))
+        self.assertEqual(va.getValue('c'), u'xeb')
+        self.assertEqual(va.getValue('d'), 42)
+        self.assertEqual(va.getValue('e'), None)
+        self.assertEqual(va.getValue('e', 'default'), 'default')
+
+        b = (('A', 'a',), ('\xc3\xab', 'b'), (u'xeb', 'c'))
+        dlb = DisplayList(b)
+        vb = Vocabulary(dlb, instance=object(), i18n_domain='plone')
+        self.assertEqual(vb.getValue('A'), 'a')
+        self.assertEqual(vb.getValue('\xc3\xab'), 'b')
+        self.assertEqual(vb.getValue(u'xeb'), 'c')
+        self.assertEqual(vb.getValue('e'), None)
+        self.assertEqual(vb.getValue('e', 'default'), 'default')
+
+        c = ((1, 'A',), (2, '\xc3\xab'), (3, u'xeb'), (4, 42))
+        dlc = IntDisplayList(c)
+        vb = Vocabulary(dlc, instance=object(), i18n_domain='plone')
+        self.assertEqual(dlc.getValue(1), 'A')
+        self.assertEqual(dlc.getValue(2), '\xc3\xab')
+        self.assertEqual(dlc.getValue(3), u'xeb')
+        self.assertEqual(dlc.getValue(4), 42)
+        self.assertEqual(dlc.getValue(5), None)
+        self.assertEqual(dlc.getValue(5, 'default'), 'default')
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
+    suite.addTest(makeSuite(VocabularyTest))
     suite.addTest(makeSuite(DisplayListTest))
     suite.addTest(makeSuite(IntDisplayListTest))
     suite.addTest(makeSuite(UidGeneratorTest))
