@@ -15,6 +15,7 @@ from AccessControl import ModuleSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC
 
 from Acquisition import aq_base, aq_inner, aq_parent
+from Acquisition import ImplicitAcquisitionWrapper
 from ExtensionClass import ExtensionClass
 from App.class_init import InitializeClass
 from Products.CMFCore.utils import getToolByName
@@ -562,8 +563,9 @@ class Vocabulary(DisplayList):
         """
         Get i18n value
         """
-        if not isinstance(key, basestring) and not isinstance(key, int):
-            raise TypeError('DisplayList keys must be strings or ints, got %s' %
+        if (not isinstance(key, basestring) and not isinstance(key, int) and not
+                isinstance(key, ImplicitAcquisitionWrapper)):
+            raise TypeError('DisplayList keys must be strings, ints or brains, got %s' %
                             type(key))
         v = self._keys.get(key, None)
         value = default
