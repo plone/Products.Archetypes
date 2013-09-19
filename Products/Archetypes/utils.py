@@ -247,8 +247,8 @@ class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
 
-    NOTE: Both keys and values *must* contain unique entries! You can have
-    two times the same value. This is a "feature" not a bug. DisplayLists
+    NOTE: Both keys and values *must* contain unique entries! You can *not* 
+    have the same value twice. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
 
     >>> dl = DisplayList()
