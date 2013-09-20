@@ -4,6 +4,11 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- Return original error during validation when a field already has an
+  error.  This avoids ``TypeError: 'bool' object has no attribute
+  '__getitem__'`` in ``Products.CMFFormController.ControllerState.``
+  [maurits]
+
 - Various vocabulary fixes, mostly for translations and
   IntDisplayLists.
   [maurits]

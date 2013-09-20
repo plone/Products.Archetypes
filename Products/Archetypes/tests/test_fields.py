@@ -309,6 +309,33 @@ class ProcessingTest(ATSiteTestCase):
         dummy.validate(errors=errors, REQUEST=request)
         self.assertFalse(errors, errors)
 
+    def test_double_validation(self):
+        """ If a field already has an error and it is validated again,
+        we cut the validation short and return the original error.
+
+        Here we test that we do not lose the original error in the
+        process.  We do that by adding the fieldsets twice in the
+        request, which can happen if you have some whacky javascript
+        that tries to clone too many inputs.
+        """
+        dummy = self.makeDummy()
+        request = TestRequest()
+        alsoProvides(request, IAttributeAnnotatable)
+        my_values = field_values.copy()
+        my_values['fixedpointfield2'] = 'an_error'
+        request.form.update(my_values)
+        request.form['fieldset'] = 'default'
+        request.form['fieldsets'] = ['default', 'default']
+        errors = {}
+        dummy.validate(errors=errors, REQUEST=request)
+        self.assertTrue(errors, errors)
+        # The validation error looks a bit weird because of the
+        # [[plone]] domain that is added by the translation testing
+        # machinery.
+        self.assertEqual(errors['fixedpointfield2'],
+                         (u"[[plone][Validation failed(isDecimal): "
+                          "'an_error' [[plone][is not a decimal number.]]]]"))
+
     def test_required(self):
         request = FakeRequest()
         request.form.update(empty_values)
