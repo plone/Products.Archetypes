@@ -280,8 +280,9 @@ class ProcessingTest(ATSiteTestCase):
         dummy = self.makeDummy()
         request = TestRequest()
         alsoProvides(request, IAttributeAnnotatable)
-        field_values['fixedpointfield2'] = 'an_error'
-        request.form.update(field_values)
+        my_values = field_values.copy()
+        my_values['fixedpointfield2'] = 'an_error'
+        request.form.update(my_values)
         request.form['fieldset'] = 'default'
         errors = {}
         dummy.validate(errors=errors, REQUEST=request)
@@ -290,8 +291,9 @@ class ProcessingTest(ATSiteTestCase):
     def test_validation_invisible_fields(self):
         dummy = self.makeDummy()
         request = FakeRequest()
-        field_values['fixedpointfield2'] = 'an_error'
-        request.form.update(field_values)
+        my_values = field_values.copy()
+        my_values['fixedpointfield2'] = 'an_error'
+        request.form.update(my_values)
         request.form['fieldset'] = 'default'
 
         for field in dummy.Schema().filterFields(__name__='fixedpointfield2'):
@@ -303,8 +305,9 @@ class ProcessingTest(ATSiteTestCase):
     def test_validation_hidden_fields(self):
         dummy = self.makeDummy()
         request = FakeRequest()
-        field_values['fixedpointfield2'] = 'an_error'
-        request.form.update(field_values)
+        my_values = field_values.copy()
+        my_values['fixedpointfield2'] = 'an_error'
+        request.form.update(my_values)
         request.form['fieldset'] = 'default'
         for field in dummy.Schema().filterFields(__name__='fixedpointfield2'):
             field.widget.visible['edit'] = 'hidden'
