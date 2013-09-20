@@ -39,7 +39,7 @@
                          value python:accessor();
                          display python:context.displayValue(vocab, value, widget);"
              tal:replace="structure display" />
-     </tal>
+     </tal:block>
 
     </metal:view_macro>
 
