@@ -4,6 +4,9 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- Allow brains (used for related items in an in-and-out-widget)
+  [pbauer]
+
 - Various vocabulary fixes, mostly for translations and
   IntDisplayLists.
   [maurits]
@@ -12,7 +15,7 @@ Changelog
 1.9.4 (2013-08-29)
 ------------------
 
-- Fixed error of validate_content_types when checking a field that was an 
+- Fixed error of validate_content_types when checking a field that was an
   instance of OFS.Image.File
   [ichim-david]
 
@@ -23,7 +26,7 @@ Changelog
 1.9.3 (2013-08-14)
 ------------------
 
-- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains 
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains
   special chars
   [gbastien]
 
