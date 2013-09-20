@@ -50,19 +50,19 @@ from DateTime import DateTime
 
 
 test_fields = [
-          ('ObjectField', 'objectfield'),
-          ('StringField', 'stringfield'),
-          ('FileField', 'filefield'),
-          ('TextField', 'textfield'),
-          ('DateTimeField', 'datetimefield'),
-          ('LinesField', 'linesfield'),
-          ('IntegerField', 'integerfield'),
-          ('FloatField', 'floatfield'),
-          ('FixedPointField', 'fixedpointfield1'),
-          ('FixedPointField', 'fixedpointfield2'),
-          ('BooleanField', 'booleanfield'),
-          ('ImageField', 'imagefield'),
-          ]
+    ('ObjectField', 'objectfield'),
+    ('StringField', 'stringfield'),
+    ('FileField', 'filefield'),
+    ('TextField', 'textfield'),
+    ('DateTimeField', 'datetimefield'),
+    ('LinesField', 'linesfield'),
+    ('IntegerField', 'integerfield'),
+    ('FloatField', 'floatfield'),
+    ('FixedPointField', 'fixedpointfield1'),
+    ('FixedPointField', 'fixedpointfield2'),
+    ('BooleanField', 'booleanfield'),
+    ('ImageField', 'imagefield'),
+    ]
 
 field_instances = []
 for type, name in test_fields:
@@ -95,32 +95,34 @@ field_values = {'objectfield': 'objectfield',
                 'booleanfield': '1',
                 'imagefield_file': img_file}
 
-expected_values = {'objectfield': 'objectfield',
-                   'stringfield': 'stringfield',
-                   'filefield': txt_content,
-                   'textfield': 'textfield',
-                   'datetimefield': DateTime(2003, 01, 01, 03, 04),
-                   'linesfield': ('bla', 'bla'),
-                   'integerfield': 1,
-                   'floatfield': 1.5,
-                   'fixedpointfield1':  '1.50',
-                   'fixedpointfield2': '1.50',
-                   'booleanfield': 1,
-                   'imagefield': '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
-                   }
+expected_values = {
+    'objectfield': 'objectfield',
+    'stringfield': 'stringfield',
+    'filefield': txt_content,
+    'textfield': 'textfield',
+    'datetimefield': DateTime(2003, 01, 01, 03, 04),
+    'linesfield': ('bla', 'bla'),
+    'integerfield': 1,
+    'floatfield': 1.5,
+    'fixedpointfield1': '1.50',
+    'fixedpointfield2': '1.50',
+    'booleanfield': 1,
+    'imagefield': '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
+    }
 
-empty_values = {'objectfield': None,
-                   'stringfield': '',
-                   'filefield': None,
-                   'textfield': '',
-                   'datetimefield': '2007-00-00',
-                   'linesfield': (),
-                   'integerfield': None,
-                   'floatfield': None,
-                   'fixedpointfield1': None,
-                   'fixedpointfield2': None,
-                   'booleanfield': None,
-               }
+empty_values = {
+    'objectfield': None,
+    'stringfield': '',
+    'filefield': None,
+    'textfield': '',
+    'datetimefield': '2007-00-00',
+    'linesfield': (),
+    'integerfield': None,
+    'floatfield': None,
+    'fixedpointfield1': None,
+    'fixedpointfield2': None,
+    'booleanfield': None,
+    }
 
 schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
@@ -337,7 +339,6 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_static_vocabulary(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
         field = dummy.Schema().fields()[0]
 
         # Default
@@ -354,7 +355,6 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_dynamic_vocabulary(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
         field = dummy.Schema().fields()[0]
 
         # Default
@@ -377,7 +377,6 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_factory_vocabulary(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
         field = dummy.Schema().fields()[0]
 
         # Default
@@ -410,9 +409,9 @@ class ProcessingTest(ATSiteTestCase):
         image.set(dummy, img_file)
         image = image.getAccessor(dummy)()
         # we need to set the filename to blank otherwise the mimetypes_registry
-        # will pick up the correct mimetype from the filename and we need to 
-        # test a situation where the image field is of type Image from 
-        # Archetypes fields and the OFS image uploaded within it has no 
+        # will pick up the correct mimetype from the filename and we need to
+        # test a situation where the image field is of type Image from
+        # Archetypes fields and the OFS image uploaded within it has no
         # filename set
         image.filename = ""
         image_file = image.data
@@ -437,7 +436,6 @@ class ProcessingTest(ATSiteTestCase):
 
     def test_defaults(self):
         dummy = self.makeDummy()
-        request = FakeRequest()
         field = dummy.Schema().fields()[0]
 
         # Default
@@ -471,7 +469,6 @@ class ProcessingTest(ATSiteTestCase):
     def test_encoding(self):
         # http://dev.plone.org/plone/ticket/7597
         dummy = self.makeDummy()
-        request = FakeRequest()
         field = dummy.Schema().fields()[3]  # textfield
         field.set(self.portal, 'some_text_with_weird_encoding', encoding='latin')
         encoding = field.getRaw(self.portal, raw=1).original_encoding
