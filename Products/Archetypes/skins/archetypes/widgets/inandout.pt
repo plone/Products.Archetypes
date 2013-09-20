@@ -34,12 +34,14 @@
       </tal:block>
      </tal:block>
 
-      <tal:block
-            tal:condition="not:python:hasattr(field, 'relationship')"
-            tal:define="vocab python:field.Vocabulary(here);
+
+
+     <tal:block tal:condition="not:python:hasattr(field, 'relationship')">
+      <span tal:define="vocab python:field.Vocabulary(here);
                         value python:accessor();
                         display python:context.displayValue(vocab, value, widget);"
             tal:replace="structure display" />
+     </tal:block>
 
     </metal:view_macro>
 
@@ -98,7 +100,7 @@
                                           id string:${fieldName};
                                           size widget/size;
                                           onDblClick string:javascript:inout_moveKeywords('${fieldName}','${fieldName}_options','${fieldName}')">
-  	
+
                           <tal:block tal:repeat="single_value selection">
                             <option
                               tal:attributes="value single_value;"

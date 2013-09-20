@@ -4,6 +4,10 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- Fix nesting-error in InAndOutWidget. This fixes
+  https://github.com/plone/Products.Archetypes/pull/29
+  [pbauer]
+
 - Return original error during validation when a field already has an
   error.  This avoids ``TypeError: 'bool' object has no attribute
   '__getitem__'`` in ``Products.CMFFormController.ControllerState.``
@@ -17,7 +21,7 @@ Changelog
 1.9.4 (2013-08-29)
 ------------------
 
-- Fixed error of validate_content_types when checking a field that was an 
+- Fixed error of validate_content_types when checking a field that was an
   instance of OFS.Image.File
   [ichim-david]
 
@@ -28,7 +32,7 @@ Changelog
 1.9.3 (2013-08-14)
 ------------------
 
-- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains 
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains
   special chars
   [gbastien]
 
