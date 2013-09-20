@@ -320,7 +320,9 @@ class Field(DefaultLayerContainer):
             errors = {}
         name = self.getName()
         if errors and name in errors:
-            return True
+            # We need to return the original error, otherwise it gets
+            # replaced with whatever we return.
+            return errors[name]
 
         if self.required:
             res = self.validate_required(instance, value, errors)
