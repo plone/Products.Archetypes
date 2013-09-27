@@ -1,5 +1,3 @@
-import transaction
-
 from copy import deepcopy
 from cgi import escape
 from cStringIO import StringIO
@@ -79,7 +77,6 @@ from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
 from Products.Archetypes.utils import shasattr
 from Products.Archetypes.utils import contentDispositionHeader
-from Products.Archetypes.utils import transaction_note
 from Products.Archetypes.mimetype_utils import getAllowedContentTypes as getAllowedContentTypesProperty
 from Products.Archetypes import config
 from Products.Archetypes.Storage import AttributeStorage
@@ -796,7 +793,7 @@ class ObjectField(Field):
                             "setting default value." %
                             (instance.portal_type, instance.id))
 
-                transaction_note(msg)
+                log(msg)
                 self.set(instance, default, _initializing_=True, **kwargs)
             return default
 
@@ -1486,7 +1483,7 @@ class TextField(FileField):
                             "setting default value." %
                             (instance.portal_type, instance.id))
 
-                transaction_note(msg)
+                log(msg)
                 self.set(instance, self.getDefault(instance),
                          _initializing_=True, **kwargs)
             value = self._wrapValue(instance, self.getDefault(instance))
