@@ -4,6 +4,10 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- ``Vocabulary`` method was not working with ``vocabulary_factory``
+  and int values (IntDisplayList is required)
+  [keul]
+
 - Return original error during validation when a field already has an
   error.  This avoids ``TypeError: 'bool' object has no attribute
   '__getitem__'`` in ``Products.CMFFormController.ControllerState.``
