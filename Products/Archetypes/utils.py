@@ -509,6 +509,9 @@ class IntDisplayList(DisplayList):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
+    def __repr__(self):
+        return '<IntDisplayList %s at %s>' % (self[:], id(self))
+
     def add(self, key, value, msgid=None):
         if not isinstance(key, int):
             raise TypeError('IntDisplayList keys must be ints, got %s' %
