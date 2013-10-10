@@ -538,11 +538,11 @@ class Field(DefaultLayerContainer):
                 factory_context = content_instance
                 if factory_context is None:
                     factory_context = self
-                if factory(factory_context)._terms and \
-                        not isinstance(factory(factory_context)._terms[0].value, basestring):
-                    value = IntDisplayList([(t.value, t.title or t.token) for t in factory(factory_context)])
+                data = [(t.value, t.title or t.token) for t in factory(factory_context)]
+                if data and not isinstance(data[0][0], basestring):
+                    value = IntDisplayList(data)
                 else:
-                    value = DisplayList([(t.value, t.title or t.token) for t in factory(factory_context)])
+                    value = DisplayList(data)
 
         if not isinstance(value, DisplayList):
 
