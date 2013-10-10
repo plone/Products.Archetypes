@@ -4,7 +4,9 @@ Changelog
 1.8.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- ``Vocabulary`` method was not working with ``vocabulary_factory``
+  and int values (IntDisplayList is required)
+  [keul]
 
 
 1.8.8 (2013-08-14)
