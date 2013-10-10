@@ -4,6 +4,11 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- Remove code and tests for the old discussion infrastructure
+  (pre plone.app.discussion). The discussion tool will be deprecated in
+  Plone 5.
+  [timo]
+
 - Fix nesting-error in InAndOutWidget. This fixes
   https://github.com/plone/Products.Archetypes/pull/29
   [pbauer]

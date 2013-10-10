@@ -24,6 +24,7 @@ from App.special_dtml import DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 from Products.CMFDefault.utils import _dtmldir
+from Products.CMFPlone.log import log_deprecated
 from ComputedAttribute import ComputedAttribute
 
 _marker = []
@@ -240,12 +241,30 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'isDiscussable')
     def isDiscussable(self, encoding=None):
+        log_deprecated(
+            "The isDiscussable method from the ExtensibleMetadata in "
+            "Products.ATContentTypes has been deprecated and will be removed "
+            "in Plone 5. This method belongs to the old discussion "
+            "infrastructure that already has been replaced by "
+            "plone.app.discussion in Plone 4.1."
+        )
+        if not 'portal_discussion' in self.objectIds():
+            return
         # Returns either True or False
         dtool = getToolByName(self, 'portal_discussion')
         return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
     def editIsDiscussable(self, encoding=None):
+        log_deprecated(
+            "The editIsDiscussable method from the ExtensibleMetadata in "
+            "Products.ATContentTypes has been deprecated and will be removed "
+            "in Plone 5. This method belongs to the old discussion "
+            "infrastructure that already has been replaced by "
+            "plone.app.discussion in Plone 4.1."
+        )
+        if not 'portal_discussion' in self.objectIds():
+            return
         # Returns True, False or if None the default value
         result = self.rawIsDiscussable()
         if result is not None:
@@ -255,6 +274,15 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'rawIsDiscussable')
     def rawIsDiscussable(self):
+        log_deprecated(
+            "The rawIsDiscussable method from the ExtensibleMetadata in "
+            "Products.ATContentTypes has been deprecated and will be removed "
+            "in Plone 5. This method belongs to the old discussion "
+            "infrastructure that already has been replaced by "
+            "plone.app.discussion in Plone 4.1."
+        )
+        if not 'portal_discussion' in self.objectIds():
+            return
         # Returns True, False or None where None means use the default
         result = getattr(aq_base(self), 'allow_discussion', None)
         if result is not None:
@@ -263,6 +291,15 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'defaultIsDiscussable')
     def defaultIsDiscussable(self):
+        log_deprecated(
+            "The defaultIsDiscussable method from the ExtensibleMetadata in "
+            "Products.ATContentTypes has been deprecated and will be removed "
+            "in Plone 5. This method belongs to the old discussion "
+            "infrastructure that already has been replaced by "
+            "plone.app.discussion in Plone 4.1."
+        )
+        if not 'portal_discussion' in self.objectIds():
+            return
         # Returns the default value, either True or False
         default = None
         typeInfo = self.getTypeInfo()
@@ -273,6 +310,15 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
     def allowDiscussion(self, allowDiscussion=None, **kw):
+        log_deprecated(
+            "The allowDiscussion method from the ExtensibleMetadata in "
+            "Products.ATContentTypes has been deprecated and will be removed "
+            "in Plone 5. This method belongs to the old discussion "
+            "infrastructure that already has been replaced by "
+            "plone.app.discussion in Plone 4.1."
+        )
+        if not 'portal_discussion' in self.objectIds():
+            return
         default = self.defaultIsDiscussable()
         current = self.rawIsDiscussable()
 

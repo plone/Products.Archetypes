@@ -253,54 +253,6 @@ class PortalCopyTests(ATSiteTestCase):
         self.assertEqual(wf_tool.getInfoFor(file_copy, 'review_state'),
                                                                  'published')
 
-    def test_copy_handles_talkback_Items(self):
-        # We need to ensure that the manage_after* methods are called on
-        # subobjects of non-folderish objects
-        doc = self.portal.document
-        dtool = self.portal.portal_discussion
-        cat = self.portal.portal_catalog
-
-        doc.allowDiscussion('1')
-        tb = dtool.getDiscussionFor(doc)
-        tb.createReply(title='Stupendous', text='silly', Creator='admin')
-
-        # Creating the reply should have cataloged it in manage_afterAdd
-        results = cat(Title='Stupendous')
-        self.assertEqual(len(results), 1)
-
-        cp = self.portal.manage_copyObjects(ids=['document'])
-        self.folder.manage_pasteObjects(cp)
-        doc_copy = self.folder.document
-
-        tb = dtool.getDiscussionFor(doc_copy)
-        self.assertTrue(tb.hasReplies(doc_copy), "Discussion not copied")
-
-        # Copying doc should have cataloged the reply in manage_afterClone
-        results = cat(Title='Stupendous')
-        self.assertEqual(len(results), 2)
-
-    # not sure where else to put this
-    def test_delete_handles_talkback_Items(self):
-        doc = self.portal.document
-        dtool = self.portal.portal_discussion
-        cat = self.portal.portal_catalog
-
-        doc.allowDiscussion('1')
-        tb = dtool.getDiscussionFor(doc)
-        tb.createReply(title='Stupendous', text='silly', Creator='admin')
-
-        # Creating the reply should have cataloged it in manage_afterAdd
-        results = cat(Title='Stupendous')
-        self.assertEqual(len(results), 1)
-
-        self.portal.manage_delObjects(ids=['document'])
-
-        # Deleting the doc should have removed the discussions from the
-        # catalog
-        results = cat(Title='Stupendous')
-        self.assertEqual(len(results), 0)
-
-
 def test_suite():
     suite = TestSuite()
     suite.addTest(makeSuite(CutPasteCopyPasteTests))
