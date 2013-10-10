@@ -4,6 +4,10 @@ Changelog
 1.8.9 (unreleased)
 ------------------
 
+- Various vocabulary fixes, mostly for translations and
+  IntDisplayLists.
+  [maurits]
+
 - ``Vocabulary`` method was not working with ``vocabulary_factory``
   and int values (IntDisplayList is required)
   [keul]
