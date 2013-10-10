@@ -159,12 +159,12 @@ class ValidationEventTests(ATSiteTestCase):
         ob._at_creation_flag = True
         ob.processForm(REQUEST=TestRequest())
 
-        self.assertEquals(True, ob._initializedCaught)
-        self.assertEquals(False, ob._editedCaught)
+        self.assertEqual(True, ob._initializedCaught)
+        self.assertEqual(False, ob._editedCaught)
 
         # Simulate subsequent edit
         ob.processForm(REQUEST=TestRequest())
-        self.assertEquals(True, ob._editedCaught)
+        self.assertEqual(True, ob._editedCaught)
 
         sm = component.getSiteManager()
         sm.unregisterHandler(created_handler, (IObject1, IObjectCreatedEvent,))

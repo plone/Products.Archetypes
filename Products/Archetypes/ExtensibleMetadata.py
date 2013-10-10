@@ -784,7 +784,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         used to be:  editMetadata = WorkflowAction(_editMetadata)
         Need to add check for webDAV locked resource for TTW methods.
         """
-        self.failIfLocked()
+        self.assertFalseLocked()
         self._editMetadata(title=title,
                            subject=subject,
                            description=description,

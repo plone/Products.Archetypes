@@ -83,11 +83,11 @@ class ReindexTest(ATSiteTestCase):
 
     def test_reindex_unindexes_old(self):
         ct = self.ct
-        self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
+        self.assertEqual(len(ct(SearchableText='Mosquito')), 0)
         self.inst.edit(title='Mosquito')
-        self.assertEquals(len(ct(SearchableText='Mosquito')), 1)
+        self.assertEqual(len(ct(SearchableText='Mosquito')), 1)
         self.inst.edit(title='Libido')
-        self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
+        self.assertEqual(len(ct(SearchableText='Mosquito')), 0)
 
 
 class MultiplexTest(ATSiteTestCase):

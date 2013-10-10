@@ -4,6 +4,9 @@ Changelog
 1.9.5 (unreleased)
 ------------------
 
+- Replace deprecated test assert statements.
+  [timo]
+
 - Remove code and tests for the old discussion infrastructure
   (pre plone.app.discussion). The discussion tool will be deprecated in
   Plone 5.

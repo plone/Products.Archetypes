@@ -193,7 +193,7 @@ class ProcessingTest(ATSiteTestCase):
             got = dummy.getField(k).get(dummy)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
+            self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
     def test_processing_fieldset(self):
@@ -207,7 +207,7 @@ class ProcessingTest(ATSiteTestCase):
             got = dummy.getField(k).get(dummy)
             if isinstance(got, (File, Image)):
                 got = str(got)
-            self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
+            self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
     def test_image_tag(self):
@@ -219,11 +219,11 @@ class ProcessingTest(ATSiteTestCase):
         dummy.processForm()
 
         image_field = dummy.getField('imagefield')
-        self.assertEquals(image_field.tag(dummy),
+        self.assertEqual(image_field.tag(dummy),
                           '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt=''),
+        self.assertEqual(image_field.tag(dummy, alt=''),
                           '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt='', title=''),
+        self.assertEqual(image_field.tag(dummy, alt='', title=''),
                           '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
 
     def test_gif_format_preserved_when_scaling(self):
