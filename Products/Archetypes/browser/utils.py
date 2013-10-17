@@ -39,25 +39,24 @@ class Utils(BrowserView):
             return translate(value,
                              domain=domain,
                              context=self.request)
-        if value:
-            nvalues = []
-            for v in value:
-                if not v:
-                    continue
-                original = v
-                if isinstance(v, unicode):
-                    v = v.encode('utf-8')
-                # Get the value with key v from the vocabulary,
-                # falling back to the original input value.
-                vocab_value = vocab.getValue(v, original)
-                if not isinstance(vocab_value, basestring):
-                    # May be an integer.
-                    vocab_value = str(vocab_value)
-                elif not isinstance(vocab_value, unicode):
-                    # avoid UnicodeDecodeError if value contains special chars
-                    vocab_value = unicode(vocab_value, 'utf-8')
-                # translate explicitly
-                vocab_value = _(vocab_value)
-                nvalues.append(vocab_value)
-            value = ', '.join(nvalues)
+        nvalues = []
+        for v in value:
+            if not v:
+                continue
+            original = v
+            if isinstance(v, unicode):
+                v = v.encode('utf-8')
+            # Get the value with key v from the vocabulary,
+            # falling back to the original input value.
+            vocab_value = vocab.getValue(v, original)
+            if not isinstance(vocab_value, basestring):
+                # May be an integer.
+                vocab_value = str(vocab_value)
+            elif not isinstance(vocab_value, unicode):
+                # avoid UnicodeDecodeError if value contains special chars
+                vocab_value = unicode(vocab_value, 'utf-8')
+            # translate explicitly
+            vocab_value = _(vocab_value)
+            nvalues.append(vocab_value)
+        value = ', '.join(nvalues)
         return value
