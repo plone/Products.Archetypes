@@ -10,8 +10,6 @@
     </tal:comment>
 
     <div metal:define-macro="calendarDatePickerBox" tal:define="
-         uniqueItemIndex context/@@plone/uniqueItemIndex;
-         inputIndex uniqueItemIndex/next;
          show_hm show_hm | python:1;
          show_ymd show_ymd | python:1;
          starting_year starting_year | nothing;
@@ -20,7 +18,7 @@
          show_single_year show_single_year | python: 1;
          minute_step minute_step | python: 5;
          show_jscal show_jscal | python: 1;
-         input_id string:${formname}_${inputname}_${inputIndex};
+         input_id string:${formname}_${inputname};
          date_components_support_view context/@@date_components_support;
          values python:date_components_support_view.result(inputvalue, 0, starting_year, ending_year, future_years, minute_step);
          years values/years;

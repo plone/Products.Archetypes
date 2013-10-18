@@ -97,4 +97,12 @@
       permission="zope.Public"
       />
 
+    <browser:page
+        name="date_components_support"
+        for="*"
+        permission="zope2.View"
+        class=".datecomponents.DateComponents"
+        allowed_attributes="result"
+        />
+
 </configure>

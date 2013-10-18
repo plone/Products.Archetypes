@@ -1,0 +1,142 @@
+CalendarWidget
+===================
+
+There are no tests for this at all and I want to make a change. This is 
+a scary adventure!
+
+  >>> from Products.Archetypes.browser import datecomponents
+  >>> from zope.publisher.browser import TestRequest
+  >>> request = TestRequest()
+  >>> view = datecomponents.DateComponents(self.portal, request)
+  
+For historical reasons, the DateTime module parses the timezone differently 
+if a date is created with a "-" instead of a "/". Dates 
+that enter here with a "-" go to "GMT-0" by default whereas "/" goes to 
+the server timezone (in my case this is "US/Pacific"). The bug:
+
+Note that this explanation won't work on certain timezones and 
+DateTime doesn't look at anything obvious to get the timezone 
+info (like environment variables) so I'm going to patch the func 
+that sets the timezone so that this explanation test doesn't 
+break on different timezones. If this test does break then, it 
+means that the actual bug has been fixed. There maybe other signs 
+such as pigs flying, locusts, etc...
+
+  >>> import DateTime
+  >>> TEST_TIME_ZONE = 'US/Pacific'
+  >>> realLocalZone = DateTime.DateTime.localZone
+  >>> def fakeLocalZone(self, ltm=None):
+  ...    return TEST_TIME_ZONE
+  >>> DateTime.DateTime.localZone = fakeLocalZone
+  
+  
+  >>> him = DateTime.DateTime("2011/01/13")
+  >>> her = DateTime.DateTime("2011-01-13")
+  >>> her == him
+  False
+  >>> her._tz
+  'GMT+0'
+  >>> him._tz == TEST_TIME_ZONE
+  True
+
+So this wouldn't be an issue if the DateTime didn't later convert this
+to the localzone:
+  >>> her.strftime('%d')
+  '12'
+  >>> him.strftime('%d')
+  '13'
+  
+For the next test case, we want them to work in all timezones so 
+we un-monkey patch.
+
+  >>> DateTime.DateTime.localZone = realLocalZone
+
+It would be sane to fix it in the DateTime module, but I wouldn't wish 
+that task upon my worst enemy. So we can fix it here by replacing all 
+instances of "-" with "/" in the first part of a date string:
+  
+  >>> date = "2011-01-13"
+  >>> parts = view.result(date=date)
+  >>> parts['days'][13]['selected']
+  1
+  >>> date = "2011/01/13"
+  >>> parts = view.result(date=date)
+  >>> parts['days'][13]['selected']
+  1
+  
+Helper function to parse through the next return values without losing 
+whatever sanity is left
+  >>> def parseDate(parts):
+  ...   date = ()
+  ...   sections = ['years', 'months', 'days', 'hours', 'minutes']
+  ...   for section in sections:
+  ...       for item in parts[section]:
+  ...           if item['selected'] == 1:
+  ...              date += (item['value'],)
+  ...   return date
+  
+Additionally, there was a note that DateTime didn't support GMT and then 
+was stripping it off. I don't think that is still the case and it 
+causes whacky jackiness for people who actually want to pass in time zones.
+For example, we can pass in GMT-5 here and it should (correctly?) remap 
+US/Eastern to the localzone (which we will again patch to make sure this 
+test case doesn't fail):
+
+  >>> DateTime.DateTime.localZone = fakeLocalZone
+  >>> date = "2011-01-13 01:30 GMT-5"
+  >>> parts = view.result(date=date)
+  >>> parseDate(parts)
+  (2011, '01', '12', '22', '30')
+  
+And to be sure, we also can't break other tz representations. I won't test 
+for time here because it will break half of every year do to daylight savings.
+
+  >>> date = "2011/01/13 01:30 US/Pacific"
+  >>> parts = view.result(date=date)
+  >>> parseDate(parts)
+  (2011, '01', '13', '01', '30')
+  
+While we are in here, let's fix this edge case as well. The date should 
+always round up to the next interval. There is the edge case of times that 
+are greater than the the last interval. Instead of  messing with logic about
+rounding to the next hour then the next day, etc, etc... let's just round down 
+to the last interval
+
+  >>> date = "2011/01/13 05:59 US/Pacific"
+  >>> parts = view.result(date=date)
+  >>> parseDate(parts)
+  (2011, '01', '13', '05', '55')
+  
+And some backwards compatibility checks
+
+  >>> date = "2011/01/13 05:55 US/Pacific"
+  >>> parts = view.result(date=date)
+  >>> parseDate(parts)
+  (2011, '01', '13', '05', '55')
+   
+  >>> parts = view.result(date="2011/01/13 05:47 US/Pacific")
+  >>> parseDate(parts)
+  (2011, '01', '13', '05', '50')
+  
+  >>> parts = view.result(date="2011/01/13 05:51 US/Pacific")
+  >>> parseDate(parts)
+  (2011, '01', '13', '05', '55')
+  
+  >>> parts = view.result(date="2011/01/13 06:00 US/Pacific")
+  >>> parseDate(parts)
+  (2011, '01', '13', '06', '00')
+  
+Pre-epoch dates need to work too
+
+  >>> parts = view.result(date="1961/01/13 06:00 US/Pacific")
+  >>> parseDate(parts)
+  (1961, '01', '13', '06', '00')
+
+Test date before 1900 (usual problem with strftime)
+
+  >>> date = "1899-07-26 22:00 US/Pacific"
+  >>> parts = view.result(date=date)
+  >>> parseDate(parts)
+  (1899, '07', '26', '22', '00')
+
+  >>> DateTime.DateTime.localZone = realLocalZone

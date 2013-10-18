@@ -1,8 +1,12 @@
 Changelog
 =========
 
-1.9.5 (unreleased)
-------------------
+1.10.0 (unreleased)
+-------------------
+
+- Move calendar_macros, jscalendar, and date_components_support here
+  from CMFPlone and plone.app.form.
+  [bloodbare, davisagli]
 
 - Replace deprecated test assert statements.
   [timo]
