@@ -40,7 +40,7 @@ from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
-from Products.Archetypes.atapi import Schema, DisplayList, BaseContentMixin, TextField
+from Products.Archetypes.atapi import Schema, DisplayList, IntDisplayList, BaseContentMixin, TextField
 from Products.Archetypes.interfaces import IFieldDefaultProvider
 from Products.Archetypes.interfaces.vocabulary import IVocabulary
 from Products.Archetypes import Field as at_field
@@ -133,7 +133,6 @@ empty_values = {
 schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
-
 class sampleInterfaceVocabulary:
     implements(IVocabulary)
 
@@ -160,6 +159,15 @@ class DummyVocabulary(object):
         return SimpleVocabulary.fromItems([("title1", "value1"), ("t2", "v2")])
 
 DummyVocabFactory = DummyVocabulary()
+
+class DummyIntVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary.fromItems([("title1", 1), ("t2", 2)])
+
+
+DummyIntVocabFactory = DummyIntVocabulary() 
 
 
 class FakeRequest:
@@ -193,7 +201,7 @@ class ProcessingTest(ATSiteTestCase):
             got = dummy.getField(k).get(dummy)
             if isinstance(got, File):
                 got = str(got)
-            self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
+            self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
     def test_processing_fieldset(self):
@@ -207,7 +215,7 @@ class ProcessingTest(ATSiteTestCase):
             got = dummy.getField(k).get(dummy)
             if isinstance(got, (File, Image)):
                 got = str(got)
-            self.assertEquals(got, v, 'got: %r, expected: %r, field "%s"' %
+            self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
                               (got, v, k))
 
     def test_image_tag(self):
@@ -219,11 +227,11 @@ class ProcessingTest(ATSiteTestCase):
         dummy.processForm()
 
         image_field = dummy.getField('imagefield')
-        self.assertEquals(image_field.tag(dummy),
+        self.assertEqual(image_field.tag(dummy),
                           '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt=''),
+        self.assertEqual(image_field.tag(dummy, alt=''),
                           '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
-        self.assertEquals(image_field.tag(dummy, alt='', title=''),
+        self.assertEqual(image_field.tag(dummy, alt='', title=''),
                           '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
 
     def test_gif_format_preserved_when_scaling(self):
@@ -426,6 +434,23 @@ class ProcessingTest(ATSiteTestCase):
         getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
         self.assertEqual(field.Vocabulary(dummy), expected)
         getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
+
+    def test_factory_vocabulary_int(self):
+        dummy = self.makeDummy()
+        request = FakeRequest()
+        field = dummy.Schema().fields()[0]
+
+        # Default
+        self.assertEqual(field.Vocabulary(dummy), IntDisplayList())
+
+        expected = IntDisplayList([(1, 'title1'), (2, 't2')])
+
+        # # Vocabulary factory
+        field.vocabulary = ()
+        field.vocabulary_factory = 'archetypes.tests.dummyintvocab'
+        getSiteManager().registerUtility(component=DummyIntVocabFactory, name='archetypes.tests.dummyintvocab')
+        self.assertEqual(field.Vocabulary(), expected)
+        getSiteManager().unregisterUtility(component=DummyIntVocabFactory, name='archetypes.tests.dummyintvocab')
 
     def test_allowable_content_types_ok(self):
         dummy = self.makeDummy()

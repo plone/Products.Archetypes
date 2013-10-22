@@ -92,13 +92,13 @@ class BaseObjectTest(ATSiteTestCase):
         # Note: the vocabulary values used to get translated in some
         # cases, which during test runs would mean they would get
         # formatted as '[[plone][some value]]' instead of 'some value'.
-        self.assertEquals(searchable,
+        self.assertEqual(searchable,
             '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
         dummy.setMULTIPLEFIELD(['3', '4'])
         searchable = dummy.SearchableText()
 
-        self.assertEquals(searchable,
+        self.assertEqual(searchable,
             '3 4 Option 3 : automne option3')
 
     def test_searchableTextUsesIndexMethod(self):

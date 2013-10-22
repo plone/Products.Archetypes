@@ -98,7 +98,7 @@ like a normal resource:
   ...
   id: simple_folder
   title:
-  allowDiscussion: False
+  allowDiscussion: None
   subject:
   description: Simple Folder Content
   location:
@@ -176,7 +176,7 @@ like a normal resource:
   ...
   id: simple_btree_folder
   title:
-  allowDiscussion: False
+  allowDiscussion: None
   subject:
   description: BTree Folder Content
   location:

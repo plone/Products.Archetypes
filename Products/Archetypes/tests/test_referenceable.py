@@ -96,7 +96,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
         doc = getattr(self.folder, new_id)
         self.assertTrue(UID in catalog.uniqueValuesFor('UID'))
-        self.assertEquals(doc.UID(), UID)
+        self.assertEqual(doc.UID(), UID)
 
     def test_renameKeepsReferences(self):
         container = makeContent(self.folder,
@@ -120,16 +120,16 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1.setId('foo')
         transaction.savepoint(optimistic=True)
 
-        self.assertEquals(obj2.getBRefs(), [obj1])
-        self.assertEquals(obj1.getRefs(), [obj2])
+        self.assertEqual(obj2.getBRefs(), [obj1])
+        self.assertEqual(obj1.getRefs(), [obj2])
 
         self.verifyBrains()
         transaction.savepoint(optimistic=True)
         obj2.setId('bar')
         transaction.savepoint(optimistic=True)
 
-        self.assertEquals(obj2.getBRefs(), [obj1])
-        self.assertEquals(obj1.getRefs(), [obj2])
+        self.assertEqual(obj2.getBRefs(), [obj1])
+        self.assertEqual(obj1.getRefs(), [obj2])
 
         self.verifyBrains()
 
@@ -154,8 +154,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         a, b = self.verifyBrains()
         transaction.savepoint(optimistic=True)
 
-        self.assertEquals(obj2.getBRefs(), [obj1])
-        self.assertEquals(obj1.getRefs(), [obj2])
+        self.assertEqual(obj2.getBRefs(), [obj1])
+        self.assertEqual(obj1.getRefs(), [obj2])
 
         self.folder.manage_renameObject(id='container',
                                         new_id='cont4iner')
@@ -164,8 +164,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         obj1 = self.folder.cont4iner.obj1
         obj2 = self.folder.cont4iner.obj2
 
-        self.assertEquals(obj2.getBRefs(), [obj1])
-        self.assertEquals(obj1.getRefs(), [obj2])
+        self.assertEqual(obj2.getBRefs(), [obj1])
+        self.assertEqual(obj1.getRefs(), [obj2])
 
     def test_renamecontainerKeepsReferences2(self):
         # test for [ 1013363 ] References break on folder rename
@@ -192,8 +192,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         a, b = self.verifyBrains()
         transaction.savepoint(optimistic=True)
 
-        self.assertEquals(objB.getBRefs(), [objA])
-        self.assertEquals(objA.getRefs(), [objB])
+        self.assertEqual(objB.getBRefs(), [objA])
+        self.assertEqual(objA.getRefs(), [objB])
 
         # now rename folder B and see if objA still points to objB
         self.folder.manage_renameObject(id='folderB',
@@ -203,8 +203,8 @@ class BaseReferenceableTests(ATSiteTestCase):
         objB = self.folder.folderC.objB
 
         # check references
-        self.assertEquals(objB.getBRefs(), [objA])
-        self.assertEquals(objA.getRefs(), [objB])
+        self.assertEqual(objB.getBRefs(), [objA])
+        self.assertEqual(objA.getRefs(), [objB])
 
     def test_UIDclash(self):
         catalog = getattr(self.portal, UID_CATALOG)
@@ -253,10 +253,10 @@ class BaseReferenceableTests(ATSiteTestCase):
         refs = a.getRefs()
         self.assertTrue(b in refs, (b, refs))
         self.assertTrue(c in refs, (c, refs))
-        self.assertEquals(a.getRefs('KnowsAbout'), [b])
-        self.assertEquals(b.getRefs('KnowsAbout'), [a])
-        self.assertEquals(a.getRefs('Owns'), [c])
-        self.assertEquals(c.getBRefs('Owns'), [a])
+        self.assertEqual(a.getRefs('KnowsAbout'), [b])
+        self.assertEqual(b.getRefs('KnowsAbout'), [a])
+        self.assertEqual(a.getRefs('Owns'), [c])
+        self.assertEqual(c.getBRefs('Owns'), [a])
 
         old_uid = a.UID()
 
@@ -265,44 +265,44 @@ class BaseReferenceableTests(ATSiteTestCase):
         old_refs = []
         [old_refs.append(o.sourceUID) for o in fw_refs
          if not o.sourceUID in old_refs]
-        self.assertEquals(len(old_refs), 1)
-        self.assertEquals(old_refs[0], old_uid)
+        self.assertEqual(len(old_refs), 1)
+        self.assertEqual(old_refs[0], old_uid)
 
         # Check existing backward refs
         fw_refs = a.getBackReferenceImpl()
         old_refs = []
         [old_refs.append(o.targetUID) for o in fw_refs
          if not o.targetUID in old_refs]
-        self.assertEquals(len(old_refs), 1)
-        self.assertEquals(old_refs[0], old_uid)
+        self.assertEqual(len(old_refs), 1)
+        self.assertEqual(old_refs[0], old_uid)
 
         new_uid = '9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9x9'
         a._setUID(new_uid)
-        self.assertEquals(a.UID(), new_uid)
+        self.assertEqual(a.UID(), new_uid)
 
         # Check existing forward refs got reassigned
         fw_refs = a.getReferenceImpl()
         new_refs = []
         [new_refs.append(o.sourceUID) for o in fw_refs
          if not o.sourceUID in new_refs]
-        self.assertEquals(len(new_refs), 1)
-        self.assertEquals(new_refs[0], new_uid)
+        self.assertEqual(len(new_refs), 1)
+        self.assertEqual(new_refs[0], new_uid)
 
         # Check existing backward refs got reassigned
         fw_refs = a.getBackReferenceImpl()
         new_refs = []
         [new_refs.append(o.targetUID) for o in fw_refs
          if not o.targetUID in new_refs]
-        self.assertEquals(len(new_refs), 1)
-        self.assertEquals(new_refs[0], new_uid)
+        self.assertEqual(len(new_refs), 1)
+        self.assertEqual(new_refs[0], new_uid)
 
         refs = a.getRefs()
         self.assertTrue(b in refs, (b, refs))
         self.assertTrue(c in refs, (c, refs))
-        self.assertEquals(a.getRefs('KnowsAbout'), [b])
-        self.assertEquals(b.getRefs('KnowsAbout'), [a])
-        self.assertEquals(a.getRefs('Owns'), [c])
-        self.assertEquals(c.getBRefs('Owns'), [a])
+        self.assertEqual(a.getRefs('KnowsAbout'), [b])
+        self.assertEqual(b.getRefs('KnowsAbout'), [a])
+        self.assertEqual(a.getRefs('Owns'), [c])
+        self.assertEqual(c.getBRefs('Owns'), [a])
 
         self.verifyBrains()
 
@@ -327,15 +327,15 @@ class BaseReferenceableTests(ATSiteTestCase):
         refs = a.getRefs()
         self.assertTrue(b in refs, (b, refs))
         self.assertTrue(c in refs, (c, refs))
-        self.assertEquals(a.getRefs('Owns'), [c])
-        self.assertEquals(c.getBRefs('Owns'), [a])
+        self.assertEqual(a.getRefs('Owns'), [c])
+        self.assertEqual(c.getBRefs('Owns'), [a])
         rels = a.getRelationships()
         self.assertTrue("KnowsAbout" in rels, ("KnowsAbout", rels))
         self.assertTrue("Owns" in rels, ("Owns", rels))
 
         a.deleteReference(c, "Owns")
-        self.assertEquals(a.getRefs(), [b])
-        self.assertEquals(c.getBRefs(), [])
+        self.assertEqual(a.getRefs(), [b])
+        self.assertEqual(c.getBRefs(), [])
 
         #test querying references using the targetObject parameter
         d = makeContent(self.folder, portal_type='DDocument',
@@ -375,28 +375,28 @@ class BaseReferenceableTests(ATSiteTestCase):
         payment2.addReference(account, "From")
 
         brels = account.getBRelationships()
-        self.assertEquals(brels, ['From'])
+        self.assertEqual(brels, ['From'])
         brefs = account.getBRefs('From')
         # The order is not defined, which can lead to spurious test
         # failures, but we do not care about the order.
-        self.assertEquals(len(brefs), 2)
+        self.assertEqual(len(brefs), 2)
         self.assertTrue(payment in brefs)
         self.assertTrue(payment2 in brefs)
 
         brels = payment.getBRelationships()
-        self.assertEquals(brels, ['Owns'])
+        self.assertEqual(brels, ['Owns'])
         brefs = payment.getBRefs('Owns')
-        self.assertEquals(brefs, [invoice])
+        self.assertEqual(brefs, [invoice])
 
         brels = payment2.getBRelationships()
-        self.assertEquals(brels, ['Owns'])
+        self.assertEqual(brels, ['Owns'])
         brefs = payment2.getBRefs('Owns')
-        self.assertEquals(brefs, [future_payment])
+        self.assertEqual(brefs, [future_payment])
 
         invoice.deleteReference(payment, "Owns")
 
-        self.assertEquals(invoice.getRefs(), [future_payment])
-        self.assertEquals(payment.getBRefs(), [])
+        self.assertEqual(invoice.getRefs(), [future_payment])
+        self.assertEqual(payment.getBRefs(), [])
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
@@ -407,12 +407,12 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
 
-        self.assertEquals(len(a.getRefs('KnowsAbout')),  1)
+        self.assertEqual(len(a.getRefs('KnowsAbout')),  1)
 
         #In this case its a different relationship
         a.addReference(b, 'Flogs')
-        self.assertEquals(len(a.getRefs('KnowsAbout')), 1)
-        self.assertEquals(len(a.getRefs()), 2)
+        self.assertEqual(len(a.getRefs('KnowsAbout')), 1)
+        self.assertEqual(len(a.getRefs()), 2)
 
     def test_multipleReferences(self):
         # If you provide updateReferences=False to addReference, it
@@ -424,12 +424,12 @@ class BaseReferenceableTests(ATSiteTestCase):
         a.addReference(b, "KnowsAbout", updateReferences=False)
         a.addReference(b, "KnowsAbout", updateReferences=False)
 
-        self.assertEquals(len(a.getRefs('KnowsAbout')),  2)
+        self.assertEqual(len(a.getRefs('KnowsAbout')),  2)
 
         #In this case its a different relationship
         a.addReference(b, 'Flogs')
-        self.assertEquals(len(a.getRefs('KnowsAbout')), 2)
-        self.assertEquals(len(a.getRefs()), 3)
+        self.assertEqual(len(a.getRefs('KnowsAbout')), 2)
+        self.assertEqual(len(a.getRefs()), 3)
 
     def test_UIDunderContainment(self):
         # If an object is referenced don't record its reference again
@@ -455,11 +455,11 @@ class BaseReferenceableTests(ATSiteTestCase):
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
 
-        self.assertEquals(a.hasRelationshipTo(b), 1)
-        self.assertEquals(a.hasRelationshipTo(b, "KnowsAbout"), 1)
-        self.assertEquals(a.hasRelationshipTo(b, "Foo"), 0)
-        self.assertEquals(a.hasRelationshipTo(c), 0)
-        self.assertEquals(a.hasRelationshipTo(c, "KnowsAbout"), 0)
+        self.assertEqual(a.hasRelationshipTo(b), 1)
+        self.assertEqual(a.hasRelationshipTo(b, "KnowsAbout"), 1)
+        self.assertEqual(a.hasRelationshipTo(b, "Foo"), 0)
+        self.assertEqual(a.hasRelationshipTo(c), 0)
+        self.assertEqual(a.hasRelationshipTo(c, "KnowsAbout"), 0)
 
         # XXX HasRelationshipFrom  || ( 1 for ref 2 for bref?)
 
@@ -481,17 +481,17 @@ class BaseReferenceableTests(ATSiteTestCase):
 
         uids = rc.uniqueValuesFor('UID')
         refs = rc(dict(UID=uids))
-        self.assertEquals(len(refs), 1)
+        self.assertEqual(len(refs), 1)
         ref = refs[0].getObject()
-        self.assertEquals(ref.targetUID, b.UID())
-        self.assertEquals(ref.sourceUID, a.UID())
+        self.assertEqual(ref.targetUID, b.UID())
+        self.assertEqual(ref.sourceUID, a.UID())
 
         # Now Kill the folder and make sure it all went away
         self.folder._delObject("reftest")
         self.verifyBrains()
 
         uids = rc.uniqueValuesFor('UID')
-        self.assertEquals(len(uids), 0)
+        self.assertEqual(len(uids), 0)
 
     def test_reindexUIDCatalog(self):
         catalog = self.portal.uid_catalog
@@ -501,7 +501,7 @@ class BaseReferenceableTests(ATSiteTestCase):
                           id='demodoc')
         doc.update(title="sometitle")
         brain = catalog(dict(UID=doc.UID()))[0]
-        self.assertEquals(brain.Title, doc.Title())
+        self.assertEqual(brain.Title, doc.Title())
 
     def test_referenceReference(self):
         # Reference a reference object for fun (no, its like RDFs
@@ -537,7 +537,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             ])
 
         got = field.Vocabulary(dummy)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
         # We should have the option of nothing
         field = field.copy()
@@ -551,7 +551,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             (dummy.UID(), dummy.getId()),
             ('', u'label_no_reference'),
             ])
-        self.assertEquals(field.Vocabulary(dummy), expected)
+        self.assertEqual(field.Vocabulary(dummy), expected)
 
         field = field.copy()
         field.vocabulary_display_path_bound = 1
@@ -564,7 +564,7 @@ class BaseReferenceableTests(ATSiteTestCase):
             ])
         self.assertNotEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
-        self.assertEquals(field.Vocabulary(dummy), expected)
+        self.assertEqual(field.Vocabulary(dummy), expected)
 
     def test_noReferenceAfterDelete(self):
         # Deleting target should delete reference

@@ -1,8 +1,24 @@
 Changelog
 =========
 
-1.9.5 (unreleased)
-------------------
+1.10.0 (unreleased)
+-------------------
+
+- Move calendar_macros, jscalendar, and date_components_support here
+  from CMFPlone and plone.app.form.
+  [bloodbare, davisagli]
+
+- Replace deprecated test assert statements.
+  [timo]
+
+- ``Vocabulary`` method was not working with ``vocabulary_factory``
+  and int values (IntDisplayList is required)
+  [keul]
+
+- Remove code and tests for the old discussion infrastructure
+  (pre plone.app.discussion). The discussion tool will be deprecated in
+  Plone 5.
+  [timo]
 
 - Fix nesting-error in InAndOutWidget. This fixes
   https://github.com/plone/Products.Archetypes/pull/29

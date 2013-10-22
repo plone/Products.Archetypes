@@ -151,7 +151,7 @@ class PdataStreamTests(TestCase):
             pdata = pdata.next
         iterator = PdataStreamIterator(start, size=19, streamsize=6)
         expected = ['blobbl', 'ablabl', 'ablabl', 'a']
-        self.assertEquals(list(iterator), expected)
+        self.assertEqual(list(iterator), expected)
 
 
 def test_suite():

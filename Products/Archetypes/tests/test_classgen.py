@@ -269,7 +269,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),
                      ('View', ('makeFoo',)),)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
     def test_security_dont_stomp_existing_decl_public(self):
         self.assertFalse(hasattr(SecDummy4, '__ac_permissions__'))
@@ -282,7 +282,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         got = SecDummy4.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
         self.assertTrue(hasattr(SecDummy4, 'makeFoo__roles__'))
         self.assertTrue(SecDummy4.makeFoo__roles__ == ACCESS_PUBLIC)
 
@@ -297,7 +297,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         got = SecDummy5.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
         self.assertTrue(hasattr(SecDummy5, 'makeFoo__roles__'))
         self.assertTrue(SecDummy5.makeFoo__roles__ == ACCESS_PRIVATE)
 
@@ -311,7 +311,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         got = SecDummy2.__ac_permissions__
         expected = (('Modify portal content',
                      ('makeFoo', 'setFoo', 'getRawFoo')),)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
     def test_security_protect_generate_method(self):
         self.assertFalse(hasattr(SecDummy3, '__ac_permissions__'))
@@ -322,7 +322,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         got = SecDummy3.__ac_permissions__
         expected = (('Modify portal content',
                      ('makeFoo', 'setFoo', 'getRawFoo')),)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
 
 def test_suite():

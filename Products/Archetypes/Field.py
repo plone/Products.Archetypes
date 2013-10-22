@@ -72,6 +72,7 @@ from Products.Archetypes.BaseUnit import BaseUnit
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.Archetypes.log import log
 from Products.Archetypes.utils import DisplayList
+from Products.Archetypes.utils import IntDisplayList
 from Products.Archetypes.utils import Vocabulary
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import mapply
@@ -534,7 +535,11 @@ class Field(DefaultLayerContainer):
                 factory_context = content_instance
                 if factory_context is None:
                     factory_context = self
-                value = DisplayList([(t.value, t.title or t.token) for t in factory(factory_context)])
+                data = [(t.value, t.title or t.token) for t in factory(factory_context)]
+                if data and not isinstance(data[0][0], basestring):
+                    value = IntDisplayList(data)
+                else:
+                    value = DisplayList(data)
 
         if not isinstance(value, DisplayList):
 

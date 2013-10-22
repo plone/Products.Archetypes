@@ -77,7 +77,7 @@ class FileFieldTest(ATSiteTestCase):
         f.seek(0)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f)
 
     def test_stringio_binary(self):
@@ -86,7 +86,7 @@ class FileFieldTest(ATSiteTestCase):
         f.seek(0)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f)
 
     def test_file_like_text(self):
@@ -94,7 +94,7 @@ class FileFieldTest(ATSiteTestCase):
         f.seek(0)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f)
 
     def test_file_like_binary(self):
@@ -102,7 +102,7 @@ class FileFieldTest(ATSiteTestCase):
         f.seek(0)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f)
 
     def test_file_upload_text(self):
@@ -120,8 +120,8 @@ class FileFieldTest(ATSiteTestCase):
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
-        self.assertEquals(f, 'test.txt')
+        self.assertEqual(m, 'text/plain')
+        self.assertEqual(f, 'test.txt')
 
     def test_file_upload_binary(self):
         from cgi import FieldStorage
@@ -138,8 +138,8 @@ class FileFieldTest(ATSiteTestCase):
         f = FileUpload(fs)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
-        self.assertEquals(f, 'test.bin')
+        self.assertEqual(m, 'application/octet-stream')
+        self.assertEqual(f, 'test.bin')
 
     def test_real_file_text(self):
         from tempfile import TemporaryFile
@@ -148,7 +148,7 @@ class FileFieldTest(ATSiteTestCase):
         fd.seek(0)
         v, m, f = self.field._process_input(fd, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f, f)
 
     def test_real_file_binary(self):
@@ -158,7 +158,7 @@ class FileFieldTest(ATSiteTestCase):
         fd.seek(0)
         v, m, f = self.field._process_input(fd, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f, f)
 
     def test_real_file_force_filename_detect_mime_pdf(self):
@@ -169,8 +169,8 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(fd, instance=self.instance,
                                             filename='file.pdf')
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/pdf')
-        self.assertEquals(f, 'file.pdf')
+        self.assertEqual(m, 'application/pdf')
+        self.assertEqual(f, 'file.pdf')
 
     def test_real_file_force_filename_detect_mime_xml(self):
         from tempfile import TemporaryFile
@@ -180,8 +180,8 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(fd, instance=self.instance,
                                             filename='file.xml')
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/xml')
-        self.assertEquals(f, 'file.xml')
+        self.assertEqual(m, 'text/xml')
+        self.assertEqual(f, 'file.xml')
 
     def test_real_file_force_filename_detect_faq(self):
         from tempfile import TemporaryFile
@@ -191,8 +191,8 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(fd, instance=self.instance,
                                             filename='file.faq')
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
-        self.assertEquals(f, 'file.faq')
+        self.assertEqual(m, 'application/octet-stream')
+        self.assertEqual(f, 'file.faq')
 
     def test_real_file_force_mimetype(self):
         from tempfile import TemporaryFile
@@ -202,7 +202,7 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(fd, instance=self.instance,
                                             mimetype='text/xml')
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/xml')
+        self.assertEqual(m, 'text/xml')
         self.assertFalse(f, f)
 
     def test_ofs_file_text(self):
@@ -218,8 +218,8 @@ class FileFieldTest(ATSiteTestCase):
                                             instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
         # Should retain content type.
-        self.assertEquals(m, 'text/plain')
-        self.assertEquals(f, self.folder.f.getId())
+        self.assertEqual(m, 'text/plain')
+        self.assertEqual(f, self.folder.f.getId())
 
     def test_ofs_file_binary(self):
         from tempfile import TemporaryFile
@@ -232,8 +232,8 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(self.folder.f,
                                             instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
-        self.assertEquals(f, self.folder.f.getId())
+        self.assertEqual(m, 'application/octet-stream')
+        self.assertEqual(f, self.folder.f.getId())
 
     def test_pdata_text(self):
         from tempfile import TemporaryFile
@@ -246,7 +246,7 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(self.folder.f.data,
                                             instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f)
 
     def test_pdata_binary(self):
@@ -260,28 +260,28 @@ class FileFieldTest(ATSiteTestCase):
         v, m, f = self.field._process_input(self.folder.f.data,
                                             instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f)
 
     def test_string_text(self):
         f = 'x' * (1 << 19)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f)
 
     def test_string_binary(self):
         f = '\x00' + 'x' * (1 << 19)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f)
 
     def test_string_pdf(self):
         f = open(os.path.join(PACKAGE_HOME, 'input', 'webdav.pdf')).read()
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/pdf')
+        self.assertEqual(m, 'application/pdf')
         self.assertFalse(f)
 
     def test_base_unit_text(self):
@@ -289,7 +289,7 @@ class FileFieldTest(ATSiteTestCase):
         f = BaseUnit('f', 'x' * (1 << 19), instance=self.instance)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'text/plain')
+        self.assertEqual(m, 'text/plain')
         self.assertFalse(f)
 
     def test_base_unit_binary(self):
@@ -297,7 +297,7 @@ class FileFieldTest(ATSiteTestCase):
         f = BaseUnit('f', '\x00' + 'x' * (1 << 19), instance=self.instance)
         v, m, f = self.field._process_input(f, instance=self.instance)
         self.assertTrue(isinstance(v, self.factory), (type(v), self.factory))
-        self.assertEquals(m, 'application/octet-stream')
+        self.assertEqual(m, 'application/octet-stream')
         self.assertFalse(f)
 
     def test_get(self):

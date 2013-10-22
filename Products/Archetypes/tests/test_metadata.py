@@ -325,35 +325,6 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.assertEqual(dummy.get_content_type(), 'image/jpeg')
         self.assertEqual(pfield.getContentType(dummy), 'image/jpeg')
 
-    def testDiscussionEditAccessorDoesConversions(self):
-        # Use a DDocument because the dummy is too dumb for this
-        self.folder.invokeFactory('DDocument', 'bogus_item')
-        dummy = self.folder.bogus_item
-        # Set Allow discussion
-        dummy.allowDiscussion(True)
-        self.assertTrue(dummy.isDiscussable())
-        self.assertEqual(dummy.editIsDiscussable(), True)
-        dummy.allowDiscussion(None)
-        self.assertEqual(dummy.editIsDiscussable(), False)
-        self.assertEqual(dummy.rawIsDiscussable(), None)
-        dummy.allowDiscussion(False)
-        self.assertFalse(dummy.isDiscussable())
-        self.assertEqual(dummy.editIsDiscussable(), False)
-
-    def testDiscussionOverride(self):
-        # Make sure that if allowed_discussion is set on the class
-        # we can still use allowDiscussion to override it.
-        #
-        # Use a DDocument because the dummy is too dumb for this
-        # but temporarily set an allow_discussion attribute on the class.
-        from Products.Archetypes.examples.DDocument import DDocument
-        DDocument.allow_discussion = True
-        self.folder.invokeFactory('DDocument', 'bogus_item')
-        dummy = self.folder.bogus_item
-        dummy.allowDiscussion(None)
-        # clear our bogus attribute
-        del DDocument.allow_discussion
-
 
 class TimeZoneTest(ATSiteTestCase):
     def _makeDummyContent(self, name):

@@ -83,5 +83,26 @@
       permission="zope2.View"
       />
  
+   <browser:page
+      for="*"
+      name="calendar_macros"
+      template="templates/calendar_macros.pt"
+      permission="zope.Public"
+      />
+
+   <browser:page
+      for="*"
+      name="calendar_popup"
+      template="templates/calendar_popup.pt"
+      permission="zope.Public"
+      />
+
+    <browser:page
+        name="date_components_support"
+        for="*"
+        permission="zope2.View"
+        class=".datecomponents.DateComponents"
+        allowed_attributes="result"
+        />
 
 </configure>

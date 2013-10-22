@@ -140,11 +140,11 @@ class RenameTests(ATSiteTestCase):
         uid = UID(doc)
         # Should call afterAdd twice, one for the object
         # creation and another for the rename
-        self.assertEquals(ADD_COUNTER.get(uid), 3)
+        self.assertEqual(ADD_COUNTER.get(uid), 3)
         # Should call beforeDelete once, when renaming the object
-        self.assertEquals(DELETE_COUNTER.get(uid), 1)
+        self.assertEqual(DELETE_COUNTER.get(uid), 1)
         # Should never call afterClone
-        self.assertEquals(CLONE_COUNTER.get(uid), 0)
+        self.assertEqual(CLONE_COUNTER.get(uid), 0)
 
     def getCounts(self, obj):
         uid = UID(obj)
@@ -159,10 +159,10 @@ class RenameTests(ATSiteTestCase):
         d = self.folder.folder2.folder22.folder221.doc2211
         uid = UID(d)
         # Called afterAdd once
-        self.assertEquals(ADD_COUNTER.get(uid), 2)
+        self.assertEqual(ADD_COUNTER.get(uid), 2)
         # Never called beforeDelete or afterClone
-        self.assertEquals(DELETE_COUNTER.get(uid), 0)
-        self.assertEquals(CLONE_COUNTER.get(uid), 0)
+        self.assertEqual(DELETE_COUNTER.get(uid), 0)
+        self.assertEqual(CLONE_COUNTER.get(uid), 0)
 
         # make sure we have _p_jar
         transaction.savepoint(optimistic=True)
@@ -174,7 +174,7 @@ class RenameTests(ATSiteTestCase):
                                                          'new_folder221')
         expected = (d_count[0] + 1, d_count[1] + 1, d_count[2] + 0)
         got = self.getCounts(d)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
         # Update base count
         d_count = got
@@ -184,7 +184,7 @@ class RenameTests(ATSiteTestCase):
 
         expected = (d_count[0] + 1, d_count[1] + 1, d_count[2] + 0)
         got = self.getCounts(d)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
         # Update base count
         d_count = got
@@ -197,13 +197,13 @@ class RenameTests(ATSiteTestCase):
         # or to manage_beforeDelete for the source object.
         expected = (d_count[0], d_count[1], d_count[2])
         got = self.getCounts(d)
-        self.assertEquals(got, expected)
+        self.assertEqual(got, expected)
 
         new_d = self.folder.copy_of_new_folder2.folder22.new_folder221.doc2211
         got = self.getCounts(new_d)
         # Should have called manage_afterAdd and manage_afterClone for
         # the *new* object.
-        self.assertEquals(got, (1, 0, 1))
+        self.assertEqual(got, (1, 0, 1))
 
 
 def test_suite():
