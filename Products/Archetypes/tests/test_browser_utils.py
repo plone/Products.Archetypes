@@ -38,6 +38,16 @@ class UtilsMethodsTests(ATSiteTestCase):
         self.assertEqual(utilsView.translate(vocab, value=3),
                          u'[[plone][42]]')
 
+    def test_translate_empty(self):
+        vocab = DisplayList((('one', 'One'),
+                             ('two', 'Two'), ))
+        utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
+        self.assertEqual(utilsView.translate(vocab, value=''), u'')
+        self.assertEqual(utilsView.translate(vocab, value=None), u'')
+        self.assertEqual(utilsView.translate(vocab, value=[]), u'')
+        self.assertEqual(utilsView.translate(vocab, value=()), u'')
+        self.assertEqual(utilsView.translate(vocab, value=set()), u'')
+
 
 def test_suite():
     suite = TestSuite()
