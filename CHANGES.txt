@@ -4,6 +4,15 @@ Changelog
 1.10.0 (unreleased)
 -------------------
 
+- Make sure @@at_utils.translate method always returns a string (empty or
+  not) even when the passed value is an empty tuple (before, the returned
+  value was an empty tuple or a non empty string).
+  [gbastien]
+
+- Do not add warning about new field initialized on an existing object in
+  the transaction description, show this as a Zope log info message.
+  [gbastien]
+
 - Move calendar_macros, jscalendar, and date_components_support here
   from CMFPlone and plone.app.form.
   [bloodbare, davisagli]
