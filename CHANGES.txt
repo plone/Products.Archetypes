@@ -42,6 +42,15 @@ Changelog
   IntDisplayLists.
   [maurits]
 
+- Make sure @@at_utils.translate method always returns a string (empty or 
+  not) even when the passed value is an empty tuple (before, the returned
+  value was an empty tuple or a non empty string).
+  [gbastien]
+
+- Do not add warning about new field initialized on an existing object in
+  the transaction description, show this as a Zope log info message.
+  [gbastien]
+
 
 1.9.4 (2013-08-29)
 ------------------
