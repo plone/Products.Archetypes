@@ -4,6 +4,9 @@ Changelog
 1.10.0 (unreleased)
 -------------------
 
+- Internationalized file size and content type on file widget.
+  [thomasdesvenain]
+
 - Make sure @@at_utils.translate method always returns a string (empty or
   not) even when the passed value is an empty tuple (before, the returned
   value was an empty tuple or a non empty string).
