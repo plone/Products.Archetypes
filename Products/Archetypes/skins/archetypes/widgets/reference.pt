@@ -26,7 +26,7 @@
             </a>
 
             <a href="#"
-               tal:condition="python:ref_interface_infoprovides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
+               tal:condition="python:ref_interface_info.provides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
                tal:attributes="href python:ref.getContentObject().absolute_url()"
                tal:content="field/relationship">
               reference object link
@@ -46,7 +46,7 @@
                 </a>
 
                 <a href="#"
-                   tal:condition="python:ref_interface_infoprovides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
+                   tal:condition="python:ref_interface_info.provides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
                    tal:attributes="href python:ref.getContentObject().absolute_url()"
                    tal:content="field/relationship">
                   reference object link
