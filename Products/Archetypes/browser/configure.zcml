@@ -90,13 +90,6 @@
       permission="zope.Public"
       />
 
-   <browser:page
-      for="*"
-      name="calendar_popup"
-      template="templates/calendar_popup.pt"
-      permission="zope.Public"
-      />
-
     <browser:page
         name="date_components_support"
         for="*"

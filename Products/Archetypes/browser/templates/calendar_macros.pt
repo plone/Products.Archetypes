@@ -230,67 +230,6 @@
       </span>
     </div>
 
-
-    <div metal:define-macro="calendarDatePickerBoxPopup"
-         class="container"
-         tal:define="view context/@@calendar_view;
-                     DateTime view/DateTime;
-                     current view/current;
-                     month view/month;
-                     year view/year;
-                     prevMonthTime view/prevMonthTime;
-                     nextMonthTime view/nextMonthTime;
-                     weeks view/weeks">
-
-      <table cellpadding="2" cellspacing="0" border="0" class="ploneCalendar" id="thePloneCalendar" summary="A calendar date picker box.">
-        <thead>
-    <tr tal:define="calendarurl python:'%s?input_id=%s' % (path('template/absolute_url'),input_id) ">
-      <th id="calendar-previous">
-        <a href="" tal:attributes="href python:'%s&amp;month:int=%d&amp;year:int=%d' % (calendarurl,prevMonthTime.month(),prevMonthTime.year())">&laquo;</a>
-      </th>
-      <th colspan="5" tal:define="date string:$month/1/$year">
-        <span i18n:translate="" tal:omit-tag="">
-          <span i18n:name="monthname">
-        <span i18n:translate="" tal:content="python:DateTime(date).strftime('%B').capitalize()" tal:omit-tag="" />
-          </span>
-          <span i18n:name="year" tal:content="python:DateTime(date).year()" tal:omit-tag=""/>
-        </span>
-      </th>
-
-      <th id="calendar-next">
-        <a href="" tal:attributes="href python:'%s&amp;month:int=%d&amp;year:int=%d' % (calendarurl,nextMonthTime.month(),nextMonthTime.year())">&raquo;</a>
-      </th>
-    </tr>
-
-    <tr tal:define="weekdays context/portal_calendar/getDays" class="weekdays">
-      <tal:block repeat="weekday weekdays">
-        <td i18n:translate="" tal:content="weekday">Su</td>
-      </tal:block>
-    </tr>
-        </thead>
-        <tbody>
-    <tr tal:repeat="week weeks">
-      <tal:block define="days week">
-        <tal:block repeat="day days" tal:omit-tag="">
-          <td tal:condition="not: python: day">
-        &nbsp;
-          </td>
-          <td class="noevent" tal:condition="python: day"
-          tal:define="datestring python:'%d/%0.2d/%0.2d'%(year,month,day)"
-          tal:attributes="class python:test(current.year()==year and current.month()==month and current.day()==int(day), 'todaynoevent', 'noevent')">
-        <a href="" tal:attributes="onclick string:returndate('${datestring}');; return false" tal:content="day">
-          day number
-        </a>
-          </td>
-        </tal:block>
-      </tal:block>
-    </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
   </body>
 
 </html>
