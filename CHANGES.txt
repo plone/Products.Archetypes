@@ -4,6 +4,9 @@ Changelog
 1.10.0 (unreleased)
 -------------------
 
+- Do not use portal_interface tool but @@plone_interface_info (PLIP #13770).
+  [ale-rt]
+
 - Internationalized file size and content type on file widget.
   [thomasdesvenain]
 

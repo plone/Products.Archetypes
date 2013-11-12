@@ -15,7 +15,8 @@
 
         <tal:block tal:condition="not:field/multiValued"
                tal:define="ref python:refs[0];
-                           obj ref/getTargetObject">
+                           obj ref/getTargetObject;
+                           ref_interface_info nocall:ref/@@plone_interface_info">
 
             <a href="#"
                tal:attributes="href obj/absolute_url;
@@ -25,7 +26,7 @@
             </a>
 
             <a href="#"
-               tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+               tal:condition="python:ref_interface_info.provides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
                tal:attributes="href python:ref.getContentObject().absolute_url()"
                tal:content="field/relationship">
               reference object link
@@ -35,7 +36,8 @@
 
         <ul tal:condition="field/multiValued">
           <li tal:repeat="ref refs">
-             <tal:block tal:define="obj ref/getTargetObject">
+             <tal:block tal:define="obj ref/getTargetObject;
+                                    ref_interface_info nocall:ref/@@plone_interface_info">
                 <a href="#"
                    tal:attributes="href obj/absolute_url;
                                    class python:obj.portal_type.replace(' ', '_')"
@@ -44,7 +46,7 @@
                 </a>
 
                 <a href="#"
-                   tal:condition="python:portal.portal_interface.objectImplements(ref,'Products.Archetypes.interfaces.referenceengine.IContentReference')"
+                   tal:condition="python:ref_interface_info.provides('Products.Archetypes.interfaces.referenceengine.IContentReference')"
                    tal:attributes="href python:ref.getContentObject().absolute_url()"
                    tal:content="field/relationship">
                   reference object link
