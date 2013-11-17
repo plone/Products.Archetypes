@@ -38,8 +38,9 @@
               <a tal:attributes="href unit/absolute_url" i18n:translate="label_current_image">Current image</a>
 
         <span class="discreet">
-          <span tal:content="python:context.lookupMime(content_type)">ContentType</span> &mdash;
-          <tal:size content="python:'%s KB' % (size / 1024)">0Kb</tal:size>
+          <span i18n:translate="" tal:content="python:context.lookupMime(content_type)">ContentType</span> &mdash;
+          <tal:size define="toLocalizedSize nocall:context/@@plone/toLocalizedSize"
+                    content="python:toLocalizedSize(size)">0Kb</tal:size>
         </span>
         </tal:block>
       </tal:define>
