@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.5 (unreleased)
+1.9.5 (2013-12-07)
 ------------------
 
 - Internationalized file size and content type on file and image widgets.
