@@ -67,17 +67,19 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                 brain_path = brain.getPath()
                 if brain_path == path and skip_self:
                     continue
-
-                # Get the object
-                if hasattr(aq_base(brain), '_unrestrictedGetObject'):
-                    ob = brain._unrestrictedGetObject()
-                else:
-                    # BBB: Zope 2.7
-                    ob = self.unrestrictedTraverse(brain_path, None)
-                if ob is None:
-                    # BBB: Ignore old references to deleted objects.
-                    # Can happen only in Zope 2.7, or when using
-                    # catalog-getObject-raises off in Zope 2.8
+                try: 
+                    # Get the object
+                    if hasattr(aq_base(brain), '_unrestrictedGetObject'):
+                        ob = brain._unrestrictedGetObject()
+                    else:
+                        # BBB: Zope 2.7
+                        ob = self.unrestrictedTraverse(brain_path, None)
+                        # BBB: Ignore old references to deleted objects.
+                        # Can happen only in Zope 2.7, or when using
+                        # catalog-getObject-raises off in Zope 2.8
+                        if ob is None:
+                            raise KeyError
+                except Exception:
                     log("reindexObjectSecurity: Cannot get %s from catalog" %
                         brain_path, level=WARNING)
                     continue

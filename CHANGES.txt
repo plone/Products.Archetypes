@@ -4,7 +4,10 @@ Changelog
 1.9.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix issue #13833 (https://dev.plone.org/ticket/13833) by logging a warning
+  instead of throwing an un catched error  when calling reindexObjectSecurity
+  on an object that has cataloged other objects which are deleted
+  [ichim-david]
 
 
 1.9.5 (2013-12-07)
