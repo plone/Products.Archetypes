@@ -71,7 +71,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                 if hasattr(aq_base(brain), '_unrestrictedGetObject'):
                     try:
                         ob = brain._unrestrictedGetObject()
-                    except KeyError:
+                    except (KeyError, AttributeError):
                         ob = None
                 else:
                     # BBB: Zope 2.7
