@@ -19,9 +19,6 @@ class ZCML(FunctionalZCMLLayer):
         import Products.CMFDefault
         zcml.load_config('configure.zcml', Products.CMFDefault)
 
-        import Products.CMFCalendar
-        zcml.load_config('configure.zcml', Products.CMFCalendar)
-
         import Products.DCWorkflow
         zcml.load_config('configure.zcml', Products.DCWorkflow)
 
