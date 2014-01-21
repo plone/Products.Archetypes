@@ -89,6 +89,14 @@ class ReindexTest(ATSiteTestCase):
         self.inst.edit(title='Libido')
         self.assertEquals(len(ct(SearchableText='Mosquito')), 0)
 
+    def test_reindex_object_security(self):
+        self.folder.invokeFactory(id="f1", type_name="SimpleFolder")
+        self.folder.f1.invokeFactory(id="d1", type_name="Document")
+        del(self.folder.f1.d1)
+        self.folder.f1.reindexObjectSecurity()
+        fpath = "/".join(self.folder.f1.getPhysicalPath())
+        self.assertEquals(len(self.ct(path=fpath)), 2)
+
 
 class MultiplexTest(ATSiteTestCase):
 
