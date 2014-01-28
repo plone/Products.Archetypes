@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.6 (unreleased)
+1.9.6 (2014-01-27)
 ------------------
 
 - Fix issue #13833 (https://dev.plone.org/ticket/13833) by logging a warning
