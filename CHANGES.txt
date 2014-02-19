@@ -4,6 +4,10 @@ Changelog
 1.10.0 (unreleased)
 -------------------
 
+- Set logging level to DEBUG for warnings regarding new fields initialized on
+  an existing object. INFO level can seriously spam the logs of a busy portal.
+  [olimpiurob]
+
 - Ported fix for #13833 from the 1.9.x branch for reindexObjectSecurity
   triggering an error when attempting to change the workflow of an object
   and it has deleted children
