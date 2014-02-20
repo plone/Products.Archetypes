@@ -4,8 +4,9 @@ Changelog
 1.9.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Set logging level to DEBUG for warnings regarding new fields initialized on
+  an existing object. INFO level can seriously spam the logs of a busy portal.
+  [olimpiurob]
 
 1.9.6 (2014-01-27)
 ------------------
