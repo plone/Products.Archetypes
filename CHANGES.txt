@@ -58,6 +58,9 @@ Changelog
   IntDisplayLists.
   [maurits]
 
+- Make (non-valued) default value selected in select widget if no selection
+  is given. This happens  especially with ReferenceFields.
+  [thepjot]
 
 1.9.4 (2013-08-29)
 ------------------
