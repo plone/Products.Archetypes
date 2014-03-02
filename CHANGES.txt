@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.7 (unreleased)
+1.9.7 (2014-03-02)
 ------------------
 
 - Set logging level to DEBUG for warnings regarding new fields initialized on
