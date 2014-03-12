@@ -27,7 +27,7 @@ if context.isTemporary():
     redirect_to = context.getFolderWhenPortalFactory().absolute_url()
     message=_(u'message_add_new_item_cancelled',
         default='Add New Item operation was cancelled.')
-elif last_referer == '%s/edit' % context.absolute_url(): # coming from the edit page
+elif '%s/edit' % context.absolute_url() in last_referer: # coming from the edit page
     # XXX: This will only work if the edit view is named 'edit'
     redirect_to = '%s/view' % context.absolute_url()
     message=_(u'message_edit_item_cancelled',
