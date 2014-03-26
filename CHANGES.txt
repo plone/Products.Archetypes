@@ -4,6 +4,10 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- waking instances is cheaper than processing a potentially huge vocabulary 
+  for getting the title, therefore we handle reference fields seperately
+  [zwork, agitator]
+
 - Remove DL's from portal message templates.
   https://github.com/plone/Products.CMFPlone/issues/153
   [khink]

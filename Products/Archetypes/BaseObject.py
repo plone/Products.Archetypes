@@ -17,6 +17,7 @@ from Products.Archetypes.Widget import StringWidget
 from Products.Archetypes.Marshall import RFC822Marshaller
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.interfaces import IReferenceable
+from Products.Archetypes.interfaces import IReferenceField
 from Products.Archetypes.interfaces import ISchema
 from Products.Archetypes.interfaces.field import IFileField
 from Products.Archetypes.validator import AttributeValidator
@@ -530,37 +531,48 @@ class BaseObject(Referenceable):
         for field in self.Schema().fields():
             if not field.searchable:
                 continue
-            method = field.getIndexAccessor(self)
-            try:
-                datum = method(mimetype="text/plain")
-            except TypeError:
-                # Retry in case typeerror was raised because accessor doesn't
-                # handle the mimetype argument
+            if IReferenceField.providedBy(field):
+                # waking instances is cheaper than processing a potentially 
+                # huge vocabulary for getting the title, therefore we handle
+                # reference fields seperately
+                objs=field.get(self)
+                if not isinstance(objs, (list, tuple)):
+                    objs=[objs]
+                datum=' '.join([o.Title() for o in objs])
+                data.append(datum)
+                    
+            else:
+                method = field.getIndexAccessor(self)
                 try:
-                    datum = method()
-                except (ConflictError, KeyboardInterrupt):
-                    raise
-                except:
-                    continue
-            if datum:
-                vocab = field.Vocabulary(self)
-                if isinstance(datum, (list, tuple)):
-                    # Unmangle vocabulary: we index key AND value
-                    vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
-                    datum = list(datum)
-                    datum.extend(vocab_values)
-                    datum = ' '.join(datum)
-                elif isinstance(datum, basestring):
+                    datum = method(mimetype="text/plain")
+                except TypeError:
+                    # Retry in case typeerror was raised because accessor doesn't
+                    # handle the mimetype argument
+                    try:
+                        datum = method()
+                    except (ConflictError, KeyboardInterrupt):
+                        raise
+                    except:
+                        continue
+                if datum:
+                    vocab = field.Vocabulary(self)
+                    if isinstance(datum, (list, tuple)):
+                        # Unmangle vocabulary: we index key AND value
+                        vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
+                        datum = list(datum)
+                        datum.extend(vocab_values)
+                        datum = ' '.join(datum)
+                    elif isinstance(datum, basestring):
+                        if isinstance(datum, unicode):
+                            datum = datum.encode('utf-8')
+                        value = vocab.getValue(datum, '')
+                        if isinstance(value, unicode):
+                            value = value.encode('utf-8')
+                        datum = "%s %s" % (datum, value, )
+    
                     if isinstance(datum, unicode):
                         datum = datum.encode('utf-8')
-                    value = vocab.getValue(datum, '')
-                    if isinstance(value, unicode):
-                        value = value.encode('utf-8')
-                    datum = "%s %s" % (datum, value, )
-
-                if isinstance(datum, unicode):
-                    datum = datum.encode('utf-8')
-                data.append(str(datum))
+                    data.append(str(datum))
 
         data = ' '.join(data)
         return data
