@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.1 (unreleased)
+1.10.1 (2014-04-13)
 -------------------
 
 - waking instances is cheaper than processing a potentially huge vocabulary 
