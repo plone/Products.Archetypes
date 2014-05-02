@@ -4,7 +4,11 @@ Changelog
 1.9.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Allow commas as decimal marks for inputs in float fields. The comma is then
+  replaced by Python's standard decimal mark, the dot. Commas as separators
+  between the decimal and fractional part are quite common in Central Europe.
+  (Backport from master branch)
+  [rnix]
 
 
 1.9.7 (2014-03-02)
@@ -13,6 +17,7 @@ Changelog
 - Set logging level to DEBUG for warnings regarding new fields initialized on
   an existing object. INFO level can seriously spam the logs of a busy portal.
   [olimpiurob]
+
 
 1.9.6 (2014-01-27)
 ------------------
@@ -55,7 +60,7 @@ Changelog
 1.9.4 (2013-08-29)
 ------------------
 
-- Fixed error of validate_content_types when checking a field that was an 
+- Fixed error of validate_content_types when checking a field that was an
   instance of OFS.Image.File
   [ichim-david]
 
@@ -66,7 +71,7 @@ Changelog
 1.9.3 (2013-08-14)
 ------------------
 
-- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains 
+- Avoid UnicodeDecodeError in @@at_utils.translate if the value contains
   special chars
   [gbastien]
 
