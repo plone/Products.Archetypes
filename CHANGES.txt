@@ -4,7 +4,9 @@ Changelog
 1.10.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- utils.py
+  set default encoding to utf-8 for unicode string in the transaction note.
+  [jakke]
 
 
 1.10.1 (2014-04-13)
