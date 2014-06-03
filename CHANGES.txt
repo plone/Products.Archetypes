@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.9.8 (unreleased)
+1.9.8 (2014-06-03)
 ------------------
 
 - Allow commas as decimal marks for inputs in float fields. The comma is then
