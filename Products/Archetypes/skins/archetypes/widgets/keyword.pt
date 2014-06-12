@@ -71,7 +71,7 @@
 	                                                name string:${fieldName}_existing_keywords:list;">
 	                                <option value="#" tal:repeat="keyword allowedKeywords"
 	                                    tal:content="keyword" tal:attributes="value keyword;
-	                                    selected python:test(context.unicodeTestIn(keyword, value) or keyword in context.REQUEST.get('subject_existing_keywords',[]), 'selected', None)">
+	                                    selected python:test(context.unicodeTestIn(keyword, value) or keyword in context.REQUEST.get(fieldName + '_existing_keywords',[]), 'selected', None)">
 	                                    An existing tag
 	                                </option>
 	                            </select>
@@ -141,7 +141,7 @@
 	                                    tal:attributes="id string:${fieldName}_keywords;
 	                                                    name string:${fieldName}_keywords:lines;"
 	                                    tal:define="subject python:[item for item in value if not context.unicodeTestIn(item,allowedKeywords)]"
-	                                    tal:content="python:'\n'.join(subject + context.REQUEST.get('subject_keywords',[]))">
+	                                    tal:content="python:'\n'.join(subject + context.REQUEST.get(fieldName + '_keywords',[]))">
 	                                    A new tag
 	                                </textarea>
 	                            </dd>
