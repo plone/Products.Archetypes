@@ -4,6 +4,11 @@ Changelog
 1.10.2 (unreleased)
 -------------------
 
+- make ``textCounter`` work in Plone 4.3 because 'jquery-integration.js' was 
+  disabled and remove ``jq``calls. see 
+  https://github.com/plone/Products.Archetypes/pull/41
+  [sverbois]
+
 - removed encoding from javascript tag to make w3c validator happy, see
   https://github.com/plone/Products.Archetypes/pull/23
   [felipeduardo]
