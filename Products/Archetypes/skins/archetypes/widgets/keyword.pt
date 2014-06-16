@@ -5,9 +5,9 @@
     i18n:domain="plone">
     <head><title></title></head>
     <body>
-    
+
         <!-- Keyword Widgets -->
-    
+
         <metal:view_macro define-macro="view"
                 tal:define="kssClassesView context/@@kss_field_decorator_view;
                             getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
@@ -23,7 +23,7 @@
                 </ul>
             </div>
         </metal:view_macro>
-    
+
         <metal:define define-macro="edit">
             <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
                 <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
@@ -31,7 +31,7 @@
                         site_props context/portal_properties/site_properties|nothing;
                         format widget/format | string:select;
                         allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
-                        	
+
             		<div tal:attributes="id string:$fieldName-tags;"
 					     class="tagsContainer">
 	                    <div tal:condition="allowedKeywords" class="existingTagsSection">
@@ -42,21 +42,21 @@
 	                            <label tal:attributes="for fieldName">
 	                                <dt id="existingTagsTitle">
 	                                    <span i18n:translate="label_select_existing_tags">
-	                                        Select from existing tags. 
+	                                        Select from existing tags.
 	                                    </span>
 	                                </dt>
 	                                <span class="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
 	                                    Use Control/Command/Shift keys to select multiple tags.
 	                                </span>
 	                                <tal:comment tal:replace="nothing">
-	                                    Type-to-skip functionality with javascript enabled 
-	                                    could be described as 
-	                                    "Hover and type the first letter to skip through tags." 
-	                                    However, on touch-driven devices, vertical hover typically 
-	                                    scrolls the page, so horizontal hover is necessary to enable this.  
-	                                    Alternatively, clicking any of the tags also enables type-to-skip.  
-	                                    So the help could technically be extended to handle this special case 
-	                                    as "Hover or click and type the first letter to skip through tags.", 
+	                                    Type-to-skip functionality with javascript enabled
+	                                    could be described as
+	                                    "Hover and type the first letter to skip through tags."
+	                                    However, on touch-driven devices, vertical hover typically
+	                                    scrolls the page, so horizontal hover is necessary to enable this.
+	                                    Alternatively, clicking any of the tags also enables type-to-skip.
+	                                    So the help could technically be extended to handle this special case
+	                                    as "Hover or click and type the first letter to skip through tags.",
 	                                    but I think this would be confusing to the majority of users.
 										The decision at this point is to not try to explain any of this on the page.
 	                                </tal:comment>
@@ -71,7 +71,7 @@
 	                                                name string:${fieldName}_existing_keywords:list;">
 	                                <option value="#" tal:repeat="keyword allowedKeywords"
 	                                    tal:content="keyword" tal:attributes="value keyword;
-	                                    selected python:test(context.unicodeTestIn(keyword, value), 'selected', None)">
+	                                    selected python:test(context.unicodeTestIn(keyword, value) or keyword in context.REQUEST.get(fieldName + '_existing_keywords',[]), 'selected', None)">
 	                                    An existing tag
 	                                </option>
 	                            </select>
@@ -82,13 +82,13 @@
 	                            <span class="oneOrMoreTagsSelected" i18n:translate="label_oneOrMoreTagsSelected">% tags currently selected.</span>
 	                            <tal:comment tal:replace="nothing">
 	                                Call js to modify this widget with both a scrollbar and checkboxes.
-	                                There may be a better place to put this js call; 
+	                                There may be a better place to put this js call;
 	                                examples exist in others' widget.py and js files,
-	                                but having it here covers cases where some but not all select elements 
+	                                but having it here covers cases where some but not all select elements
 	                                call js to be modified.
 	                                Todo: The #subject should eventually refer to the template variable.
 	                            </tal:comment>
-	                            <script type="text/javascript" 
+	                            <script type="text/javascript"
 	                                    tal:content="string:(function($){$(document).ready( function() {$('#${fieldName}').multiSelect();});})(jQuery)">
 	                            </script>
 	                            <input type="hidden"
@@ -105,7 +105,7 @@
 	                                            id string:${fieldName}_${repeat/keyword/number};
 	                                            checked python:test(context.unicodeTestIn(keyword, value), 'checked', None);
 	                                            value keyword" />
-	                                    <label 
+	                                    <label
 	                                        tal:content="keyword"
 	                                        tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
 	                                        An existing tag
@@ -119,13 +119,13 @@
 	                        </dl>
 	                        <div class="visualClear"><!-- --></div>
 	                    </div>
-	                    
+
 	                    <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
 	                        <dl class="newTagsSection">
 	                            <label for="subject_keywords">
 	                                <dt class="newTagsTitle">
 	                                    <span i18n:translate="label_create_new_tags">
-	                                        Create and apply new tags. 
+	                                        Create and apply new tags.
 	                                    </span>
 	                                </dt>
 	                                <span class="newTagsHelp formHelp" i18n:translate="label_newTagsHelp">
@@ -134,31 +134,30 @@
 	                            </label>
 	                            <br />
 	                            <dd class="newTags">
-	                                <textarea 
+	                                <textarea
 	                                    id="entered_subjects"
 	                                    name="subject:lines"
 	                                    rows="4"
 	                                    tal:attributes="id string:${fieldName}_keywords;
 	                                                    name string:${fieldName}_keywords:lines;"
 	                                    tal:define="subject python:[item for item in value if not context.unicodeTestIn(item,allowedKeywords)]"
-	                                    tal:content="python:'\n'.join(subject)">
+	                                    tal:content="python:'\n'.join(subject + context.REQUEST.get(fieldName + '_keywords',[]))">
 	                                    A new tag
 	                                </textarea>
 	                            </dd>
 	                        </dl>
 	                    </tal:condition>
 					</div>
-              
+
                 </tal:define>
             </metal:use>
         </metal:define>
-    
+
         <div metal:define-macro="search">
           <div metal:use-macro="context/widgets/keyword/macros/edit">
           </div>
         </div>
-    
+
     </body>
 
 </html>
-

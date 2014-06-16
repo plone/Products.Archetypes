@@ -180,6 +180,9 @@ Changelog
 1.8.6 (2012-12-09)
 ------------------
 
+- Remember selected tags entry on form error
+  [maartenkling]
+
 - Add missing security declarations on the UIDResolver class.
   https://plone.org/products/plone/security/advisories/20121106/08
   [davisagli]
