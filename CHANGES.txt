@@ -4,6 +4,10 @@ Changelog
 1.10.2 (unreleased)
 -------------------
 
+- removed encoding from javascript tag to make w3c validator happy, see
+  https://github.com/plone/Products.Archetypes/pull/23
+  [felipeduardo]
+
 - utils.py
   set default encoding to utf-8 for unicode string in the transaction note.
   [jakke]
