@@ -167,6 +167,9 @@ Copy and paste:
   Catalog:  portal_catalog
   Indexing: /cmf/Members/test_user_1_/sub/new_doc2 None
   ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 ['created']
+  ------------------------------------------------------------
 
 Cut and paste:
 
