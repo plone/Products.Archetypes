@@ -22,18 +22,17 @@ break on different timezones. If this test does break then, it
 means that the actual bug has been fixed. There maybe other signs
 such as pigs flying, locusts, etc...
 
+   >>> import DateTime
+   >>> TEST_TIME_ZONE = 'US/Pacific'
+   >>> realLocalZone = DateTime.DateTime.localZone
+   >>> def fakeLocalZone(self, ltm=None):
+   ...    return TEST_TIME_ZONE
+
 Update (Timo): It seems this bug has been actually fixed (or at least does not
 occur any longer) when we run the tests on Ubuntu 14.04 (our new Jenkins
 slaves). Therefore I comment out this test for now.
 
-# >>> import DateTime
-#  >>> TEST_TIME_ZONE = 'US/Pacific'
-#  >>> realLocalZone = DateTime.DateTime.localZone
-#  >>> def fakeLocalZone(self, ltm=None):
-#  ...    return TEST_TIME_ZONE
 #  >>> DateTime.DateTime.localZone = fakeLocalZone
-#
-#
 #  >>> him = DateTime.DateTime("2011/01/13")
 #  >>> her = DateTime.DateTime("2011-01-13")
 #  >>> her == him
@@ -49,11 +48,11 @@ slaves). Therefore I comment out this test for now.
 #  '12'
 #  >>> him.strftime('%d')
 #  '13'
-
-For the next test case, we want them to work in all timezones so
-we un-monkey patch.
-
-  >>> DateTime.DateTime.localZone = realLocalZone
+#
+#For the next test case, we want them to work in all timezones so
+#we un-monkey patch.
+#
+#  >>> DateTime.DateTime.localZone = realLocalZone
 
 It would be sane to fix it in the DateTime module, but I wouldn't wish
 that task upon my worst enemy. So we can fix it here by replacing all
@@ -102,7 +101,7 @@ for time here because it will break half of every year do to daylight savings.
 
 While we are in here, let's fix this edge case as well. The date should
 always round up to the next interval. There is the edge case of times that
-are greater than the the last interval. Instead of  messing with logic about
+are greater than the the last interval. Instead of messing with logic about
 rounding to the next hour then the next day, etc, etc... let's just round down
 to the last interval
 
