@@ -4,6 +4,10 @@ Changelog
 1.10.2 (unreleased)
 -------------------
 
+- Correctly determine default value for boolean widget. fixes 
+  https://dev.plone.org/ticket/9675.
+  [dibell]
+
 - make ``textCounter`` work in Plone 4.3 because 'jquery-integration.js' was 
   disabled and remove ``jq``calls. see 
   https://github.com/plone/Products.Archetypes/pull/41
