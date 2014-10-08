@@ -26,8 +26,6 @@
 Unittests for a copying/cutting and pasting archetypes objects.
 """
 
-from unittest import TestSuite, makeSuite
-
 import os
 
 import transaction
@@ -38,9 +36,10 @@ from AccessControl.SecurityManagement import noSecurityManager
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
-from Products.Archetypes.tests.atsitetestcase import portal_owner
-from Products.Archetypes.tests.atsitetestcase import portal_name
-from Products.Archetypes.tests.atsitetestcase import default_user
+
+from plone.app.testing import SITE_OWNER_NAME as portal_owner
+from plone.app.testing import TEST_USER_NAME as default_user
+from plone.app.testing import PLONE_SITE_ID as portal_name
 
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -127,7 +126,7 @@ class PortalCopyTests(ATSiteTestCase):
 
     def test_copy_paste_portal(self):
         app = self.app
-        user = app.acl_users.getUserById('portal_owner').__of__(app.acl_users)
+        user = app.acl_users.getUserById(portal_owner).__of__(app.acl_users)
         newSecurityManager(None, user)
         cp = app.manage_copyObjects(ids=[portal_name])
         app.manage_pasteObjects(cb_copy_data=cp)
@@ -243,7 +242,7 @@ class PortalCopyTests(ATSiteTestCase):
         self.assertEqual(wf_tool.getInfoFor(file, 'review_state'), def_state)
         wf_tool.doActionFor(file, 'publish')
         self.assertEqual(wf_tool.getInfoFor(file, 'review_state'),
-                                                                 'published')
+                         'published')
 
         transaction.savepoint(optimistic=True)
         cb = self.folder.manage_cutObjects(['test_file'])
@@ -251,3 +250,4 @@ class PortalCopyTests(ATSiteTestCase):
 
         file_copy = self.folder.sub.test_file
         self.assertEqual(wf_tool.getInfoFor(file_copy, 'review_state'),
+                         'published')
