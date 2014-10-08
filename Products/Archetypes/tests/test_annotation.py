@@ -205,11 +205,3 @@ class AnnotationStorageTest(ATSiteTestCase):
         dummy.string = 'spam'
         self.assertEqual(storage.get('string', dummy), 'spam')
         self.assertFalse(hasattr(aq_base(dummy), 'string'))
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(AnnotationTest))
-    suite.addTest(makeSuite(MetadataAnnotationStorageTest))
-    suite.addTest(makeSuite(AnnotationStorageTest))
-    return suite

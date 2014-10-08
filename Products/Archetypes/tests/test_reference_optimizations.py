@@ -239,12 +239,3 @@ class TestReferenceable(ATRefSpeedupTestCase):
         self.assertEqual(doc2.getRawRelated(), [doc1.UID()])
         self.assertEqual(doc2.getReferences(), [doc1])
         self.assertEqual(doc2.getRelationships(), ['related'])
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestGetReferences))
-    suite.addTest(makeSuite(TestGetBackReferences))
-    suite.addTest(makeSuite(TestReferenceable))
-    return suite

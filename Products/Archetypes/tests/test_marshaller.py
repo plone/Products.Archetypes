@@ -152,10 +152,3 @@ class PdataStreamTests(TestCase):
         iterator = PdataStreamIterator(start, size=19, streamsize=6)
         expected = ['blobbl', 'ablabl', 'ablabl', 'a']
         self.assertEqual(list(iterator), expected)
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(MarshallerTests))
-    suite.addTest(makeSuite(PdataStreamTests))
-    return suite

@@ -571,10 +571,3 @@ class DownloadTest(ATSiteTestCase):
         self.field.download(self.dummy, no_output=True)
         self.assertEqual(self.response.headers['content-disposition'],
                          'attachment; filename="uberzeugen"')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ProcessingTest))
-    suite.addTest(makeSuite(DownloadTest))
-    return suite

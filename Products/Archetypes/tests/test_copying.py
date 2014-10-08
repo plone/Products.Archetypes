@@ -251,10 +251,3 @@ class PortalCopyTests(ATSiteTestCase):
 
         file_copy = self.folder.sub.test_file
         self.assertEqual(wf_tool.getInfoFor(file_copy, 'review_state'),
-                                                                 'published')
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(CutPasteCopyPasteTests))
-    suite.addTest(makeSuite(PortalCopyTests))
-    return suite

@@ -353,9 +353,3 @@ class ReferenceCatalogTests(ATSiteTestCase):
         # create the relation between those
         ob.setRelated(dext)
         self.assertEqual(ob.getRelated()[0], dext)
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ReferenceCatalogTests))
-    return suite

@@ -31,12 +31,6 @@ from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
 
-# BBB Zope 2.12
-try:
-    from Testing.testbrowser import Browser
-except ImportError:
-    from Products.Five.testbrowser import Browser
-
 
 class TestPermissions(ATSiteTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
@@ -63,10 +57,3 @@ class TestPermissions(ATSiteTestCase):
         for content in self.demo_instances:
             self.assertTrue(isinstance(content(), basestring))
             self.assertTrue(content().strip().startswith('<!DOCTYPE'))
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestPermissions))
-    return suite

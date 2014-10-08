@@ -769,10 +769,3 @@ class SimpleFolderReferenceableTests(BaseReferenceableTests):
 
 class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleBTreeFolder'
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(SimpleFolderReferenceableTests))
-    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
-    return suite

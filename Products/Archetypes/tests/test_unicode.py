@@ -138,13 +138,3 @@ class UnicodeBaseUnitTest(ATSiteTestCase):
         self.instance.portal_transforms = FakeTransformer('héhéhé')
         transformed = self.bu.transform(self.instance, 'text/plain')
         self.assertEqual(transformed, 'h\xc3\xa9h\xc3\xa9h\xc3\xa9')
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(UnicodeStringFieldTest))
-    suite.addTest(makeSuite(UnicodeLinesFieldTest))
-    suite.addTest(makeSuite(UnicodeTextFieldTest))
-    suite.addTest(makeSuite(UnicodeBaseUnitTest))
-    return suite

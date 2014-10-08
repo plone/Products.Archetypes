@@ -102,12 +102,3 @@ class AttributeStorageTest(ATTestCase):
         for field in dummy.schema.fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(ChangeStorageTest))
-    suite.addTest(makeSuite(MetadataStorageTest))
-    suite.addTest(makeSuite(AttributeStorageTest))
-    return suite

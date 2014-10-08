@@ -447,10 +447,3 @@ class WidgetTests(ATSiteTestCase):
         result = trans(vocab, ['complex2','bar2', 'spoon2'], widget)
         self.assertEqual(result,
             u'[[attesti18n][C\xf6mpl\xe8x 2]], [[domain1][Bar 2]], [[attesti18n][spoon2]]')
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(WidgetTests))
-    return suite

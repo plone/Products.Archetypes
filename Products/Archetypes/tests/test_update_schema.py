@@ -250,10 +250,3 @@ An rst Document
         doc = self.folder.mydoc
         mimetype = doc.getField('body').getContentType(doc)
         self.assertEqual(mimetype, 'text/x-rst')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestUpdateSchema))
-    suite.addTest(makeSuite(TestBasicSchemaUpdate))
-    return suite

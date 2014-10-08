@@ -26,9 +26,3 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         # while this raises no error it won't change the default, as we have
         # no properties tool nor properties sheet
         self.assertEqual(getDefaultContentType(self.portal), 'text/plain')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestDefaultMimeTypes))
-    return suite

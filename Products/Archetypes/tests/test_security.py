@@ -146,12 +146,3 @@ class AttributeProtectionTest(ATSiteTestCase):
         content.at_post_edit_script()
         """ % {'object_id': self.object_id}
         self.checkUnauthorized(test)
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    tests = []
-    tests.append(AttributeProtectionTest)
-    for klass in tests:
-        suite.addTest(unittest.makeSuite(klass))
-    return suite

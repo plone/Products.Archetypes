@@ -170,9 +170,3 @@ class ValidationEventTests(ATSiteTestCase):
         sm.unregisterHandler(created_handler, (IObject1, IObjectCreatedEvent,))
         sm.unregisterHandler(initialized_handler, (IObject1, IObjectCreatedEvent,))
         sm.unregisterHandler(edited_handler, (IObject1, IObjectCreatedEvent,))
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ValidationEventTests))
-    return suite

@@ -147,9 +147,3 @@ class BaseObjectTest(ATSiteTestCase):
         self.setRoles(('Manager',))
         # dummy.content_type in a Python Script
         self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(BaseObjectTest))
-    return suite

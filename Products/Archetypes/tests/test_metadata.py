@@ -360,13 +360,3 @@ class TimeZoneTest(ATSiteTestCase):
         item.setExpirationDate(DateTime('2007-01-01T12:00:00Z'))
         self.assertEqual(item.ExpirationDate('US/Eastern'),
                          '2007-01-01T07:00:00-05:00')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ExtensibleMetadataTest))
-    suite.addTest(makeSuite(ExtMetadataContextTest))
-    suite.addTest(makeSuite(ExtMetadataDefaultLanguageTest))
-    suite.addTest(makeSuite(ExtMetadataSetFormatTest))
-    suite.addTest(makeSuite(TimeZoneTest))
-    return suite
