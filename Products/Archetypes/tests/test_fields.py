@@ -35,8 +35,9 @@ from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
 
+from plone.app.testing import PLONE_SITE_ID as portal_name
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 

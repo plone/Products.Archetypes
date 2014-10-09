@@ -23,11 +23,9 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
 import sys
 
 from ZPublisher.HTTPRequest import HTTPRequest
-from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
@@ -59,7 +57,7 @@ class Dummy2(BaseContent):
     pass
 
 
-class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
+class TestUpdateSchema(ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)

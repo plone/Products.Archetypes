@@ -28,9 +28,9 @@ from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
 
 import time
 
+from plone.app.testing import SITE_OWNER_NAME as portal_owner
+from plone.app.testing import TEST_USER_NAME as default_user
 from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
-from Products.Archetypes.tests.attestcase import default_user
-from Products.Archetypes.tests.atsitetestcase import portal_owner
 
 from StringIO import StringIO
 
