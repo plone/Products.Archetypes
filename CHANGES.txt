@@ -32,6 +32,9 @@ Changelog
   set default encoding to utf-8 for unicode string in the transaction note.
   [jakke]
 
+- Ported tests to plone.app.testing
+  [tomgross]
+
 
 1.10.1 (2014-04-13)
 -------------------

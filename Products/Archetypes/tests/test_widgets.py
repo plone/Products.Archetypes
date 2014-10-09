@@ -28,7 +28,7 @@
 
 import os
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
@@ -40,7 +40,7 @@ stub_bin_file = None
 stub_bin_content = ''
 
 
-class WidgetTests(ATSiteTestCase):
+class WidgetTests(ATTestCase):
 
     def afterSetUp(self):
         # XXX messing up with global vars is bad!
