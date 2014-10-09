@@ -4,7 +4,7 @@ import sys
 from inspect import getargs, getmro
 from itertools import islice, count
 from types import ClassType, MethodType
-from UserDict import UserDict as BaseDict
+from collections import OrderedDict as BaseDict
 
 import transaction
 from zope.component import getUtility
@@ -611,72 +611,10 @@ class OrderedDict(BaseDict):
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
 
-    def __init__(self, dict=None):
-        self._keys = []
-        BaseDict.__init__(self, dict)
-        if dict is not None:
-            self._keys = self.data.keys()
-
-    def __setitem__(self, key, item):
-        if key not in self.data:
-            self._keys.append(key)
-        return BaseDict.__setitem__(self, key, item)
-
-    def __delitem__(self, key):
-        BaseDict.__delitem__(self, key)
-        self._keys.remove(key)
-
-    def clear(self):
-        BaseDict.clear(self)
-        self._keys = []
-
-    def keys(self):
-        return self._keys
-
-    def items(self):
-        return [(k, self.get(k)) for k in self._keys]
-
     def reverse(self):
         items = list(self.items())
         items.reverse()
         return items
-
-    def values(self):
-        return [self.get(k) for k in self._keys]
-
-    def update(self, dict):
-        for k in dict.keys():
-            if k not in self.data:
-                self._keys.append(k)
-        return BaseDict.update(self, dict)
-
-    def copy(self):
-        if self.__class__ is OrderedDict:
-            c = OrderedDict()
-            for k, v in self.items():
-                c[k] = v
-            return c
-        import copy
-        c = copy.copy(self)
-        return c
-
-    def setdefault(self, key, failobj=None):
-        if key not in self.data:
-            self._keys.append(key)
-        return BaseDict.setdefault(self, key, failobj)
-
-    def popitem(self):
-        if not self.data:
-            raise KeyError('dictionary is empty')
-        k = self._keys.pop()
-        v = self.data.get(k)
-        del self.data[k]
-        return (k, v)
-
-    def pop(self, key):
-        v = self.data.pop(key)  # will raise KeyError if needed
-        self._keys.remove(key)
-        return v
 
 InitializeClass(OrderedDict)
 
