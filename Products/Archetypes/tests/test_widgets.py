@@ -361,8 +361,9 @@ class WidgetTests(ATTestCase):
         # results, but that is because during the tests a test
         # translation domain factory is used as fallback, which simply
         # reports the domain and the original msgid in square
-        # brackets, without looking up actual translations.  The good
-        # thing is that now we can easily check if a translation has
+        # brackets, without looking up actual translations.
+        # This domain is defined in Products.CMFCore:testing.zcml
+        # The good thing is that now we can easily check if a translation has
         # been tried for the correct domain and if translation has not
         # been done twice.
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')

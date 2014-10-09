@@ -16,11 +16,12 @@ class ATTestCaseFixture(bbb.PloneTestCaseFixture):
     defaultBases = (bbb.PTC_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
-        print("zope")
         setupSampleTypeProfile()
+        # load i18n fallback domain
+        import Products.CMFCore
+        self.loadZCML("testing.zcml", package=Products.CMFCore)
 
     def setUpPloneSite(self, portal):
-        print("plone")
         applyProfile(portal, 'Products.Archetypes:Archetypes_sampletypes')
 
 AT_FIXTURE = ATTestCaseFixture()
