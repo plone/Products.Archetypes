@@ -25,19 +25,17 @@
 
 from Products.CMFCore.utils import _checkPermission as checkPerm
 from Products.CMFCore import permissions
-from Testing.ZopeTestCase import user_password
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 
-class TestPermissions(ATSiteTestCase):
+class TestPermissions(ATTestCase):
     demo_types = ['DDocument', 'SimpleType', 'SimpleFolder',
                   'Fact', 'ComplexType']
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         # install AT within portal
         self.login()
         self.demo_instances = []
