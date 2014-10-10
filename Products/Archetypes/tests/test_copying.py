@@ -39,6 +39,7 @@ from Products.Archetypes.tests.utils import makeContent
 
 from plone.app.testing import SITE_OWNER_NAME as portal_owner
 from plone.app.testing import TEST_USER_NAME as default_user
+from plone.app.testing import TEST_USER_ID
 from plone.app.testing import PLONE_SITE_ID as portal_name
 
 from Products.Archetypes.tests.utils import PACKAGE_HOME
@@ -170,7 +171,7 @@ class PortalCopyTests(ATSiteTestCase):
         uf._doAddUser('manager1', 'secret', ['Manager'], [])
         member = uf.getUser(default_user).__of__(uf)
         manager1 = uf.getUser('manager1').__of__(uf)
-        member_area = self.portal.Members[default_user]
+        member_area = self.portal.Members[TEST_USER_ID]
 
         # Switch to the manager user context and plant a content item into
         # the member user's member area

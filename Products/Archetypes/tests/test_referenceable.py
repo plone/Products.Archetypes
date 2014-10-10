@@ -37,9 +37,10 @@ from Products.Archetypes.atapi import DisplayList
 from plone.uuid.interfaces import IUUIDAware, IUUID
 
 
-class BaseReferenceableTests(ATSiteTestCase):
+class SimpleFolderReferenceableTests(ATSiteTestCase):
+    """ Test referencable behaviour with folders """
 
-    FOLDER_TYPE = None
+    FOLDER_TYPE = 'SimpleFolder'
 
     def verifyBrains(self):
         uc = getattr(self.portal, UID_CATALOG)
@@ -763,9 +764,7 @@ class BaseReferenceableTests(ATSiteTestCase):
         self.assertTrue(ca_uid == a_uid, (a_uid, ca_uid))
 
 
-class SimpleFolderReferenceableTests(BaseReferenceableTests):
-    FOLDER_TYPE = 'SimpleFolder'
+class SimpleBTreeFolderReferenceableTests(SimpleFolderReferenceableTests):
+    """ Test referencable behaviour with BTree folders """
 
-
-class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleBTreeFolder'

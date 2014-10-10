@@ -1,4 +1,8 @@
-from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
+import unittest
+import doctest
+from plone.testing import layered
+
+from .attestcase import AT_FUNCTIONAL_TESTING
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
@@ -14,19 +18,16 @@ DOCTEST_MODULES = (
 
 DOCTEST_FILES = ('events.txt', )
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
-from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
-
 
 def test_suite():
-    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
-                             extraglobs={},
-                             *DOCTEST_MODULES
-                             )
+    suite = unittest.TestSuite()
+    for testmodule in DOCTEST_MODULES:
+        suite.addTest(layered(
+            doctest.DocTestSuite(testmodule),
+            layer=AT_FUNCTIONAL_TESTING))
     for testfile in DOCTEST_FILES:
-        suite.addTest(FileSuite(testfile,
-                                package="Products.Archetypes.tests",
-                                test_class=ATFunctionalSiteTestCase)
-                     )
+        suite.addTest(layered(
+            doctest.DocFileSuite(testfile,
+                                 package="Products.Archetypes.tests",),
+            layer=AT_FUNCTIONAL_TESTING))
     return suite

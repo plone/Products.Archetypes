@@ -129,11 +129,12 @@ class ATToolDependentFieldProperty(ATFieldProperty):
 
         >>> registerType(MyContent, 'Archetypes')
 
-        >>> self.portal._setOb('foo', MyContent('foo'))
-        >>> foo = getattr(self.portal, 'foo')
+        >>> portal = layer['portal']
+        >>> portal._setOb('foo', MyContent('foo'))
+        >>> foo = getattr(portal, 'foo')
 
-        >>> self.portal._setOb('bar', MyContent('bar'))
-        >>> bar = getattr(self.portal, 'bar')
+        >>> portal._setOb('bar', MyContent('bar'))
+        >>> bar = getattr(portal, 'bar')
         >>> bar._at_uid = 123456
 
     These lines would fail with AttributeError: reference_catalog if it used

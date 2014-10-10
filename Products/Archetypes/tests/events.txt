@@ -33,7 +33,10 @@ that listens for object events for `IBaseObject`:
 
 Creating an AT object will a couple of events:
 
-  >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
+  >>> portal = layer['portal']
+  >>> from plone.app.testing import TEST_USER_ID
+  >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
+  >>> d = makeContent(folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   4 events:
   [(<DDocument at /cmf/Members/test_user_1_/a>,
@@ -63,7 +66,7 @@ Setup Content Type Registry so that a 'DDocument' is created:
   >>> request.processInputs() 
   >>> ignore = d.PUT(request, request.RESPONSE) 
   >>> from Products.CMFCore.utils import getToolByName 
-  >>> ctr = getToolByName(self.portal, 'content_type_registry') 
+  >>> ctr = getToolByName(portal, 'content_type_registry') 
   >>> p_id = 'at_dav_test' 
   >>> p_type = 'name_regex' 
   >>> ctr.addPredicate(p_id, p_type) 
@@ -81,7 +84,7 @@ IWebDAVObjectInitializedEvent:
   >>> from Products.Archetypes.tests.atsitetestcase import portal_name
   >>> self.setRoles(['Manager'])
 
-  >>> 'some-document' in self.folder.objectIds()
+  >>> 'some-document' in folder.objectIds()
   False
 
   >>> print http(r"""
@@ -90,14 +93,14 @@ IWebDAVObjectInitializedEvent:
   ... Content-Type: text/plain; charset="utf-8"
   ...
   ... Some Content
-  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(folder.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
-  >>> 'some-document' in self.folder.objectIds()
+  >>> 'some-document' in folder.objectIds()
   True
 
-  >>> print str(self.folder['some-document']['body'])
+  >>> print str(folder['some-document']['body'])
   Some Content
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
@@ -114,11 +117,11 @@ IWebDAVObjectEditedEvent:
   ... Content-Type: text/plain; charset="utf-8"
   ...
   ... Some Other Content
-  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(folder.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 204 No Content
   ...
 
-  >>> print str(self.folder['some-document']['body'])
+  >>> print str(folder['some-document']['body'])
   Some Other Content
 
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
@@ -132,12 +135,12 @@ Finally, cleanup the CTR predicate to not affect other tests:
 
 Test that a MKCOL also fires an IWebDAVObjectInitialized event:
 
-  >>> _ = self.folder.invokeFactory('SimpleFolder', 'f1')
+  >>> _ = folder.invokeFactory('SimpleFolder', 'f1')
 
   >>> print http(r"""
   ... MKCOL /%s/some-folder HTTP/1.1
   ... Authorization: Basic %s:%s
-  ... """ % ('/'.join(self.folder.f1.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(folder.f1.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 201 Created
   ...
 

@@ -4,7 +4,10 @@ Tests for http://plone.org/collector/4981
 
 BaseObject.__bobo_traverse__ intercepts GET and POST, but not HEAD.
 
-  >>> self.setRoles(['Manager'])
+  >>> portal = layer['portal']
+  >>> from plone.app.testing import setRoles
+  >>> from plone.app.testing import TEST_USER_ID
+  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
   >>> ignored = portal.invokeFactory('DDocument', 'test_document')
   >>> ignored = portal.invokeFactory('SimpleFolder', 'simple_folder')
   >>> ignored = portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder')
