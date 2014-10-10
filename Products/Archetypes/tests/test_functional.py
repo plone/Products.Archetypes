@@ -23,14 +23,9 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
-
-import time
-
 from plone.app.testing import SITE_OWNER_NAME as portal_owner
 from plone.app.testing import TEST_USER_NAME as default_user
-from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 
 from StringIO import StringIO
 
@@ -42,7 +37,7 @@ html = """\
 """
 
 
-class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
+class TestFunctionalObjectCreation(ATTestCase):
     """Tests object renaming and creation"""
 
     def afterSetUp(self):
@@ -77,13 +72,11 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         ctr.getPredicate('text').edit('text', '')
         ctr.assignTypeName('text', 'DDocument')
         ctr.reorderPredicate('text', 0)
-
         return ctr
 
     def assertStatusEqual(self, a, b, msg=''):
         """Helper method that uses the error log to output useful debug infos
         """
-        now = time.time()
         if a != b:
             entries = self.error_log.getLogEntries()
             if entries:
@@ -238,25 +231,3 @@ class TestFunctionalObjectCreation(ATFunctionalSiteTestCase):
         # make sure at_download disallows even though the user has View permission
         res = self.publish('/cmf/test/at_download/file')
         self.assertEqual(res.status, 401)
-
-
-import doctest
-OPTIONFLAGS = (doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE)
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestFunctionalObjectCreation))
-    testfiles = (
-        'traversal_4981.txt',
-        'folder_marshall.txt',
-        'webdav_operations.txt',
-        'traversal.txt',
-        'reindex_sanity.txt',
-    )
-    for testfile in testfiles:
-        suite.addTest(FileSuite(testfile, package="Products.Archetypes.tests",
-                                optionflags=OPTIONFLAGS,
-                                test_class=ATFunctionalSiteTestCase)
-                     )
-    return suite

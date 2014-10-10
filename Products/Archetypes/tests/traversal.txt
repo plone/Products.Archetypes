@@ -15,26 +15,29 @@ is acquired or not acquired at the right times.
   >>> from Products.Archetypes.tests.attestcase import user_name
   >>> from Products.Archetypes.tests.attestcase import user_password
   >>> from Products.Archetypes.tests.atsitetestcase import portal_name
-  >>> self.setRoles(['Manager'])
+  >>> portal = layer['portal']
+  >>> from plone.app.testing import setRoles
+  >>> from plone.app.testing import TEST_USER_ID
+  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
 
   CMF and Plone sites may have different default titles so we set one
-  >>> self.portal.setTitle('Portal Title')
+  >>> portal.setTitle('Portal Title')
   
   CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
 
-  >>> self.portal.invokeFactory('DDocument', 'test_document',
+  >>> portal.invokeFactory('DDocument', 'test_document',
   ...             title='Root Document') in (None, 'test_document')
   True
 
-  >>> self.portal.invokeFactory('DDocument', 'index_html',
+  >>> portal.invokeFactory('DDocument', 'index_html',
   ...             title='Root Index') in (None, 'index_html')
   True
 
-  >>> self.portal.invokeFactory('SimpleFolder', 'simple_folder') in \
+  >>> portal.invokeFactory('SimpleFolder', 'simple_folder') in \
   ...                           (None, 'simple_folder')
   True
   
-  >>> self.portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
+  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
   ...                           in (None, 'simple_btree_folder')
   True
 
@@ -60,10 +63,10 @@ be allowed to acquire content from higher-level hierarchies:
   HTTP/1.0 200 OK
   ...Portal Title...
 
-  >>> print self.portal.test_document.getPortalTypeName()
+  >>> print portal.test_document.getPortalTypeName()
   DDocument
 
-  >>> print self.portal.test_document.title_or_id()
+  >>> print portal.test_document.title_or_id()
   Root Document
 
   >>> print http(r"""
@@ -82,7 +85,7 @@ be allowed to acquire content from higher-level hierarchies:
   HTTP/1.0 200 OK
   ...Root Document...
 
-  >>> 'test_document' in self.portal.simple_folder.objectIds()
+  >>> 'test_document' in portal.simple_folder.objectIds()
   False
 
   >>> print http(r"""
@@ -101,7 +104,7 @@ be allowed to acquire content from higher-level hierarchies:
   HTTP/1.0 200 OK
   ...Root Document...
 
-  >>> 'test_document' in self.portal.simple_btree_folder.objectIds()
+  >>> 'test_document' in portal.simple_btree_folder.objectIds()
   False
 
   >>> print http(r"""
@@ -126,7 +129,7 @@ Browser
 For testing Browser access, we are going to just try using the ``GET``
 method instead.
 
-  >>> print self.portal.title_or_id()
+  >>> print portal.title_or_id()
   Portal Title
 
   >>> print http(r"""
@@ -136,10 +139,10 @@ method instead.
   HTTP/1.0 200 OK
   ...Portal Title...
 
-  >>> print self.portal.test_document.getPortalTypeName()
+  >>> print portal.test_document.getPortalTypeName()
   DDocument
 
-  >>> print self.portal.test_document.title_or_id()
+  >>> print portal.test_document.title_or_id()
   Root Document
 
   >>> print http(r"""
@@ -149,7 +152,7 @@ method instead.
   HTTP/1.0 200 OK
   ...Root Document...
 
-  >>> 'test_document' in self.portal.simple_folder.objectIds()
+  >>> 'test_document' in portal.simple_folder.objectIds()
   False
 
   >>> print http(r"""
@@ -159,7 +162,7 @@ method instead.
   HTTP/1.0 200 OK
   ...Root Document...
 
-  >>> 'test_document' in self.portal.simple_btree_folder.objectIds()
+  >>> 'test_document' in portal.simple_btree_folder.objectIds()
   False
 
   >>> print http(r"""
@@ -259,7 +262,7 @@ acquired.
 Create a CTR predicate to map any content to ``DDocument``:
 
   >>> from Products.CMFCore.utils import getToolByName
-  >>> ctr = getToolByName(self.portal, 'content_type_registry')
+  >>> ctr = getToolByName(portal, 'content_type_registry')
   >>> p_id = 'at_dav_test'
   >>> p_type = 'name_regex'
   >>> ctr.addPredicate(p_id, p_type)
@@ -280,7 +283,7 @@ Create a CTR predicate to map any content to ``DDocument``:
   HTTP/1.1 201 Created
   ...
 
-  >>> folder = self.portal.simple_folder
+  >>> folder = portal.simple_folder
   >>> print folder.test_document.getPortalTypeName()
   DDocument
 
@@ -305,7 +308,7 @@ Create a CTR predicate to map any content to ``DDocument``:
   HTTP/1.1 201 Created
   ...
 
-  >>> folder = self.portal.simple_btree_folder
+  >>> folder = portal.simple_btree_folder
   >>> print folder.test_document.getPortalTypeName()
   DDocument
 
@@ -322,7 +325,7 @@ Create a CTR predicate to map any content to ``DDocument``:
 Make sure it's possible to create a item named ``index_html`` into a
 AT-based folder.
 
-  >>> folder = self.portal.simple_folder
+  >>> folder = portal.simple_folder
   >>> 'index_html' in folder.objectIds()
   False
 
@@ -350,7 +353,7 @@ AT-based folder.
 
 Now for a BTreeFolder:
 
-  >>> folder = self.portal.simple_btree_folder
+  >>> folder = portal.simple_btree_folder
   >>> 'index_html' in folder.objectIds()
   False
 
@@ -392,7 +395,7 @@ should be of the same kind as the parent:
   HTTP/1.1 201 Created
   ...
 
-  >>> folder = self.portal.simple_folder.simple_folder
+  >>> folder = portal.simple_folder.simple_folder
   >>> print folder.getPortalTypeName()
   SimpleFolder
   
@@ -408,7 +411,7 @@ test types are assigning a dummy var called_afterMKCOL_hook.
   HTTP/1.1 201 Created
   ...
 
-  >>> folder = self.portal.simple_btree_folder.simple_btree_folder
+  >>> folder = portal.simple_btree_folder.simple_btree_folder
   >>> print folder.getPortalTypeName()
   SimpleBTreeFolder
   >>> folder.called_afterMKCOL_hook
