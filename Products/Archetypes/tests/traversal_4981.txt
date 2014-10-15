@@ -12,6 +12,7 @@ BaseObject.__bobo_traverse__ intercepts GET and POST, but not HEAD.
   >>> ignored = portal.invokeFactory('SimpleFolder', 'simple_folder')
   >>> ignored = portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder')
 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
   >>> print http(r"""
   ... HEAD /%s/test_document HTTP/1.0
   ... Authorization: Basic %s:%s

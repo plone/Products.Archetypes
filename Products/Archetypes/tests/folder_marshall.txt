@@ -8,10 +8,13 @@ played with WebDAV unnecessarily hard.
 The time has come where now the folderish and the non-folderish unite
 under the same banner, and play nicely with WebDAV.
 
-  >>> from Products.Archetypes.tests.attestcase import user_name
-  >>> from Products.Archetypes.tests.attestcase import user_password
-  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
-  >>> self.setRoles(['Manager'])
+  >>> from plone.app.testing import TEST_USER_NAME as user_name
+  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
+  >>> portal = layer['portal']
+  >>> portal_name = portal.getId()
+  >>> from plone.app.testing import setRoles
+  >>> from plone.app.testing import TEST_USER_ID
+  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
 
 CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
 

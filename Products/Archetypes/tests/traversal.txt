@@ -12,10 +12,10 @@ correctly accross the many use cases that must co-exist.
 First, we are going to setup an environment so we can test that stuff
 is acquired or not acquired at the right times.
 
-  >>> from Products.Archetypes.tests.attestcase import user_name
-  >>> from Products.Archetypes.tests.attestcase import user_password
-  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> from plone.app.testing import TEST_USER_NAME as user_name
+  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
   >>> portal = layer['portal']
+  >>> portal_name = portal.getId()
   >>> from plone.app.testing import setRoles
   >>> from plone.app.testing import TEST_USER_ID
   >>> setRoles(portal, TEST_USER_ID, ['Manager'])
@@ -47,6 +47,7 @@ XML-RPC
 XML-RPC is basically a ``POST`` with content-type text/xml. It should
 be allowed to acquire content from higher-level hierarchies:
 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
   >>> print http(r"""
   ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s

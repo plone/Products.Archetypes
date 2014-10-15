@@ -28,12 +28,11 @@
 from Products.Archetypes.atapi import AttributeStorage, MetadataStorage
 
 from Products.Archetypes.tests.attestcase import ATTestCase
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 
 
-class ChangeStorageTest(ATSiteTestCase):
+class ChangeStorageTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()

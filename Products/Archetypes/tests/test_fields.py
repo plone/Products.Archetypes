@@ -171,11 +171,12 @@ class DummyIntVocabulary(object):
 DummyIntVocabFactory = DummyIntVocabulary() 
 
 
-class FakeRequest:
-
-    def __init__(self):
-        self.other = {}
-        self.form = {}
+FakeRequest = TestRequest
+#class FakeRequest:
+#
+#    def __init__(self):
+#        self.other = {}
+#        self.form = {}
 
 
 class ProcessingTest(ATSiteTestCase):

@@ -3,13 +3,17 @@ Tests for WebDAV operations
 
 First, setup some content with references:
 
-  >>> from Testing.ZopeTestCase import user_name, user_password, folder_name
+  >>> portal = layer['portal']
+  >>> from plone.app.testing import TEST_USER_ID
+  >>> from plone.app.testing import TEST_USER_NAME as user_name
+  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
+  >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
   >>> from Products.Archetypes.tests.utils import makeContent
 
-  >>> a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
-  >>> b = makeContent(self.folder, portal_type='DDocument', title='Bar', id='b')
+  >>> a = makeContent(folder, portal_type='DDocument', title='Foo', id='a')
+  >>> b = makeContent(folder, portal_type='DDocument', title='Bar', id='b')
 
-  >>> f = makeContent(self.folder, portal_type='Folder', title='Sub', id='f')
+  >>> f = makeContent(folder, portal_type='Folder', title='Sub', id='f')
 
   >>> _ = a.addReference(b, "KnowsAbout")
   >>> _ = b.addReference(a, "KnowsAbout")
@@ -23,6 +27,7 @@ First, setup some content with references:
 Now do a WebDAV COPY and check that the references were removed from
 the copy:
 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
   >>> print http(r"""
   ... COPY %s HTTP/1.1
   ... Destination: %s

@@ -38,10 +38,13 @@ class AllowedTypesByIfaceMixin:
 
     ATBIFolder is an example type that uses AllowedTypesByIfaceMixin:
 
-    >>> self.folder.invokeFactory('ATBIFolder', 'f')
+    >>> portal = layer['portal']
+    >>> from plone.app.testing import TEST_USER_ID
+    >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
+    >>> folder.invokeFactory('ATBIFolder', 'f')
     'f'
 
-    >>> f = self.folder.f
+    >>> f = folder['f']
 
     f has an empty list of allowed_interfaces, so it doesn't allow anything
     right now:

@@ -34,4 +34,7 @@ class ATTestCase(bbb.PloneTestCase):
 
     layer = AT_FUNCTIONAL_TESTING
 
+    def runTest(self):
+        pass
+
 ATFunctionalTestCase = ATTestCase
