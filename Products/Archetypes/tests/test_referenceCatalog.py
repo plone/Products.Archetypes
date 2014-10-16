@@ -42,9 +42,10 @@ import transaction
 
 from plone.uuid.interfaces import IAttributeUUID, IUUID
 from plone.indexer import wrapper
+from Acquisition import Explicit
 
 
-class DexterityLike(object):
+class DexterityLike(Explicit):
     """Create a new class non based on Archetypes"""
     interface.implements(IAttributeUUID)
 
