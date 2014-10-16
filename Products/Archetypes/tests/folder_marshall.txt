@@ -18,27 +18,27 @@ under the same banner, and play nicely with WebDAV.
 
 CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
 
-  >>> self.portal.invokeFactory('SimpleFolder', 'simple_folder') in \
+  >>> portal.invokeFactory('SimpleFolder', 'simple_folder') in \
   ...                           (None, 'simple_folder')
   True
 
-  >>> self.portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
+  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
   ...                           in (None, 'simple_btree_folder')
   True
 
 Make sure we've got some reasonable marshaller setup over there:
 
-  >>> self.portal.simple_folder.Schema().getLayerImpl('marshall')
+  >>> portal.simple_folder.Schema().getLayerImpl('marshall')
   <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
 
-  >>> self.portal.simple_btree_folder.Schema().getLayerImpl('marshall')
+  >>> portal.simple_btree_folder.Schema().getLayerImpl('marshall')
   <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
 
 The trick here is that, to keep backwards compatibility, we only
 enable the new behaviour on folderish objects that have
 ``__dav_marshall__`` set to a valid value.
 
-  >>> folder = self.portal.simple_folder
+  >>> folder = portal.simple_folder
 
   >>> print http(r"""
   ... PUT /%s/simple_folder HTTP/1.1
@@ -116,7 +116,7 @@ like a normal resource:
 
 The same for BTreeFolder:
 
-  >>> folder = self.portal.simple_btree_folder
+  >>> folder = portal.simple_btree_folder
 
   >>> print http(r"""
   ... PUT /%s/simple_btree_folder/ HTTP/1.1
