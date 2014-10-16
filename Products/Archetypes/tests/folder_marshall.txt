@@ -40,6 +40,9 @@ enable the new behaviour on folderish objects that have
 
   >>> folder = portal.simple_folder
 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http 
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/simple_folder HTTP/1.1
   ... Authorization: Basic %s:%s

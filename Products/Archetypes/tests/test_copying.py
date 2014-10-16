@@ -189,7 +189,7 @@ class PortalCopyTests(ATSiteTestCase):
         file_ob = member_area.copy_of_test_file
         self.assertEqual(aq_base(file_ob.getOwner().getId()), aq_base(member).getId())
         self.assertTrue('Owner' in
-                            file_ob.get_local_roles_for_userid(default_user))
+                            file_ob.get_local_roles_for_userid(TEST_USER_ID))
 
     def test_copy_paste_resets_workflow(self):
         # Copy/pasting a File should reset workflow to the default state
