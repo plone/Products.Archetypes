@@ -8,12 +8,16 @@ BaseObject.__bobo_traverse__ intercepts GET and POST, but not HEAD.
   >>> portal_name = portal.getId()
   >>> from plone.app.testing import setRoles
   >>> from plone.app.testing import TEST_USER_ID
+  >>> from plone.app.testing import TEST_USER_NAME as user_name
+  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
   >>> setRoles(portal, TEST_USER_ID, ['Manager'])
   >>> ignored = portal.invokeFactory('DDocument', 'test_document')
   >>> ignored = portal.invokeFactory('SimpleFolder', 'simple_folder')
   >>> ignored = portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder')
 
   >>> from Testing.ZopeTestCase.zopedoctest.functional import http
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... HEAD /%s/test_document HTTP/1.0
   ... Authorization: Basic %s:%s
@@ -35,3 +39,4 @@ BaseObject.__bobo_traverse__ intercepts GET and POST, but not HEAD.
   HTTP/1.0 200 OK
   ...
 
+  >>> AppZapper().clear()

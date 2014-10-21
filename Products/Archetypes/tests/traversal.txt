@@ -22,24 +22,20 @@ is acquired or not acquired at the right times.
 
   CMF and Plone sites may have different default titles so we set one
   >>> portal.setTitle('Portal Title')
+  >>> portal.invokeFactory('DDocument', 'test_document', title='Root Document')
+  'test_document'
+
+  >>> portal.invokeFactory('DDocument', 'index_html', title='Root Index')
+  'index_html'
+
+  >>> portal.invokeFactory('SimpleFolder', 'simple_folder')
+  'simple_folder'
   
-  CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
+  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder')
+  'simple_btree_folder'
 
-  >>> portal.invokeFactory('DDocument', 'test_document',
-  ...             title='Root Document') in (None, 'test_document')
-  True
-
-  >>> portal.invokeFactory('DDocument', 'index_html',
-  ...             title='Root Index') in (None, 'index_html')
-  True
-
-  >>> portal.invokeFactory('SimpleFolder', 'simple_folder') in \
-  ...                           (None, 'simple_folder')
-  True
-  
-  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
-  ...                           in (None, 'simple_btree_folder')
-  True
+  >>> import transaction
+  >>> transaction.commit()
 
 XML-RPC
 -------

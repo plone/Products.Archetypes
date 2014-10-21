@@ -101,7 +101,7 @@ setting:
   Indexing: /cmf/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 None
+  Indexing: /cmf/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
 
   >>> folder['new_doc1'].Title()
