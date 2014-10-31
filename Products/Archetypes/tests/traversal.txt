@@ -44,6 +44,8 @@ XML-RPC is basically a ``POST`` with content-type text/xml. It should
 be allowed to acquire content from higher-level hierarchies:
 
   >>> from Testing.ZopeTestCase.zopedoctest.functional import http
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... POST /%s HTTP/1.0
   ... Authorization: Basic %s:%s
@@ -413,5 +415,8 @@ test types are assigning a dummy var called_afterMKCOL_hook.
   SimpleBTreeFolder
   >>> folder.called_afterMKCOL_hook
   True
+
+Clean up
+  >>> AppZapper().clear()
   
 

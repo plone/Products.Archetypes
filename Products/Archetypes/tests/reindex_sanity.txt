@@ -98,10 +98,10 @@ setting:
   Indexing: Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_doc1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc1 []
+  Indexing: /plone/Members/test_user_1_/new_doc1 []
   ------------------------------------------------------------
 
   >>> folder['new_doc1'].Title()
@@ -123,10 +123,10 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc2 None
+  Indexing: /plone/Members/test_user_1_/new_doc2 None
   ------------------------------------------------------------
 
   >>> folder['new_doc2'].Title()
@@ -148,13 +148,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_doc1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_doc1
+  UnIndexing: /plone/Members/test_user_1_/new_doc1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_doc11 None
+  Indexing: /plone/Members/test_user_1_/new_doc11 None
   ------------------------------------------------------------
 
 Copy and paste:
@@ -165,13 +165,13 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_doc2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 None
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_doc2 ['created']
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['created']
   ------------------------------------------------------------
 
 Cut and paste:
@@ -182,13 +182,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_doc11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_doc11
+  UnIndexing: /plone/Members/test_user_1_/new_doc11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_doc11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_doc11 None
   ------------------------------------------------------------
 
 Tests for SimpleFolder
@@ -206,10 +206,10 @@ setting:
   Indexing: Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder1 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder1 None
+  Indexing: /plone/Members/test_user_1_/new_folder1 None
   ------------------------------------------------------------
 
   >>> folder['new_folder1'].Title()
@@ -231,10 +231,10 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder2 None
+  Indexing: /plone/Members/test_user_1_/new_folder2 None
   ------------------------------------------------------------
 
 
@@ -257,13 +257,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_folder1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_folder1
+  UnIndexing: /plone/Members/test_user_1_/new_folder1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_folder11 None
+  Indexing: /plone/Members/test_user_1_/new_folder11 None
   ------------------------------------------------------------
 
 Copy and paste:
@@ -274,10 +274,10 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_folder2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_folder2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 None
   ------------------------------------------------------------
 
 Cut and paste:
@@ -288,13 +288,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_folder11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_folder11
+  UnIndexing: /plone/Members/test_user_1_/new_folder11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_folder11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_folder11 None
   ------------------------------------------------------------
 
 Tests for SimpleBTreeFolder
@@ -312,10 +312,10 @@ setting:
   Indexing: Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder1 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 None
   ------------------------------------------------------------
 
   >>> folder['new_btree_folder1'].Title()
@@ -337,10 +337,10 @@ More complex invokeFactory call, setting title and description:
   Indexing: Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder2 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 None
   ------------------------------------------------------------
 
   >>> folder['new_btree_folder2'].Title()
@@ -362,13 +362,13 @@ Rename:
   UnIndexing: Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_btree_folder1
+  UnIndexing: /plone/Members/test_user_1_/new_btree_folder1
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/new_btree_folder11 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder11 None
   ------------------------------------------------------------
 
 Copy and paste:
@@ -379,10 +379,10 @@ Copy and paste:
   Indexing: Members/test_user_1_/sub/new_btree_folder2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 None
   ------------------------------------------------------------
 
 Cut and paste:
@@ -393,13 +393,13 @@ Cut and paste:
   UnIndexing: Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
   Catalog:    portal_catalog
-  UnIndexing: /cmf/Members/test_user_1_/new_btree_folder11
+  UnIndexing: /plone/Members/test_user_1_/new_btree_folder11
   ------------------------------------------------------------
   Catalog:  uid_catalog
   Indexing: Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /cmf/Members/test_user_1_/sub/new_btree_folder11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder11 None
   ------------------------------------------------------------
 
 Restore ZCatalog methods:

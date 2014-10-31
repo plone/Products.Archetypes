@@ -28,6 +28,8 @@ Now do a WebDAV COPY and check that the references were removed from
 the copy:
 
   >>> from Testing.ZopeTestCase.zopedoctest.functional import http
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... COPY %s HTTP/1.1
   ... Destination: %s
@@ -69,3 +71,6 @@ Do a WebDAV move with 'b' and make sure it keeps the references:
 
   >>> f['b'].getRefs()
   [<DDocument at /.../a>]
+
+Clean up
+  >>> AppZapper().clear()
