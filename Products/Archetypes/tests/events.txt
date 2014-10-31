@@ -38,7 +38,7 @@ Creating an AT object will a couple of events:
   >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
   >>> d = makeContent(folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  4 events:
+  5 events:
   [(<DDocument at /cmf/Members/test_user_1_/a>,
     <zope.lifecycleevent.ObjectCreatedEvent object at ...>),
    (<DDocument at /cmf/Members/test_user_1_/a>,
@@ -46,7 +46,9 @@ Creating an AT object will a couple of events:
    (<DDocument at /cmf/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.AfterTransitionEvent object at ...>),
    (<DDocument at /cmf/Members/test_user_1_/a>,
-    <zope.lifecycleevent.ObjectAddedEvent object at ...>)]
+    <zope.lifecycleevent.ObjectAddedEvent object at ...>),
+   (<ATFolder at /plone/Members/test_user_1_>,
+    <zope.container.contained.ContainerModifiedEvent object at ...>)]
 
 
 Calling `processForm`, which is what happens on submitting a form,
