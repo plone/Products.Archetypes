@@ -181,11 +181,7 @@ ZCML registrations in function tests.
   >>> site = getSite()
 
   >>> setSite(None)
-  >>> try:
-  ...     from Zope2.App import zcml
-  ... except ImportError:
-  ...     from Products.Five import zcml
-
+  >>> from Zope2.App import zcml
   >>> zcml.load_string('''<configure xmlns="http://namespaces.zope.org/browser">
   ... <page
   ...     name="document_view"

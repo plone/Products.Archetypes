@@ -39,13 +39,13 @@ Creating an AT object will a couple of events:
   >>> d = makeContent(folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   5 events:
-  [(<DDocument at /cmf/Members/test_user_1_/a>,
+  [(<DDocument at /plone/Members/test_user_1_/a>,
     <zope.lifecycleevent.ObjectCreatedEvent object at ...>),
-   (<DDocument at /cmf/Members/test_user_1_/a>,
+   (<DDocument at /plone/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.BeforeTransitionEvent object at ...>),
-   (<DDocument at /cmf/Members/test_user_1_/a>,
+   (<DDocument at /plone/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.AfterTransitionEvent object at ...>),
-   (<DDocument at /cmf/Members/test_user_1_/a>,
+   (<DDocument at /plone/Members/test_user_1_/a>,
     <zope.lifecycleevent.ObjectAddedEvent object at ...>),
    (<ATFolder at /plone/Members/test_user_1_>,
     <zope.container.contained.ContainerModifiedEvent object at ...>)]
@@ -81,14 +81,17 @@ Setup Content Type Registry so that a 'DDocument' is created:
 Doing a `PUT` request that creates a brand new object should fire
 IWebDAVObjectInitializedEvent:
 
-  >>> from Products.Archetypes.tests.attestcase import user_name
-  >>> from Products.Archetypes.tests.attestcase import user_password
-  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
-  >>> self.setRoles(['Manager'])
+  >>> from plone.app.testing import TEST_USER_NAME as user_name
+  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
+  >>> from plone.app.testing import setRoles
+  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
 
   >>> 'some-document' in folder.objectIds()
   False
 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/some-document HTTP/1.1
   ... Authorization: Basic %s:%s
@@ -107,7 +110,7 @@ IWebDAVObjectInitializedEvent:
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
+  [(<DDocument at /plone/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)...]
 
 Doing another `PUT` request to update the same object should fire an
@@ -128,7 +131,7 @@ IWebDAVObjectEditedEvent:
 
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
+  [(<DDocument at /plone/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectEditedEvent object at ...>)]
 
 Finally, cleanup the CTR predicate to not affect other tests: 
@@ -148,5 +151,8 @@ Test that a MKCOL also fires an IWebDAVObjectInitialized event:
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<SimpleFolder at /cmf/Members/test_user_1_/f1/some-folder>,
+  [(<SimpleFolder at /plone/Members/test_user_1_/f1/some-folder>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)]
+
+Clean up
+  >>> AppZapper().clear()

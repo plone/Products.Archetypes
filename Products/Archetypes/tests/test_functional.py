@@ -28,6 +28,7 @@ from plone.app.testing import TEST_USER_NAME as default_user
 from Products.Archetypes.tests.attestcase import ATTestCase
 
 from StringIO import StringIO
+from transaction import commit
 
 html = """\
 <html>
@@ -229,5 +230,5 @@ class TestFunctionalObjectCreation(ATTestCase):
         schema['file'] = FileField('file', read_permission = 'Manage portal')
 
         # make sure at_download disallows even though the user has View permission
-        res = self.publish('/cmf/test/at_download/file')
+        res = self.publish('/plone/test/at_download/file')
         self.assertEqual(res.status, 401)
