@@ -146,4 +146,4 @@ class BaseObjectTest(ATSiteTestCase):
 
         self.setRoles(('Manager',))
         # dummy.content_type in a Python Script
-        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/plain')
+        self.assertEqual(guarded_getattr(dummy, 'content_type'), 'text/html')

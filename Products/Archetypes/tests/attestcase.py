@@ -23,9 +23,7 @@ class ATTestCaseFixture(bbb.PloneTestCaseFixture):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'Products.Archetypes:Archetypes_sampletypes')
-        # delete site_properties. it was not here using CMFTestCase
-        # and fools the default mimetype tests
-        portal['portal_properties']._delObject('site_properties', suppress_events=True)
+        portal._delObject('portal_languages', suppress_events=True)
 
 AT_FIXTURE = ATTestCaseFixture()
 AT_FUNCTIONAL_TESTING = FunctionalTesting(bases=(AT_FIXTURE,),
