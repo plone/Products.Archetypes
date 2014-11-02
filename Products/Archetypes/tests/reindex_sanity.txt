@@ -126,7 +126,7 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc2 None
+  Indexing: /plone/Members/test_user_1_/new_doc2 []
   ------------------------------------------------------------
 
   >>> folder['new_doc2'].Title()
@@ -154,7 +154,10 @@ Rename:
   Indexing: Members/test_user_1_/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_doc11 None
+  Indexing: /plone/Members/test_user_1_/new_doc11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_doc11 ['getObjPositionInParent']
   ------------------------------------------------------------
 
 Copy and paste:
@@ -168,7 +171,7 @@ Copy and paste:
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_doc2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_doc2 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
   Indexing: /plone/Members/test_user_1_/sub/new_doc2 ['created']
@@ -188,7 +191,7 @@ Cut and paste:
   Indexing: Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_doc11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_doc11 []
   ------------------------------------------------------------
 
 Tests for SimpleFolder
@@ -209,7 +212,7 @@ setting:
   Indexing: /plone/Members/test_user_1_/new_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder1 None
+  Indexing: /plone/Members/test_user_1_/new_folder1 []
   ------------------------------------------------------------
 
   >>> folder['new_folder1'].Title()
@@ -234,7 +237,7 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder2 None
+  Indexing: /plone/Members/test_user_1_/new_folder2 []
   ------------------------------------------------------------
 
 
@@ -263,7 +266,10 @@ Rename:
   Indexing: Members/test_user_1_/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_folder11 None
+  Indexing: /plone/Members/test_user_1_/new_folder11 []
+  ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_folder11 ['getObjPositionInParent']
   ------------------------------------------------------------
 
 Copy and paste:
@@ -277,7 +283,7 @@ Copy and paste:
   Indexing: /plone/Members/test_user_1_/sub/new_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_folder2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_folder2 []
   ------------------------------------------------------------
 
 Cut and paste:
@@ -294,7 +300,7 @@ Cut and paste:
   Indexing: Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_folder11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_folder11 []
   ------------------------------------------------------------
 
 Tests for SimpleBTreeFolder
@@ -315,7 +321,7 @@ setting:
   Indexing: /plone/Members/test_user_1_/new_btree_folder1 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder1 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder1 []
   ------------------------------------------------------------
 
   >>> folder['new_btree_folder1'].Title()
@@ -340,7 +346,7 @@ More complex invokeFactory call, setting title and description:
   Indexing: /plone/Members/test_user_1_/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder2 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder2 []
   ------------------------------------------------------------
 
   >>> folder['new_btree_folder2'].Title()
@@ -368,8 +374,12 @@ Rename:
   Indexing: Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/new_btree_folder11 None
+  Indexing: /plone/Members/test_user_1_/new_btree_folder11 []
   ------------------------------------------------------------
+  Catalog:  portal_catalog
+  Indexing: /plone/Members/test_user_1_/new_btree_folder11 ['getObjPositionInParent']
+  ------------------------------------------------------------
+
 
 Copy and paste:
 
@@ -382,7 +392,7 @@ Copy and paste:
   Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 ['review_state']
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 None
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder2 []
   ------------------------------------------------------------
 
 Cut and paste:
@@ -399,7 +409,7 @@ Cut and paste:
   Indexing: Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
   Catalog:  portal_catalog
-  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder11 None
+  Indexing: /plone/Members/test_user_1_/sub/new_btree_folder11 []
   ------------------------------------------------------------
 
 Restore ZCatalog methods:
