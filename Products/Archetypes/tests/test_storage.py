@@ -36,7 +36,7 @@ class ChangeStorageTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
-        self._dummy = dummy = Dummy(oid='dummy')
+        self._dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         self._old_storages = {}
 

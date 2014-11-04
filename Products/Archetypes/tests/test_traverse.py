@@ -1,6 +1,4 @@
 from unittest import TestCase
-from unittest import TestSuite
-from unittest import makeSuite
 from zope.interface.verify import verifyClass
 from zope.publisher.interfaces import IPublishTraverse
 from Products.Archetypes.traverse import ImageTraverser

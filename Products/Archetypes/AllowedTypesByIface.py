@@ -136,7 +136,6 @@ class AllowedTypesByIfaceMixin:
         #      allowed content types. We make our typeinfo temporarily
         #      unavailable.
         pt = getToolByName(self, 'portal_types')
-        tmp_name = '%s_TMP' % self.portal_type
         ti = pt.getTypeInfo(self.portal_type)
         pt.manage_delObjects([self.portal_type])
         try:
