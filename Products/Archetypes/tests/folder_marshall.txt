@@ -195,4 +195,8 @@ like a normal resource:
   creation_date: ...
   modification_date: ...
 
+  Clean up
+
+  >>> del portal['simple_folder']
+  >>> del portal['simple_btree_folder']
   >>> AppZapper().clear()
