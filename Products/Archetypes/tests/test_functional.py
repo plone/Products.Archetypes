@@ -258,7 +258,10 @@ class TestFunctionalObjectCreation(ATTestCase):
         folder = portal.simple_btree_folder
         self.assertNotIn('index_html', folder.objectIds())
         self.assertEqual(str(folder.index_html), "<DDocument at index_html>")
-        response = self.publish("/plone/simple_btree_folder/index_html", basic=self.basic_auth, request_method="PUT")
+        response = self.publish("/plone/simple_btree_folder/index_html",
+                                basic=self.basic_auth,
+                                request_method="PUT",
+                                stdin=StringIO('Simple BTree Folder Index'))
         self.assertEqual(response.getStatus(), 201)
         self.assertIn('index_html', folder.objectIds())
         self.assertEqual(folder.index_html.title_or_id(), 'index_html')
