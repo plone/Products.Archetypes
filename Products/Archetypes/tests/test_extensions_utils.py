@@ -1,5 +1,3 @@
-from unittest import TestSuite, makeSuite
-
 from cStringIO import StringIO
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase

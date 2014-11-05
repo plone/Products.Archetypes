@@ -388,7 +388,6 @@ class SchemaLayerContainer(DefaultLayerContainer):
     security.declareProtected(permissions.View, 'copy')
     def copy(self):
         c = SchemaLayerContainer()
-        layers = {}
         for k, v in self.registeredLayers():
             c.registerLayer(k, v)
         return c
@@ -578,7 +577,6 @@ class BasicSchema(Schemata):
             if not field.writeable(instance):
                 continue
 
-            error = 0
             value = None
             widget = field.widget
 
@@ -716,7 +714,6 @@ class Schema(BasicSchema, SchemaLayerContainer):
         # Need to be smarter when joining layers
         # and internal props
         c._props.update(self._props)
-        layers = {}
         for k, v in self.registeredLayers():
             c.registerLayer(k, v)
         return c
@@ -855,8 +852,6 @@ class Schema(BasicSchema, SchemaLayerContainer):
         if not direction in (-1, 1):
             raise ValueError, "Direction must be either -1 or 1"
 
-        fields = self.fields()
-        fieldnames = [f.getName() for f in fields]
         schemata_names = self.getSchemataNames()
 
         field = self[name]
@@ -939,7 +934,6 @@ class ManagedSchema(Schema):
             raise ValueError, 'Direction must be either -1 or 1'
 
         fields = self.fields()
-        fieldnames = [f.getName() for f in fields]
         schemata_names = self.getSchemataNames()
 
         d = {}

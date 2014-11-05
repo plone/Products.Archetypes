@@ -288,7 +288,6 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(tuple(vocab) == ())
 
     def test_language(self):
-        default = LANGUAGE_DEFAULT
         dummy = self._dummy
         field = dummy.getField('language')
 

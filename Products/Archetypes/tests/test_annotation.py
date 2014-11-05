@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.atapi import BaseSchema, Schema, StringField, \
     AnnotationStorage, MetadataAnnotationStorage, AT_MD_STORAGE, \
@@ -169,7 +167,6 @@ class AnnotationStorageTest(ATSiteTestCase):
 
     def test_storageNonExisting(self):
         dummy = self.dummy
-        ann = self.ann
         storage = AnnotationStorage()
 
         self.assertRaises(AttributeError, storage.get, 'nonexisting', dummy)

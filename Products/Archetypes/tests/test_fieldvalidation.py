@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Acquisition import Explicit

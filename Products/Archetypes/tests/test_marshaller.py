@@ -23,7 +23,7 @@
 #
 ################################################################################
 
-from unittest import TestCase, TestSuite, makeSuite
+from unittest import TestCase
 
 import os
 from OFS.Image import Pdata
@@ -42,7 +42,7 @@ class MarshallerTests(ATSiteTestCase):
     # XXX this test is fu... up the machine by eating all memory
     def XXX_test_textFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
+        word = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
@@ -53,7 +53,6 @@ class MarshallerTests(ATSiteTestCase):
         # content type
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = self.folder.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -62,7 +61,7 @@ class MarshallerTests(ATSiteTestCase):
 
     def test_textFieldObjectRSTreplace(self):
         ## And again with an RST
-        obj1 = makeContent(self.folder, portal_type='DDocument', id='obj1')
+        rst = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         rstFilePath = os.path.join(PACKAGE_HOME, "input", "rest1.rst")
         rstFile = open(rstFilePath, 'r')
@@ -73,7 +72,6 @@ class MarshallerTests(ATSiteTestCase):
         # XXX PUT factory is using PARENTS to get an acquisition context
         request['PARENTS'] = (self.folder, self.portal)
         request.processInputs()
-        rst = self.folder.obj1
         rst.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -82,7 +80,7 @@ class MarshallerTests(ATSiteTestCase):
 
     def test_fileFieldObjectWordReplace(self):
         #test that uploading to an existing object works
-        obj1 = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
+        word = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
 
         wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
@@ -91,7 +89,6 @@ class MarshallerTests(ATSiteTestCase):
 
         request = aputrequest(wordFile, 'application/msword')
         request.processInputs()
-        word = self.folder.obj1
         word.PUT(request, request.RESPONSE)
 
         #and we can get the stuff back
@@ -118,11 +115,11 @@ class MarshallerTests(ATSiteTestCase):
 
     # XXX this test is fu... up the machine by eating all memory
     def XXX_test_objectCreate(self):
-        #create the correct object on upload
-        #one day, but this will need a change to the factory
-        ctr = self.setupCTR()
+        # create the correct object on upload
+        # one day, but this will need a change to the factory
+        self.setupCTR()
 
-        #now trigger the creation of a content type akin to DAV
+        # now trigger the creation of a content type akin to DAV
         wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
         wordFile = open(wordFilePath, 'r')
 
