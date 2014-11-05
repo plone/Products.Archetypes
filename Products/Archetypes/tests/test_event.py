@@ -2,8 +2,6 @@
 Unittests for the events fired by Archetypes.
 """
 
-from unittest import TestSuite, makeSuite
-
 from zope.interface import implements, Interface, directlyProvides
 from zope import component
 

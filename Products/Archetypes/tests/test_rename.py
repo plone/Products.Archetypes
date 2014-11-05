@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 from Products.Archetypes.tests.utils import makeContent

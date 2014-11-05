@@ -29,7 +29,6 @@ from plone.app.testing import SITE_OWNER_PASSWORD
 from plone.app.testing import TEST_USER_PASSWORD
 from Products.Archetypes.tests.attestcase import ATTestCase
 from plone.protect import createToken
-from plone.testing.z2 import Browser
 
 from StringIO import StringIO
 
@@ -186,9 +185,9 @@ class TestFunctionalObjectCreation(ATTestCase):
         # This is functional so that we get a full request and set the flag
 
         # create an object with flag set
-        response = self.publish(self.folder_path +
-                              '/invokeFactory?type_name=DDocument&id=new_doc',
-                              self.basic_auth)
+        self.publish(self.folder_path +
+                     '/invokeFactory?type_name=DDocument&id=new_doc',
+                     self.basic_auth)
         self.assertTrue('new_doc' in self.folder.objectIds())
         new_obj = self.folder.new_doc
         self.assertTrue(new_obj.checkCreationFlag())  # object is not yet edited
@@ -263,4 +262,4 @@ class TestFunctionalObjectCreation(ATTestCase):
         self.assertEqual(response.getStatus(), 201)
         self.assertIn('index_html', folder.objectIds())
         self.assertEqual(folder.index_html.title_or_id(), 'index_html')
-        self.assertEqual(str(folder.index_html.body).strip(), 'Simple BTree Folder Index')
+        self.assertEqual(str(folder.index_html.body()).strip(), 'Simple BTree Folder Index')

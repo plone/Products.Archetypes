@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 import time
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
