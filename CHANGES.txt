@@ -4,7 +4,9 @@ Changelog
 1.10.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- For Plone 5, support getting markup control panel settings from the registry,
+  while still supporting normal portal_properties access for Plone < 5.
+  [thet]
 
 
 1.10.2 (2014-10-23)
