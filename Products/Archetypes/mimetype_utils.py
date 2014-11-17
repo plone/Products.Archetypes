@@ -11,7 +11,7 @@ except ImportError:
     IMarkupSchema = None
 
 
-def markupRegistrySettings(context):
+def _markupRegistrySettings(context):
     if not IMarkupSchema:
         return None
     try:
@@ -26,24 +26,33 @@ def markupRegistrySettings(context):
     return settings
 
 
+def _getSiteProperties(context):
+    portal_properties = getToolByName(context, 'portal_properties', None)
+    if portal_properties is not None:
+        site_properties = getattr(portal_properties, 'site_properties', None)
+        if site_properties is not None:
+            return site_properties
+    return None
+
+
 def getDefaultContentType(context):
     default_type = 'text/plain'
-    reg = markupRegistrySettings(context)
+    reg = _markupRegistrySettings(context)
     if reg:
         default_type = reg.default_type
     else:
-        portal_props = getToolByName(context, 'portal_properties', None)
-        if portal_props is not None:
-            site_props = getattr(portal_props, 'site_properties', None)
-            if site_props is not None:
-                default_type = site_props.getProperty('default_contenttype')
+        site_properties = _getSiteProperties(context)
+        if site_properties is not None:
+            default_type = site_properties.getProperty('default_contenttype')
     return default_type
 
 
 def setDefaultContentType(context, value):
-    portal_properties = getToolByName(context, 'portal_properties', None)
-    if portal_properties is not None:
-        site_properties = getattr(portal_properties, 'site_properties', None)
+    reg = _markupRegistrySettings(context)
+    if reg:
+        reg.default_type = value
+    else:
+        site_properties = _getSiteProperties(context)
         if site_properties is not None:
             site_properties.manage_changeProperties(default_contenttype=value)
 
@@ -53,7 +62,7 @@ def getAllowedContentTypes(context):
     property blacklist from the list of installed types.
     """
     allowed_types = []
-    reg = markupRegistrySettings(context)
+    reg = _markupRegistrySettings(context)
     if reg:
         allowed_types = reg.allowed_types
     else:
@@ -72,29 +81,26 @@ def getAllowableContentTypes(context):
     return portal_transforms.listAvailableTextInputs()
 
 
+def getForbiddenContentTypes(context):
+    """Convenence method for retrevng the site property
+    ``forbidden_contenttypes``.
+    """
+    site_properties = _getSiteProperties(context)
+    if site_properties is not None:
+        if site_properties.hasProperty('forbidden_contenttypes'):
+            return list(
+                site_properties.getProperty('forbidden_contenttypes'))
+    return []
+
+
 def setForbiddenContentTypes(context, forbidden_contenttypes=None):
     """Convenience method for settng the site property
     ``forbidden_contenttypes``.
     """
     if forbidden_contenttypes is None:
         forbidden_contenttypes = []
-    portal_properties = getToolByName(context, 'portal_properties', None)
-    if portal_properties is not None:
-        site_properties = getattr(portal_properties, 'site_properties', None)
-        if site_properties is not None:
-            site_properties.manage_changeProperties(
-                forbidden_contenttypes=tuple(forbidden_contenttypes))
 
-
-def getForbiddenContentTypes(context):
-    """Convenence method for retrevng the site property
-    ``forbidden_contenttypes``.
-    """
-    portal_properties = getToolByName(context, 'portal_properties', None)
-    if portal_properties is not None:
-        site_properties = getattr(portal_properties, 'site_properties', None)
-        if site_properties is not None:
-            if site_properties.hasProperty('forbidden_contenttypes'):
-                return list(
-                    site_properties.getProperty('forbidden_contenttypes'))
-    return []
+    site_properties = _getSiteProperties(context)
+    if site_properties is not None:
+        site_properties.manage_changeProperties(
+            forbidden_contenttypes=tuple(forbidden_contenttypes))
