@@ -10,6 +10,7 @@ from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
 from App.class_init import InitializeClass
 from OFS.Image import File
+from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.Field import TextField, FileField
 from Products.Archetypes.interfaces.marshall import IMarshall
 from Products.Archetypes.interfaces.layer import ILayer
@@ -234,6 +235,13 @@ class RFC822Marshaller(Marshaller):
                 mutator = field.getMutator(instance)
                 if mutator is not None:
                     mutator(v)
+            if k == 'UID':
+                # Set the UID if it's provided. Generally you don't
+                # care about a UID, but having it be settable allows
+                # other import steps to reference the object, such
+                # as portlets or collection criteria
+                setattr(aq_base(instance), UUID_ATTR, v)
+            
         content_type = headers.get('Content-Type')
         if not kwargs.get('mimetype', None):
             kwargs.update({'mimetype': content_type})
@@ -261,6 +269,12 @@ class RFC822Marshaller(Marshaller):
         headers = []
         fields = [f for f in instance.Schema().fields()
                   if f.getName() != pname]
+        
+        # Include the internal version of IUUID(instance). We're setting this
+        # value in the same class, so accessing it directly here saves a
+        # Component Registry lookup for every object being exported
+        headers.append(('UID', getattr(aq_base(instance), UUID_ATTR, None)))
+        
         for field in fields:
             if field.type in ('file', 'image', 'object'):
                 continue
