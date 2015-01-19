@@ -37,7 +37,7 @@ from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes import atapi
 from Products.Archetypes.interfaces.base import IBaseUnit
 from Products.Archetypes.ClassGen import generateMethods
-from Products.MimetypesRegistry.MimeTypesTool import MimeTypesTool
+from Products.MimetypesRegistry.MimeTypesRegistry import MimeTypesRegistry
 from Products.PortalTransforms.TransformTool import TransformTool
 
 
@@ -112,7 +112,7 @@ class PortalProperties:
 class Dummy(atapi.BaseContent):
     portal_properties = PortalProperties()
     portal_discussion = DummyDiscussionTool()
-    mimetypes_registry = MimeTypesTool()
+    mimetypes_registry = MimeTypesRegistry()
 
     def __init__(self, oid='test', init_transforms=0, **kwargs):
         atapi.BaseContent.__init__(self, oid, **kwargs)
