@@ -277,7 +277,10 @@ class RFC822Marshaller(Marshaller):
         # Include the internal version of IUUID(instance). We're setting this
         # value in the same class, so accessing it directly here saves a
         # Component Registry lookup for every object being exported
-        headers.append(('UID', getattr(aq_base(instance), UUID_ATTR, None)))
+        if hasattr(aq_base(instance), UUID_ATTR):
+            # Non-referencable content isn't exportable by default, but we should
+            # shouldn't include the uuid if it's not there.
+            headers.append(('UID', getattr(aq_base(instance), UUID_ATTR, None)))
         
         for field in fields:
             if field.type in ('file', 'image', 'object'):
