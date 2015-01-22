@@ -228,13 +228,17 @@ class RFC822Marshaller(Marshaller):
             del kwargs['file']
         headers, body = parseRFC822(data)
         for k, v in headers.items():
+            if k == 'id':
+                # Never change the id, it needs to happen as part of
+                # a rename
+                continue
             if v.strip() == 'None':
                 v = None
             field = instance.getField(k)
             if field is not None:
-                mutator = field.getMutator(instance)
-                if mutator is not None:
-                    mutator(v)
+                # Don't indirect through the mutator, to enable
+                # us to populate fields that are normally read only
+                field.set(instance, v)
             if k == 'UID':
                 # Set the UID if it's provided. Generally you don't
                 # care about a UID, but having it be settable allows
