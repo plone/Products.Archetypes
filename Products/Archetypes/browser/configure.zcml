@@ -83,19 +83,27 @@
       permission="zope2.View"
       />
  
-   <browser:page
+  <browser:page
       for="*"
       name="calendar_macros"
       template="templates/calendar_macros.pt"
       permission="zope.Public"
       />
 
-    <browser:page
-        name="date_components_support"
-        for="*"
-        permission="zope2.View"
-        class=".datecomponents.DateComponents"
-        allowed_attributes="result"
-        />
+  <browser:page
+      name="date_components_support"
+      for="*"
+      permission="zope2.View"
+      class=".datecomponents.DateComponents"
+      allowed_attributes="result"
+      />
+
+  <browser:page
+      name="patterns_widget"
+      for="Products.Archetypes.interfaces.IBaseObject"
+      class=".widgets.PatternsWidgetMacros"
+      template="templates/patterns_widget.pt"
+      permission="zope.Public"
+      />
 
 </configure>

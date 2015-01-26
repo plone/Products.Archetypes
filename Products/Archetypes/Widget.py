@@ -1,5 +1,7 @@
 from copy import deepcopy
+from datetime import datetime
 from types import DictType, FileType, ListType, StringTypes
+from AccessControl import ClassSecurityInfo
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from DateTime import DateTime
@@ -8,18 +10,23 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
 from Products.CMFCore.Expression import createExprContext
 
+from Products.Archetypes.Registry import registerWidget
 from Products.Archetypes.utils import className
 from Products.Archetypes.utils import unique
 from Products.Archetypes.utils import capitalize
 from Products.Archetypes.generator import macrowidget
 from Products.Archetypes.log import log
 from Products.Archetypes.Registry import registerPropertyType
-from Products.Archetypes.Registry import registerWidget
 
 from ExtensionClass import Base
-from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
 from Acquisition import aq_base
+
+from plone.app.widgets import base as base_widgets
+from plone.app.widgets import utils as utils
+from plone.uuid.interfaces import IUUID
+
+import json
 
 _marker = []
 
@@ -30,7 +37,7 @@ class TypesWidget(macrowidget, Base):
         'modes': ('view', 'edit'),
         'populate': True,  # should this field be populated in edit and view?
         'postback': True,  # should this field be repopulated with POSTed
-                         # value when an error occurs?
+                           # value when an error occurs?
         'show_content_type': False,
         'helper_js': (),
         'helper_css': (),
@@ -273,11 +280,11 @@ class ReferenceWidget(TypesWidget):
             if _info is None:
                 # The portal_type asked for was not
                 # installed/has been removed.
-                log("Warning: in Archetypes.Widget.lookupDestinationsFor: " \
+                log("Warning: in Archetypes.Widget.lookupDestinationsFor: "
                     "portal type %s not found" % typeid)
                 continue
 
-            if destination == None:
+            if destination is None:
                 options[typeid] = [None]
             elif isinstance(destination, DictType):
                 options[typeid] = destination.get(typeid, [None])
@@ -288,7 +295,7 @@ class ReferenceWidget(TypesWidget):
             else:
                 place = getattr(aq_base(instance), destination, destination)
                 if callable(place):
-                    #restore acq.wrapper
+                    # restore acq.wrapper
                     place = getattr(instance, destination)
                     place = place()
                 if isinstance(place, ListType):
@@ -302,10 +309,10 @@ class ReferenceWidget(TypesWidget):
             value['destinations'] = []
 
             for option in options.get(typeid):
-                if option == None:
+                if option is None:
                     value['destinations'] = value['destinations'] + \
                         lookupDestinationsFor(_info, tool, purl,
-                                          destination_types=destination_types)
+                                              destination_types=destination_types)
                 elif option == '.':
                     value['destinations'].append(getRelativeContentURL(instance))
                 else:
@@ -314,13 +321,13 @@ class ReferenceWidget(TypesWidget):
                     except TypeError:
                         place = option
                     if callable(place):
-                        #restore acq.wrapper
+                        # restore acq.wrapper
                         place = getattr(instance, option)
                         place = place()
                     if isinstance(place, ListType):
                         value['destinations'] = place + value['destinations']
                     else:
-                        #TODO Might as well check for type, doing it everywhere else
+                        # TODO Might as well check for type, doing it everywhere else
                         value['destinations'].append(place)
 
             if value['destinations']:
@@ -393,7 +400,7 @@ class TextAreaWidget(TypesWidget):
                     # using default_output_type caused a recursive transformation
                     # that sucked, thus mimetype= here to keep it in line
                     value = value + divider + \
-                            field.getEditAccessor(instance)()
+                        field.getEditAccessor(instance)()
                 else:
                     # keep historical entries
                     value = field.getEditAccessor(instance)()
@@ -560,10 +567,10 @@ class KeywordWidget(TypesWidget):
         # - None or empty_marker when it found nothing
         name = field.getName()
         existing_keywords = form.get('%s_existing_keywords' % name,
-            empty_marker)
+                                     empty_marker)
         new_keywords = form.get('%s_keywords' % name, empty_marker)
         if (new_keywords is empty_marker) and (
-            existing_keywords is empty_marker):
+                existing_keywords is empty_marker):
             return empty_marker
         if new_keywords is empty_marker:
             new_keywords = []
@@ -604,7 +611,8 @@ class FileWidget(TypesWidget):
 
         fileobj = form.get('%s_file' % field.getName(), empty_marker)
 
-        if fileobj is empty_marker: return empty_marker
+        if fileobj is empty_marker:
+            return empty_marker
 
         filename = getattr(fileobj, 'filename', '')
         if not filename:
@@ -613,7 +621,8 @@ class FileWidget(TypesWidget):
         if filename:
             value = fileobj
 
-        if not value: return None
+        if not value:
+            return None
 
         return value, {}
 
@@ -650,8 +659,8 @@ class RichWidget(TypesWidget):
         if fileobj is not empty_marker:
 
             filename = getattr(fileobj, 'filename', '') or \
-                       (isinstance(fileobj, FileType) and \
-                        getattr(fileobj, 'name', ''))
+                (isinstance(fileobj, FileType) and
+                    getattr(fileobj, 'name', ''))
 
             if filename:
                 value = fileobj
@@ -668,8 +677,8 @@ class RichWidget(TypesWidget):
 
         if value and not isFile:
             # Value filled, no file uploaded
-            if kwargs.get('mimetype') == str(field.getContentType(instance)) \
-                   and instance.isBinary(field.getName()):
+            if (kwargs.get('mimetype') == str(field.getContentType(instance))
+                    and instance.isBinary(field.getName())):
                 # Was an uploaded file, same content type
                 del kwargs['mimetype']
 
@@ -680,7 +689,7 @@ class IdWidget(TypesWidget):
     _properties = TypesWidget._properties.copy()
     _properties.update({
         'macro': "widgets/zid",
-         # show IDs in edit boxes when they are autogenerated?
+        # show IDs in edit boxes when they are autogenerated?
         'display_autogenerated': True,
         # script used to determine if an ID is autogenerated
         'is_autogenerated': 'isIDAutoGenerated',
@@ -732,7 +741,7 @@ class ImageWidget(FileWidget):
                      emptyReturnsMarker=False, validating=True):
         """form processing that deals with image data (and its delete case)"""
         value = None
-        ## check to see if the delete hidden was selected
+        # check to see if the delete hidden was selected
         delete = form.get('%s_delete' % field.getName(), empty_marker)
         if delete == 'delete':
             return "DELETE_IMAGE", {}
@@ -746,8 +755,8 @@ class ImageWidget(FileWidget):
             return empty_marker
 
         filename = getattr(fileobj, 'filename', '') or \
-                   (isinstance(fileobj, FileType) and \
-                    getattr(fileobj, 'name', ''))
+            (isinstance(fileobj, FileType) and
+                getattr(fileobj, 'name', ''))
 
         if filename:
             value = fileobj
@@ -848,6 +857,581 @@ class PicklistWidget(TypesWidget):
 
     security = ClassSecurityInfo()
 
+
+class BasePatternWidget(TypesWidget):
+    """Base widget for Archetypes."""
+
+    _properties = TypesWidget._properties.copy()
+    _properties.update({
+        'macro': 'patterns_widget',
+        'pattern': None,
+        'pattern_options': {},
+    })
+
+    def _base(self, pattern, pattern_options={}):
+        """Base widget class."""
+        raise NotImplemented
+
+    def _base_args(self, context, field, request):
+        """Method which will calculate _base class arguments.
+
+        Returns (as python dictionary):
+            - `pattern`: pattern name
+            - `pattern_options`: pattern options
+
+        :param context: Instance of content type.
+        :type context: context
+
+        :param request: Request object.
+        :type request: request
+
+        :param field: Instance of field of this widget.
+        :type field: field
+
+        :returns: Arguments which will be passed to _base
+        :rtype: dict
+        """
+        if self.pattern is None:
+            raise NotImplemented("'pattern' option is not provided.")
+        return {
+            'pattern': self.pattern,
+            'pattern_options': self.pattern_options,
+        }
+
+    def view(self, context, field, request):
+        """Render widget on view.
+
+        :returns: Fields value.
+        :rtype: string
+        """
+        return field.getAccessor(context)()
+
+    def edit(self, context, field, request):
+        """Render widget on edit.
+
+        :returns: Widget's HTML.
+        :rtype: string
+        """
+        return self._base(**self._base_args(context, field, request)).render()
+
+
+class DateWidget(BasePatternWidget):
+    """Date widget for Archetypes."""
+
+    _base = base_widgets.InputWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'pickadate',
+        'pattern_options': {},
+    })
+
+    def _base_args(self, context, field, request):
+        """Method which will calculate _base class arguments.
+
+        Returns (as python dictionary):
+            - `pattern`: pattern name
+            - `pattern_options`: pattern options
+            - `name`: field name
+            - `value`: field value
+
+        :returns: Arguments which will be passed to _base
+        :rtype: dict
+        """
+        args = super(DateWidget, self)._base_args(context, field, request)
+        args['name'] = field.getName()
+        args['value'] = (request.get(field.getName(),
+                                     field.getAccessor(context)()))
+
+        if args['value'] and isinstance(args['value'], DateTime):
+            args['value'] = ('{year:}-{month:02}-{day:02}').format(
+                year=args['value'].year(),
+                month=args['value'].month(),
+                day=args['value'].day(),
+            )
+
+        elif args['value'] and isinstance(args['value'], datetime):
+            args['value'] = ('{year:}-{month:02}-{day:02}').format(
+                year=args['value'].year,
+                month=args['value'].month,
+                day=args['value'].day,
+            )
+
+        args.setdefault('pattern_options', {})
+        args['pattern_options'] = base_widgets.dict_merge(
+            utils.get_date_options(request),
+            args['pattern_options'])
+
+        if 'date' in args['pattern_options'] and \
+           'firstDay' in args['pattern_options']['date'] and \
+           callable(args['pattern_options']['date']['firstDay']):
+            args['pattern_options']['date']['firstDay'] = \
+                args['pattern_options']['date']['firstDay']()
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        """Basic impl for form processing in a widget"""
+
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+
+        value = value.split('-')
+
+        try:
+            value = DateTime(datetime(*map(int, value)))
+        except:
+            return empty_marker
+
+        return value, {}
+
+
+class DatetimeWidget(DateWidget):
+    """Date widget for Archetypes."""
+
+    _properties = DateWidget._properties.copy()
+    _properties.update({
+        'pattern': 'pickadate',
+        'pattern_options': {},
+    })
+
+    def _base_args(self, context, field, request):
+        """Method which will calculate _base class arguments.
+
+        Returns (as python dictionary):
+            - `pattern`: pattern name
+            - `pattern_options`: pattern options
+            - `name`: field name
+            - `value`: field value
+
+        :returns: Arguments which will be passed to _base
+        :rtype: dict
+        """
+        args = super(DatetimeWidget, self)._base_args(context, field, request)
+        args['name'] = field.getName()
+        args['value'] = (request.get(field.getName(),
+                                     field.getAccessor(context)()))
+
+        if args['value'] and isinstance(args['value'], DateTime):
+            args['value'] = (
+                '{year:}-{month:02}-{day:02} {hour:02}:{minute:02}'
+            ).format(
+                year=args['value'].year(),
+                month=args['value'].month(),
+                day=args['value'].day(),
+                hour=args['value'].hour(),
+                minute=args['value'].minute(),
+            )
+
+        elif args['value'] and isinstance(args['value'], datetime):
+            args['value'] = (
+                '{year:}-{month:02}-{day:02} {hour:02}:{minute:02}'
+            ).format(
+                year=args['value'].year,
+                month=args['value'].month,
+                day=args['value'].day,
+                hour=args['value'].hour,
+                minute=args['value'].minute,
+            )
+
+        if args['value'] and len(args['value'].split(' ')) == 1:
+            args['value'] += ' 00:00'
+
+        args.setdefault('pattern_options', {})
+        if 'time' in args['pattern_options']:
+            del args['pattern_options']['time']
+        args['pattern_options'] = base_widgets.dict_merge(
+            utils.get_datetime_options(request),
+            args['pattern_options'])
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        """Basic impl for form processing in a widget"""
+
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+
+        tmp = value.split(' ')
+        if not tmp[0]:
+            return empty_marker
+        value = tmp[0].split('-')
+        if len(tmp) == 2 and ':' in tmp[1]:
+            value += tmp[1].split(':')
+        else:
+            value += ['00', '00']
+
+        try:
+            value = DateTime(datetime(*map(int, value)))
+        except:
+            return empty_marker
+
+        return value, {}
+
+
+class SelectWidget(BasePatternWidget):
+    """Select widget for Archetypes."""
+
+    _base = base_widgets.SelectWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'select2',
+        'pattern_options': {},
+        'separator': ';',
+        'multiple': False,
+        'orderable': False,
+    })
+
+    def _base_args(self, context, field, request):
+        """Method which will calculate _base class arguments.
+
+        Returns (as python dictionary):
+            - `pattern`: pattern name
+            - `pattern_options`: pattern options
+            - `name`: field name
+            - `value`: field value
+            - `multiple`: field multiple
+            - `items`: field items from which we can select to
+
+        :returns: Arguments which will be passed to _base
+        :rtype: dict
+        """
+        args = super(SelectWidget, self)._base_args(context, field, request)
+        args['name'] = field.getName()
+        args['value'] = (request.get(field.getName(),
+                                     field.getAccessor(context)()))
+        args['multiple'] = self.multiple
+
+        items = []
+        for item in field.Vocabulary(context).items():
+            items.append((item[0], item[1]))
+        args['items'] = items
+
+        args.setdefault('pattern_options', {})
+
+        if self.separator:
+            args['pattern_options']['separator'] = self.separator
+
+        if self.multiple and self.orderable:
+            args['pattern_options']['orderable'] = True
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        if self.multiple and isinstance(value, basestring):
+            value = value.strip().split(self.separator)
+        return value, {}
+
+
+class AjaxSelectWidget(BasePatternWidget):
+    """Ajax select widget for Archetypes."""
+
+    _base = base_widgets.InputWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'select2',
+        'pattern_options': {},
+        'separator': ';',
+        'vocabulary': None,
+        'vocabulary_view': '@@getVocabulary',
+        'orderable': False,
+    })
+
+    def _base_args(self, context, field, request):
+        args = super(AjaxSelectWidget, self)._base_args(context, field,
+                                                        request)
+
+        vocabulary_factory = getattr(field, 'vocabulary_factory', None)
+        if not self.vocabulary:
+            self.vocabulary = vocabulary_factory
+
+        args['name'] = field.getName()
+        args['value'] = self.separator.join(request.get(
+            field.getName(), field.getAccessor(context)()))
+
+        args.setdefault('pattern_options', {})
+        args['pattern_options'] = base_widgets.dict_merge(
+            utils.get_ajaxselect_options(context, args['value'], self.separator,
+                                         self.vocabulary, self.vocabulary_view,
+                                         field.getName()),
+            args['pattern_options'])
+
+        if self.orderable:
+            args['pattern_options']['orderable'] = True
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        value = value.strip().split(self.separator)
+        return value, {}
+
+
+class TagsWidget(AjaxSelectWidget):
+    """Keywords widget for Archetypes."""
+
+    _base = base_widgets.InputWidget
+
+    _properties = AjaxSelectWidget._properties.copy()
+    _properties.update({
+        'vocabulary': 'plone.app.vocabularies.Keywords',
+    })
+
+    def _base_args(self, context, field, request):
+        args = super(TagsWidget, self)._base_args(context, field,
+                                                  request)
+
+        membership = getToolByName(context, 'portal_membership')
+        user = membership.getAuthenticatedMember()
+
+        site_properties = getToolByName(
+            context, 'portal_properties')['site_properties']
+        allowRolesToAddKeywords = site_properties.getProperty(
+            'allowRolesToAddKeywords', None)
+
+        allowNewItems = False
+        if allowRolesToAddKeywords and [
+            role for role in user.getRolesInContext(context)
+                if role in allowRolesToAddKeywords]:
+            allowNewItems = True
+
+        args.setdefault('pattern_options', {})
+        args['pattern_options']['allowNewItems'] = allowNewItems
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        value = value.strip().split(self.separator)
+        return value, {}
+
+
+class RelatedItemsWidget(BasePatternWidget):
+    """Related items widget for Archetypes."""
+
+    _base = base_widgets.InputWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'relateditems',
+        'pattern_options': {},
+        'separator': ';',
+        'vocabulary': 'plone.app.vocabularies.Catalog',
+        'vocabulary_view': '@@getVocabulary',
+        'allow_sorting': True,
+    })
+
+    def _base_args(self, context, field, request):
+        args = super(RelatedItemsWidget, self)._base_args(context, field,
+                                                          request)
+
+        value = request.get(field.getName(), None)
+        if value is None:
+            value = field.getAccessor(context)()
+            if field.multiValued:
+                value = [IUUID(o) for o in value if o]
+            else:
+                value = '' if value is None else IUUID(value)
+        else:
+            value = [v.split('/')[0]
+                     for v in value.strip().split(self.separator)]
+
+        vocabulary_factory = getattr(field, 'vocabulary_factory', None)
+        if not self.vocabulary:
+            self.vocabulary = vocabulary_factory
+
+        args['name'] = field.getName()
+        if field.multiValued:
+            args['value'] = self.separator.join(value)
+        else:
+            args['value'] = value
+
+        args.setdefault('pattern_options', {})
+        args['pattern_options']['maximumSelectionSize'] = \
+            -1 if field.multiValued else 1
+        args['pattern_options']['orderable'] = self.allow_sorting
+        args['pattern_options'] = base_widgets.dict_merge(
+            utils.get_relateditems_options(context, args['value'], self.separator,
+                                           self.vocabulary, self.vocabulary_view,
+                                           field.getName()),
+            args['pattern_options'])
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None):
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        value = [v.split('/')[0] for v in value.strip().split(self.separator)]
+        return value, {}
+
+
+class QueryStringWidget(BasePatternWidget):
+    """Query string widget for Archetypes."""
+
+    _base = base_widgets.TextareaWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'querystring',
+        'pattern_options': {},
+        'querystring_view': '@@qsOptions',
+    })
+
+    def _base_args(self, context, field, request):
+        args = super(QueryStringWidget, self)._base_args(
+            context, field, request)
+
+        args['name'] = field.getName()
+        args['value'] = request.get(field.getName(), json.dumps(
+            [dict(c) for c in field.getRaw(context)]
+        ))
+
+        args.setdefault('pattern_options', {})
+        args['pattern_options'] = base_widgets.dict_merge(
+            utils.get_querystring_options(context, self.querystring_view),
+            args['pattern_options'])
+
+        return args
+
+    security = ClassSecurityInfo()
+    security.declarePublic('process_form')
+
+    def process_form(self, instance, field, form, empty_marker=None,
+                     emptyReturnsMarker=False, validating=True):
+        value = form.get(field.getName(), empty_marker)
+        if value is empty_marker:
+            return empty_marker
+        value = json.loads(value)
+        return value, {}
+
+
+class TinyMCEWidget(BasePatternWidget):
+    """TinyMCE widget for Archetypes."""
+
+    _base = base_widgets.TextareaWidget
+
+    _properties = BasePatternWidget._properties.copy()
+    _properties.update({
+        'pattern': 'tinymce',
+        'pattern_options': {},
+    })
+
+    def _base_args(self, context, field, request):
+        args = super(TinyMCEWidget, self)._base_args(context, field, request)
+        args['name'] = field.getName()
+        properties = getToolByName(context, 'portal_properties')
+        charset = properties.site_properties.getProperty('default_charset',
+                                                         'utf-8')
+        args['value'] = (request.get(field.getName(),
+                                     field.getAccessor(context)())
+                         ).decode(charset)
+
+        args.setdefault('pattern_options', {})
+        merged = base_widgets.dict_merge(
+            utils.get_tinymce_options(context, field, request),
+            args['pattern_options'])
+        args['pattern_options'] = merged['pattern_options']
+
+        return args
+
+    def edit(self, context, field, request):
+        """Render widget on edit.
+
+        :returns: Widget's HTML.
+        :rtype: string
+        """
+        from Products.Archetypes.mimetype_utils import getAllowedContentTypes
+        from Products.Archetypes.mimetype_utils import getDefaultContentType
+        from lxml import etree
+
+        rendered = ''
+        allowed_mime_types = getAllowedContentTypes(context)
+        if not allowed_mime_types or len(allowed_mime_types) <= 1:
+            # Display textarea with default widget
+            rendered = self._base(
+                **self._base_args(context, field, request)).render()
+        else:
+            # Let pat-textarea-mimetype-selector choose the widget
+
+            # Initialize the widget without a pattern
+            base_args = self._base_args(context, field, request)
+            pattern_options = base_args['pattern_options']
+            del base_args['pattern']
+            del base_args['pattern_options']
+            textarea_widget = self._base(None, None, **base_args)
+            textarea_widget.klass = ''
+            mt_pattern_name = '{}{}'.format(
+                self._base._klass_prefix,
+                'textareamimetypeselector'
+            )
+
+            # Initialize mimetype selector pattern
+            value_mime_type = field.getContentType(context)\
+                or getDefaultContentType(context)
+            mt_select = etree.Element('select')
+            mt_select.attrib['id'] = '{}_text_format'.format(field.getName())
+            mt_select.attrib['name'] = '{}_text_format'.format(field.getName())
+            mt_select.attrib['class'] = mt_pattern_name
+            mt_select.attrib['{}{}'.format('data-', mt_pattern_name)] =\
+                json.dumps({
+                    'textareaName': field.getName(),
+                    'widgets': {
+                        'text/html': {  # TODO: currently, we only support
+                                        # richtext widget config for
+                                        # 'text/html', no other mimetypes.
+                            'pattern': self.pattern,
+                            'patternOptions': pattern_options
+                        }
+                    }
+                })
+
+            # Create a list of allowed mime types
+            for mt in allowed_mime_types:
+                opt = etree.Element('option')
+                opt.attrib['value'] = mt
+                if value_mime_type == mt:
+                    opt.attrib['selected'] = 'selected'
+                opt.text = mt
+                mt_select.append(opt)
+
+            # Render the combined widget
+            rendered = '{}\n{}'.format(
+                textarea_widget.render(),
+                etree.tostring(mt_select)
+            )
+        return rendered
+
+
 __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'ReferenceWidget', 'ComputedWidget', 'TextAreaWidget',
            'LinesWidget', 'BooleanWidget', 'CalendarWidget',
@@ -855,7 +1439,9 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'RichWidget', 'FileWidget', 'IdWidget', 'ImageWidget',
            'LabelWidget', 'PasswordWidget', 'VisualWidget', 'EpozWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
-           'LanguageWidget',
+           'LanguageWidget', 'DateWidget', 'DatetimeWidget',
+           'SelectWidget', 'TinyMCEWidget', 'QueryStringWidget',
+           'RelatedItemsWidget', 'TagsWidget'
            )
 
 registerWidget(StringWidget,
@@ -930,13 +1516,13 @@ registerWidget(SelectionWidget,
                )
 
 registerWidget(LanguageWidget,
-              title='Language',
-              description=('Renders a HTML selection widget for choosing '
-                           'a language from a vocabulary. The widget can be '
-                           'represented as a dropdown, or as a group of'
-                           'of radio buttons'),
-              used_for=('Products.Archetypes.Field.StringField')
-              )
+               title='Language',
+               description=('Renders a HTML selection widget for choosing '
+                            'a language from a vocabulary. The widget can be '
+                            'represented as a dropdown, or as a group of'
+                            'of radio buttons'),
+               used_for=('Products.Archetypes.Field.StringField')
+               )
 
 registerWidget(MultiSelectionWidget,
                title='Multi Selection',
@@ -1025,6 +1611,47 @@ registerWidget(PicklistWidget,
                             'stay in the first list.'),
                used_for=('Products.Archetypes.Field.LinesField',)
                )
+
+registerWidget(DateWidget,
+               title='Date widget',
+               description=('Date widget'),
+               used_for=('Products.Archetypes.Field.DateTimeField',))
+
+registerWidget(DatetimeWidget,
+               title='Datetime widget',
+               description=('Datetime widget'),
+               used_for=('Products.Archetypes.Field.DateTimeField',))
+
+registerWidget(SelectWidget,
+               title='Select widget',
+               description=('Select widget'),
+               used_for=('Products.Archetypes.Field.SelectField',))
+
+registerWidget(TinyMCEWidget,
+               title='TinyMCE widget',
+               description=('TinyMCE widget'),
+               used_for='Products.Archetypes.Field.TextField')
+
+registerWidget(QueryStringWidget,
+               title='Querystring widget',
+               description=('Querystring widget'),
+               used_for='archetypes.querywidget.field.QueryField')
+
+registerWidget(RelatedItemsWidget,
+               title='Related items widget',
+               description=('Related items widget'),
+               used_for='Products.Archetypes.Field.ReferenceField')
+
+registerWidget(TagsWidget,
+               title='Tags widget',
+               description=('Tags widget'),
+               used_for=('Products.Archetypes.Field.LinesField',))
+
+registerWidget(AjaxSelectWidget,
+               title='Ajax select widget',
+               description=('Ajax select widget'),
+               used_for=('Products.Archetypes.Field.LinesField',))
+
 
 registerPropertyType('maxlength', 'integer', StringWidget)
 registerPropertyType('populate', 'boolean')

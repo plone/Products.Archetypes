@@ -171,3 +171,10 @@ class TextareaWidget(BrowserView):
             return mimetypes[0].name()
         else:
             return name
+
+
+class PatternsWidgetMacros(BrowserView):
+
+    @property
+    def macros(self):
+        return self.index.macros

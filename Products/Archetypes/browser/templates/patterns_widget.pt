@@ -1,0 +1,29 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="plone">
+
+<head><title></title></head>
+
+<body>
+
+  <metal:view_macro define-macro="view">
+    <div tal:attributes="id string:parent-fieldname-$fieldName-${context/UID|nothing}"
+         tal:content="structure python:widget.view(context, field, request)"></div>
+  </metal:view_macro>
+
+  <metal:define define-macro="edit">
+    <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
+      <metal:fill fill-slot="widget_body">
+        <div tal:replace="structure python:widget.edit(context, field, request)"></div>
+      </metal:fill>
+    </metal:use>
+  </metal:define>
+
+<metal:define define-macro="search">
+  <div metal:use-macro="context/widgets_calendar/macros/edit"></div>
+</metal:define>
+
+</body>
+</html>

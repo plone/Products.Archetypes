@@ -68,5 +68,6 @@ setup(name='Products.Archetypes',
           'transaction',
           'ZODB3',
           'Zope2 >= 2.13.1',
+          'plone.app.widgets>=2'
       ],
       )
