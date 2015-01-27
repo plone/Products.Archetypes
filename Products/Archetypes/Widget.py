@@ -23,7 +23,7 @@ from App.class_init import InitializeClass
 from Acquisition import aq_base
 
 from plone.app.widgets import base as base_widgets
-from plone.app.widgets import utils as utils
+from plone.app.widgets import utils
 from plone.uuid.interfaces import IUUID
 
 import json
@@ -858,6 +858,15 @@ class PicklistWidget(TypesWidget):
     security = ClassSecurityInfo()
 
 
+def _one(value, empty_marker=None):
+    if isinstance(value, list):
+        if len(value) > 0:
+            value = value[0]
+        else:
+            return empty_marker
+    return value
+
+
 class BasePatternWidget(TypesWidget):
     """Base widget for Archetypes."""
 
@@ -870,7 +879,7 @@ class BasePatternWidget(TypesWidget):
 
     def _base(self, pattern, pattern_options={}):
         """Base widget class."""
-        raise NotImplemented
+        raise utils.NotImplemented
 
     def _base_args(self, context, field, request):
         """Method which will calculate _base class arguments.
@@ -892,7 +901,7 @@ class BasePatternWidget(TypesWidget):
         :rtype: dict
         """
         if self.pattern is None:
-            raise NotImplemented("'pattern' option is not provided.")
+            raise utils.NotImplemented("'pattern' option is not provided.")
         return {
             'pattern': self.pattern,
             'pattern_options': self.pattern_options,
@@ -1130,7 +1139,7 @@ class SelectWidget(BasePatternWidget):
     security.declarePublic('process_form')
 
     def process_form(self, instance, field, form, empty_marker=None):
-        value = form.get(field.getName(), empty_marker)
+        value = _one(form.get(field.getName(), empty_marker), empty_marker)
         if value is empty_marker:
             return empty_marker
         if self.multiple and isinstance(value, basestring):
@@ -1181,9 +1190,10 @@ class AjaxSelectWidget(BasePatternWidget):
     security.declarePublic('process_form')
 
     def process_form(self, instance, field, form, empty_marker=None):
-        value = form.get(field.getName(), empty_marker)
+        value = _one(form.get(field.getName(), empty_marker), empty_marker)
         if value is empty_marker:
             return empty_marker
+
         value = value.strip().split(self.separator)
         return value, {}
 
@@ -1205,10 +1215,13 @@ class TagsWidget(AjaxSelectWidget):
         membership = getToolByName(context, 'portal_membership')
         user = membership.getAuthenticatedMember()
 
-        site_properties = getToolByName(
-            context, 'portal_properties')['site_properties']
-        allowRolesToAddKeywords = site_properties.getProperty(
-            'allowRolesToAddKeywords', None)
+        try:
+            site_properties = getToolByName(
+                context, 'portal_properties')['site_properties']
+            allowRolesToAddKeywords = site_properties.getProperty(
+                'allowRolesToAddKeywords', None)
+        except AttributeError:
+            allowRolesToAddKeywords = False
 
         allowNewItems = False
         if allowRolesToAddKeywords and [
@@ -1225,9 +1238,11 @@ class TagsWidget(AjaxSelectWidget):
     security.declarePublic('process_form')
 
     def process_form(self, instance, field, form, empty_marker=None):
-        value = form.get(field.getName(), empty_marker)
+        value = _one(form.get(field.getName(), empty_marker), empty_marker)
         if value is empty_marker:
             return empty_marker
+        if not value:
+            return [], {}
         value = value.strip().split(self.separator)
         return value, {}
 
@@ -1441,7 +1456,7 @@ __all__ = ('StringWidget', 'DecimalWidget', 'IntegerWidget',
            'InAndOutWidget', 'PicklistWidget', 'RequiredIdWidget',
            'LanguageWidget', 'DateWidget', 'DatetimeWidget',
            'SelectWidget', 'TinyMCEWidget', 'QueryStringWidget',
-           'RelatedItemsWidget', 'TagsWidget'
+           'RelatedItemsWidget', 'TagsWidget', 'AjaxSelectWidget'
            )
 
 registerWidget(StringWidget,

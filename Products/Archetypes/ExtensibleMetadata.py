@@ -6,8 +6,9 @@ from zope.interface import implements
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import BooleanField, LinesField, TextField, \
     StringField, DateTimeField
-from Products.Archetypes.Widget import BooleanWidget, TagsWidget, \
-    TextAreaWidget, StringWidget, LinesWidget, DatetimeWidget, SelectWidget
+from Products.Archetypes.Widget import (
+    BooleanWidget, TagsWidget, TextAreaWidget, StringWidget,
+    DatetimeWidget, SelectWidget, AjaxSelectWidget)
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces import IExtensibleMetadata
@@ -44,7 +45,7 @@ except ImportError:
     HAS_PLONE_I18N = False
 
 
-## MIXIN
+# MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
     """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
     """
@@ -57,8 +58,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security = ClassSecurityInfo()
 
-    schema = type = MetadataSchema(
-        (
+    schema = type = MetadataSchema((
         BooleanField(
             'allowDiscussion',
             accessor="isDiscussable",
