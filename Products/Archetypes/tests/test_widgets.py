@@ -62,34 +62,8 @@ class WidgetTests(ATTestCase):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
         field = doc.Schema()['subject']
         widget = field.widget
-        form = {'subject_keywords': ['bla', 'ble'],
-                'subject_existing_keywords': ['bli']
-                }
+        form = {'subject': ['bla;ble;bli']}
         expected = ['bla', 'ble', 'bli']
-        result = widget.process_form(doc, field, form)
-        result[0].sort()
-        self.assertEqual(expected, result[0])
-        form = {'subject_keywords': ['bla'],
-                'subject_existing_keywords': ['ble', 'bli']
-                }
-        result = widget.process_form(doc, field, form)
-        result[0].sort()
-        self.assertEqual(expected, result[0])
-        form = {'subject_keywords': [],
-                'subject_existing_keywords': ['bla', 'ble', 'bli']
-                }
-        result = widget.process_form(doc, field, form)
-        result[0].sort()
-        self.assertEqual(expected, result[0])
-        form = {'subject_keywords': ['bla', 'ble', 'bli'],
-                'subject_existing_keywords': ['bla', 'ble', 'bli']
-                }
-        result = widget.process_form(doc, field, form)
-        result[0].sort()
-        self.assertEqual(expected, result[0])
-        form = {'subject_keywords': ['bla', 'ble', 'bli'],
-                'subject_existing_keywords': []
-                }
         result = widget.process_form(doc, field, form)
         result[0].sort()
         self.assertEqual(expected, result[0])
@@ -114,10 +88,9 @@ class WidgetTests(ATTestCase):
         widget = field.widget
         empty_marker = object()
         # test when the widget is rendered and returns empty lists
-        form = {'subject_keywords': [''],
-                'subject_existing_keywords': []
-                }
+        form = {'subject': ['']}
         expected = []
+
         result = widget.process_form(doc, field, form, empty_marker)
         self.assertEqual(expected, result[0])
         # test when the widget is not rendered

@@ -6,8 +6,9 @@ from zope.interface import implements
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import BooleanField, LinesField, TextField, \
     StringField, DateTimeField
-from Products.Archetypes.Widget import BooleanWidget, KeywordWidget, \
-    TextAreaWidget, StringWidget, LinesWidget, CalendarWidget, LanguageWidget
+from Products.Archetypes.Widget import (
+    BooleanWidget, TagsWidget, TextAreaWidget, StringWidget,
+    DatetimeWidget, SelectWidget, AjaxSelectWidget)
 from Products.Archetypes.Schema import Schema
 from Products.Archetypes.Schema import MetadataSchema
 from Products.Archetypes.interfaces import IExtensibleMetadata
@@ -44,7 +45,7 @@ except ImportError:
     HAS_PLONE_I18N = False
 
 
-## MIXIN
+# MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
     """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
     """
@@ -57,8 +58,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security = ClassSecurityInfo()
 
-    schema = type = MetadataSchema(
-        (
+    schema = type = MetadataSchema((
         BooleanField(
             'allowDiscussion',
             accessor="isDiscussable",
@@ -79,7 +79,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             multiValued=1,
             accessor="Subject",
             searchable=True,
-            widget=KeywordWidget(
+            widget=TagsWidget(
                 label=_(u'label_tags', default=u'Tags'),
                 description=_(u'help_tags',
                               default=u'Tags are commonly used for ad-hoc '
@@ -114,31 +114,32 @@ class ExtensibleMetadata(Persistence.Persistent):
         LinesField(
             'contributors',
             accessor="Contributors",
-            widget=LinesWidget(
+            widget=AjaxSelectWidget(
                 label=_(u'label_contributors', u'Contributors'),
                 description=_(u'help_contributors',
                               default=u"The names of people that have contributed "
                                        "to this item. Each contributor should "
                                        "be on a separate line."),
+                vocabulary="plone.app.vocabularies.Users"
                 ),
         ),
         LinesField(
             'creators',
             accessor="Creators",
-            widget=LinesWidget(
+            widget=AjaxSelectWidget(
                 label=_(u'label_creators', u'Creators'),
                 description=_(u'help_creators',
                               default=u"Persons responsible for creating the content of "
                                        "this item. Please enter a list of user names, one "
                                        "per line. The principal creator should come first."),
-                rows=3
+                vocabulary="plone.app.vocabularies.Users"
                 ),
         ),
         DateTimeField(
             'effectiveDate',
             mutator='setEffectiveDate',
             languageIndependent=True,
-            widget=CalendarWidget(
+            widget=DatetimeWidget(
                 label=_(u'label_effective_date', u'Publishing Date'),
                 description=_(u'help_effective_date',
                               default=u"The date when the item will be published. If no "
@@ -149,7 +150,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             'expirationDate',
             mutator='setExpirationDate',
             languageIndependent=True,
-            widget=CalendarWidget(
+            widget=DatetimeWidget(
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
                               default=u"The date when the item expires. This will automatically "
@@ -163,7 +164,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             default=config.LANGUAGE_DEFAULT,
             default_method='defaultLanguage',
             vocabulary='languages',
-            widget=LanguageWidget(
+            widget=SelectWidget(
                 label=_(u'label_language', default=u'Language'),
                 ),
         ),
@@ -191,7 +192,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             isMetadata=True,
             schemata='metadata',
             generateMode='mVc',
-            widget=CalendarWidget(
+            widget=DatetimeWidget(
                 label=_(u'label_creation_date', default=u'Creation Date'),
                 description=_(u'help_creation_date',
                               default=u'Date this object was created'),
@@ -206,7 +207,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             isMetadata=True,
             schemata='metadata',
             generateMode='mVc',
-            widget=CalendarWidget(
+            widget=DatetimeWidget(
                 label=_(u'label_modification_date',
                         default=u'Modification Date'),
                 description=_(u'help_modification_date',
