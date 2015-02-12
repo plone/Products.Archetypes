@@ -6,6 +6,11 @@ Changelog
 
 - Fix ``MimeTypesRegistry`` test import.
   [thet]
+- Allow read-only fields to be set by the structure importer
+  [MatthewWilkes]
+- Include UID in structure exporter and importer, we can retain
+  references in round-tripped content
+  [MatthewWilkes]
 
 
 1.9.8 (2014-06-03)
