@@ -159,11 +159,3 @@ class SetContentTypeTest(ATSiteTestCase):
         field2.setContentType(obj, mimetype2)
         self.assertEqual(field1.getContentType(obj), mimetype1)
         self.assertEqual(field2.getContentType(obj), mimetype2)
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(GetContentTypeTest))
-    suite.addTest(makeSuite(SetContentTypeTest))
-    return suite

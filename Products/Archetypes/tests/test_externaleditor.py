@@ -37,10 +37,3 @@ class ExternalEditorTest(ATSiteTestCase):
         #which externaleditor can use
         obj = makeContent(self.folder, portal_type='SimpleType', id='obj')
         self.assertTrue(IBaseUnit.providedBy(obj.body))
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(ExternalEditorTest))
-    return suite

@@ -75,10 +75,3 @@ class TestValidation(ATTestCase):
         self.assertNotEqual(v('ab.c'), 1)
         self.assertNotEqual(v('ab,c'), 1)
         self.assertNotEqual(v('aaaaaaaab'), 1)  # too long
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestValidation))
-    return suite

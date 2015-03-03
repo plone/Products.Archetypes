@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Acquisition import Explicit
@@ -141,10 +139,3 @@ class TestValidation(ATTestCase):
 
         self.assertTrue(field.validate(1, self.instance, errors={}) is not None)
         self.assertTrue(field.validate(0, self.instance, errors={}) is not None)
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(TestSettings))
-    suite.addTest(makeSuite(TestValidation))
-    return suite

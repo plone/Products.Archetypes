@@ -56,9 +56,3 @@ class LanguageVocabularyTest(ATSiteTestCase):
             self.assertFalse('pt-br' in vocab.keys())
         else:
             self.assertTrue('pt-br' in vocab.keys())
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(LanguageVocabularyTest))
-    return suite

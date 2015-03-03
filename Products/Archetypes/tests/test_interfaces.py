@@ -26,9 +26,7 @@
 # @@ auto generating tests is bullshit. this should go somewhere more
 # easily auditable, like doctests.  DWM
 
-from unittest import TestSuite, makeSuite
-
-from Testing import ZopeTestCase
+from unittest import TestCase, TestSuite, makeSuite
 
 from zope.interface import providedBy, implementedBy
 from zope.interface.verify import verifyClass, verifyObject
@@ -49,8 +47,8 @@ from Products.Archetypes.SQLStorage import BaseSQLStorage, GadflySQLStorage, \
 from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.atapi import registerType
-from Products.Archetypes.tests.layer import ZCML
 
+from plone.app.testing.bbb import PTC_FUNCTIONAL_TESTING
 
 def className(klass):
     """ get the short class name """
@@ -62,7 +60,7 @@ def className(klass):
 tests = []
 
 
-class InterfaceTest(ZopeTestCase.ZopeTestCase):
+class InterfaceTest(TestCase):
     """general interface testing class
 
     klass - the class object to test
@@ -76,7 +74,7 @@ class InterfaceTest(ZopeTestCase.ZopeTestCase):
         setattr(MyClass, MyMethodName, lambda self: self._testStuff())
 
     """
-    layer = ZCML
+    layer = PTC_FUNCTIONAL_TESTING
     klass = None  # test this class
     instance = None  # test this instance
     forcedImpl = ()  # class must implement this tuple of interfaces
@@ -207,7 +205,7 @@ for testClass in testClasses:
         """ implementation for %s """ % name
         klass = klass
         forcedImpl = forcedImpl
-        layer = ZCML
+        layer = PTC_FUNCTIONAL_TESTING
 
     # add the testing method to the class to get a nice name
     setattr(KlassInterfaceTest, funcName, lambda self: self._testStuff())
@@ -221,7 +219,7 @@ for testInstance in (BC, BF, OBF):
         """ implementation for %s """ % name
         instance = testInstance
         forcedImpl = ()
-        layer = ZCML
+        layer = PTC_FUNCTIONAL_TESTING
 
     # add the testing method to the class to get a nice name
     setattr(InstanceInterfaceTest, funcName, lambda self: self._testStuff())

@@ -367,14 +367,3 @@ class TextFieldTest(FileFieldTest):
         # For TextField, we should really return a string for
         # backwards compatibility.
         self.assertTrue(isinstance(result, str), type(result))
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    tests = [
-        unittest.makeSuite(FileFieldTest),
-        unittest.makeSuite(TextFieldTest),
-        ]
-    for t in tests:
-        suite.addTest(t)
-    return suite

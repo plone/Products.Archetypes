@@ -323,14 +323,3 @@ class ClassGenSecurityTest(unittest.TestCase):
         expected = (('Modify portal content',
                      ('makeFoo', 'setFoo', 'getRawFoo')),)
         self.assertEqual(got, expected)
-
-
-def test_suite():
-    suite = TestSuite()
-    tests = (
-        ClassGenSecurityTest,
-        ClassGenTest
-        )
-    for t in tests:
-        suite.addTest(makeSuite(t))
-    return suite

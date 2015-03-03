@@ -187,13 +187,3 @@ class StrangeIdTest(ATSiteTestCase):
         for id in strangeIds:
             self.folder.invokeFactory('Folder', id)
             self.assertTrue(id in self.folder.objectIds())
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(GetFilenameTest))
-    suite.addTest(makeSuite(SetFilenameTest))
-    suite.addTest(makeSuite(LargeFileTest))
-    suite.addTest(makeSuite(StrangeIdTest))
-    return suite

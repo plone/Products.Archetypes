@@ -2,8 +2,6 @@
 Unittests for the events fired by Archetypes.
 """
 
-from unittest import TestSuite, makeSuite
-
 from zope.interface import implements, Interface, directlyProvides
 from zope import component
 
@@ -170,9 +168,3 @@ class ValidationEventTests(ATSiteTestCase):
         sm.unregisterHandler(created_handler, (IObject1, IObjectCreatedEvent,))
         sm.unregisterHandler(initialized_handler, (IObject1, IObjectCreatedEvent,))
         sm.unregisterHandler(edited_handler, (IObject1, IObjectCreatedEvent,))
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ValidationEventTests))
-    return suite
