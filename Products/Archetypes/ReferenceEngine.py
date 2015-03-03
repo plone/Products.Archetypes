@@ -597,9 +597,10 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
         path = '/'.join(root.getPhysicalPath())
 
-        self.ZopeFindAndApply(root, search_sub=1,
-                              apply_func=self._catalogReferencesFor,
-                              apply_path=path, **kw)
+        results = self.ZopeFindAndApply(root,
+                                        search_sub=1,
+                                        apply_func=self._catalogReferencesFor,
+                                        apply_path=path, **kw)
 
     security.declareProtected(permissions.ManagePortal, 'manage_catalogFoundItems')
     def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
@@ -615,6 +616,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         elapse = time.time()
         c_elapse = time.clock()
 
+        words = 0
         obj = REQUEST.PARENTS[1]
 
         self._catalogReferences(obj, obj_metatypes=obj_metatypes,

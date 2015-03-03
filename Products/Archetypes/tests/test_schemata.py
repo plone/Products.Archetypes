@@ -215,3 +215,9 @@ class SchemataTest(ATSiteTestCase):
         self.assertTrue('f1' not in editable_field_ids)
         self.assertTrue('f2' in editable_field_ids)
         self.assertTrue('f3' not in editable_field_ids)
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(SchemataTest))
+    return suite

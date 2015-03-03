@@ -1,8 +1,4 @@
-import unittest
-import doctest
-from plone.testing import layered
-
-from .attestcase import AT_FUNCTIONAL_TESTING
+from Testing.ZopeTestCase import FunctionalDocFileSuite as FileSuite
 
 # a list of dotted paths to modules which contains doc tests
 DOCTEST_MODULES = (
@@ -16,29 +12,21 @@ DOCTEST_MODULES = (
     'Products.Archetypes.browser.widgets',
     )
 
-DOCTEST_FILES = (
-    'events.txt',
-    'traversal_4981.txt',
-    'folder_marshall.txt',
-    'webdav_operations.txt',
-    'traversal.txt',
-    'reindex_sanity.txt')
+DOCTEST_FILES = ('events.txt', )
 
-OPTIONFLAGS = (doctest.ELLIPSIS |
-               doctest.NORMALIZE_WHITESPACE |
-               doctest.REPORT_ONLY_FIRST_FAILURE)
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import ATFunctionalSiteTestCase
+from Products.Archetypes.tests.doctestcase import ZopeDocTestSuite
+
 
 def test_suite():
-    suite = unittest.TestSuite()
-    for testmodule in DOCTEST_MODULES:
-        suite.addTest(layered(
-            doctest.DocTestSuite(testmodule,
-                                 optionflags=OPTIONFLAGS),
-            layer=AT_FUNCTIONAL_TESTING))
+    suite = ZopeDocTestSuite(test_class=ATSiteTestCase,
+                             extraglobs={},
+                             *DOCTEST_MODULES
+                             )
     for testfile in DOCTEST_FILES:
-        suite.addTest(layered(
-            doctest.DocFileSuite(testfile,
-                                 optionflags=OPTIONFLAGS,
-                                 package="Products.Archetypes.tests",),
-            layer=AT_FUNCTIONAL_TESTING))
+        suite.addTest(FileSuite(testfile,
+                                package="Products.Archetypes.tests",
+                                test_class=ATFunctionalSiteTestCase)
+                     )
     return suite

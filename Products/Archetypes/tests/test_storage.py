@@ -28,15 +28,16 @@
 from Products.Archetypes.atapi import AttributeStorage, MetadataStorage
 
 from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
 from Products.Archetypes.tests.test_classgen import gen_dummy
 
 
-class ChangeStorageTest(ATTestCase):
+class ChangeStorageTest(ATSiteTestCase):
 
     def afterSetUp(self):
         gen_dummy()
-        self._dummy = Dummy(oid='dummy')
+        self._dummy = dummy = Dummy(oid='dummy')
         self._dummy.initializeArchetype()
         self._old_storages = {}
 
@@ -101,3 +102,12 @@ class AttributeStorageTest(ATTestCase):
         for field in dummy.schema.fields():
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 field.setStorage(dummy, AttributeStorage())
+
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(ChangeStorageTest))
+    suite.addTest(makeSuite(MetadataStorageTest))
+    suite.addTest(makeSuite(AttributeStorageTest))
+    return suite

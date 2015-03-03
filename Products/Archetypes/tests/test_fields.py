@@ -35,9 +35,8 @@ from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
 
-from plone.app.testing import PLONE_SITE_ID as portal_name
-
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.atsitetestcase import portal_name
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -171,12 +170,11 @@ class DummyIntVocabulary(object):
 DummyIntVocabFactory = DummyIntVocabulary() 
 
 
-FakeRequest = TestRequest
-#class FakeRequest:
-#
-#    def __init__(self):
-#        self.other = {}
-#        self.form = {}
+class FakeRequest:
+
+    def __init__(self):
+        self.other = {}
+        self.form = {}
 
 
 class ProcessingTest(ATSiteTestCase):
@@ -573,3 +571,10 @@ class DownloadTest(ATSiteTestCase):
         self.field.download(self.dummy, no_output=True)
         self.assertEqual(self.response.headers['content-disposition'],
                          'attachment; filename="uberzeugen"')
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(ProcessingTest))
+    suite.addTest(makeSuite(DownloadTest))
+    return suite

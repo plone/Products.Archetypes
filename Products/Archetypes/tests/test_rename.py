@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 
 from Products.Archetypes.tests.utils import makeContent
@@ -202,3 +204,9 @@ class RenameTests(ATSiteTestCase):
         # Should have called manage_afterAdd and manage_afterClone for
         # the *new* object.
         self.assertEqual(got, (1, 0, 1))
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(RenameTests))
+    return suite

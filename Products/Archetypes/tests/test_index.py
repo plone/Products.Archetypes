@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 import time
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -145,3 +147,11 @@ class MultiplexTest(ATSiteTestCase):
         results = self.zc.searchResults(dict(getId='simple_type'))
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].getObject(), inst)
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(ETagTest))
+    suite.addTest(makeSuite(ReindexTest))
+    suite.addTest(makeSuite(MultiplexTest))
+    return suite

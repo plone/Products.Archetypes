@@ -288,6 +288,7 @@ class BaseSchemaTest(ATSiteTestCase):
         self.assertTrue(tuple(vocab) == ())
 
     def test_language(self):
+        default = LANGUAGE_DEFAULT
         dummy = self._dummy
         field = dummy.getField('language')
 
@@ -398,3 +399,10 @@ class BaseSchemaTest(ATSiteTestCase):
         dummy.setExpirationDate('2010-06-01 10:00 Europe/Belgrade')
         self.assertTrue(dummy.effective_date.tzoffset() == 3600)
         self.assertTrue(dummy.expiration_date.tzoffset() == 7200)
+
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(BaseSchemaTest))
+    return suite

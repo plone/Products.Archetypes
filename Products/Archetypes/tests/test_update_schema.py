@@ -23,9 +23,11 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
 import sys
 
 from ZPublisher.HTTPRequest import HTTPRequest
+from Testing import ZopeTestCase
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
@@ -57,7 +59,7 @@ class Dummy2(BaseContent):
     pass
 
 
-class TestUpdateSchema(ATSiteTestCase):
+class TestUpdateSchema(ZopeTestCase.Sandboxed, ATSiteTestCase):
 
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
@@ -248,3 +250,10 @@ An rst Document
         doc = self.folder.mydoc
         mimetype = doc.getField('body').getContentType(doc)
         self.assertEqual(mimetype, 'text/x-rst')
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(TestUpdateSchema))
+    suite.addTest(makeSuite(TestBasicSchemaUpdate))
+    return suite

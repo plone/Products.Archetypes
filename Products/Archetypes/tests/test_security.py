@@ -1,3 +1,5 @@
+import unittest
+
 import textwrap
 from AccessControl import Unauthorized
 
@@ -56,7 +58,7 @@ class AttributeProtectionTest(ATSiteTestCase):
         self.addPS('ps', body=psbody)
         try:
             self.folder.ps()
-        except (AttributeError, ImportError, Unauthorized):
+        except (AttributeError, ImportError, Unauthorized), e:
             pass
         else:
             raise AssertionError, 'Unauthorized not raised'
@@ -112,9 +114,11 @@ class AttributeProtectionTest(ATSiteTestCase):
         p.update(title='Bla1')
         self.assertEqual(p.Title(), 'Bla1')
 
+        title = p.Title()
         p.edit(title='Bla2')
         self.assertEqual(p.Title(), 'Bla2')
 
+        title = p.Title()
         p.processForm(data=True, values={'title': 'Bla3'})
         self.assertEqual(p.Title(), 'Bla3')
 
@@ -142,3 +146,12 @@ class AttributeProtectionTest(ATSiteTestCase):
         content.at_post_edit_script()
         """ % {'object_id': self.object_id}
         self.checkUnauthorized(test)
+
+
+def test_suite():
+    suite = unittest.TestSuite()
+    tests = []
+    tests.append(AttributeProtectionTest)
+    for klass in tests:
+        suite.addTest(unittest.makeSuite(klass))
+    return suite

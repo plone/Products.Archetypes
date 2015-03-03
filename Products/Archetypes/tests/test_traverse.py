@@ -1,4 +1,6 @@
 from unittest import TestCase
+from unittest import TestSuite
+from unittest import makeSuite
 from zope.interface.verify import verifyClass
 from zope.publisher.interfaces import IPublishTraverse
 from Products.Archetypes.traverse import ImageTraverser
@@ -81,3 +83,9 @@ class TraverseTests(TestCase):
         context.field = MockField("Products.Archetypes.Field.ImageField")
         traverser = ImageTraverser(context, None)
         self.assertTrue(traverser.publishTraverse(None, "field_mini") is data_marker)
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(TraverseTests))
+    return suite

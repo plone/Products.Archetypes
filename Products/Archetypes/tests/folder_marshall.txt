@@ -8,41 +8,35 @@ played with WebDAV unnecessarily hard.
 The time has come where now the folderish and the non-folderish unite
 under the same banner, and play nicely with WebDAV.
 
-  >>> from plone.app.testing import TEST_USER_NAME as user_name
-  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
-  >>> portal = layer['portal']
-  >>> portal_name = portal.getId()
-  >>> from plone.app.testing import setRoles
-  >>> from plone.app.testing import TEST_USER_ID
-  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> self.setRoles(['Manager'])
 
 CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
 
-  >>> portal.invokeFactory('SimpleFolder', 'simple_folder') in \
+  >>> self.portal.invokeFactory('SimpleFolder', 'simple_folder') in \
   ...                           (None, 'simple_folder')
   True
 
-  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
+  >>> self.portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
   ...                           in (None, 'simple_btree_folder')
   True
 
 Make sure we've got some reasonable marshaller setup over there:
 
-  >>> portal.simple_folder.Schema().getLayerImpl('marshall')
+  >>> self.portal.simple_folder.Schema().getLayerImpl('marshall')
   <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
 
-  >>> portal.simple_btree_folder.Schema().getLayerImpl('marshall')
+  >>> self.portal.simple_btree_folder.Schema().getLayerImpl('marshall')
   <Products.Archetypes.Marshall.RFC822Marshaller instance at ...>
 
 The trick here is that, to keep backwards compatibility, we only
 enable the new behaviour on folderish objects that have
 ``__dav_marshall__`` set to a valid value.
 
-  >>> folder = portal.simple_folder
+  >>> folder = self.portal.simple_folder
 
-  >>> from Testing.ZopeTestCase.zopedoctest.functional import http 
-  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
-  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/simple_folder HTTP/1.1
   ... Authorization: Basic %s:%s
@@ -119,7 +113,7 @@ like a normal resource:
 
 The same for BTreeFolder:
 
-  >>> folder = portal.simple_btree_folder
+  >>> folder = self.portal.simple_btree_folder
 
   >>> print http(r"""
   ... PUT /%s/simple_btree_folder/ HTTP/1.1
@@ -194,9 +188,3 @@ like a normal resource:
   rights:
   creation_date: ...
   modification_date: ...
-
-  Clean up
-
-  >>> del portal['simple_folder']
-  >>> del portal['simple_btree_folder']
-  >>> AppZapper().clear()

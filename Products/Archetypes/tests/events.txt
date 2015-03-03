@@ -33,22 +33,17 @@ that listens for object events for `IBaseObject`:
 
 Creating an AT object will a couple of events:
 
-  >>> portal = layer['portal']
-  >>> from plone.app.testing import TEST_USER_ID
-  >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
-  >>> d = makeContent(folder, portal_type='DDocument', id='a')
+  >>> d = makeContent(self.folder, portal_type='DDocument', id='a')
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
-  5 events:
-  [(<DDocument at /plone/Members/test_user_1_/a>,
+  4 events:
+  [(<DDocument at /cmf/Members/test_user_1_/a>,
     <zope.lifecycleevent.ObjectCreatedEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /cmf/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.BeforeTransitionEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
+   (<DDocument at /cmf/Members/test_user_1_/a>,
     <Products.DCWorkflow.events.AfterTransitionEvent object at ...>),
-   (<DDocument at /plone/Members/test_user_1_/a>,
-    <zope.lifecycleevent.ObjectAddedEvent object at ...>),
-   (<ATFolder at /plone/Members/test_user_1_>,
-    <zope.container.contained.ContainerModifiedEvent object at ...>)]
+   (<DDocument at /cmf/Members/test_user_1_/a>,
+    <zope.lifecycleevent.ObjectAddedEvent object at ...>)]
 
 
 Calling `processForm`, which is what happens on submitting a form,
@@ -68,7 +63,7 @@ Setup Content Type Registry so that a 'DDocument' is created:
   >>> request.processInputs() 
   >>> ignore = d.PUT(request, request.RESPONSE) 
   >>> from Products.CMFCore.utils import getToolByName 
-  >>> ctr = getToolByName(portal, 'content_type_registry') 
+  >>> ctr = getToolByName(self.portal, 'content_type_registry') 
   >>> p_id = 'at_dav_test' 
   >>> p_type = 'name_regex' 
   >>> ctr.addPredicate(p_id, p_type) 
@@ -81,36 +76,33 @@ Setup Content Type Registry so that a 'DDocument' is created:
 Doing a `PUT` request that creates a brand new object should fire
 IWebDAVObjectInitializedEvent:
 
-  >>> from plone.app.testing import TEST_USER_NAME as user_name
-  >>> from plone.app.testing import TEST_USER_PASSWORD as user_password
-  >>> from plone.app.testing import setRoles
-  >>> setRoles(portal, TEST_USER_ID, ['Manager'])
+  >>> from Products.Archetypes.tests.attestcase import user_name
+  >>> from Products.Archetypes.tests.attestcase import user_password
+  >>> from Products.Archetypes.tests.atsitetestcase import portal_name
+  >>> self.setRoles(['Manager'])
 
-  >>> 'some-document' in folder.objectIds()
+  >>> 'some-document' in self.folder.objectIds()
   False
 
-  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
-  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
-  >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/some-document HTTP/1.1
   ... Authorization: Basic %s:%s
   ... Content-Type: text/plain; charset="utf-8"
   ...
   ... Some Content
-  ... """ % ('/'.join(folder.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
-  >>> 'some-document' in folder.objectIds()
+  >>> 'some-document' in self.folder.objectIds()
   True
 
-  >>> print str(folder['some-document']['body'])
+  >>> print str(self.folder['some-document']['body'])
   Some Content
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/some-document>,
+  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)...]
 
 Doing another `PUT` request to update the same object should fire an
@@ -122,16 +114,16 @@ IWebDAVObjectEditedEvent:
   ... Content-Type: text/plain; charset="utf-8"
   ...
   ... Some Other Content
-  ... """ % ('/'.join(folder.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(self.folder.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 204 No Content
   ...
 
-  >>> print str(folder['some-document']['body'])
+  >>> print str(self.folder['some-document']['body'])
   Some Other Content
 
   >>> handler.print_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<DDocument at /plone/Members/test_user_1_/some-document>,
+  [(<DDocument at /cmf/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectEditedEvent object at ...>)]
 
 Finally, cleanup the CTR predicate to not affect other tests: 
@@ -140,19 +132,16 @@ Finally, cleanup the CTR predicate to not affect other tests:
 
 Test that a MKCOL also fires an IWebDAVObjectInitialized event:
 
-  >>> _ = folder.invokeFactory('SimpleFolder', 'f1')
+  >>> _ = self.folder.invokeFactory('SimpleFolder', 'f1')
 
   >>> print http(r"""
   ... MKCOL /%s/some-folder HTTP/1.1
   ... Authorization: Basic %s:%s
-  ... """ % ('/'.join(folder.f1.getPhysicalPath()), user_name, user_password))
+  ... """ % ('/'.join(self.folder.f1.getPhysicalPath()), user_name, user_password))
   HTTP/1.1 201 Created
   ...
 
   >>> handler.print_last_and_flush() #doctest: +ELLIPSIS
   1 events:
-  [(<SimpleFolder at /plone/Members/test_user_1_/f1/some-folder>,
+  [(<SimpleFolder at /cmf/Members/test_user_1_/f1/some-folder>,
     <Products.Archetypes.event.WebDAVObjectInitializedEvent object at ...>)]
-
-Clean up
-  >>> AppZapper().clear()

@@ -23,6 +23,8 @@
 #
 ################################################################################
 
+from unittest import TestSuite, makeSuite
+
 from Acquisition import aq_base
 import transaction
 
@@ -35,10 +37,9 @@ from Products.Archetypes.atapi import DisplayList
 from plone.uuid.interfaces import IUUIDAware, IUUID
 
 
-class SimpleFolderReferenceableTests(ATSiteTestCase):
-    """ Test referencable behaviour with folders """
+class BaseReferenceableTests(ATSiteTestCase):
 
-    FOLDER_TYPE = 'SimpleFolder'
+    FOLDER_TYPE = None
 
     def verifyBrains(self):
         uc = getattr(self.portal, UID_CATALOG)
@@ -103,11 +104,11 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                 title='Spam',
                                 id='container')
 
-        obj1 = makeContent(container,
+        obj1 = makeContent(self.folder.container,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='obj1')
-        obj2 = makeContent(container,
+        obj2 = makeContent(self.folder.container,
                            portal_type='SimpleType',
                            title='Foo',
                            id='obj2')
@@ -139,7 +140,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                 portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='container')
-        obj1 = makeContent(container,
+        obj1 = makeContent(self.folder.container,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='obj1')
@@ -172,7 +173,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                 portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderA')
-        objA = makeContent(folderA,
+        objA = makeContent(self.folder.folderA,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='objA')
@@ -181,7 +182,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                 portal_type=self.FOLDER_TYPE,
                                 title='Spam',
                                 id='folderB')
-        objB = makeContent(folderB,
+        objB = makeContent(self.folder.folderB,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='objB')
@@ -430,6 +431,22 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertEqual(len(a.getRefs('KnowsAbout')), 2)
         self.assertEqual(len(a.getRefs()), 3)
 
+    def test_UIDunderContainment(self):
+        # If an object is referenced don't record its reference again
+        at = self.portal.archetype_tool
+
+        folder = makeContent(self.folder, portal_type=self.FOLDER_TYPE,
+                             title='Foo', id='folder')
+        nonRef = makeContent(folder, portal_type='Document',
+                             title='Foo', id='nonRef')
+
+        fuid = folder.UID()
+        nuid = nonRef.UID()
+        # We expect this to break, an aq_explicit would fix it but
+        # we can't change the calling convention
+        # XXX: but proxy index could
+        # XXX: assert fuid != nuid
+
     def test_hasRelationship(self):
         a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
         b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
@@ -489,6 +506,8 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
     def test_referenceReference(self):
         # Reference a reference object for fun (no, its like RDFs
         # metamodel)
+        rc = self.portal.reference_catalog
+
         a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
         b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
         c = makeContent(self.folder, portal_type='DDocument', title='Foo', id='c')
@@ -744,7 +763,16 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertTrue(ca_uid == a_uid, (a_uid, ca_uid))
 
 
-class SimpleBTreeFolderReferenceableTests(SimpleFolderReferenceableTests):
-    """ Test referencable behaviour with BTree folders """
+class SimpleFolderReferenceableTests(BaseReferenceableTests):
+    FOLDER_TYPE = 'SimpleFolder'
 
+
+class SimpleBTreeFolderReferenceableTests(BaseReferenceableTests):
     FOLDER_TYPE = 'SimpleBTreeFolder'
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(SimpleFolderReferenceableTests))
+    suite.addTest(makeSuite(SimpleBTreeFolderReferenceableTests))
+    return suite

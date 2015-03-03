@@ -47,3 +47,9 @@ class UtilsMethodsTests(ATSiteTestCase):
         self.assertEqual(utilsView.translate(vocab, value=[]), u'')
         self.assertEqual(utilsView.translate(vocab, value=()), u'')
         self.assertEqual(utilsView.translate(vocab, value=set()), u'')
+
+
+def test_suite():
+    suite = TestSuite()
+    suite.addTest(makeSuite(UtilsMethodsTests))
+    return suite

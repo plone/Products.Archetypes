@@ -1,8 +1,19 @@
-from plone.app.testing import bbb
-from plone.app.testing import FunctionalTesting, applyProfile
+from Testing import ZopeTestCase
+from Testing.ZopeTestCase import user_name
+from Testing.ZopeTestCase import user_password
+from Testing.ZopeTestCase.functional import Functional
+
+from Products.CMFTestCase import CMFTestCase
+from Products.CMFTestCase.ctc import setupCMFSite
+from Products.CMFTestCase.layer import onsetup
 from Products.GenericSetup import EXTENSION, profile_registry
 
+from Products.Archetypes.tests.layer import ZCML
 
+default_user = user_name
+default_role = 'Member'
+
+@onsetup
 def setupSampleTypeProfile():
     profile_registry.registerProfile('Archetypes_sampletypes',
         'Archetypes Sample Content Types',
@@ -11,31 +22,30 @@ def setupSampleTypeProfile():
         'Products.Archetypes',
         EXTENSION)
 
-class ATTestCaseFixture(bbb.PloneTestCaseFixture):
+# setup a CMF site
+ZopeTestCase.installProduct('PythonScripts')
+ZopeTestCase.installProduct('SiteErrorLog')
+ZopeTestCase.installProduct('CMFFormController')
+ZopeTestCase.installProduct('CMFQuickInstallerTool')
+ZopeTestCase.installProduct('MimetypesRegistry')
+ZopeTestCase.installProduct('PortalTransforms')
+ZopeTestCase.installProduct('Archetypes')
 
-    defaultBases = (bbb.PTC_FIXTURE,)
+setupSampleTypeProfile()
+setupCMFSite(
+    extension_profiles=['Products.CMFFormController:CMFFormController',
+                        'Products.CMFQuickInstallerTool:CMFQuickInstallerTool',
+                        'Products.MimetypesRegistry:MimetypesRegistry',
+                        'Products.PortalTransforms:PortalTransforms',
+                        'Products.Archetypes:Archetypes',
+                        'Products.Archetypes:Archetypes_sampletypes'])
 
-    def setUpZope(self, app, configurationContext):
-        setupSampleTypeProfile()
-        # load i18n fallback domain
-        import Products.CMFCore
-        self.loadZCML("testing.zcml", package=Products.CMFCore)
-
-    def setUpPloneSite(self, portal):
-        applyProfile(portal, 'Products.Archetypes:Archetypes_sampletypes')
-        portal._delObject('portal_languages', suppress_events=True)
-
-AT_FIXTURE = ATTestCaseFixture()
-AT_FUNCTIONAL_TESTING = FunctionalTesting(bases=(AT_FIXTURE,),
-                                          name='Archetypes:Functional')
-
-class ATTestCase(bbb.PloneTestCase):
+class ATTestCase(ZopeTestCase.ZopeTestCase):
     """Simple AT test case
     """
+    layer = ZCML
 
-    layer = AT_FUNCTIONAL_TESTING
-
-    def runTest(self):
-        pass
-
-ATFunctionalTestCase = ATTestCase
+class ATFunctionalTestCase(Functional, ATTestCase):
+    """Simple AT test case for functional tests
+    """
+    layer = ZCML

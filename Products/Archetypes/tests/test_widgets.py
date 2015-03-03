@@ -28,7 +28,7 @@
 
 import os
 
-from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.test_fields import FakeRequest
@@ -40,7 +40,7 @@ stub_bin_file = None
 stub_bin_content = ''
 
 
-class WidgetTests(ATTestCase):
+class WidgetTests(ATSiteTestCase):
 
     def afterSetUp(self):
         # XXX messing up with global vars is bad!
@@ -334,9 +334,8 @@ class WidgetTests(ATTestCase):
         # results, but that is because during the tests a test
         # translation domain factory is used as fallback, which simply
         # reports the domain and the original msgid in square
-        # brackets, without looking up actual translations.
-        # This domain is defined in Products.CMFCore:testing.zcml
-        # The good thing is that now we can easily check if a translation has
+        # brackets, without looking up actual translations.  The good
+        # thing is that now we can easily check if a translation has
         # been tried for the correct domain and if translation has not
         # been done twice.
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
@@ -421,3 +420,10 @@ class WidgetTests(ATTestCase):
         result = trans(vocab, ['complex2','bar2', 'spoon2'], widget)
         self.assertEqual(result,
             u'[[attesti18n][C\xf6mpl\xe8x 2]], [[domain1][Bar 2]], [[attesti18n][spoon2]]')
+
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(WidgetTests))
+    return suite
