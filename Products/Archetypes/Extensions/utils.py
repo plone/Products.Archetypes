@@ -294,14 +294,10 @@ def isPloneSite(self):
 
 
 def filterTypes(self, out, types, package_name):
-    typesTool = getToolByName(self, 'portal_types')
-
     filtered_types = []
 
     for rti in types:
         t = rti['klass']
-        name = rti['name']
-        meta_type = rti['meta_type']
 
         isBaseObject = 0
         if IBaseObject.implementedBy(t):

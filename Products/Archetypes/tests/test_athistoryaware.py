@@ -134,14 +134,3 @@ class ATHistoryAwareTests(unittest.TestCase):
     def test_maxReturned(self):
         history = list(self.object.getHistories(max=2))
         self.assertEqual(len(history), 2)
-
-
-def test_suite():
-    suite = unittest.TestSuite()
-    suite.addTests((
-        unittest.makeSuite(ATHistoryAwareTests),
-    ))
-    return suite
-
-if __name__ == '__main__':
-    unittest.main()

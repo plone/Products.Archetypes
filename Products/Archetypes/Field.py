@@ -1910,12 +1910,15 @@ class ReferenceField(ObjectField):
         list of objects or one object to which I will add a reference
         to. None and [] are equal.
 
+        >>> portal = layer['portal']
+        >>> from plone.app.testing import TEST_USER_ID
+        >>> folder = portal.portal_membership.getHomeFolder(TEST_USER_ID)
         >>> for node in range(3):
-        ...     _ = self.folder.invokeFactory('Refnode', 'n%s' % node)
+        ...     _ = folder.invokeFactory('Refnode', 'n%s' % node)
 
         Use set with a list of objects:
 
-        >>> nodes = self.folder.n0, self.folder.n1, self.folder.n2
+        >>> nodes = folder.n0, folder.n1, folder.n2
         >>> nodes[0].setLinks(nodes[1:])
         >>> nodes[0].getLinks()
         [<Refnode...>, <Refnode...>]
@@ -1952,8 +1955,8 @@ class ReferenceField(ObjectField):
 
         Empty BTreeFolders work as values (#1212048):
 
-        >>> _ = self.folder.invokeFactory('SimpleBTreeFolder', 'btf')
-        >>> nodes[2].setLink(self.folder.btf)
+        >>> _ = folder.invokeFactory('SimpleBTreeFolder', 'btf')
+        >>> nodes[2].setLink(folder.btf)
         >>> nodes[2].getLink()
         <SimpleBTreeFolder...>
         """

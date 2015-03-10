@@ -16,6 +16,7 @@ NuxDocument     -- ideas, the base model for the content driver
 --PEOPLE alphabetical (surname) --
 Philipp Auersperg               -- Some of the action handling code
 Geoff Davis                     -- PloneOMatic, consultation, patches
+Tom Gross                       -- Ported tests to plone.app.testing
 Christian Heimes                -- Bug fixing and improvements, new unit
                                    test suit based on ZopeTestCase
 Vladimir Iliev                  -- Lots of i18n work

@@ -1,5 +1,3 @@
-from unittest import TestSuite, makeSuite
-
 from cStringIO import StringIO
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -50,9 +48,3 @@ class InstallIndexesTests(ATSiteTestCase):
         ComplexType.schema['richtextfield'].index_method = ComplexType._get_selection_vocab
         self.assertRaises(ValueError,
                               utils.install_indexes, self.portal, StringIO(), (ComplexType,))
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(InstallIndexesTests))
-    return suite

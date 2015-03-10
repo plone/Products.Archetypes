@@ -38,10 +38,3 @@ class TemplateMixinTest(ATSiteTestCase):
     def test_isTemplateEnabledType(self):
         at = getToolByName(self.portal, TOOL_NAME)
         self.assertTrue(at.isTemplateEnabled(dict(klass=TemplateMixin)))
-
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(TemplateMixinTest))
-    return suite

@@ -58,9 +58,3 @@ class VarSchemataTest(ATTestCase):
         dummy.setAdditionalField('flurb')
         #check if we can read the new field using the new schema
         self.assertEqual(dummy.getAdditionalField(), 'flurb')
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(VarSchemataTest))
-    return suite

@@ -42,9 +42,10 @@ import transaction
 
 from plone.uuid.interfaces import IAttributeUUID, IUUID
 from plone.indexer import wrapper
+from Acquisition import Explicit
 
 
-class DexterityLike(object):
+class DexterityLike(Explicit):
     """Create a new class non based on Archetypes"""
     interface.implements(IAttributeUUID)
 
@@ -353,9 +354,3 @@ class ReferenceCatalogTests(ATSiteTestCase):
         # create the relation between those
         ob.setRelated(dext)
         self.assertEqual(ob.getRelated()[0], dext)
-
-
-def test_suite():
-    suite = TestSuite()
-    suite.addTest(makeSuite(ReferenceCatalogTests))
-    return suite
