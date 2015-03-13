@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.2 (unreleased)
+1.10.5 (2015-03-13)
 -------------------
 
 - Move tests to plone.app.testing.
