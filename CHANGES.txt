@@ -1,26 +1,33 @@
 Changelog
 =========
 
-1.10.3 (unreleased)
+1.10.2 (unreleased)
 -------------------
+
+- Move tests to plone.app.testing.
+  [tomgross, timo]
+
+- Integrate plone.app.widgets.
+  [vangheem]
 
 - Fix ``MimeTypesRegistry`` test import.
   [thet]
 
-- For Plone 5, support getting markup control panel settings from the registry,
-  while still supporting normal portal_properties access for Plone < 5.
+- For Plone 5, support getting markup control panel settings from the
+  registry, while still supporting normal portal_properties access for Plone
+  < 5.
   [thet]
 
 
 1.10.2 (2014-10-23)
 -------------------
 
-- Correctly determine default value for boolean widget. fixes 
+- Correctly determine default value for boolean widget. fixes
   https://dev.plone.org/ticket/9675.
   [dibell]
 
-- make textCounter work in Plone 4.3 because 'jquery-integration.js' was 
-  disabled and remove jq calls. see 
+- make textCounter work in Plone 4.3 because 'jquery-integration.js' was
+  disabled and remove jq calls. see
   https://github.com/plone/Products.Archetypes/pull/41
   [sverbois]
 
@@ -41,7 +48,7 @@ Changelog
 1.10.1 (2014-04-13)
 -------------------
 
-- waking instances is cheaper than processing a potentially huge vocabulary 
+- waking instances is cheaper than processing a potentially huge vocabulary
   for getting the title, therefore we handle reference fields seperately
   [zwork, agitator]
 
@@ -110,6 +117,7 @@ Changelog
 - Make (non-valued) default value selected in select widget if no selection
   is given. This happens  especially with ReferenceFields.
   [thepjot]
+
 
 1.9.4 (2013-08-29)
 ------------------
