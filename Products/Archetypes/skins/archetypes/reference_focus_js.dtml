@@ -12,6 +12,6 @@ function unRegisterPloneFunction(func){
   }
 
 unRegisterPloneFunction(setFocus);
-registerPloneFunction(focusOnReferenceField);
+jQuery(focusOnReferenceField);
 -->
 </dtml-if>
