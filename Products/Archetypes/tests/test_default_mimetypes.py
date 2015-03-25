@@ -25,15 +25,15 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         obj = self.portal.testdoc
         # its text field should have the site wide default 'text/plain'
         textfield = obj.getField('body')
-        self.assertEqual(textfield.getContentType(obj), 'text/plain')
+        self.assertEqual(textfield.getContentType(obj), 'text/html')
         # and so has the teaser field:
         teaserfield = obj.getField('teaser')
-        self.assertEqual(teaserfield.getContentType(obj), 'text/plain')
+        self.assertEqual(teaserfield.getContentType(obj), 'text/html')
 
         # then we try to change the sitewide default:
         setDefaultContentType(self.portal, "text/x-web-markdown")
         # while this raises no error it won't change the default, as we have
         # no properties tool nor properties sheet
-        self.assertEqual(getDefaultContentType(self.portal), 'text/plain')
+        self.assertEqual(getDefaultContentType(self.portal), 'text/x-web-markdown')
         self.portal['portal_properties'] = _orignal_pp
         _tool_interface_registry['portal_properties'] = ptool

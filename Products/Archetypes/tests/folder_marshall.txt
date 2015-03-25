@@ -112,7 +112,7 @@ like a normal resource:
   creators: test_user_1_
   effectiveDate: None
   expirationDate: None
-  language:
+  language: en
   rights:
   creation_date: ...
   modification_date: ...
@@ -190,7 +190,7 @@ like a normal resource:
   creators: test_user_1_
   effectiveDate: None
   expirationDate: None
-  language:
+  language: en
   rights:
   creation_date: ...
   modification_date: ...
