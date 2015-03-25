@@ -9,6 +9,9 @@ from Products.Archetypes.atapi import process_types
 from Products.Archetypes.config import PKG_NAME
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
+from Products.CMFPlone.interfaces import ILanguageSchema
 
 Dummy.schema = BaseSchema
 
@@ -32,10 +35,11 @@ class LanguageVocabularyTest(ATSiteTestCase):
         tool = getToolByName(self.portal, 'portal_languages', None)
         defaultLanguage = 'en'
         supportedLanguages = ['en', 'de', 'no']
-        if tool is not None:
-            tool.manage_setLanguageSettings(defaultLanguage,
-                                            supportedLanguages,
-                                            setUseCombinedLanguageCodes=False)
+        settings = getUtility(IRegistry).forInterface(
+            ILanguageSchema,
+            prefix='plone')
+        settings.default_language = defaultLanguage
+        settings.available_languages = supportedLanguages
         dummy = self._dummy
         field = dummy.getField('language')
         vocab = field.Vocabulary(dummy)
@@ -45,10 +49,12 @@ class LanguageVocabularyTest(ATSiteTestCase):
         tool = getToolByName(self.portal, 'portal_languages', None)
         defaultLanguage = 'pt-br'
         supportedLanguages = ['pt-br', 'en', 'de', 'no']
-        if tool is not None:
-            tool.manage_setLanguageSettings(defaultLanguage,
-                                            supportedLanguages,
-                                            setUseCombinedLanguageCodes=True)
+        settings = getUtility(IRegistry).forInterface(
+            ILanguageSchema,
+            prefix='plone')
+        settings.use_combined_language_codes = True
+        settings.default_language = defaultLanguage
+        settings.available_languages = supportedLanguages
         dummy = self._dummy
         field = dummy.getField('language')
         vocab = field.Vocabulary(dummy)
