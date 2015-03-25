@@ -23,7 +23,6 @@ class ATTestCaseFixture(bbb.PloneTestCaseFixture):
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'Products.Archetypes:Archetypes_sampletypes')
-        portal._delObject('portal_languages', suppress_events=True)
 
 AT_FIXTURE = ATTestCaseFixture()
 AT_FUNCTIONAL_TESTING = FunctionalTesting(bases=(AT_FIXTURE,),
