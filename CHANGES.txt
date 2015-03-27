@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.6 (unreleased)
+1.10.6 (2015-03-26)
 -------------------
 
 - Replace deprecated JavaScript functions with their jQuery equivalents.
