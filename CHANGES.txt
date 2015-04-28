@@ -7,6 +7,9 @@ Changelog
 - Remove dependency on CMFDefault
   [tomgross]
 
+- We only support `utf-8` at the moment.
+  [tomgross]
+
 
 1.10.6 (2015-03-26)
 -------------------
