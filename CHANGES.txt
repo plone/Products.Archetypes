@@ -4,7 +4,9 @@ Changelog
 1.9.10 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Rerelease because there seems to be something wrong with a copy of
+  the 1.9.9 distribution on our Jenkins test server.
+  [maurits]
 
 
 1.9.9 (2015-02-20)
