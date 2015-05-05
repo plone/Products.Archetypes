@@ -42,17 +42,11 @@ ModuleSecurityInfo('zExceptions').declarePublic('NotFound')
 from Products.Archetypes.ArchetypeTool import process_types, listTypes
 from Products.Archetypes.ArchetypeTool import ArchetypeTool
 ATToolModule = sys.modules[ArchetypeTool.__module__]  # mpf :|
-from Products.Archetypes.ArchTTWTool import ArchTTWTool
 from Products.Archetypes.ReferenceEngine import ReferenceCatalog as RefTool
 from Products.Archetypes.UIDCatalog import UIDCatalog as UIDTool
 
 
-tools = (
-    ArchetypeTool,
-    ArchTTWTool,
-    RefTool,
-    UIDTool,
-    )
+tools = (ArchetypeTool, RefTool, UIDTool)
 
 types_globals = globals()
 
