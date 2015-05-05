@@ -303,6 +303,11 @@ class ExtensibleMetadata(Persistence.Persistent):
             default = typeInfo.allowDiscussion()
         return default
 
+    security.declareProtected(permissions.ModifyPortalContent,
+                              'allowDiscussion')
+    def allowDiscussion(self, allowDiscussion=None, **kw):
+        pass
+
     # Vocabulary methods ######################################################
 
     security.declareProtected(permissions.View, 'languages')
@@ -695,7 +700,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'manage_metadata')
-    manage_metadata = DTMLFile('zmi_metadata', _www)
+    manage_metadata = DTMLFile('zmi_metadata', config._www)
 
     security.declareProtected(permissions.ModifyPortalContent,
                                'manage_editMetadata')
