@@ -19,6 +19,7 @@ from Products.Archetypes.SQLStorageConfig import SQLStorageConfig
 from Products.Archetypes.config import TOOL_NAME
 from Products.Archetypes.config import UID_CATALOG
 from Products.Archetypes.config import HAS_GRAPHVIZ
+from Products.Archetypes.config import _www
 from Products.Archetypes.log import log
 from Products.Archetypes.utils import findDict
 from Products.Archetypes.utils import DisplayList
@@ -59,7 +60,6 @@ class BoundPageTemplateFile(PageTemplateFile):
         extra_context['options'] = options
         return PageTemplateFile.pt_render(self, source, extra_context)
 
-_www = os.path.join(os.path.dirname(__file__), 'www')
 _skins = os.path.join(os.path.dirname(__file__), 'skins')
 _zmi = os.path.join(_www, 'zmi')
 document_icon = os.path.join(_zmi, 'icons', 'document_icon.gif')

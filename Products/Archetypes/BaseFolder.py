@@ -136,8 +136,7 @@ class BaseFolderMixin(CatalogMultiplex,
     def folderlistingFolderContents(self, contentFilter=None,
                                     suppressHiddenFiles=0):
         """Calls listFolderContents in protected only by ACI so that
-        folder_listing can work without the List folder contents permission,
-        as in CMFDefault.
+        folder_listing can work without the List folder contents permission.
         """
         return self.listFolderContents(contentFilter=contentFilter,
                                        suppressHiddenFiles=suppressHiddenFiles)

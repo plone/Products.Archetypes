@@ -45,3 +45,6 @@ LANGUAGE_DEFAULT = u'en'
 # Archetypes before 1.4 managed the catalog map using meta types instead of
 # portal types. If you need this old behaviour change this setting to False.
 CATALOGMAP_USES_PORTALTYPE = True
+
+import os
+_www = os.path.join(os.path.dirname(__file__), 'www')

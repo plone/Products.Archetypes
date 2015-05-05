@@ -12,7 +12,7 @@ from Products.Archetypes.interfaces import IReferenceCatalog
 
 from Products.Archetypes.utils import make_uuid, getRelURL, shasattr
 from Products.Archetypes.config import (
-    TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR)
+    TOOL_NAME, UID_CATALOG, REFERENCE_CATALOG, UUID_ATTR, _www)
 from Products.Archetypes.exceptions import ReferenceException
 
 from Acquisition import aq_base, aq_parent
@@ -33,7 +33,6 @@ from Products import CMFCore
 
 from plone.uuid.interfaces import IUUID
 
-_www = os.path.join(os.path.dirname(__file__), 'www')
 _catalog_dtml = os.path.join(os.path.dirname(CMFCore.__file__), 'dtml')
 
 STRING_TYPES = (StringType, UnicodeType)

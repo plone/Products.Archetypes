@@ -150,7 +150,6 @@ class IBaseFolder(IBaseObject):
 
     BaseFolder is subclassing the following classes, too:
 
-    Products.CMFDefault.SkinnedFolder.SkinnedFolder
     OFS.Folder.Folder
     """
 
@@ -162,7 +161,7 @@ class IBaseFolder(IBaseObject):
     def folderlistingFolderContents(contentFilter=None, suppressHiddenFiles=0):
         """
         Calls listFolderContents in protected only by ACI so that folder_listing
-        can work without the List folder contents permission, as in CMFDefault
+        can work without the List folder contents permission.
         """
 
 
