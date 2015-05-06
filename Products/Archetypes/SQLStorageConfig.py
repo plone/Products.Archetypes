@@ -1,6 +1,7 @@
 """ SQL Storage Configuration for Archetypes.
 """
 from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import _www
 from Products.Archetypes.interfaces.storage import ISQLStorage
 from Products.Archetypes.interfaces.field import IObjectField
 
@@ -33,7 +34,7 @@ class SQLStorageConfig (SimpleItem):
     #   ZMI methods
     #
 
-    _manage_selectConnections = DTMLFile('www/selectConnections', globals())
+    _manage_selectConnections = DTMLFile('selectConnections', _www)
 
     security.declareProtected(ManagePortal, 'manage_selectConnections')
     def manage_selectConnections(self, REQUEST, manage_tabs_message=None):

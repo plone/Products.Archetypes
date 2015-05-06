@@ -194,15 +194,9 @@ class PortalCopyTests(ATSiteTestCase):
     def test_copy_paste_resets_workflow(self):
         # Copy/pasting a File should reset workflow to the default state
 
-        # This test depends on the default wf, assume CMFDefault if plone
-        # isn't present
         wf_tool = self.portal.portal_workflow
-        if 'plone_workflow' in wf_tool.objectIds():
-            wf_id = 'plone_workflow'
-            def_state = 'visible'
-        else:
-            wf_id = 'default_workflow'
-            def_state = 'private'
+        wf_id = 'plone_workflow'
+        def_state = 'visible'
 
         wf_tool.setChainForPortalTypes(('DDocument',), (wf_id,))
         self.folder.invokeFactory('DDocument', id='test_file')
@@ -224,15 +218,10 @@ class PortalCopyTests(ATSiteTestCase):
     def test_cut_paste_preserves_workflow(self):
         # Cut/pasting a File should preserve workflow state
 
-        # This test depends on the default wf, assume CMFDefault if plone
-        # isn't present
+        # This test depends on the default wf
         wf_tool = self.portal.portal_workflow
-        if 'plone_workflow' in wf_tool.objectIds():
-            wf_id = 'plone_workflow'
-            def_state = 'visible'
-        else:
-            wf_id = 'default_workflow'
-            def_state = 'private'
+        wf_id = 'plone_workflow'
+        def_state = 'visible'
 
         wf_tool.setChainForPortalTypes(('DDocument',), (wf_id,))
         self.folder.invokeFactory('DDocument', id='test_file')

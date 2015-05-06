@@ -24,7 +24,6 @@ from App.class_init import InitializeClass
 from App.special_dtml import DTMLFile
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
-from Products.CMFDefault.utils import _dtmldir
 from Products.CMFPlone.log import log_deprecated
 from ComputedAttribute import ComputedAttribute
 
@@ -47,13 +46,9 @@ except ImportError:
 
 # MIXIN
 class ExtensibleMetadata(Persistence.Persistent):
-    """a replacement for CMFDefault.DublinCore.DefaultDublinCoreImpl
+    """ A DC metadata implementation for Plone Archetypes
     """
-    # XXX This is not completely true. We need to review this later
-    # and make sure it is true.
-    # Just so you know, the problem here is that Title
-    # is on BaseObject.schema, so it does implement IExtensibleMetadata
-    # as long as both are used together.
+
     implements(IExtensibleMetadata)
 
     security = ClassSecurityInfo()
@@ -311,44 +306,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
     def allowDiscussion(self, allowDiscussion=None, **kw):
-        log_deprecated(
-            "The allowDiscussion method from the ExtensibleMetadata in "
-            "Products.ATContentTypes has been deprecated and will be removed "
-            "in Plone 5. This method belongs to the old discussion "
-            "infrastructure that already has been replaced by "
-            "plone.app.discussion in Plone 4.1."
-        )
-        if not 'portal_discussion' in self.objectIds():
-            return
-        default = self.defaultIsDiscussable()
-        current = self.rawIsDiscussable()
-
-        # If we already overwrote the default or the value we try to set is
-        # not the default we change it. Otherwise we keep what's there.
-        if (current is not None or
-            (current is None and default != allowDiscussion)):
-            dtool = getToolByName(self, 'portal_discussion', None)
-            try:
-                if dtool is not None:
-                    try:
-                        dtool.overrideDiscussionFor(self, allowDiscussion)
-                    except AttributeError:
-                        # CMF 2.1.0's CMFDefault.DiscussionTool
-                        # has tried to delete the class attribute.
-                        # TODO: remove this when we move to a later
-                        # CMF.
-                        pass
-            except Unauthorized:
-                # Catch Unauthorized exception that could be raised by the
-                # discussion tool when the authenticated users hasn't
-                # ModifyPortalContent permissions.
-                # Explanation:
-                # A user might have CreatePortalContent but not ModifyPortalContent
-                # so allowDiscussion could raise a Unauthorized error although it's
-                # called from trusted code. That is VERY bad inside setDefault()!
-                log('Catched Unauthorized on discussiontool.' \
-                    'overrideDiscussionFor(%s)' % self.absolute_url(1),
-                    level=DEBUG)
+        pass
 
     # Vocabulary methods ######################################################
 
@@ -742,7 +700,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'manage_metadata')
-    manage_metadata = DTMLFile('zmi_metadata', _dtmldir)
+    manage_metadata = DTMLFile('zmi_metadata', config._www)
 
     security.declareProtected(permissions.ModifyPortalContent,
                                'manage_editMetadata')
