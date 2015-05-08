@@ -1364,19 +1364,15 @@ class TinyMCEWidget(BasePatternWidget):
     def _base_args(self, context, field, request):
         args = super(TinyMCEWidget, self)._base_args(context, field, request)
         args['name'] = field.getName()
-        properties = getToolByName(context, 'portal_properties')
-        charset = properties.site_properties.getProperty('default_charset',
-                                                         'utf-8')
         args['value'] = (request.get(field.getName(),
                                      field.getAccessor(context)())
-                         ).decode(charset)
+                         ).decode('utf-8')
 
         args.setdefault('pattern_options', {})
         merged = base_widgets.dict_merge(
             utils.get_tinymce_options(context, field, request),
             args['pattern_options'])
         args['pattern_options'] = merged['pattern_options']
-
         return args
 
     def edit(self, context, field, request):
