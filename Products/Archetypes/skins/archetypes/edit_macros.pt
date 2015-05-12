@@ -77,6 +77,7 @@
          tal:condition="not:isLocked"
          tal:define="portal_type portal_type|string:unknowntype">
       <form name="edit_form"
+            data-pat-autotoc="levels: legend; section: fieldset; className: autotabs"
             method="post"
             enctype="multipart/form-data"
             class="enableUnloadProtection enableAutoFocus atBaseEditForm"
@@ -84,7 +85,7 @@
             id=""
             tal:attributes="action python:context.absolute_url()+'/'+template.id;
                             id string:${portal_type}-base-edit;
-                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing enableUnlockProtection', 'enableUnloadProtection enableAutoFocus enableUnlockProtection');">
+                            class python:test(path('allow_tabbing|nothing'), 'enableUnloadProtection enableAutoFocus enableFormTabbing pat-autotoc enableUnlockProtection', 'enableUnloadProtection enableAutoFocus enableUnlockProtection');">
           <metal:block define-slot="extra_top" />
 
           <div tal:replace="structure provider:archetypes.edit.beforefieldsets" />
