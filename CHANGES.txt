@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10.8 (unreleased)
+1.10.8 (2015-07-18)
 -------------------
 
 - Moved createObject from ATContentTypes.
