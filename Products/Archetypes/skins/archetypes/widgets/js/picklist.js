@@ -8,7 +8,7 @@ function pick_selectAllWords(theList) {
 function pick_addNewKeyword(toList,newText,newValue) {
   theToList=document.getElementById(toList);
   for (var x=0; x < theToList.length; x++) {
-    if (theToList[x].text == newText) {
+    if (theToList[x].value == newValue) {
       return false;
     }
   }
