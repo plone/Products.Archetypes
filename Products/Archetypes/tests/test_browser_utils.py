@@ -1,5 +1,3 @@
-from unittest import TestSuite, makeSuite
-
 from zope.component import getMultiAdapter
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase

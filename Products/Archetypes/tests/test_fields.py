@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 import os
 import PIL
 

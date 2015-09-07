@@ -26,7 +26,6 @@
 """
 
 import unittest
-from unittest import TestSuite, makeSuite
 
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo

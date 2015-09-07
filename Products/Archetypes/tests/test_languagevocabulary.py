@@ -1,5 +1,3 @@
-from unittest import TestSuite, makeSuite
-
 from Products.CMFCore.utils import getToolByName
 
 from Products.Archetypes.atapi import BaseSchema

@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from zope import component
 from zope import interface
 from zope.event import notify

@@ -23,8 +23,6 @@
 #
 ################################################################################
 
-from unittest import TestSuite, makeSuite
-
 from Acquisition import aq_base
 from Acquisition import aq_parent
 
