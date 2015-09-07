@@ -1,8 +1,6 @@
 # test initialisation and setup
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from unittest import TestSuite, makeSuite
-
 from Products.Archetypes.mimetype_utils import getDefaultContentType
 from Products.Archetypes.mimetype_utils import setDefaultContentType
 
@@ -15,9 +13,9 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         # default mimetype tests
         _orignal_pp = self.portal['portal_properties']
         self.portal._delObject('portal_properties', suppress_events=True)
-        from Products.CMFCore.utils import getToolByName
         from Products.CMFCore.utils import _tool_interface_registry
-        ptool = _tool_interface_registry.pop('portal_properties')
+        _marker = object()
+        ptool = _tool_interface_registry.pop('portal_properties', _marker)
 
         self.loginAsPortalOwner()
         # we create a new document:
@@ -36,4 +34,5 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         # no properties tool nor properties sheet
         self.assertEqual(getDefaultContentType(self.portal), 'text/x-web-markdown')
         self.portal['portal_properties'] = _orignal_pp
-        _tool_interface_registry['portal_properties'] = ptool
+        if ptool is not _marker:
+            _tool_interface_registry['portal_properties'] = ptool
