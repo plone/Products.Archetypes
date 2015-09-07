@@ -4,6 +4,12 @@ Changelog
 1.10.9 (unreleased)
 -------------------
 
+- Defend `defaultRights` method against broken portal_metadata.
+  Its schemas are instances of CMFDefault classes, which normally are
+  no longer available in Plone 5.  The relevant code has been
+  duplicated in ATContentTypes.
+  [maurits]
+
 - Compare picklist entry value, not text.
   [paulrentschler]
 

@@ -229,6 +229,9 @@ class ExtensibleMetadata(Persistence.Persistent):
         if mdtool is None:
             return ''
         for sid, schema in mdtool.listSchemas():
+            if not hasattr(schema, 'listPolicies'):
+                # Broken class from CMFDefault.
+                continue
             for pid, policy in schema.listPolicies(typ=self.Type()):
                 if pid != 'Rights' and not policy.supply_default:
                     continue
