@@ -4,7 +4,8 @@ Changelog
 1.10.9 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Compare picklist entry value, not text.
+  [paulrentschler]
 
 
 1.10.8 (2015-07-18)
