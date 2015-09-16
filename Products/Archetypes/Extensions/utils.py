@@ -3,10 +3,13 @@ from os.path import isdir, join
 
 from App.Common import package_home
 from OFS.ObjectManager import BadRequestException
+from zope.component import getUtility
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, getPackageName
+from Products.CMFPlone.interfaces import ITypesSchema
+from plone.registry.interfaces import IRegistry
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
@@ -148,15 +151,25 @@ def install_types(self, out, types, package_name):
         sp = getattr(pt, 'site_properties', None)
         if sp is None:
             return None
-        props = ('use_folder_tabs', 'typesLinkToFolderContentsInFC')
-        for prop in props:
-            folders = sp.getProperty(prop, None)
-            if folders is None:
-                continue
-            folders = list(folders)
-            folders.extend(folderish)
-            folders = tuple(dict(zip(folders, folders)).keys())
-            sp._updateProperty(prop, folders)
+
+        folders = sp.getProperty('use_folder_tabs', None)
+        if folders is None:
+            continue
+        folders = list(folders)
+        folders.extend(folderish)
+        folders = tuple(dict(zip(folders, folders)).keys())
+        sp._updateProperty('use_folder_tabs', folders)
+
+        registry = getUtility(IRegistry)
+        settings = registry.forInterface(ITypesSchema, prefix="plone")
+        folders = settings.types_link_to_folder_contents
+        if folders is None:
+            continue
+        folders = list(folders)
+        folders.extend(folderish)
+        folders = tuple(dict(zip(folders, folders)).keys())
+        settings.types_link_to_folder_contents = folders
+
 
 
 def _getFtiAndDataFor(tool, typename, klassname, package_name):
