@@ -1,0 +1,18 @@
+<registry>
+
+  <record name="Products.Archetypes.calendar_starting_year">
+    <field type="plone.registry.field.Int">
+      <title>Start year for Archetypes date widgets</title>
+    </field>
+    <value>2001</value>
+  </record>
+
+  <record name="Products.Archetypes.calendar_future_years_available">
+    <field type="plone.registry.field.Int">
+      <title>Number of future years available for Archetypes date widgets</title>
+      <required>False</required>
+    </field>
+    <value>5</value>
+  </record>
+
+</registry>
