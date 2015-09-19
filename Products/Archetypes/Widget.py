@@ -24,7 +24,10 @@ from Acquisition import aq_base
 
 from plone.app.widgets import base as base_widgets
 from plone.app.widgets import utils
+from plone.registry.interfaces import IRegistry
 from plone.uuid.interfaces import IUUID
+
+from zope.component import getUtility
 
 import json
 
@@ -1215,18 +1218,13 @@ class TagsWidget(AjaxSelectWidget):
         membership = getToolByName(context, 'portal_membership')
         user = membership.getAuthenticatedMember()
 
-        try:
-            site_properties = getToolByName(
-                context, 'portal_properties')['site_properties']
-            allowRolesToAddKeywords = site_properties.getProperty(
-                'allowRolesToAddKeywords', None)
-        except AttributeError:
-            allowRolesToAddKeywords = False
+        registry = getUtility(IRegistry)
+        roles_allowed_to_add_keywords = registry.get(
+            'plone.roles_allowed_to_add_keywords', [])
 
         allowNewItems = False
-        if allowRolesToAddKeywords and [
-            role for role in user.getRolesInContext(context)
-                if role in allowRolesToAddKeywords]:
+        if [role for role in user.getRolesInContext(context)
+                if role in roles_allowed_to_add_keywords]:
             allowNewItems = True
 
         args.setdefault('pattern_options', {})

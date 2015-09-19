@@ -28,9 +28,9 @@
             <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
                 <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
                         allowedKeywords python: context.collectKeywords(fieldName, field.accessor, widget.vocab_source);
-                        site_props context/portal_properties/site_properties|nothing;
                         format widget/format | string:select;
-                        allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
+                        registry context/portal_registry;
+                        roles_allowed_to_add_keywords python:registry['plone.roles_allowed_to_add_keywords'];">
 
             		<div tal:attributes="id string:$fieldName-tags;"
 					     class="tagsContainer">
@@ -120,7 +120,7 @@
 	                        <div class="visualClear"><!-- --></div>
 	                    </div>
 
-	                    <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
+	                    <tal:condition condition="python:not widget.roleBasedAdd or (roles_allowed_to_add_keywords and [role for role in user.getRolesInContext(context) if role in roles_allowed_to_add_keywords])">
 	                        <dl class="newTagsSection">
 	                            <label for="subject_keywords">
 	                                <dt class="newTagsTitle">

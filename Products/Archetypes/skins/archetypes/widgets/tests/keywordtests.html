@@ -19,11 +19,11 @@
 <body>
 	<h1>Keyword multiple select enhancement test - refs PLIP ticket #11017.</h1>
 
-	<p>The PLIP adds an accessible, jQuery-based widget, 
+	<p>The PLIP adds an accessible, jQuery-based widget,
 	which includes both a scrollbar and checkboxes.</p>
 
-	<p>This file is basically a copy of ../keyword.pt, with QUnit added, and 
-	slight modifications to make it run in a static, standalone way, 
+	<p>This file is basically a copy of ../keyword.pt, with QUnit added, and
+	slight modifications to make it run in a static, standalone way,
 	looking somewhat realistic, although Plone's css messes up QUnit's a little.</p>
 
 	<p>---</p>
@@ -36,9 +36,9 @@
 
 	<p>---</p>
 	<h2>Manual Test</h2>
-    
+
         <!-- Keyword Widgets -->
-    
+
         <metal:view_macro define-macro="view"
                 tal:define="kssClassesView context/@@kss_field_decorator_view;
                             getKssClasses nocall:kssClassesView/getKssClassesInlineEditable;">
@@ -53,15 +53,15 @@
                 </ul>
             </div>
         </metal:view_macro>
-    
+
         <metal:define define-macro="edit">
             <metal:use use-macro="field_macro | context/widgets/field/macros/edit">
                 <tal:define metal:fill-slot="widget_body" define="contentKeywords accessor;
                         allowedKeywords python: context.collectKeywords(fieldName, field.accessor, widget.vocab_source);
-                        site_props context/portal_properties/site_properties|nothing;
                         format widget/format | string:select;
-                        allowRolesToAddKeywords site_props/allowRolesToAddKeywords|nothing;">
-            
+                        registry context/portal_registry;
+                        roles_allowed_to_add_keywords python:registry['plone.roles_allowed_to_add_keywords'];">
+
                     <div tal:condition="allowedKeywords" id="existingTagsSection">
                         <tal:comment tal:replace="nothing">
                             dl semantically associates selector name with values
@@ -70,20 +70,20 @@
                             <label for="subject">
                                 <dt id="existingTagsTitle">
                                     <span i18n:translate="label_existing_tags">
-                                        Select from existing tags. 
+                                        Select from existing tags.
                                     </span>
                                 </dt>
                                 <span id="existingTagsHelp" class="formHelp" i18n:translate="label_existingTagsHelp">
                                     Use Control/Command/Shift keys to select multiple tags.
                                     <tal:comment tal:replace="nothing">
-                                        Type-to-skip functionality with javascipt enabled 
-                                        currently is described as 
-                                        "Hover and type the first letter to skip through tags." 
-                                        However, on touch-driven devices, vertical hover typically 
-                                        scrolls the page, so horizontal hover is necessary to enable this.  
-                                        Alternatively, clicking any of the tags also enables type-to-skip.  
-                                        So the text could technically be extended to handle this special case 
-                                        as "Hover or click and type the first letter to skip through tags.", 
+                                        Type-to-skip functionality with javascipt enabled
+                                        currently is described as
+                                        "Hover and type the first letter to skip through tags."
+                                        However, on touch-driven devices, vertical hover typically
+                                        scrolls the page, so horizontal hover is necessary to enable this.
+                                        Alternatively, clicking any of the tags also enables type-to-skip.
+                                        So the text could technically be extended to handle this special case
+                                        as "Hover or click and type the first letter to skip through tags.",
                                         but I think this would be confusing to the majority of users.
                                     </tal:comment>
                                 </span>
@@ -122,9 +122,9 @@
                             <span id="oneOrMoreTagsSelected" i18n:translate="label_oneOrMoreTagsSelected">% tags currently selected.</span>
                             <tal:comment tal:replace="nothing">
                                 Call js to modify this widget with both a scrollbar and checkboxes.
-                                There may be a better place to put this js call; 
+                                There may be a better place to put this js call;
                                 examples exist in others' widget.py and js files,
-                                but having it here covers cases where some but not all select elements 
+                                but having it here covers cases where some but not all select elements
                                 call js to be modified.
                                 Todo: The #subject should eventually refer to the template variable.
                             </tal:comment>
@@ -145,7 +145,7 @@
                                             id string:${fieldName}_${repeat/keyword/number};
                                             checked python:test(context.unicodeTestIn(keyword, value), 'checked', None);
                                             value keyword" />
-                                    <label 
+                                    <label
                                         tal:content="keyword"
                                         tal:attributes="for string:${fieldName}_${repeat/keyword/number}">
                                         An existing tag
@@ -159,13 +159,13 @@
                         </dl>
                         <div class="visualClear"><!-- --></div>
                     </div>
-                    
-                    <tal:condition condition="python:not widget.roleBasedAdd or (allowRolesToAddKeywords and [role for role in user.getRolesInContext(context) if role in allowRolesToAddKeywords])">
+
+                    <tal:condition condition="python:not widget.roleBasedAdd or (roles_allowed_to_add_keywords and [role for role in user.getRolesInContext(context) if role in roles_allowed_to_add_keywords])">
                         <dl id="newTagsSection">
                             <label for="subject_keywords">
                                 <dt id="newTagsTitle">
                                     <span i18n:translate="label_new_tags">
-                                        Create and apply new tags. 
+                                        Create and apply new tags.
                                     </span>
                                 </dt>
                                 <span id="newTagsHelp" i18n:translate="label_newTagsHelp" class="formHelp">
@@ -174,7 +174,7 @@
                             </label>
                             <br />
                             <dd id="newTags">
-                                <textarea 
+                                <textarea
                                     id="entered_subjects"
                                     name="subject:lines"
                                     rows="4"
@@ -186,16 +186,16 @@
                             </dd>
                         </dl>
                     </tal:condition>
-              
+
                 </tal:define>
             </metal:use>
         </metal:define>
-    
+
         <div metal:define-macro="search">
           <div metal:use-macro="context/widgets/keyword/macros/edit">
           </div>
         </div>
-    
+
     </body>
 
 </html>
