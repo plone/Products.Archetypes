@@ -153,22 +153,20 @@ def install_types(self, out, types, package_name):
             return None
 
         folders = sp.getProperty('use_folder_tabs', None)
-        if folders is None:
-            continue
-        folders = list(folders)
-        folders.extend(folderish)
-        folders = tuple(dict(zip(folders, folders)).keys())
-        sp._updateProperty('use_folder_tabs', folders)
+        if folders is not None:
+            folders = list(folders)
+            folders.extend(folderish)
+            folders = tuple(dict(zip(folders, folders)).keys())
+            sp._updateProperty('use_folder_tabs', folders)
 
         registry = getUtility(IRegistry)
         settings = registry.forInterface(ITypesSchema, prefix="plone")
         folders = settings.types_link_to_folder_contents
-        if folders is None:
-            continue
-        folders = list(folders)
-        folders.extend(folderish)
-        folders = tuple(dict(zip(folders, folders)).keys())
-        settings.types_link_to_folder_contents = folders
+        if folders is not None:
+            folders = list(folders)
+            folders.extend(folderish)
+            folders = tuple(dict(zip(folders, folders)).keys())
+            settings.types_link_to_folder_contents = folders
 
 
 
