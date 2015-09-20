@@ -87,7 +87,7 @@ content_type = Schema((
         mutator='setId',
         default=None,
         widget=IdWidget(
-            label=_(u'label_short_name', default=u'Short Name'),
+            label=_(u'label_short_name', default=u'Short name'),
             description=_(u'help_shortname',
                           default=u'Should not contain spaces, underscores or mixed case. '
                                    'Short Name is part of the item\'s web address.'),
