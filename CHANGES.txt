@@ -4,6 +4,9 @@ Changelog
 1.10.10 (unreleased)
 --------------------
 
+- Pull types_link_to_folder_contents values from the configuration registry.
+  [esteele]
+
 - Set calendar_starting_year and calendar_future_years_available in registry.
   See https://github.com/plone/Products.CMFPlone/issues/872
   [pbauer]
