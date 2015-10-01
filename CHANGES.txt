@@ -4,7 +4,9 @@ Changelog
 1.10.11 (unreleased)
 --------------------
 
-- Nothing changed yet.
+- Removed code for unused types_link_to_folder_contents and
+  use_folder_tabs.
+  [maurits]
 
 
 1.10.10 (2015-09-20)

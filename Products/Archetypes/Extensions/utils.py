@@ -3,13 +3,10 @@ from os.path import isdir, join
 
 from App.Common import package_home
 from OFS.ObjectManager import BadRequestException
-from zope.component import getUtility
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
      registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, getPackageName
-from Products.CMFPlone.interfaces import ITypesSchema
-from plone.registry.interfaces import IRegistry
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.ArchetypeTool import fixActionsForType
 from Products.Archetypes.ArchetypeTool import listTypes
@@ -100,7 +97,6 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
 
 def install_types(self, out, types, package_name):
     typesTool = getToolByName(self, 'portal_types')
-    folderish = []
     for klass in types:
         try:
             typesTool._delObject(klass.portal_type)
@@ -136,38 +132,6 @@ def install_types(self, out, types, package_name):
         # Set the human readable title explicitly
         if t:
             t.title = klass.archetype_name
-
-        # If the class appears folderish and the 'use_folder_tabs' is
-        # not set to a false value, then we add the portal_type to
-        # Plone's 'use_folder_tabs' property
-        use_folder_tabs = klass.isPrincipiaFolderish and \
-                          getattr(klass, 'use_folder_tabs', 1)
-        if use_folder_tabs:
-            folderish.append(klass.portal_type)
-    if folderish:
-        pt = getToolByName(self, 'portal_properties', None)
-        if pt is None:
-            return
-        sp = getattr(pt, 'site_properties', None)
-        if sp is None:
-            return None
-
-        folders = sp.getProperty('use_folder_tabs', None)
-        if folders is not None:
-            folders = list(folders)
-            folders.extend(folderish)
-            folders = tuple(dict(zip(folders, folders)).keys())
-            sp._updateProperty('use_folder_tabs', folders)
-
-        registry = getUtility(IRegistry)
-        settings = registry.forInterface(ITypesSchema, prefix="plone")
-        folders = settings.types_link_to_folder_contents
-        if folders is not None:
-            folders = list(folders)
-            folders.extend(folderish)
-            folders = tuple(dict(zip(folders, folders)).keys())
-            settings.types_link_to_folder_contents = folders
-
 
 
 def _getFtiAndDataFor(tool, typename, klassname, package_name):
