@@ -48,7 +48,6 @@ class BaseFolderMixin(CatalogMultiplex,
 
     manage_options = FOLDER_MANAGE_OPTIONS
     content_icon = "folder_icon.gif"
-    use_folder_tabs = 1
     isPrincipiaFolderish = 1
     isAnObjectManager = 1
     __dav_marshall__ = False
