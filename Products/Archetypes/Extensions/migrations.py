@@ -48,7 +48,7 @@ def fixArchetypesTool(portal, out):
     at = portal.archetype_tool
 
     if not hasattr(at, '_templates'):
-        #They come in pairs
+        # They come in pairs
         at._templates = PersistentMapping()
         at._registeredTemplates = PersistentMapping()
 
@@ -74,17 +74,20 @@ def migrateReferences(portal, out):
     if refs is not None:
         print >>out, 'migrating reference from Archetypes 1.2'
         count = 0
-        print >>out, "Old references are stored in %s, so migrating them to new style reference annotations.\n" % (TOOL_NAME)
+        print >>out, "Old references are stored in %s, so migrating them to new style reference annotations.\n" % (
+            TOOL_NAME)
         allbrains = uc()
         for brain in allbrains:
             sourceObj = brain.getObject()
             sourceUID = getattr(aq_base(sourceObj), olduididx, None)
-            if sourceUID is None: continue
+            if sourceUID is None:
+                continue
             # references migration starts
             for targetUID, relationship in refs.get(sourceUID, []):
                 # get target object
                 targetBrains = uc(**{olduididx: targetUID})
-                assert len(targetBrains) == 1, 'catalog query for OLD uid (%s) returned %d results instead of 1' % (targetUID, len(targetBrains))
+                assert len(targetBrains) == 1, 'catalog query for OLD uid (%s) returned %d results instead of 1' % (
+                    targetUID, len(targetBrains))
                 targetObj = targetBrains[0].getObject()
                 # fix empty relationship
                 if not relationship:
@@ -122,7 +125,8 @@ def migrateReferences(portal, out):
         rc.manage_catalogClear()
         for brain in refs:
             sourceObject = rc.lookupObject(brain.sourceUID)
-            if sourceObject is None: continue
+            if sourceObject is None:
+                continue
             targetObject = rc.lookupObject(brain.targetUID)
             if not targetObject:
                 print >>out, 'mirateReferences: Warning: no targetObject found for UID ', brain.targetUID
@@ -149,7 +153,7 @@ def migrateReferences(portal, out):
 
     print >>out, "Migrated References"
 
-    #Reindex for new UUIDs
+    # Reindex for new UUIDs
     uc.manage_reindexIndex()
     rc.manage_reindexIndex()
 
@@ -180,7 +184,8 @@ def migrateUIDs(portal, out):
 
         objUID = getattr(aq_base(obj), '_uid', None)
         if objUID is not None:  # continue  # not an old style AT?
-            setattr(obj, olduididx, objUID)  # this one can be part of the catalog
+            # this one can be part of the catalog
+            setattr(obj, olduididx, objUID)
             delattr(obj, '_uid')
             setattr(obj, UUID_ATTR, None)
         obj._register()  # creates a new UID
@@ -215,7 +220,8 @@ def removeOldUIDs(portal, out):
         # Get a uid for each thingie
         obj = brain.getObject()
         objUID = getattr(aq_base(obj), olduididx, None)
-        if objUID is None: continue  # not an old style AT
+        if objUID is None:
+            continue  # not an old style AT
         delattr(obj, olduididx)
         obj._updateCatalog(portal)
         count += 1

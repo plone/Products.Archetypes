@@ -65,8 +65,8 @@ class SQLMethod(Aqueduct.BaseQuery):
         context._v_query_cache = {}, Bucket()
 
     def advanced_edit(self, max_rows=1000, max_cache=100, cache_time=0,
-                        class_name='', class_file='',
-                        REQUEST=None):
+                      class_name='', class_file='',
+                      REQUEST=None):
         """Change advanced properties
 
         The arguments are:
@@ -157,7 +157,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         except AttributeError:
             raise AttributeError, (
                 "The database connection <em>%s</em> cannot be found." % (
-                self.connection_id))
+                    self.connection_id))
 
         try:
             DB__ = dbc()
@@ -165,7 +165,7 @@ class SQLMethod(Aqueduct.BaseQuery):
             raise
         except:
             raise 'Database Error', (
-            '%s is not connected to a database' % self.id)
+                '%s is not connected to a database' % self.id)
 
         return dbc, DB__
 
@@ -215,7 +215,7 @@ class SQLMethod(Aqueduct.BaseQuery):
         # We have two possible kw arguments:
         #   db_encoding:        The encoding used in the external database
         #   site_encoding:      The uncoding used for the site
-        #                       If not specified, we use sys.getdefaultencoding()
+        # If not specified, we use sys.getdefaultencoding()
         db_encoding = kw.get('db_encoding', None)
 
         site_encoding = kw.get('site_encoding', 'utf-8')

@@ -14,7 +14,7 @@ DOCTEST_MODULES = (
     'Products.Archetypes.Marshall',
     'Products.Archetypes.fieldproperty',
     'Products.Archetypes.browser.widgets',
-    )
+)
 
 DOCTEST_FILES = (
     'events.txt',
@@ -27,6 +27,7 @@ DOCTEST_FILES = (
 OPTIONFLAGS = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE |
                doctest.REPORT_ONLY_FIRST_FAILURE)
+
 
 def test_suite():
     suite = unittest.TestSuite()

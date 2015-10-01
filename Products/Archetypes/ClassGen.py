@@ -25,7 +25,7 @@ _modes = {
           'attr': 'mutator',
           'security': 'write_permission',
           },
-    }
+}
 
 
 class GeneratorError(Exception):
@@ -33,9 +33,10 @@ class GeneratorError(Exception):
 
 
 class Generator:
+
     def computeMethodName(self, field, mode):
         if mode not in _modes.keys():
-            raise TypeError("Unsupported Mode %s in field: %s (%s)" % \
+            raise TypeError("Unsupported Mode %s in field: %s (%s)" %
                             (field.getName(), mode))
 
         prefix = _modes[mode]['prefix']
@@ -92,11 +93,12 @@ class Generator:
                           methodName,
                           method.func_defaults,
                           method.func_closure,
-                         )
+                          )
         setattr(klass, methodName, method)
 
 
 class ClassGenerator:
+
     def updateSecurity(self, klass, field, mode, methodName):
         security = _getSecurity(klass)
 
@@ -131,10 +133,10 @@ class ClassGenerator:
         # before we start, set meta_type, portal_type based on class
         # name, but only if they are not set yet
         if (not getattr(klass, 'meta_type', None) or
-            'meta_type' not in klass.__dict__.keys()):
+                'meta_type' not in klass.__dict__.keys()):
             klass.meta_type = klass.__name__
         if (not getattr(klass, 'portal_type', None) or
-            'portal_type' not in klass.__dict__.keys()):
+                'portal_type' not in klass.__dict__.keys()):
             klass.portal_type = klass.__name__
         klass.archetype_name = getattr(klass, 'archetype_name',
                                        self.generateName(klass))
@@ -149,7 +151,8 @@ class ClassGenerator:
             assert not 'm' in field.mode, 'm is an implicit mode'
 
             # Make sure we want to muck with the class for this field
-            if "c" not in field.generateMode: continue
+            if "c" not in field.generateMode:
+                continue
             type = getattr(klass, 'schema')
             for mode in field.mode:  # (r, w)
                 self.handle_mode(klass, generator, type, field, mode)
@@ -167,14 +170,14 @@ class ClassGenerator:
 
         # Avoid name space conflicts
         if not hasattr(klass, methodName) \
-               or getattr(klass, methodName) is AT_GENERATE_METHOD:
+                or getattr(klass, methodName) is AT_GENERATE_METHOD:
             if methodName in type:
                 raise GeneratorError("There is a conflict "
                                      "between the Field(%s) and the attempt "
                                      "to generate a method of the same name on "
                                      "class %s" % (
-                    methodName,
-                    klass.__name__))
+                                         methodName,
+                                         klass.__name__))
 
             # Make a method for this klass/field/mode
             generator.makeMethod(klass, field, mode, methodName)

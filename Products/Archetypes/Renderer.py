@@ -28,7 +28,7 @@ class ArchetypesRenderer:
         del context
         return result
 
-    def setupContext(self, field_name, mode, widget, instance, field, \
+    def setupContext(self, field_name, mode, widget, instance, field,
                      accessor, **kwargs):
 
         # look for the context in the stack

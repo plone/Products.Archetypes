@@ -30,6 +30,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
             return at.getCatalogsByType(self.meta_type)
 
     security.declareProtected(ModifyPortalContent, 'indexObject')
+
     def indexObject(self):
         if isFactoryContained(self):
             return
@@ -39,6 +40,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
             c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
+
     def unindexObject(self):
         if isFactoryContained(self):
             return
@@ -49,6 +51,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
                 c.uncatalog_object(url)
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
+
     def reindexObjectSecurity(self, skip_self=False):
         """update security information in all registered catalogs.
         """
@@ -59,7 +62,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
             return
 
         catalogs = [c for c in at.getCatalogsByType(self.meta_type)
-                               if ICatalogTool.providedBy(c)]
+                    if ICatalogTool.providedBy(c)]
         path = self.__url()
 
         for catalog in catalogs:
@@ -80,9 +83,10 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
                 # Recatalog with the same catalog uid.
                 catalog.reindexObject(ob, idxs=self._cmf_security_indexes,
-                                        update_metadata=0, uid=brain_path)
+                                      update_metadata=0, uid=brain_path)
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
+
     def reindexObject(self, idxs=None):
         """update indexes of this object in all registered catalogs.
 

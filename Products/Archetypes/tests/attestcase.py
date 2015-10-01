@@ -5,11 +5,12 @@ from Products.GenericSetup import EXTENSION, profile_registry
 
 def setupSampleTypeProfile():
     profile_registry.registerProfile('Archetypes_sampletypes',
-        'Archetypes Sample Content Types',
-        'Extension profile including Archetypes sample content types',
-        'profiles/sample_types',
-        'Products.Archetypes',
-        EXTENSION)
+                                     'Archetypes Sample Content Types',
+                                     'Extension profile including Archetypes sample content types',
+                                     'profiles/sample_types',
+                                     'Products.Archetypes',
+                                     EXTENSION)
+
 
 class ATTestCaseFixture(bbb.PloneTestCaseFixture):
 
@@ -27,6 +28,7 @@ class ATTestCaseFixture(bbb.PloneTestCaseFixture):
 AT_FIXTURE = ATTestCaseFixture()
 AT_FUNCTIONAL_TESTING = FunctionalTesting(bases=(AT_FIXTURE,),
                                           name='Archetypes:Functional')
+
 
 class ATTestCase(bbb.PloneTestCase):
     """Simple AT test case

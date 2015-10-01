@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from zope import component
 from zope import interface
@@ -70,7 +70,7 @@ class DexterityLike(Explicit):
 class ReferenceCatalogTests(ATSiteTestCase):
 
     def afterSetUp(self):
-        #register the test class as indexable with plone.indexer default
+        # register the test class as indexable with plone.indexer default
         sm = component.getSiteManager()
         sm.registerAdapter(factory=wrapper.IndexableObjectWrapper,
                            required=(interface.Interface, IZCatalog),
@@ -124,7 +124,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.assertTrue(ref.sourceUID == uid1)
         self.assertTrue(ref.targetUID == uid2)
 
-        #Check the metadata
+        # Check the metadata
         self.assertTrue(ref.foo == "bar")
 
         unqualified = obj.getRefs()
@@ -139,7 +139,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         # Make sure all objects have _p_oids and _p_jars
         transaction.savepoint(optimistic=True)
 
-        #Rename can't invalidate UID or references
+        # Rename can't invalidate UID or references
         self.verifyBrains()
         obj.setId('new1')
         self.verifyBrains()
@@ -158,8 +158,8 @@ class ReferenceCatalogTests(ATSiteTestCase):
 
         self.assertTrue(b[0].UID() == uid1)
 
-        #Add another reference with a different relationship (and the
-        #other direction)
+        # Add another reference with a different relationship (and the
+        # other direction)
 
         obj2.addReference(obj, 'betaRelationship', this="that")
         b = obj2.getRefs('betaRelationship')
@@ -177,7 +177,8 @@ class ReferenceCatalogTests(ATSiteTestCase):
         obj1 = makeContent(self.folder, portal_type='Fact', id='obj1')
         obj2 = makeContent(self.folder, portal_type='Fact', id='obj2')
 
-        obj1.addReference(obj2, relationship="uses", referenceClass=HoldingReference)
+        obj1.addReference(obj2, relationship="uses",
+                          referenceClass=HoldingReference)
 
         self.assertTrue(obj2 in obj1.getRefs('uses'))
 
@@ -189,13 +190,14 @@ class ReferenceCatalogTests(ATSiteTestCase):
         else:
             raise AssertionError("holding reference didn't hold")
 
-        #and just check to make sure its still there
+        # and just check to make sure its still there
         self.assertTrue(hasattr(self.folder, obj2.id))
 
         obj3 = makeContent(self.folder, portal_type='Fact', id='obj3')
         obj4 = makeContent(self.folder, portal_type='Fact', id='obj4')
 
-        obj3.addReference(obj4, relationship="uses", referenceClass=CascadeReference)
+        obj3.addReference(obj4, relationship="uses",
+                          referenceClass=CascadeReference)
 
         self.folder.manage_delObjects(obj3.id)
         items = self.folder.contentIds()
@@ -203,11 +205,14 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.assertFalse(obj4.id in items)
 
     def test_cascaderef(self):
-        my1stfolder = makeContent(self.folder, portal_type='SimpleFolder', id='my1stfolder')
+        my1stfolder = makeContent(
+            self.folder, portal_type='SimpleFolder', id='my1stfolder')
         obj5 = makeContent(my1stfolder, portal_type='Fact', id='obj5')
-        my2ndfolder = makeContent(self.folder, portal_type='SimpleFolder', id='my2ndfolder')
+        my2ndfolder = makeContent(
+            self.folder, portal_type='SimpleFolder', id='my2ndfolder')
         obj6 = makeContent(my2ndfolder, portal_type='Fact', id='obj6')
-        obj5.addReference(obj6, relationship="uses", referenceClass=CascadeReference)
+        obj5.addReference(obj6, relationship="uses",
+                          referenceClass=CascadeReference)
         my1stfolder.manage_delObjects(['obj5'])
         items = my1stfolder.contentIds()
         self.assertFalse('obj5' in items)
@@ -224,10 +229,10 @@ class ReferenceCatalogTests(ATSiteTestCase):
         uid1 = obj1.UID()
         uid2 = obj2.UID()
 
-        #Make a reference
+        # Make a reference
         obj1.addReference(obj2, relationship="example")
 
-        #and clean it up
+        # and clean it up
         self.folder._delObject(obj1.id)
 
         # Assert that the reference is gone, that the UID is gone and
@@ -244,7 +249,7 @@ class ReferenceCatalogTests(ATSiteTestCase):
         assert len(sourceRefs) == 0
         assert len(targetRefs) == 0
 
-        #also make sure there is nothing in the reference Catalog
+        # also make sure there is nothing in the reference Catalog
         assert len(rc.getReferences(uid1)) == 0
         assert len(rc.getBackReferences(uid1)) == 0
         assert len(rc.getReferences(uid2)) == 0
@@ -274,17 +279,20 @@ class ReferenceCatalogTests(ATSiteTestCase):
         # update schema
         self.app.REQUEST.form['Archetypes.Refnode'] = 1
         self.app.REQUEST.form['update_all'] = 1
-        self.portal.archetype_tool.manage_updateSchema(REQUEST=self.app.REQUEST)
+        self.portal.archetype_tool.manage_updateSchema(
+            REQUEST=self.app.REQUEST)
         del obj1
 
         # get the reference for obj1
         obj1 = rc.lookupObject(uid)
-        refs = rc.getReferences(obj1, relationship=obj1.Schema()['link'].relationship)
+        refs = rc.getReferences(obj1, relationship=obj1.Schema()[
+                                'link'].relationship)
         ref = refs[0]
         ruid2 = ref.UID()
         assert ruid == ruid2, """ref uid got reassigned"""
-        #check for the attribute
-        self.assertTrue(hasattr(ref, 'attribute1'), 'Custom attribute on reference object is lost during schema update')
+        # check for the attribute
+        self.assertTrue(hasattr(ref, 'attribute1'),
+                        'Custom attribute on reference object is lost during schema update')
         self.assertEqual(ref.attribute1, 'some_value')
 
     def test_sortable_references(self):
@@ -327,10 +335,10 @@ class ReferenceCatalogTests(ATSiteTestCase):
         self.folder[dext.id] = dext
         notify(ObjectCreatedEvent(dext))  # it supposed to add uuid attribute
 
-        #catalog dext instance
+        # catalog dext instance
         uc.catalog_object(dext, '/'.join(dext.getPhysicalPath()))
 
-        #check lookup
+        # check lookup
         uuid = IUUID(dext, None)
         results = uc(UID=uuid)
 

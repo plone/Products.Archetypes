@@ -1,5 +1,6 @@
 from zope.interface import Interface
 
+
 class IStorage(Interface):
     """Abstraction around the storage of field level data"""
 
@@ -14,10 +15,11 @@ class IStorage(Interface):
         instance"""
 
     # XXX all implementions have no 'value' argument
-    #def unset(name, instance, value, **kwargs):
+    # def unset(name, instance, value, **kwargs):
     def unset(name, instance, **kwargs):
         """unset a value under the key 'name'.
         used when changing storage for a field."""
+
 
 class ISQLStorage(IStorage):
     """ Marker interface for distinguishing ISQLStorages """

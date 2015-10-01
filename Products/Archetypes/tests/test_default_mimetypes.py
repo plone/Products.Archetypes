@@ -19,7 +19,8 @@ class TestDefaultMimeTypes(ATSiteTestCase):
 
         self.loginAsPortalOwner()
         # we create a new document:
-        self.portal.invokeFactory('DDocument', id='testdoc', title='TestDocument')
+        self.portal.invokeFactory(
+            'DDocument', id='testdoc', title='TestDocument')
         obj = self.portal.testdoc
         # its text field should have the site wide default 'text/plain'
         textfield = obj.getField('body')
@@ -32,7 +33,8 @@ class TestDefaultMimeTypes(ATSiteTestCase):
         setDefaultContentType(self.portal, "text/x-web-markdown")
         # while this raises no error it won't change the default, as we have
         # no properties tool nor properties sheet
-        self.assertEqual(getDefaultContentType(self.portal), 'text/x-web-markdown')
+        self.assertEqual(getDefaultContentType(
+            self.portal), 'text/x-web-markdown')
         self.portal['portal_properties'] = _orignal_pp
         if ptool is not _marker:
             _tool_interface_registry['portal_properties'] = ptool

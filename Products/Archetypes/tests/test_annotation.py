@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.atapi import BaseSchema, Schema, StringField, \
@@ -33,18 +33,19 @@ from Products.Archetypes.tests.test_classgen import gen_dummy
 from Acquisition import aq_base
 
 
-class AnnDummy(Dummy): pass
+class AnnDummy(Dummy):
+    pass
 
 annschema = BaseSchema + Schema((
-     StringField('string',
-         default=u'stringdefault',
-         storage=AnnotationStorage(),
-         ),
-     StringField('meta',
-         default='metadefault',
-         storage=MetadataAnnotationStorage(),
-         ),
-    ))
+    StringField('string',
+                default=u'stringdefault',
+                storage=AnnotationStorage(),
+                ),
+    StringField('meta',
+                default='metadefault',
+                storage=MetadataAnnotationStorage(),
+                ),
+))
 
 
 def gen_anndummy():
@@ -116,7 +117,8 @@ class MetadataAnnotationStorageTest(ATSiteTestCase):
         field = dummy.getField('meta')
         self.assertTrue(isinstance(field.storage, MetadataAnnotationStorage))
         self.assertTrue(self.ann.hasSubkey(AT_MD_STORAGE, 'meta'))
-        self.assertEqual(self.ann.getSubkey(AT_MD_STORAGE, subkey='meta'), 'metadefault')
+        self.assertEqual(self.ann.getSubkey(
+            AT_MD_STORAGE, subkey='meta'), 'metadefault')
 
     def test_gestset(self):
         dummy = self.dummy
@@ -141,7 +143,8 @@ class AnnotationStorageTest(ATSiteTestCase):
         field = dummy.getField('string')
         self.assertTrue(isinstance(field.storage, AnnotationStorage))
         self.assertTrue(self.ann.hasSubkey(AT_ANN_STORAGE, 'string'))
-        self.assertEqual(self.ann.getSubkey(AT_ANN_STORAGE, subkey='string'), 'stringdefault')
+        self.assertEqual(self.ann.getSubkey(
+            AT_ANN_STORAGE, subkey='string'), 'stringdefault')
 
     def test_gestset(self):
         dummy = self.dummy

@@ -1,5 +1,6 @@
 from zope.interface import Interface, Attribute
 
+
 class IVocabulary(Interface):
     """ interface for vocabularies used in fields """
 

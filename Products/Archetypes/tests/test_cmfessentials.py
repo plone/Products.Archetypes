@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.CMFCore.utils import _checkPermission as checkPerm
 from Products.CMFCore import permissions
@@ -46,8 +46,10 @@ class TestPermissions(ATTestCase):
     def testPermissions(self):
         for content in self.demo_instances:
             self.assertTrue(checkPerm(permissions.View, content))
-            self.assertTrue(checkPerm(permissions.AccessContentsInformation, content))
-            self.assertTrue(checkPerm(permissions.ModifyPortalContent, content))
+            self.assertTrue(
+                checkPerm(permissions.AccessContentsInformation, content))
+            self.assertTrue(
+                checkPerm(permissions.ModifyPortalContent, content))
 
     def testRendering(self):
         # Attempt to call each object and make sure it presents a rendered

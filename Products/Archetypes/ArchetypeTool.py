@@ -86,28 +86,28 @@ base_factory_type_information = (
                  'gethtml': '',
                  'mkdir': '',
                  },
-      'actions': (
-                     {'id': 'view',
-                      'title': 'View',
-                      'action': Expression('string:${object_url}/view'),
-                      'permissions': (permissions.View,),
-                      },
+     'actions': (
+         {'id': 'view',
+          'title': 'View',
+          'action': Expression('string:${object_url}/view'),
+          'permissions': (permissions.View,),
+          },
 
-                     {'id': 'edit',
-                      'title': 'Edit',
-                      'action': Expression('string:${object_url}/edit'),
-                      'permissions': (permissions.ModifyPortalContent,),
-                      'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
-                      },
+         {'id': 'edit',
+          'title': 'Edit',
+          'action': Expression('string:${object_url}/edit'),
+          'permissions': (permissions.ModifyPortalContent,),
+          'condition': Expression('not:object/@@plone_lock_info/is_locked_for_current_user')
+          },
 
-                     {'id': 'metadata',
-                      'title': 'Properties',
-                      'action': Expression('string:${object_url}/properties'),
-                      'permissions': (permissions.ModifyPortalContent,),
-                      },
+         {'id': 'metadata',
+          'title': 'Properties',
+          'action': Expression('string:${object_url}/properties'),
+          'permissions': (permissions.ModifyPortalContent,),
+          },
 
-                     ),
-      }, )
+     ),
+     }, )
 
 
 def fixActionsForType(portal_type, typesTool):
@@ -119,12 +119,12 @@ def fixActionsForType(portal_type, typesTool):
             # Look for each action we define in portal_type.actions in
             # typeInfo.action replacing it if its there and just
             # adding it if not
-            ## rr: this is now trial-and-error programming
-            ## I really don't know what's going on here
-            ## most importantly I don't know why the default
-            ## actions are not set in some cases :-(
-            ## (maybe they are removed afterwards sometimes???)
-            ## if getattr(portal_type,'include_default_actions', True):
+            # rr: this is now trial-and-error programming
+            # I really don't know what's going on here
+            # most importantly I don't know why the default
+            # actions are not set in some cases :-(
+            # (maybe they are removed afterwards sometimes???)
+            # if getattr(portal_type,'include_default_actions', True):
             if True:
                 default = [ActionInformation(**action) for action in
                            base_factory_type_information[0]['actions']]
@@ -145,10 +145,10 @@ def fixActionsForType(portal_type, typesTool):
                 # Change action and condition into expressions, if
                 # they are still strings
                 if 'action' in action and \
-                       type(action['action']) in (type(''), type(u'')):
+                        type(action['action']) in (type(''), type(u'')):
                     action['action'] = Expression(action['action'])
                 if 'condition' in action and \
-                       type(action['condition']) in (type(''), type(u'')):
+                        type(action['condition']) in (type(''), type(u'')):
                     action['condition'] = Expression(action['condition'])
                 if 'name' in action:
                     action['title'] = action['name']
@@ -309,15 +309,16 @@ def registerType(klass, package):
         'module': sys.modules[klass.__module__],
         'schema': klass.schema,
         'signature': klass.schema.signature(),
-        }
+    }
 
     key = '%s.%s' % (package, data['meta_type'])
     if key in _types.keys():
         existing = _types[key]
-        existing_name = '%s.%s' % (existing['module'].__name__, existing['name'])
+        existing_name = '%s.%s' % (
+            existing['module'].__name__, existing['name'])
         override_name = '%s.%s' % (data['module'].__name__, data['name'])
-        log('ArchetypesTool: Trying to register "%s" which ' \
-            'has already been registered.  The new type %s ' \
+        log('ArchetypesTool: Trying to register "%s" which '
+            'has already been registered.  The new type %s '
             'is going to override %s' % (key, override_name, existing_name))
     _types[key] = data
 
@@ -332,7 +333,8 @@ def fixAfterRenameType(context, old_portal_type, new_portal_type):
     at_tool = getToolByName(context, TOOL_NAME)
     __traceback_info__ = (context, old_portal_type, new_portal_type,
                           [t['portal_type'] for t in _types.values()])
-    # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX ERROR!)
+    # Will fail if old portal type wasn't registered (DO 'FIX' THE INDEX
+    # ERROR!)
     old_type = [t for t in _types.values()
                 if t['portal_type'] == old_portal_type][0]
 
@@ -402,7 +404,7 @@ def registerClasses(context, package, types=None):
             constructors=(generatedForm, constructor),
             visibility=None,
             icon=icon
-            )
+        )
 
 
 def listTypes(package=None):
@@ -425,6 +427,7 @@ class WidgetWrapper:
     """
     security = ClassSecurityInfo()
     security.declareObjectPublic()
+
     def __init__(self, **args):
         self._args = args
 
@@ -435,7 +438,7 @@ class WidgetWrapper:
 last_load = DateTime()
 
 
-class ArchetypeTool(UniqueObject, ActionProviderBase, \
+class ArchetypeTool(UniqueObject, ActionProviderBase,
                     SQLStorageConfig, Folder):
     """Archetypes tool, manage aspects of Archetype instances.
     """
@@ -452,32 +455,32 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     manage_options = (
         (
-        {'label': 'Types',
-         'action': 'manage_debugForm',
-         },
+            {'label': 'Types',
+             'action': 'manage_debugForm',
+             },
 
-        {'label': 'Catalogs',
-         'action': 'manage_catalogs',
-         },
+            {'label': 'Catalogs',
+             'action': 'manage_catalogs',
+             },
 
-        {'label': 'Templates',
-         'action': 'manage_templateForm',
-         },
+            {'label': 'Templates',
+             'action': 'manage_templateForm',
+             },
 
-        {'label': 'UIDs',
-         'action': 'manage_uids',
-         },
+            {'label': 'UIDs',
+             'action': 'manage_uids',
+             },
 
-        {'label': 'Update Schema',
-         'action': 'manage_updateSchemaForm',
-         },
+            {'label': 'Update Schema',
+             'action': 'manage_updateSchemaForm',
+             },
 
-        {'label': 'Migration',
-         'action': 'manage_migrationForm',
-         },
+            {'label': 'Migration',
+             'action': 'manage_migrationForm',
+             },
 
         ) + SQLStorageConfig.manage_options
-        )
+    )
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_uids')
@@ -508,11 +511,13 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # meta_type -> [names of CatalogTools]
         self.catalog_map = PersistentMapping()
         self.catalog_map['Reference'] = []  # References not in portal_catalog
-        # DM (avoid persistency bug): "_types" now maps known schemas to signatures
+        # DM (avoid persistency bug): "_types" now maps known schemas to
+        # signatures
         self._types = {}
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_dumpSchema')
+
     def manage_dumpSchema(self, REQUEST=None):
         """XML Dump Schema of passed in class.
         """
@@ -537,6 +542,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # are persistent
     security.declareProtected(permissions.ManagePortal,
                               'registerTemplate')
+
     def registerTemplate(self, template, name=None):
         # Lookup the template by name
         if not name:
@@ -549,6 +555,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self._registeredTemplates[template] = name
 
     security.declareProtected(permissions.View, 'lookupTemplates')
+
     def lookupTemplates(self, instance_or_portaltype=None):
         """Lookup templates by giving an instance or a portal_type.
 
@@ -572,12 +579,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return DisplayList(results).sortedByValue()
 
     security.declareProtected(permissions.View, 'listTemplates')
+
     def listTemplates(self):
         """Lists all the templates.
         """
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
     security.declareProtected(permissions.ManagePortal, 'bindTemplate')
+
     def bindTemplate(self, portal_type, templateList):
         """Creates binding between a type and its associated views.
         """
@@ -585,6 +594,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_templates')
+
     def manage_templates(self, REQUEST=None):
         """Sets all the template/type mappings.
         """
@@ -603,6 +613,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_templateForm')
 
     security.declareProtected(permissions.View, 'typeImplementsInterfaces')
+
     def typeImplementsInterfaces(self, type, interfaces):
         """Checks if an type uses one of the given interfaces.
         """
@@ -615,18 +626,23 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return False
 
     security.declareProtected(permissions.View, 'isTemplateEnabled')
+
     def isTemplateEnabled(self, type):
         """Checks if an type uses ITemplateMixin.
         """
         return self.typeImplementsInterfaces(type, [ITemplateMixin])
 
-    security.declareProtected(permissions.View, 'listTemplateEnabledPortalTypes')
+    security.declareProtected(
+        permissions.View, 'listTemplateEnabledPortalTypes')
+
     def listTemplateEnabledPortalTypes(self):
         """Return a list of portal_types with ITemplateMixin
         """
         return self.listPortalTypesWithInterfaces([ITemplateMixin])
 
-    security.declareProtected(permissions.View, 'listPortalTypesWithInterfaces')
+    security.declareProtected(
+        permissions.View, 'listPortalTypesWithInterfaces')
+
     def listPortalTypesWithInterfaces(self, ifaces):
         """Returns a list of ftis of which the types implement one of
         the given interfaces.  Only returns AT types.
@@ -656,6 +672,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     # Type/Schema Management
     security.declareProtected(permissions.View, 'listRegisteredTypes')
+
     def listRegisteredTypes(self, inProject=False, portalTypes=False):
         """Return the list of sorted types.
         """
@@ -688,6 +705,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return values
 
     security.declareProtected(permissions.View, 'getTypeSpec')
+
     def getTypeSpec(self, package, type):
         t = self.lookupType(package, type)
         module = t['klass'].__module__
@@ -695,6 +713,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return '%s.%s' % (module, klass)
 
     security.declareProtected(permissions.View, 'listTypes')
+
     def listTypes(self, package=None, type=None):
         """Just the class.
         """
@@ -704,6 +723,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return [getType(type, package)['klass']]
 
     security.declareProtected(permissions.View, 'lookupType')
+
     def lookupType(self, package, type):
         types = self.listRegisteredTypes()
         for t in types:
@@ -720,6 +740,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_installType')
+
     def manage_installType(self, typeName, package=None,
                            uninstall=None, REQUEST=None):
         """Un/Install a type TTW.
@@ -745,7 +766,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         process_types([typeDesc], package)
         klass = typeDesc['klass']
 
-        # get the meta type of the FTI from the class, use the default FTI as default
+        # get the meta type of the FTI from the class, use the default FTI as
+        # default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if fti_meta_type in (None, 'simple item'):
             fti_meta_type = FactoryTypeInformation.meta_type
@@ -766,6 +788,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                                              '/manage_debugForm')
 
     security.declarePublic('getSearchWidgets')
+
     def getSearchWidgets(self, package=None, type=None,
                          context=None, nosort=None):
         """Empty widgets for searching.
@@ -774,6 +797,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                                context=context, mode='search', nosort=nosort)
 
     security.declarePublic('getWidgets')
+
     def getWidgets(self, instance=None,
                    package=None, type=None,
                    context=None, mode='edit',
@@ -822,7 +846,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                         field.vocabulary = field.Vocabulary(instance)
                     if '' not in field.vocabulary.keys():
                         field.vocabulary = DisplayList([('', _(u'at_search_any', default=u'<any>'))]) + \
-                                           field.vocabulary
+                            field.vocabulary
                     widget.populate = False
                     field_name = field.accessor
                     # accessor must be a method which doesn't take an argument
@@ -842,6 +866,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return [widget for name, widget in widgets]
 
     security.declarePrivate('_rawEnum')
+
     def _rawEnum(self, callback, *args, **kwargs):
         """Finds all object to check if they are 'referenceable'.
         """
@@ -856,6 +881,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log('no object for brain: %s:%s' % (b, b.getURL()))
 
     security.declareProtected(permissions.View, 'enum')
+
     def enum(self, callback, *args, **kwargs):
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
@@ -867,6 +893,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 log('No object for %s' % uid)
 
     security.declareProtected(permissions.View, 'Content')
+
     def Content(self):
         """Return a list of all the content ids.
         """
@@ -878,6 +905,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # Management Forms
     security.declareProtected(permissions.ManagePortal,
                               'manage_doGenerate')
+
     def manage_doGenerate(self, sids=(), REQUEST=None):
         """(Re)generate types.
         """
@@ -894,6 +922,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_inspect')
+
     def manage_inspect(self, UID, REQUEST=None):
         """Dump some things about an object hook in the debugger for now.
         """
@@ -905,6 +934,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_reindex')
+
     def manage_reindex(self, REQUEST=None):
         """Assign UIDs to all basecontent objects.
         """
@@ -929,6 +959,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'getChangedSchema')
+
     def getChangedSchema(self):
         """Returns a list of tuples indicating which schema have changed.
 
@@ -960,6 +991,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchema')
+
     def manage_updateSchema(self, REQUEST=None, update_all=None,
                             remove_instance_schemas=None):
         """Make sure all objects' schema are up to date.
@@ -998,10 +1030,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                 func_update_all = self._updateObject
             if update_all:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=True, apply_func=func_update_all)
+                                         search_sub=True, apply_func=func_update_all)
             else:
                 catalog.ZopeFindAndApply(portal, obj_metatypes=meta_types,
-                    search_sub=True, apply_func=func_update_changed)
+                                         search_sub=True, apply_func=func_update_changed)
             for t in update_types:
                 self._types[t] = _types[t]['signature']
             self._p_changed = True
@@ -1018,7 +1050,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         # Subtransactions to avoid eating up RAM when used inside a
         # 'ZopeFindAndApply' like in manage_updateSchema
         self.subtransactioncounter += 1
-        # Only every 250 objects a sub-commit, otherwise it eats up all diskspace
+        # Only every 250 objects a sub-commit, otherwise it eats up all
+        # diskspace
         if not self.subtransactioncounter % 250:
             transaction.savepoint(optimistic=True)
 
@@ -1035,6 +1068,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateSchema')
+
     def manage_migrate(self, REQUEST=None):
         """Run Extensions.migrations.migrate.
         """
@@ -1046,6 +1080,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # Catalog management
     security.declareProtected(permissions.View,
                               'listCatalogs')
+
     def listCatalogs(self):
         """Show the catalog mapping.
         """
@@ -1053,6 +1088,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_updateCatalogs')
+
     def manage_updateCatalogs(self, REQUEST=None):
         """Set the catalog map for meta_type to include the list
         catalog_names.
@@ -1069,6 +1105,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.ManagePortal,
                               'setCatalogsByType')
+
     def setCatalogsByType(self, portal_type, catalogList):
         """ associate catalogList with meta_type. (unfortunally not portal_type).
 
@@ -1078,6 +1115,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         self.catalog_map[portal_type] = catalogList
 
     security.declareProtected(permissions.View, 'getCatalogsByType')
+
     def getCatalogsByType(self, portal_type):
         """Return the catalog objects assoicated with a given type.
         """
@@ -1099,6 +1137,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return catalogs
 
     security.declareProtected(permissions.View, 'getCatalogsInSite')
+
     def getCatalogsInSite(self):
         """Return a list of ids for objects implementing ZCatalog.
         """
@@ -1117,6 +1156,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
         return res
 
     security.declareProtected(permissions.View, 'visibleLookup')
+
     def visibleLookup(self, field, vis_key, vis_value='visible'):
         """Checks the value of a specific key in the field widget's
         'visible' dictionary.

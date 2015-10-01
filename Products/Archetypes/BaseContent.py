@@ -16,9 +16,9 @@ from OFS.PropertyManager import PropertyManager
 from zope.interface import implements
 
 CONTENT_MANAGE_OPTIONS = (
- {'action': 'manage_change_history_page', 'label': 'History'},
- {'action': 'view', 'label': 'View'},
- {'action': 'manage_interfaces', 'label': 'Interfaces'},
+    {'action': 'manage_change_history_page', 'label': 'History'},
+    {'action': 'view', 'label': 'View'},
+    {'action': 'manage_interfaces', 'label': 'Interfaces'},
 )
 
 
@@ -39,17 +39,20 @@ class BaseContentMixin(CatalogMultiplex,
     __dav_marshall__ = True
 
     security.declarePrivate('manage_afterAdd')
+
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
+
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
+
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
-        #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
+        # and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
     def _notifyOfCopyTo(self, container, op=0):

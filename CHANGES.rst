@@ -4,6 +4,9 @@ Changelog
 1.10.11 (unreleased)
 --------------------
 
+- White space only pep8 cleanup.  Not in the skins.
+  [maurits]
+
 - Removed code for unused types_link_to_folder_contents and
   use_folder_tabs.
   [maurits]

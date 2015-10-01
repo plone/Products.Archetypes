@@ -9,6 +9,7 @@ fallback_marker = []
 
 
 class BaseMockField:
+
     def __init__(self, type):
         self.type = type
 
@@ -27,6 +28,7 @@ class MockField(BaseMockField, ImageField):
 
 
 class MockContext:
+
     def Schema(self):
         return self
 
@@ -35,6 +37,7 @@ class MockContext:
 
 
 class TraverseTests(TestCase):
+
     def setUp(self):
         def fallback(self, request, name):
             return fallback_marker
@@ -50,34 +53,40 @@ class TraverseTests(TestCase):
 
     def testUnknownField(self):
         traverser = ImageTraverser(MockContext(), None)
-        self.assertTrue(traverser.publishTraverse(None, "missing") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "missing") is fallback_marker)
 
     def testWrongFieldType(self):
         context = MockContext()
         context.field = BaseMockField("Other.Type")
         traverser = ImageTraverser(context, None)
-        self.assertTrue(traverser.publishTraverse(None, "field") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "field") is fallback_marker)
 
     def testCorrectFieldType(self):
         context = MockContext()
         context.field = MockField("Other.Type")
         traverser = ImageTraverser(context, None)
-        self.assertTrue(traverser.publishTraverse(None, "field") is data_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "field") is data_marker)
 
     def testFullImage(self):
         context = MockContext()
         context.field = MockField("Products.Archetypes.Field.ImageField")
         traverser = ImageTraverser(context, None)
-        self.assertTrue(traverser.publishTraverse(None, "field") is data_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "field") is data_marker)
 
     def testUnknownScale(self):
         context = MockContext()
         context.field = MockField("Products.Archetypes.Field.ImageField")
         traverser = ImageTraverser(context, None)
-        self.assertTrue(traverser.publishTraverse(None, "field_poster") is fallback_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "field_poster") is fallback_marker)
 
     def testKnownScale(self):
         context = MockContext()
         context.field = MockField("Products.Archetypes.Field.ImageField")
         traverser = ImageTraverser(context, None)
-        self.assertTrue(traverser.publishTraverse(None, "field_mini") is data_marker)
+        self.assertTrue(traverser.publishTraverse(
+            None, "field_mini") is data_marker)

@@ -43,12 +43,12 @@ from UIDCatalog import UIDResolver
 
 
 class Reference(Referenceable, SimpleItem):
-    ## Added base level support for referencing References
-    ## They respond to the UUID protocols, but are not
-    ## catalog aware. This means that you can't move/rename
-    ## reference objects and expect them to work, but you can't
-    ## do this anyway. However they should fine the correct
-    ## events when they are added/deleted, etc
+    # Added base level support for referencing References
+    # They respond to the UUID protocols, but are not
+    # catalog aware. This means that you can't move/rename
+    # reference objects and expect them to work, but you can't
+    # do this anyway. However they should fine the correct
+    # events when they are added/deleted, etc
 
     implements(IReference)
 
@@ -60,7 +60,7 @@ class Reference(Referenceable, SimpleItem):
 
     manage_options = ((
         {'label': 'View', 'action': 'manage_view'},
-        ) + SimpleItem.manage_options)
+    ) + SimpleItem.manage_options)
 
     security.declareProtected(permissions.ManagePortal,
                               'manage_view')
@@ -113,11 +113,11 @@ class Reference(Referenceable, SimpleItem):
     ###
     # Policy hooks, subclass away
     def addHook(self, tool, sourceObject=None, targetObject=None):
-        #to reject the reference being added raise a ReferenceException
+        # to reject the reference being added raise a ReferenceException
         pass
 
     def delHook(self, tool, sourceObject=None, targetObject=None):
-        #to reject the delete raise a ReferenceException
+        # to reject the delete raise a ReferenceException
         pass
 
     ###
@@ -211,7 +211,7 @@ class ContentReferenceCreator:
         self.contentType = contentType
 
     def __call__(self, *args, **kw):
-        #simulates the constructor call to the reference class in addReference
+        # simulates the constructor call to the reference class in addReference
         res = ContentReference(*args, **kw)
         res.contentType = self.contentType
 
@@ -261,6 +261,7 @@ class ReferenceBaseCatalog(PluggableCatalog):
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
     """
+
     def __init__(self, obj):
         self._obj = obj
 
@@ -296,7 +297,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         self._catalog = ReferenceBaseCatalog()
 
     ###
-    ## Public API
+    # Public API
     def addReference(self, source, target, relationship=None,
                      referenceClass=None, updateReferences=True, **kwargs):
         sID, sobj = self._uidFor(source)
@@ -311,7 +312,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             objects = self._resolveBrains(
                 self._queryFor(sID, tID, relationship))
             if objects:
-                #we want to update the existing reference
+                # we want to update the existing reference
                 existing = objects[0]
                 if existing:
                     # We can't del off self, we now need to remove it
@@ -356,23 +357,25 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             self._deleteReference(b)
 
     security.declarePrivate('getReferences')
+
     def getReferences(self, object, relationship=None, targetObject=None,
                       objects=True):
         # return a collection of reference objects
         return self._optimizedReferences(object, relationship=relationship,
-            targetObject=targetObject, objects=objects, attribute='sourceUID')
+                                         targetObject=targetObject, objects=objects, attribute='sourceUID')
 
     security.declarePrivate('getBackReferences')
+
     def getBackReferences(self, object, relationship=None, targetObject=None,
                           objects=True):
         # return a collection of reference objects
 
         # Back refs would be anything that target this object
         return self._optimizedReferences(object, relationship=relationship,
-            targetObject=targetObject, objects=objects, attribute='targetUID')
+                                         targetObject=targetObject, objects=objects, attribute='targetUID')
 
     def _optimizedReferences(self, object, relationship=None,
-        targetObject=None, objects=True, attribute='sourceUID'):
+                             targetObject=None, objects=True, attribute='sourceUID'):
 
         sID, sobj = self._uidFor(object)
         if targetObject:
@@ -479,19 +482,23 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
             return obj
 
     #####
-    ## UID register/unregister
-    security.declareProtected(permissions.ModifyPortalContent, 'registerObject')
+    # UID register/unregister
+    security.declareProtected(
+        permissions.ModifyPortalContent, 'registerObject')
+
     def registerObject(self, object):
         self._uidFor(object)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'unregisterObject')
+    security.declareProtected(
+        permissions.ModifyPortalContent, 'unregisterObject')
+
     def unregisterObject(self, object):
         self.deleteReferences(object)
         uc = getToolByName(self, UID_CATALOG)
         uc.uncatalog_object(object._getURL())
 
     ######
-    ## Private/Internal
+    # Private/Internal
     def _objectByUUID(self, uuid):
         tool = getToolByName(self, UID_CATALOG)
         brains = tool(UID=uuid)
@@ -538,7 +545,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         else:
             uuid = obj
             obj = None
-            #and we look up the object
+            # and we look up the object
             uid_catalog = getToolByName(self, UID_CATALOG)
             brains = uid_catalog(dict(UID=uuid))
             for brain in brains:
@@ -600,14 +607,15 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                               apply_func=self._catalogReferencesFor,
                               apply_path=path, **kw)
 
-    security.declareProtected(permissions.ManagePortal, 'manage_catalogFoundItems')
+    security.declareProtected(permissions.ManagePortal,
+                              'manage_catalogFoundItems')
+
     def manage_catalogFoundItems(self, REQUEST, RESPONSE, URL2, URL1,
                                  obj_metatypes=None,
                                  obj_ids=None, obj_searchterm=None,
                                  obj_expr=None, obj_mtime=None,
                                  obj_mspec=None, obj_roles=None,
                                  obj_permission=None):
-
         """ Find object according to search criteria and Catalog them
         """
 
@@ -632,9 +640,11 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
                          'Total time: %s\n'
                          'Total CPU time: %s'
                          % (`elapse`, `c_elapse`))
-            )
+        )
 
-    security.declareProtected(permissions.ManagePortal, 'manage_rebuildCatalog')
+    security.declareProtected(
+        permissions.ManagePortal, 'manage_rebuildCatalog')
+
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
         """
@@ -662,12 +672,12 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
 
         if RESPONSE:
             RESPONSE.redirect(
-            REQUEST.URL1 +
-            '/manage_catalogView?manage_tabs_message=' +
-            urllib.quote('Catalog Rebuilded\n'
-                         'Total time: %s\n'
-                         'Total CPU time: %s'
-                         % (`elapse`, `c_elapse`))
+                REQUEST.URL1 +
+                '/manage_catalogView?manage_tabs_message=' +
+                urllib.quote('Catalog Rebuilded\n'
+                             'Total time: %s\n'
+                             'Total CPU time: %s'
+                             % (`elapse`, `c_elapse`))
             )
 
 InitializeClass(ReferenceCatalog)

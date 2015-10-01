@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 
@@ -61,7 +61,7 @@ settings = [
      'value': None,  # ... but no value given
      'assertion': lambda result: result is not None},
 
-    ]
+]
 
 for req in 0, 1:  # 0 == not required, 1 == required
 
@@ -71,7 +71,7 @@ for req in 0, 1:  # 0 == not required, 1 == required
             {'field': {'required': req, 'validators': validator},
              'value': 'bass',
              'assertion': lambda result: result.find('bass') > -1}
-            )
+        )
 
     # the trombone is in the vocabulary
     settings.append(
@@ -79,7 +79,7 @@ for req in 0, 1:  # 0 == not required, 1 == required
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': 'trombone',
          'assertion': lambda result: result is None}
-        )
+    )
 
     # tuba is not in vocabulary, so this must fail
     settings.append(
@@ -87,7 +87,7 @@ for req in 0, 1:  # 0 == not required, 1 == required
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': 'tuba',
          'assertion': lambda result: result is not None}
-        )
+    )
 
     # tuba is not in vocabulary, so this must fail
     settings.append(
@@ -96,17 +96,18 @@ for req in 0, 1:  # 0 == not required, 1 == required
                    'vocabulary': ('frenchhorn', 'trombone', 'trumpet')},
          'value': ('tuba', 'trombone'),
          'assertion': lambda result: result is not None}
-        )
+    )
 
     # enforceVocabulary, but no vocabulary given
     settings.append(
         {'field': {'required': req, 'enforceVocabulary': 1},
          'value': 'cello',
          'assertion': lambda result: result is not None}
-        )
+    )
 
 
 class FakeType(Explicit, BaseObject):
+
     def unicodeEncode(self, v): return v  # don't
 
 
@@ -125,7 +126,7 @@ class TestSettings(ATTestCase):
                   (setting, result)
 
             self.assertTrue(setting['assertion'](result),
-                         setting.get('failmsg', msg))
+                            setting.get('failmsg', msg))
 
 
 class TestValidation(ATTestCase):
@@ -137,5 +138,7 @@ class TestValidation(ATTestCase):
         # attach a validator that never validates, so any value must fail
         field = IntegerField('integer', validators=('v3',))
 
-        self.assertTrue(field.validate(1, self.instance, errors={}) is not None)
-        self.assertTrue(field.validate(0, self.instance, errors={}) is not None)
+        self.assertTrue(field.validate(
+            1, self.instance, errors={}) is not None)
+        self.assertTrue(field.validate(
+            0, self.instance, errors={}) is not None)

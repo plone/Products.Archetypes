@@ -37,8 +37,8 @@ class SQLStorageConfig (SimpleItem):
     _manage_selectConnections = DTMLFile('selectConnections', _www)
 
     security.declareProtected(ManagePortal, 'manage_selectConnections')
-    def manage_selectConnections(self, REQUEST, manage_tabs_message=None):
 
+    def manage_selectConnections(self, REQUEST, manage_tabs_message=None):
         """ Show a management screen for changing type to workflow connections.
         """
         cbt = self._conn_by_type
@@ -62,6 +62,7 @@ class SQLStorageConfig (SimpleItem):
             manage_tabs_message=manage_tabs_message)
 
     security.declareProtected(ManagePortal, 'manage_changeConnections')
+
     def manage_changeConnections(self, default_conn, props=None, REQUEST=None):
         """ Changes which connectionss apply to objects of which type.
         """
@@ -82,12 +83,13 @@ class SQLStorageConfig (SimpleItem):
         self.setDefaultConn(default_conn)
         if REQUEST is not None:
             return self.manage_selectConnections(REQUEST,
-                            manage_tabs_message='Changed.')
+                                                 manage_tabs_message='Changed.')
 
     #
     #   Administration methods
     #
     security.declareProtected(ManagePortal, 'setDefaultConn')
+
     def setDefaultConn(self, default_conn):
         """ Set the default conn for this tool
         """
@@ -99,17 +101,19 @@ class SQLStorageConfig (SimpleItem):
         self._default_conn = default_conn
 
     security.declarePrivate('getDefaultConnFor')
+
     def getDefaultConnFor(self, ob):
         """ Return the default conn, if applicable, for ob.
         """
 
         types_tool = getToolByName(self, 'portal_types', None)
         if (types_tool is not None
-            and types_tool.getTypeInfo(ob) is not None):
+                and types_tool.getTypeInfo(ob) is not None):
             return self._default_conn
         return None
 
     security.declareProtected(ManagePortal, 'getConfigurableTypes')
+
     def getConfigurableTypes(self):
         """ Get a list of types that can be configured for SQL Storage.
         """
@@ -124,6 +128,7 @@ class SQLStorageConfig (SimpleItem):
         return c_types
 
     security.declareProtected(ManagePortal, 'getInstalledTypes')
+
     def getInstalledTypes(self):
         pt = getToolByName(self, 'portal_types', None)
         at = getToolByName(self, TOOL_NAME, None)
@@ -140,6 +145,7 @@ class SQLStorageConfig (SimpleItem):
         return installed_types
 
     security.declareProtected(ManagePortal, 'setConnForPortalTypes')
+
     def setConnForPortalTypes(self, type_names, conn):
         """ Set a conn for a specific portal type.
         """
@@ -162,6 +168,7 @@ class SQLStorageConfig (SimpleItem):
                 cbt[id] = conn
 
     security.declarePrivate('getConnectionById')
+
     def getConnectionById(self, conn_id):
         """ Retrieve a given Connection.
         """
@@ -169,6 +176,7 @@ class SQLStorageConfig (SimpleItem):
         return conn
 
     security.declarePrivate('getConnFor')
+
     def getConnFor(self, ob):
         """ Returns the conn that applies to the given object.
             If we get a string as the ob parameter, use it as

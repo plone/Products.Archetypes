@@ -9,6 +9,7 @@ from zope.interface import Interface, implements
 
 
 class iwidget(Interface):
+
     def __call__(instance, context=None):
         """Returns a rendered fragment that can be included in a larger
         context when called by a renderer.

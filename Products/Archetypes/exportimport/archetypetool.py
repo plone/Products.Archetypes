@@ -41,7 +41,7 @@ class ArchetypeToolXMLAdapter(XMLAdapterBase):
             if child.nodeName == 'catalogmap':
                 for type in child.getElementsByTagName('type'):
                     portaltype = type.getAttribute('portal_type')
-                    catalogs = [e.getAttribute('value') \
+                    catalogs = [e.getAttribute('value')
                                 for e in type.getElementsByTagName('catalog')]
                     already = [cat.getId() for cat in
                                self.context.getCatalogsByType(portaltype)]

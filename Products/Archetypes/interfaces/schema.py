@@ -1,5 +1,6 @@
 from zope.interface import Interface
 
+
 class ISchemata(Interface):
     """Schemata (roughly) represents a group of fields"""
 
@@ -75,6 +76,7 @@ class ISchemata(Interface):
         the fields present on this schema that are
         searchable.
         """
+
 
 class ISchema(ISchemata):
     """ Schema """
@@ -159,6 +161,7 @@ class ISchema(ISchemata):
 
         """
 
+
 class ICompositeSchema(ISchema):
     """A composite schema that delegates to underlying ones"""
 
@@ -168,11 +171,13 @@ class ICompositeSchema(ISchema):
     def addSchemas(schemas):
         """Append schemas to composite"""
 
+
 class IBindableSchema(ISchema):
     """A Schema that can be bound to a context object"""
 
     def bind(context):
         """Bind schema to context"""
+
 
 class IManagedSchema(ISchema):
     """A schema that can be managed (ordering schemata,
@@ -189,6 +194,7 @@ class IManagedSchema(ISchema):
         """Move a schemata to left (direction=-1) or to right
         (direction=1)
         """
+
 
 class IMultiPageSchema(Interface):
     """A marker interface for schemas which have to be loaded on seperate

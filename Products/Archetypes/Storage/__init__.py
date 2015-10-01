@@ -19,7 +19,7 @@ type_map = {'text': 'string',
 _marker = []
 
 
-#XXX subclass from Base?
+# XXX subclass from Base?
 class Storage:
     """Basic, abstract class for Storages. You need to implement
     at least those methods"""
@@ -29,6 +29,7 @@ class Storage:
     security = ClassSecurityInfo()
 
     security.declarePublic('getName')
+
     def getName(self):
         return self.__class__.__name__
 
@@ -39,14 +40,17 @@ class Storage:
         return cmp(self.getName(), other.getName())
 
     security.declarePrivate('get')
+
     def get(self, name, instance, **kwargs):
         raise NotImplementedError('%s: get' % self.getName())
 
     security.declarePrivate('set')
+
     def set(self, name, instance, value, **kwargs):
         raise NotImplementedError('%s: set' % self.getName())
 
     security.declarePrivate('unset')
+
     def unset(self, name, instance, **kwargs):
         raise NotImplementedError('%s: unset' % self.getName())
 
@@ -69,18 +73,22 @@ class StorageLayer(Storage):
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
+
     def initializeInstance(self, instance, item=None, container=None):
         raise NotImplementedError('%s: initializeInstance' % self.getName())
 
     security.declarePrivate('cleanupInstance')
+
     def cleanupInstance(self, instance, item=None, container=None):
         raise NotImplementedError('%s: cleanupInstance' % self.getName())
 
     security.declarePrivate('initializeField')
+
     def initializeField(self, instance, field):
         raise NotImplementedError('%s: initializeField' % self.getName())
 
     security.declarePrivate('cleanupField')
+
     def cleanupField(self, instance, field):
         raise NotImplementedError('%s: cleanupField' % self.getName())
 
@@ -94,12 +102,14 @@ class AttributeStorage(Storage):
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
+
     def get(self, name, instance, **kwargs):
         if not shasattr(instance, name):
             raise AttributeError(name)
         return getattr(instance, name)
 
     security.declarePrivate('set')
+
     def set(self, name, instance, value, **kwargs):
         # Remove acquisition wrappers
         value = aq_base(value)
@@ -107,6 +117,7 @@ class AttributeStorage(Storage):
         instance._p_changed = 1
 
     security.declarePrivate('unset')
+
     def unset(self, name, instance, **kwargs):
         try:
             delattr(aq_base(instance), name)
@@ -122,6 +133,7 @@ class ObjectManagedStorage(Storage):
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
+
     def get(self, name, instance, **kwargs):
         try:
             return instance._getOb(name)
@@ -129,6 +141,7 @@ class ObjectManagedStorage(Storage):
             raise AttributeError(msg)
 
     security.declarePrivate('set')
+
     def set(self, name, instance, value, **kwargs):
         # Remove acquisition wrappers
         value = aq_base(value)
@@ -140,6 +153,7 @@ class ObjectManagedStorage(Storage):
         instance._p_changed = 1
 
     security.declarePrivate('unset')
+
     def unset(self, name, instance, **kwargs):
         instance._delObject(name)
         instance._p_changed = 1
@@ -152,12 +166,14 @@ class MetadataStorage(StorageLayer):
     security = ClassSecurityInfo()
 
     security.declarePrivate('initializeInstance')
+
     def initializeInstance(self, instance, item=None, container=None):
         if not shasattr(instance, "_md"):
             instance._md = PersistentMapping()
             instance._p_changed = 1
 
     security.declarePrivate('initializeField')
+
     def initializeField(self, instance, field):
         # Check for already existing field to avoid  the reinitialization
         # (which means overwriting) of an already existing field after a
@@ -167,6 +183,7 @@ class MetadataStorage(StorageLayer):
             self.set(field.getName(), instance, field.getDefault(instance))
 
     security.declarePrivate('get')
+
     def get(self, name, instance, **kwargs):
         base = aq_base(instance)
         try:
@@ -178,6 +195,7 @@ class MetadataStorage(StorageLayer):
         return value
 
     security.declarePrivate('set')
+
     def set(self, name, instance, value, **kwargs):
         base = aq_base(instance)
         # Remove acquisition wrappers
@@ -188,6 +206,7 @@ class MetadataStorage(StorageLayer):
         base._p_changed = 1
 
     security.declarePrivate('unset')
+
     def unset(self, name, instance, **kwargs):
         if not shasattr(instance, "_md"):
             log("Broken instance %s, no _md" % instance)
@@ -196,12 +215,14 @@ class MetadataStorage(StorageLayer):
             instance._p_changed = 1
 
     security.declarePrivate('cleanupField')
+
     def cleanupField(self, instance, field, **kwargs):
         # Don't clean up the field self to avoid problems with copy/rename. The
         # python garbarage system will clean up if needed.
         pass
 
     security.declarePrivate('cleanupInstance')
+
     def cleanupInstance(self, instance, item=None, container=None):
         # Don't clean up the instance self to avoid problems with copy/rename. The
         # python garbarage system will clean up if needed.

@@ -120,7 +120,7 @@ class AllowedTypesByIfaceMixin:
 
         if not at.typeImplementsInterfaces(fti, self.allowed_interfaces):
             raise ValueError, "Type %r does not implement any of %s." % \
-                  (type_name, self.allowed_interfaces)
+                (type_name, self.allowed_interfaces)
 
         args = (type_name, self, id, RESPONSE) + args
         new_id = pt.constructContent(*args, **kwargs)

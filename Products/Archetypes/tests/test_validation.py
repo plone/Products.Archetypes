@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 
@@ -29,6 +29,7 @@ from Products.validation import validation as validationService
 
 
 class TestValidation(ATTestCase):
+
     def test_inNumericRange(self):
         v = validationService.validatorFor('inNumericRange')
         self.assertEqual(v(10, 1, 20), 1)
@@ -49,9 +50,9 @@ class TestValidation(ATTestCase):
     def test_isUSPhoneNumber(self):
         v = validationService.validatorFor('isUSPhoneNumber')
         self.assertEqual(v('(212) 555-1212',
-                               ignore=r'[\s\(\)\-]'), 1)
+                           ignore=r'[\s\(\)\-]'), 1)
         self.assertEqual(v('2125551212',
-                               ignore=r'[\s\(\)\-]'), 1)
+                           ignore=r'[\s\(\)\-]'), 1)
 
         self.assertEqual(v('(212) 555-1212'), 1)
 

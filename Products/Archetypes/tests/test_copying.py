@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 Unittests for a copying/cutting and pasting archetypes objects.
 """
@@ -48,12 +48,13 @@ from Products.Archetypes.tests.utils import PACKAGE_HOME
 class CutPasteCopyPasteTests(ATSiteTestCase):
 
     def test_copy_and_paste(self):
-        ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
+        ffrom = makeContent(
+            self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
         self.assertFalse('tourist' not in ffrom.contentIds())
 
-        #make sure we have _p_jar
+        # make sure we have _p_jar
         transaction.savepoint(optimistic=True)
         cb = ffrom.manage_copyObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
@@ -61,12 +62,13 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         self.assertFalse('tourist' not in fto.contentIds())
 
     def test_cut_and_paste(self):
-        ffrom = makeContent(self.folder, portal_type='SimpleFolder', id='cangucu')
+        ffrom = makeContent(
+            self.folder, portal_type='SimpleFolder', id='cangucu')
         tourist = makeContent(ffrom, portal_type='Fact', id='tourist')
         fto = makeContent(self.folder, portal_type='SimpleFolder', id='london')
         self.assertFalse('tourist' not in ffrom.contentIds())
 
-        #make sure we have _p_jar
+        # make sure we have _p_jar
         transaction.savepoint(optimistic=True)
         cb = ffrom.manage_cutObjects(ffrom.contentIds())
         fto.manage_pasteObjects(cb)
@@ -187,9 +189,10 @@ class PortalCopyTests(ATSiteTestCase):
         # Now test executable ownership and "owner" local role
         # "member" should have both.
         file_ob = member_area.copy_of_test_file
-        self.assertEqual(aq_base(file_ob.getOwner().getId()), aq_base(member).getId())
+        self.assertEqual(aq_base(file_ob.getOwner().getId()),
+                         aq_base(member).getId())
         self.assertTrue('Owner' in
-                            file_ob.get_local_roles_for_userid(TEST_USER_ID))
+                        file_ob.get_local_roles_for_userid(TEST_USER_ID))
 
     def test_copy_paste_resets_workflow(self):
         # Copy/pasting a File should reset workflow to the default state
@@ -206,14 +209,14 @@ class PortalCopyTests(ATSiteTestCase):
         self.assertEqual(wf_tool.getInfoFor(file, 'review_state'), def_state)
         wf_tool.doActionFor(file, 'publish')
         self.assertEqual(wf_tool.getInfoFor(file, 'review_state'),
-                                                                 'published')
+                         'published')
 
         cb = self.folder.manage_copyObjects(['test_file'])
         self.folder.manage_pasteObjects(cb)
 
         file_copy = self.folder.copy_of_test_file
         self.assertEqual(wf_tool.getInfoFor(file_copy, 'review_state'),
-                                                                   def_state)
+                         def_state)
 
     def test_cut_paste_preserves_workflow(self):
         # Cut/pasting a File should preserve workflow state

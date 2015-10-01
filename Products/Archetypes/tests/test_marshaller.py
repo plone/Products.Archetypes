@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from unittest import TestCase
 
@@ -41,7 +41,7 @@ class MarshallerTests(ATSiteTestCase):
 
     # XXX this test is fu... up the machine by eating all memory
     def XXX_test_textFieldObjectWordReplace(self):
-        #test that uploading to an existing object works
+        # test that uploading to an existing object works
         word = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
@@ -55,12 +55,12 @@ class MarshallerTests(ATSiteTestCase):
         request.processInputs()
         word.PUT(request, request.RESPONSE)
 
-        #and we can get the stuff back
+        # and we can get the stuff back
         self.assertEqual(word.getContentType('body'), 'application/msword')
         self.assertEqual(word.getRawBody(), data)
 
     def test_textFieldObjectRSTreplace(self):
-        ## And again with an RST
+        # And again with an RST
         rst = makeContent(self.folder, portal_type='DDocument', id='obj1')
 
         rstFilePath = os.path.join(PACKAGE_HOME, "input", "rest1.rst")
@@ -74,12 +74,12 @@ class MarshallerTests(ATSiteTestCase):
         request.processInputs()
         rst.PUT(request, request.RESPONSE)
 
-        #and we can get the stuff back
+        # and we can get the stuff back
         self.assertEqual(rst.getContentType('body'), 'text/x-rst')
         self.assertEqual(rst.getRawBody().strip(), data.strip())
 
     def test_fileFieldObjectWordReplace(self):
-        #test that uploading to an existing object works
+        # test that uploading to an existing object works
         word = makeContent(self.folder, portal_type='SimpleFile', id='obj1')
 
         wordFilePath = os.path.join(PACKAGE_HOME, "input", "word.doc")
@@ -91,12 +91,12 @@ class MarshallerTests(ATSiteTestCase):
         request.processInputs()
         word.PUT(request, request.RESPONSE)
 
-        #and we can get the stuff back
+        # and we can get the stuff back
         self.assertEqual(word.getContentType('body'), 'application/msword')
         self.assertEqual(str(word.getRawBody()), data)
 
     def setupCTR(self):
-        #Modify the CTR to point to SimpleType
+        # Modify the CTR to point to SimpleType
         ctr = self.portal.content_type_registry
         if ctr.getPredicate('text'):
             # ATCT has a predict

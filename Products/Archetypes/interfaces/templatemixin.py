@@ -1,5 +1,6 @@
 from zope.interface import Interface, Attribute
 
+
 class ITemplateMixin(Interface):
     """Marker interface for TemplateMixin
     """

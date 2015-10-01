@@ -19,14 +19,14 @@ from App.class_init import InitializeClass
 from AccessControl import ClassSecurityInfo
 
 ####
-## In the case of:
-## - a copy:
-##   * we want to lose refs on the new object
-##   * we want to keep refs on the orig object
-## - a cut/paste
-##   * we want to keep refs
-## - a delete:
-##   * to lose refs
+# In the case of:
+# - a copy:
+# * we want to lose refs on the new object
+# * we want to keep refs on the orig object
+# - a cut/paste
+# * we want to keep refs
+# - a delete:
+# * to lose refs
 ####
 
 
@@ -94,14 +94,15 @@ class Referenceable(CopySource):
             return [self._optimizedGetObject(b.sourceUID) for b in brains]
         return []
 
-    #aliases
+    # aliases
     getReferences = getRefs
     getBackReferences = getBRefs
 
     def getReferenceImpl(self, relationship=None, targetObject=None):
         # get all the reference objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getReferences(self, relationship, targetObject=targetObject)
+        refs = tool.getReferences(
+            self, relationship, targetObject=targetObject)
         if refs:
             return refs
         return []
@@ -109,7 +110,8 @@ class Referenceable(CopySource):
     def getBackReferenceImpl(self, relationship=None, targetObject=None):
         # get all the back reference objects for this object
         tool = getToolByName(self, config.REFERENCE_CATALOG)
-        refs = tool.getBackReferences(self, relationship, targetObject=targetObject)
+        refs = tool.getBackReferences(
+            self, relationship, targetObject=targetObject)
         if refs:
             return refs
         return []
@@ -214,7 +216,7 @@ class Referenceable(CopySource):
         self._catalogUID(container, uc=uc)
         self._catalogRefs(container, uc=uc, rc=rc)
 
-    ## OFS Hooks
+    # OFS Hooks
     def manage_afterAdd(self, item, container):
         # Get a UID
         # (Called when the object is created or moved.)
@@ -263,7 +265,7 @@ class Referenceable(CopySource):
         uuid = IUUID(self, None)
 
         if (uuid is None or
-            len(uc(UID=uuid))):
+                len(uc(UID=uuid))):
             setattr(self, config.UUID_ATTR, None)
 
         self._register()
@@ -283,11 +285,11 @@ class Referenceable(CopySource):
             references = rc.getReferences(self)
             back_references = rc.getBackReferences(self)
             try:
-                #First check the 'delete cascade' case
+                # First check the 'delete cascade' case
                 if references:
                     for ref in references:
                         ref.beforeSourceDeleteInformTarget()
-                #Then check the 'holding/ref count' case
+                # Then check the 'holding/ref count' case
                 if back_references:
                     for ref in back_references:
                         ref.beforeTargetDeleteInformSource()
@@ -304,7 +306,7 @@ class Referenceable(CopySource):
         self._uncatalogUID(container)
         self._uncatalogRefs(container)
 
-    ## Catalog Helper methods
+    # Catalog Helper methods
     def _catalogUID(self, aq, uc=None):
         if not uc:
             uc = getToolByName(aq, config.UID_CATALOG)

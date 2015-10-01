@@ -66,8 +66,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                         default=u'Allow comments'),
                 description=_(u'help_allow_comments',
                               default=u'If selected, users can add comments '
-                                       'to this item.')
-                ),
+                              'to this item.')
+            ),
         ),
         LinesField(
             'subject',
@@ -78,8 +78,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_tags', default=u'Tags'),
                 description=_(u'help_tags',
                               default=u'Tags are commonly used for ad-hoc '
-                                       'organization of content.'),
-                ),
+                              'organization of content.'),
+            ),
         ),
         TextField(
             'description',
@@ -92,7 +92,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
                               default=u'Used in item listings and search results.'),
-                ),
+            ),
         ),
         # Location, also known as Coverage in the DC metadata standard, but we
         # keep the term Location here for historical reasons.
@@ -104,7 +104,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_location', default=u'Location'),
                 description=_(u'help_location_dc',
                               default=u'The geographical location associated with the item, if applicable.'),
-                ),
+            ),
         ),
         LinesField(
             'contributors',
@@ -113,10 +113,10 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_contributors', u'Contributors'),
                 description=_(u'help_contributors',
                               default=u"The names of people that have contributed "
-                                       "to this item. Each contributor should "
-                                       "be on a separate line."),
+                              "to this item. Each contributor should "
+                              "be on a separate line."),
                 vocabulary="plone.app.vocabularies.Users"
-                ),
+            ),
         ),
         LinesField(
             'creators',
@@ -125,10 +125,10 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_creators', u'Creators'),
                 description=_(u'help_creators',
                               default=u"Persons responsible for creating the content of "
-                                       "this item. Please enter a list of user names, one "
-                                       "per line. The principal creator should come first."),
+                              "this item. Please enter a list of user names, one "
+                              "per line. The principal creator should come first."),
                 vocabulary="plone.app.vocabularies.Users"
-                ),
+            ),
         ),
         DateTimeField(
             'effectiveDate',
@@ -138,8 +138,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_effective_date', u'Publishing Date'),
                 description=_(u'help_effective_date',
                               default=u"The date when the item will be published. If no "
-                                       "date is selected the item will be published immediately."),
-                ),
+                              "date is selected the item will be published immediately."),
+            ),
         ),
         DateTimeField(
             'expirationDate',
@@ -149,9 +149,9 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_expiration_date', u'Expiration Date'),
                 description=_(u'help_expiration_date',
                               default=u"The date when the item expires. This will automatically "
-                                       "make the item invisible for others at the given date. "
-                                       "If no date is chosen, it will never expire."),
-                ),
+                              "make the item invisible for others at the given date. "
+                              "If no date is chosen, it will never expire."),
+            ),
         ),
         StringField(
             'language',
@@ -161,7 +161,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             vocabulary='languages',
             widget=SelectWidget(
                 label=_(u'label_language', default=u'Language'),
-                ),
+            ),
         ),
         TextField(
             'rights',
@@ -172,27 +172,27 @@ class ExtensibleMetadata(Persistence.Persistent):
                 label=_(u'label_copyrights', default=u'Rights'),
                 description=_(u'help_copyrights',
                               default=u'Copyright statement or other rights information on this item.'),
-                )),
-        )) + Schema((
+            )),
+    )) + Schema((
         # XXX change this to MetadataSchema in AT 1.4
         # Currently we want to stay backward compatible without migration
         # between beta versions so creation and modification date are using the
         # standard schema which leads to AttributeStorage
         DateTimeField(
-            'creation_date',
-            accessor='created',
-            mutator='setCreationDate',
-            default_method=DateTime,
-            languageIndependent=True,
-            isMetadata=True,
-            schemata='metadata',
-            generateMode='mVc',
-            widget=DatetimeWidget(
-                label=_(u'label_creation_date', default=u'Creation Date'),
-                description=_(u'help_creation_date',
-                              default=u'Date this object was created'),
-                visible={'edit': 'invisible', 'view': 'invisible'}),
-        ),
+                'creation_date',
+                accessor='created',
+                mutator='setCreationDate',
+                default_method=DateTime,
+                languageIndependent=True,
+                isMetadata=True,
+                schemata='metadata',
+                generateMode='mVc',
+                widget=DatetimeWidget(
+                    label=_(u'label_creation_date', default=u'Creation Date'),
+                    description=_(u'help_creation_date',
+                                  default=u'Date this object was created'),
+                    visible={'edit': 'invisible', 'view': 'invisible'}),
+                ),
         DateTimeField(
             'modification_date',
             accessor='modified',
@@ -203,18 +203,19 @@ class ExtensibleMetadata(Persistence.Persistent):
             schemata='metadata',
             generateMode='mVc',
             widget=DatetimeWidget(
-                label=_(u'label_modification_date',
-                        default=u'Modification Date'),
-                description=_(u'help_modification_date',
-                              default=u'Date this content was modified last'),
-                visible={'edit': 'invisible', 'view': 'invisible'}),
+                    label=_(u'label_modification_date',
+                            default=u'Modification Date'),
+                    description=_(u'help_modification_date',
+                                  default=u'Date this content was modified last'),
+                    visible={'edit': 'invisible', 'view': 'invisible'}),
         ),
-        ))
+    ))
 
     def __init__(self):
         pass
 
     security.declarePrivate('defaultLanguage')
+
     def defaultLanguage(self):
         """Retrieve the default language"""
         tool = getToolByName(self, 'portal_languages', None)
@@ -223,6 +224,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return config.LANGUAGE_DEFAULT
 
     security.declarePrivate('defaultRights')
+
     def defaultRights(self):
         """Retrieve the default rights"""
         mdtool = getToolByName(self, 'portal_metadata', None)
@@ -239,6 +241,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return ''
 
     security.declareProtected(permissions.View, 'isDiscussable')
+
     def isDiscussable(self, encoding=None):
         log_deprecated(
             "The isDiscussable method from the ExtensibleMetadata in "
@@ -254,6 +257,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return dtool.isDiscussionAllowedFor(self)
 
     security.declareProtected(permissions.View, 'editIsDiscussable')
+
     def editIsDiscussable(self, encoding=None):
         log_deprecated(
             "The editIsDiscussable method from the ExtensibleMetadata in "
@@ -272,6 +276,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return default
 
     security.declareProtected(permissions.View, 'rawIsDiscussable')
+
     def rawIsDiscussable(self):
         log_deprecated(
             "The rawIsDiscussable method from the ExtensibleMetadata in "
@@ -289,6 +294,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return result
 
     security.declareProtected(permissions.View, 'defaultIsDiscussable')
+
     def defaultIsDiscussable(self):
         log_deprecated(
             "The defaultIsDiscussable method from the ExtensibleMetadata in "
@@ -308,12 +314,14 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'allowDiscussion')
+
     def allowDiscussion(self, allowDiscussion=None, **kw):
         pass
 
     # Vocabulary methods ######################################################
 
     security.declareProtected(permissions.View, 'languages')
+
     def languages(self):
         """Vocabulary method for the language field
         """
@@ -348,6 +356,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore interface query methods #####################################
 
     security.declareProtected(permissions.View, 'CreationDate')
+
     def CreationDate(self, zone=None):
         """ Dublin Core element - date resource created.
         """
@@ -358,6 +367,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return creation is None and 'Unknown' or creation.toZone(zone).ISO8601()
 
     security.declareProtected(permissions.View, 'EffectiveDate')
+
     def EffectiveDate(self, zone=None):
         """ Dublin Core element - date resource becomes effective.
         """
@@ -375,6 +385,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     effective_date = ComputedAttribute(_effective_date, 1)
 
     security.declareProtected(permissions.View, 'ExpirationDate')
+
     def ExpirationDate(self, zone=None):
         """Dublin Core element - date resource expires.
         """
@@ -392,6 +403,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     expiration_date = ComputedAttribute(_expiration_date, 1)
 
     security.declareProtected(permissions.View, 'Date')
+
     def Date(self, zone=None):
         """
         Dublin Core element - default date
@@ -407,6 +419,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 effective.toZone(zone).ISO8601())
 
     security.declareProtected(permissions.View, 'Format')
+
     def Format(self):
         """cmf/backward compat
         Dublin Core element - resource format
@@ -416,6 +429,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setFormat')
+
     def setFormat(self, value):
         """cmf/backward compat: ignore setFormat"""
         self.setContentType(value)
@@ -427,6 +441,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore utility methods #############################################
 
     security.declareProtected(permissions.View, 'contentEffective')
+
     def contentEffective(self, date):
         """Is the date within the resource's effective range?
         """
@@ -437,6 +452,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return pastEffective and beforeExpiration
 
     security.declareProtected(permissions.View, 'contentExpired')
+
     def contentExpired(self, date=None):
         """ Is the date after resource's expiration """
         if not date:
@@ -449,6 +465,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  CatalogableDublinCore methods ##########################################
 
     security.declareProtected(permissions.View, 'created')
+
     def created(self):
         """Dublin Core element - date resource created,
         returned as DateTime.
@@ -458,6 +475,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return created is None and FLOOR_DATE or created
 
     security.declareProtected(permissions.View, 'modified')
+
     def modified(self):
         """Dublin Core element - date resource last modified,
         returned as DateTime.
@@ -467,6 +485,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return modified
 
     security.declareProtected(permissions.View, 'effective')
+
     def effective(self):
         """Dublin Core element - date resource becomes effective,
         returned as DateTime.
@@ -475,6 +494,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return effective is None and FLOOR_DATE or effective
 
     security.declareProtected(permissions.View, 'expires')
+
     def expires(self):
         """Dublin Core element - date resource expires,
         returned as DateTime.
@@ -504,6 +524,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'notifyModified')
+
     def notifyModified(self):
         """
         Take appropriate action after the resource has been modified.
@@ -515,6 +536,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ManagePortal,
                               'setModificationDate')
+
     def setModificationDate(self, modification_date=None):
         """Set the date when the resource was last modified.
         When called without an argument, sets the date to now.
@@ -527,6 +549,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.ManagePortal,
                               'setCreationDate')
+
     def setCreationDate(self, creation_date=None):
         """Set the date when the resource was created.
         When called without an argument, sets the date to now.
@@ -538,6 +561,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         self.getField('creation_date').set(self, created)
 
     security.declarePrivate('_datify')
+
     def _datify(self, date):
         """Try to convert something into a DateTime instance or None
         """
@@ -553,6 +577,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #  DublinCore interface query methods
     #
     security.declareProtected(permissions.View, 'Publisher')
+
     def Publisher(self):
         """Dublin Core element - resource publisher
         """
@@ -560,6 +585,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return 'No publisher'
 
     security.declareProtected(permissions.View, 'ModificationDate')
+
     def ModificationDate(self, zone=None):
         """ Dublin Core element - date resource last modified.
         """
@@ -570,6 +596,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                 or modified.toZone(zone).ISO8601())
 
     security.declareProtected(permissions.View, 'Type')
+
     def Type(self):
         """Dublin Core element - Object type"""
         if hasattr(aq_base(self), 'getTypeInfo'):
@@ -579,6 +606,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return self.meta_type
 
     security.declareProtected(permissions.View, 'Identifier')
+
     def Identifier(self):
         """Dublin Core element - Object ID"""
         # XXX: fixme using 'portal_metadata' (we need to prepend the
@@ -586,12 +614,14 @@ class ExtensibleMetadata(Persistence.Persistent):
         return self.absolute_url()
 
     security.declareProtected(permissions.View, 'listContributors')
+
     def listContributors(self):
         """Dublin Core element - Contributors"""
         return self.Contributors()
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'addCreator')
+
     def addCreator(self, creator=None):
         """ Add creator to Dublin Core creators.
         """
@@ -607,6 +637,7 @@ class ExtensibleMetadata(Persistence.Persistent):
             self.setCreators(curr_creators + (creator, ))
 
     security.declareProtected(permissions.View, 'listCreators')
+
     def listCreators(self):
         """ List Dublin Core Creator elements - resource authors.
         """
@@ -623,6 +654,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return creators.get(self)
 
     security.declareProtected(permissions.View, 'Creator')
+
     def Creator(self):
         """ Dublin Core Creator element - resource author.
         """
@@ -644,6 +676,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
 
     security.declareProtected(permissions.View, 'getMetadataHeaders')
+
     def getMetadataHeaders(self):
         """ Return RFC-822-style headers.
         """
@@ -669,6 +702,7 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
 
     security.declarePrivate('_editMetadata')
+
     def _editMetadata(self,
                       title=_marker,
                       subject=_marker,
@@ -706,7 +740,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     manage_metadata = DTMLFile('zmi_metadata', config._www)
 
     security.declareProtected(permissions.ModifyPortalContent,
-                               'manage_editMetadata')
+                              'manage_editMetadata')
+
     def manage_editMetadata(self,
                             title,
                             subject,
@@ -724,13 +759,14 @@ class ExtensibleMetadata(Persistence.Persistent):
         self._editMetadata(title, subject, description, contributors,
                            effective_date, expiration_date,
                            format, language, rights,
-                          )
+                           )
         REQUEST['RESPONSE'].redirect(self.absolute_url()
-                                + '/manage_metadata'
-                                + '?manage_tabs_message=Metadata+updated.')
+                                     + '/manage_metadata'
+                                     + '?manage_tabs_message=Metadata+updated.')
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'editMetadata')
+
     def editMetadata(self,
                      title='',
                      subject=(),

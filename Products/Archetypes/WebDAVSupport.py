@@ -174,7 +174,7 @@ def manage_FTPget(self, REQUEST=None, RESPONSE=None):
     # return a StreamIterator.
     assert length is not None, 'Could not figure out length of Pdata chain'
     if (issubclass(IStreamIterator, Interface) and IStreamIterator.providedBy(data)
-        or not issubclass(IStreamIterator, Interface) and IStreamIterator.IsImplementedBy(data)):
+            or not issubclass(IStreamIterator, Interface) and IStreamIterator.IsImplementedBy(data)):
         return data
     return PdataStreamIterator(data, length)
 

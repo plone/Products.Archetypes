@@ -25,7 +25,7 @@ schema = BaseSchema + Schema((
                    relationship="D"
                    ),
 
-    ))
+))
 
 
 class Refnode(BaseContent):

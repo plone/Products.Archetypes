@@ -8,6 +8,7 @@ from plone.uuid.interfaces import IUUID
 from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.interfaces import IReferenceable
 
+
 @implementer(IUUID)
 @adapter(IReferenceable)
 def referenceableUUID(context):

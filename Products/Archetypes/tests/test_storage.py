@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -50,7 +50,8 @@ class ChangeStorageTest(ATTestCase):
         out = ('bla', 'bla', 'bla')
 
         self.assertEqual(str(dummy.getAtextfield()), 'sometext')
-        self.assertTrue(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
+        self.assertTrue(dummy.getAdatefield().ISO8601(
+        ).startswith('2003-01-01T00:00:00'))
         self.assertEqual(dummy.getAlinesfield(), out)
         self.assertEqual(dummy.getAnobjectfield(), 'someothertext')
 
@@ -58,12 +59,15 @@ class ChangeStorageTest(ATTestCase):
             if field.getName() in ['atextfield', 'adatefield', 'alinesfield', 'anobjectfield']:
                 self._old_storages[field.getName()] = field.getStorage()
                 field.setStorage(dummy, AttributeStorage())
-                self.assertEqual(field.getStorage().getName(), 'AttributeStorage')
+                self.assertEqual(field.getStorage().getName(),
+                                 'AttributeStorage')
                 field.setStorage(dummy, MetadataStorage())
-                self.assertEqual(field.getStorage().getName(), 'MetadataStorage')
+                self.assertEqual(field.getStorage().getName(),
+                                 'MetadataStorage')
 
         self.assertEqual(str(dummy.getAtextfield()), 'sometext')
-        self.assertTrue(dummy.getAdatefield().ISO8601().startswith('2003-01-01T00:00:00'))
+        self.assertTrue(dummy.getAdatefield().ISO8601(
+        ).startswith('2003-01-01T00:00:00'))
         self.assertEqual(dummy.getAlinesfield(), out)
         self.assertEqual(dummy.getAnobjectfield(), 'someothertext')
 

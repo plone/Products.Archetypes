@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Acquisition import aq_base
 from Acquisition import aq_parent
@@ -43,27 +43,28 @@ fieldList = [
     # (accessor, mutator, field),
     ('Title', 'setTitle',                    ''),
     ('Creator', '',                          ''),
-    ('Subject','setSubject',                 'subject'),
-    ('Description','setDescription',         'description'),
+    ('Subject', 'setSubject',                 'subject'),
+    ('Description', 'setDescription',         'description'),
     ('Publisher', '',                        ''),
-    ('Contributors','setContributors',       'contributors'),
+    ('Contributors', 'setContributors',       'contributors'),
     ('Date', '',                             ''),
     ('CreationDate', '',                     ''),
-    ('EffectiveDate','setEffectiveDate',     'effectiveDate'),
-    ('ExpirationDate','setExpirationDate',   'expirationDate'),
+    ('EffectiveDate', 'setEffectiveDate',     'effectiveDate'),
+    ('ExpirationDate', 'setExpirationDate',   'expirationDate'),
     ('ModificationDate', '',                 ''),
     ('Type', '',                             ''),
     ('Format', 'setFormat',                  ''),
     ('Identifier', '',                       ''),
-    ('Language','setLanguage',               'language'),
-    ('Rights','setRights',                   'rights'),
+    ('Language', 'setLanguage',               'language'),
+    ('Rights', 'setRights',                   'rights'),
 
     # allowDiscussion is not part of the official DC metadata set
-    ('allowDiscussion','isDiscussable','allowDiscussion'),
-  ]
+    ('allowDiscussion', 'isDiscussable', 'allowDiscussion'),
+]
 
 
 class DummyPortalMembership:
+
     def checkPermission(self, *args, **kwargs):
         return True
 
@@ -145,7 +146,8 @@ class ExtensibleMetadataTest(ATSiteTestCase):
         obj = self._dummy
         for field in fieldList:
             mutator = field[1]
-            if not mutator: continue
+            if not mutator:
+                continue
             fobj = getattr(obj, mutator, None)
             self.assertTrue(hasattr(obj, mutator),
                             'Missing mutator %s' % mutator)
@@ -157,7 +159,8 @@ class ExtensibleMetadataTest(ATSiteTestCase):
         obj = self._dummy
         for field in fieldList:
             meta = field[2]
-            if not meta: continue
+            if not meta:
+                continue
             md = aq_base(obj)._md
             field = aq_base(obj).Schema()[meta]
             self.assertTrue(meta in md, 'Missing field %s' % meta)
@@ -166,8 +169,8 @@ class ExtensibleMetadataTest(ATSiteTestCase):
             # We are checking here if the metadata
             # for a given field has been correctly initialized.
             self.assertFalse(value is _marker,
-                        'Metadata field %s has not been correctly '
-                        'initialized.' % meta)
+                             'Metadata field %s has not been correctly '
+                             'initialized.' % meta)
             self.assertTrue(field.isMetadata,
                             'isMetadata not set correctly for field %s.' % meta)
 
@@ -202,8 +205,10 @@ class ExtMetadataContextTest(ATSiteTestCase):
         addMetadataTo(self._parent, data='parent', time=1980)
         addMetadataTo(self._parent.dummy, data='dummy', time=2120)
 
-        compareMetadataOf(self, aq_base(self._parent), data='parent', time=1980)
-        compareMetadataOf(self, aq_base(self._parent.dummy), data='dummy', time=2120)
+        compareMetadataOf(self, aq_base(self._parent),
+                          data='parent', time=1980)
+        compareMetadataOf(self, aq_base(self._parent.dummy),
+                          data='dummy', time=2120)
 
     def testIsParent(self):
         self.assertTrue(aq_parent(self._parent) == self.portal)
@@ -234,17 +239,20 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         # to enable overrideDiscussionFor
         self.setRoles(['Manager'])
 
-        parent = mkDummyInContext(DummyFolder, oid='parent', context=self.portal, schema=None)
+        parent = mkDummyInContext(
+            DummyFolder, oid='parent', context=self.portal, schema=None)
         self._parent = parent
 
         # create dummy
-        dummy = mkDummyInContext(Dummy, oid='dummy', context=parent, schema=None)
+        dummy = mkDummyInContext(
+            Dummy, oid='dummy', context=parent, schema=None)
         self._dummy = dummy
 
         pfield = dummy.getPrimaryField()
         # tests do need afilefield
         self.assertEqual(pfield.getName(), 'afilefield')
-        pfield.set(dummy, self.value, filename=self.filename, mimetype='text/plain')
+        pfield.set(dummy, self.value, filename=self.filename,
+                   mimetype='text/plain')
 
         self._parent.dummy = dummy
 
@@ -321,6 +329,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
 
 
 class TimeZoneTest(ATSiteTestCase):
+
     def _makeDummyContent(self, name):
         return mkDummyInContext(
             klass=Dummy, oid=name, context=self.portal, schema=schema)

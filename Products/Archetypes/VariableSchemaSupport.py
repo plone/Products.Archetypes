@@ -57,11 +57,13 @@ class VariableSchemaSupport(Base):
     security = ClassSecurityInfo()
 
     security.declareProtected(permissions.View, 'Schema')
+
     def Schema(self):
         schema = self.getAndPrepareSchema()
         return ImplicitAcquisitionWrapper(schema, self)
 
     security.declareProtected(permissions.ManagePortal, 'getAndPrepareSchema')
+
     def getAndPrepareSchema(self):
         s = self.getSchema()
 
@@ -81,10 +83,12 @@ class VariableSchemaSupport(Base):
 
     # supposed to be overloaded. here the object can return its own schema
     security.declareProtected(permissions.View, 'getSchema')
+
     def getSchema(self):
         return self.schema
 
     security.declareProtected(permissions.ManagePortal, 'setSchema')
+
     def setSchema(self, schema):
         self.schema = schema
 

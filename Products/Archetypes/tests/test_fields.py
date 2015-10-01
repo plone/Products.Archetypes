@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 import os
 import PIL
@@ -62,7 +62,7 @@ test_fields = [
     ('FixedPointField', 'fixedpointfield2'),
     ('BooleanField', 'booleanfield'),
     ('ImageField', 'imagefield'),
-    ]
+]
 
 field_instances = []
 for type, name in test_fields:
@@ -72,7 +72,8 @@ txt_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
 txt_content = txt_file.read()
 img_file = open(os.path.join(PACKAGE_HOME, 'input', 'tool.gif'), 'rb')
 img_content = img_file.read()
-animated_gif_file = open(os.path.join(PACKAGE_HOME, 'input', 'animated.gif'), 'rb')
+animated_gif_file = open(os.path.join(
+    PACKAGE_HOME, 'input', 'animated.gif'), 'rb')
 animated_gif_content = animated_gif_file.read()
 pdf_file = open(os.path.join(PACKAGE_HOME, 'input', 'webdav.pdf'), 'rb')
 pdf_content = pdf_file.read()
@@ -96,7 +97,7 @@ field_values = {
     'fixedpointfield2': '1,5',
     'booleanfield': '1',
     'imagefield_file': img_file,
-    }
+}
 
 expected_values = {
     'objectfield': 'objectfield',
@@ -112,7 +113,7 @@ expected_values = {
     'fixedpointfield2': '1.50',
     'booleanfield': 1,
     'imagefield': '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name
-    }
+}
 
 empty_values = {
     'objectfield': None,
@@ -127,10 +128,11 @@ empty_values = {
     'fixedpointfield1': None,
     'fixedpointfield2': None,
     'booleanfield': None,
-    }
+}
 
 schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
+
 
 class sampleInterfaceVocabulary:
     implements(IVocabulary)
@@ -140,6 +142,7 @@ class sampleInterfaceVocabulary:
 
 
 class Dummy(BaseContentMixin):
+
     def Title(self):
         # required for ImageField
         return 'Spam'
@@ -159,6 +162,7 @@ class DummyVocabulary(object):
 
 DummyVocabFactory = DummyVocabulary()
 
+
 class DummyIntVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -166,11 +170,11 @@ class DummyIntVocabulary(object):
         return SimpleVocabulary.fromItems([("title1", 1), ("t2", 2)])
 
 
-DummyIntVocabFactory = DummyIntVocabulary() 
+DummyIntVocabFactory = DummyIntVocabulary()
 
 
 FakeRequest = TestRequest
-#class FakeRequest:
+# class FakeRequest:
 #
 #    def __init__(self):
 #        self.other = {}
@@ -202,7 +206,7 @@ class ProcessingTest(ATSiteTestCase):
             if isinstance(got, File):
                 got = str(got)
             self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
-                              (got, v, k))
+                             (got, v, k))
 
     def test_processing_fieldset(self):
         dummy = self.makeDummy()
@@ -216,7 +220,7 @@ class ProcessingTest(ATSiteTestCase):
             if isinstance(got, (File, Image)):
                 got = str(got)
             self.assertEqual(got, v, 'got: %r, expected: %r, field "%s"' %
-                              (got, v, k))
+                             (got, v, k))
 
     def test_image_tag(self):
         dummy = self.makeDummy()
@@ -228,11 +232,11 @@ class ProcessingTest(ATSiteTestCase):
 
         image_field = dummy.getField('imagefield')
         self.assertEqual(image_field.tag(dummy),
-                          '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
+                         '<img src="%s/dummy/imagefield" alt="Spam" title="Spam" height="16" width="16" />' % portal_name)
         self.assertEqual(image_field.tag(dummy, alt=''),
-                          '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
+                         '<img src="%s/dummy/imagefield" alt="" title="Spam" height="16" width="16" />' % portal_name)
         self.assertEqual(image_field.tag(dummy, alt='', title=''),
-                          '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
+                         '<img src="%s/dummy/imagefield" alt="" title="" height="16" width="16" />' % portal_name)
 
     def test_gif_format_preserved_when_scaling(self):
         dummy = self.makeDummy()
@@ -250,7 +254,8 @@ class ProcessingTest(ATSiteTestCase):
 
         image_field = dummy.getField('imagefield')
 
-        scaled_image_file, img_format = image_field.scale(animated_gif_content, 100, 100)
+        scaled_image_file, img_format = image_field.scale(
+            animated_gif_content, 100, 100)
         self.assertEqual("gif", img_format)
 
         image = PIL.Image.open(scaled_image_file)
@@ -431,9 +436,11 @@ class ProcessingTest(ATSiteTestCase):
         # # Vocabulary factory
         field.vocabulary = ()
         field.vocabulary_factory = 'archetypes.tests.dummyvocab'
-        getSiteManager().registerUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
+        getSiteManager().registerUtility(component=DummyVocabFactory,
+                                         name='archetypes.tests.dummyvocab')
         self.assertEqual(field.Vocabulary(dummy), expected)
-        getSiteManager().unregisterUtility(component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
+        getSiteManager().unregisterUtility(
+            component=DummyVocabFactory, name='archetypes.tests.dummyvocab')
 
     def test_factory_vocabulary_int(self):
         dummy = self.makeDummy()
@@ -448,9 +455,11 @@ class ProcessingTest(ATSiteTestCase):
         # # Vocabulary factory
         field.vocabulary = ()
         field.vocabulary_factory = 'archetypes.tests.dummyintvocab'
-        getSiteManager().registerUtility(component=DummyIntVocabFactory, name='archetypes.tests.dummyintvocab')
+        getSiteManager().registerUtility(component=DummyIntVocabFactory,
+                                         name='archetypes.tests.dummyintvocab')
         self.assertEqual(field.Vocabulary(), expected)
-        getSiteManager().unregisterUtility(component=DummyIntVocabFactory, name='archetypes.tests.dummyintvocab')
+        getSiteManager().unregisterUtility(component=DummyIntVocabFactory,
+                                           name='archetypes.tests.dummyintvocab')
 
     def test_allowable_content_types_ok(self):
         dummy = self.makeDummy()
@@ -523,9 +532,11 @@ class ProcessingTest(ATSiteTestCase):
             def __call__(self):
                 return "Adapted"
 
-        getSiteManager().registerAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
+        getSiteManager().registerAdapter(factory=DefaultFor,
+                                         required=(Dummy,), name=field.__name__)
         self.assertEqual(field.getDefault(dummy), 'Adapted')
-        getSiteManager().unregisterAdapter(factory=DefaultFor, required=(Dummy,), name=field.__name__)
+        getSiteManager().unregisterAdapter(factory=DefaultFor,
+                                           required=(Dummy,), name=field.__name__)
 
     def test_encoding(self):
         # http://dev.plone.org/plone/ticket/7597

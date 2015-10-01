@@ -9,19 +9,25 @@ from AccessControl import allow_class, allow_module
 from Products.CMFCore import permissions
 
 ###
-## security
+# security
 ###
 # make log and log_exc public
 allow_module('Products.Archetypes.utils')
 
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log')
 ModuleSecurityInfo('Products.Archetypes.debug').declarePublic('log_exc')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getAllowableContentTypes')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getAllowedContentTypes')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getForbiddenContentTypes')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic('getDefaultContentType')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setForbiddenContentTypes')
-ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(permissions.ManagePortal, 'setDefaultContentType')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic(
+    'getAllowableContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic(
+    'getAllowedContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic(
+    'getForbiddenContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declarePublic(
+    'getDefaultContentType')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(
+    permissions.ManagePortal, 'setForbiddenContentTypes')
+ModuleSecurityInfo('Products.Archetypes.mimetype_utils').declareProtected(
+    permissions.ManagePortal, 'setDefaultContentType')
 
 # Import "PloneMessageFactory as _" to create messages in plone domain
 # duplicated here so we don't add a dependency on CMFPlone
@@ -70,7 +76,7 @@ def initialize(context):
             permission=permissions.AddPortalContent,
             extra_constructors=constructors,
             fti=ftis,
-            ).initialize(context)
+        ).initialize(context)
     try:
         from Products.CMFCore.FSFile import FSFile
         from Products.CMFCore.DirectoryView import registerFileExtension

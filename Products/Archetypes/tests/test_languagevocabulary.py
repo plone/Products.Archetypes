@@ -19,7 +19,8 @@ class LanguageVocabularyTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         registerType(Dummy, 'Archetypes')
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        content_types, constructors, ftis = process_types(
+            listTypes(), PKG_NAME)
         portal = self.portal
         dummy = Dummy(oid='dummy')
         # put dummy in context of portal

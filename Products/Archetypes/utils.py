@@ -51,6 +51,8 @@ _marker = []
 
 
 security.declarePrivate('mapply')
+
+
 def mapply(method, *args, **kw):
     """ Inspect function and apply positional and keyword arguments as possible.
 
@@ -160,7 +162,7 @@ def capitalize(string):
 
 
 def findDict(listofDicts, key, value):
-    #Look at a list of dicts for one where key == value
+    # Look at a list of dicts for one where key == value
     for d in listofDicts:
         if key in d:
             if d[key] == value:
@@ -422,10 +424,10 @@ class DisplayList:
         return cmp(self.sortedByKey()[:], dest.sortedByKey()[:])
 
     def __getitem__(self, key):
-        #Ok, this is going to pass a number
-        #which is index but not easy to get at
-        #with the data-struct, fix when we get real
-        #itor/generators
+        # Ok, this is going to pass a number
+        # which is index but not easy to get at
+        # with the data-struct, fix when we get real
+        # itor/generators
         return self._itor[key]
 
     def __getslice__(self, i1, i2):
@@ -604,6 +606,8 @@ InitializeClass(Vocabulary)
 
 
 security.declarePrivate('OrderedDict')
+
+
 class OrderedDict(BaseDict):
     """A wrapper around dictionary objects that provides an ordering for
        keys() and items()."""
@@ -676,16 +680,22 @@ def shasattr(obj, attr, acquire=False):
 
 WRAPPER = '__at_is_wrapper_method__'
 ORIG_NAME = '__at_original_method_name__'
+
+
 def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
 
 security.declarePrivate('call_original')
+
+
 def call_original(self, __name__, __pattern__, *args, **kw):
     return getattr(self, __pattern__ % __name__)(*args, **kw)
 
 
 security.declarePrivate('wrap_method')
+
+
 def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
     old_method = getattr(klass, name)
     if isWrapperMethod(old_method):
@@ -699,6 +709,8 @@ def wrap_method(klass, name, method, pattern='__at_wrapped_%s__'):
 
 
 security.declarePrivate('unwrap_method')
+
+
 def unwrap_method(klass, name):
     old_method = getattr(klass, name)
     if not isWrapperMethod(old_method):
@@ -757,6 +769,8 @@ def _getSecurity(klass, create=True):
 
 
 security.declarePrivate('mergeSecurity')
+
+
 def mergeSecurity(klass):
     # This method looks into all the base classes and tries to
     # merge the security declarations into the current class.
@@ -788,6 +802,8 @@ def mergeSecurity(klass):
 
 
 security.declarePrivate('setSecurity')
+
+
 def setSecurity(klass, defaultAccess=None, objectPermission=None):
     """Set security of classes
 
@@ -860,7 +876,6 @@ def addStatusMessage(request, message, type='info'):
 
 def transaction_note(note):
     """ Write human legible note """
-
 
     if type(note) == unicode:
         import unicodedata

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """Archetypes history awareness"""
 __author__ = 'Martijn Pieters <mj@zopatista.com>'
 
@@ -124,6 +124,7 @@ class ATHistoryAwareMixin:
     security = ClassSecurityInfo()
 
     security.declarePrivate('_constructAnnotatedHistory')
+
     def _constructAnnotatedHistory(self, max=10):
         """Reconstruct historical revisions of archetypes objects
 
@@ -152,7 +153,8 @@ class ATHistoryAwareMixin:
         annotation_key_objects = {}
         isatkey = lambda k, aak=AT_ANN_KEYS: filter(k.startswith, aak)
         # Loop over max revisions of the __annotations__ object to retrieve
-        # all keys (and more importantly, their objects so we can get revisions)
+        # all keys (and more importantly, their objects so we can get
+        # revisions)
         for tid, rev in _objectRevisions(self.__annotations__, max):
             history.setdefault(tid, {})['__annotations__'] = rev
             revision = rev['object']
@@ -171,6 +173,7 @@ class ATHistoryAwareMixin:
         # Now we merge the annotation and object revisions into one for each
         # transaction id, and yield the results
         tids = sorted(history.iterkeys(), reverse=True)
+
         def find_revision(tids, key):
             """First revision of key in a series of tids"""
             has_revision = lambda t, h=history, k=key: k in h[t]
@@ -228,6 +231,7 @@ class ATHistoryAwareMixin:
             yield revision
 
     security.declarePrivate('getHistories')
+
     def getHistories(self, max=10):
         """Iterate over historic revisions.
 

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -68,6 +68,7 @@ def makeContent(container, portal_type, id='document', **kw):
 
 
 class Dummy(BaseContent):
+
     def Title(self):
         return 'title'
 
@@ -151,6 +152,8 @@ def populateFolder(folder, folder_type, doc_type):
 
 WRAPPER = '__at_is_wrapper_method__'
 ORIG_NAME = '__at_original_method_name__'
+
+
 def isWrapperMethod(meth):
     return getattr(meth, WRAPPER, False)
 
@@ -179,7 +182,10 @@ def unwrap_method(klass, name):
 
 
 from zope.publisher.browser import BrowserView
+
+
 class SimpleView(BrowserView):
+
     def __call__(self):
         return 'SimpleView simple output'
 

@@ -101,7 +101,8 @@ class DateComponents(BrowserView):
             min_year = int(starting_year or 1999)
         if ending_year is None:
             if future_years is None and site_props is not None:
-                future_years = site_props.getProperty('calendar_future_years_available', 5)
+                future_years = site_props.getProperty(
+                    'calendar_future_years_available', 5)
             else:
                 future_years = int(future_years or 5)
             max_year = int(future_years) + now.year()
@@ -122,7 +123,7 @@ class DateComponents(BrowserView):
         else:
             years.append({'id': '--', 'value': '0000', 'selected': None})
 
-        for x in range(min_year, max_year+1):
+        for x in range(min_year, max_year + 1):
             d = {'id': x, 'value': x, 'selected': None}
             if x == year and not default:
                 d['selected'] = 1
@@ -131,12 +132,15 @@ class DateComponents(BrowserView):
         month = date.month()
 
         if default:
-            months.append({'id': '--', 'value': '00', 'selected': 1, 'title': '--'})
+            months.append({'id': '--', 'value': '00',
+                           'selected': 1, 'title': '--'})
         else:
-            months.append({'id': '--', 'value': '00', 'selected': None, 'title': '--'})
+            months.append({'id': '--', 'value': '00',
+                           'selected': None, 'title': '--'})
 
         for x in range(1, 13):
-            d = {'id': ENGLISH_MONTH_NAMES[x], 'value': '%02d' % x, 'selected': None}
+            d = {'id': ENGLISH_MONTH_NAMES[
+                x], 'value': '%02d' % x, 'selected': None}
             if x == month and not default:
                 d['selected'] = 1
             d['title'] = month_names[x][0]
@@ -163,7 +167,7 @@ class DateComponents(BrowserView):
             hours_range = range(0, 24)
             hour_default = '00'
             hour = int(date.h_24())
-        
+
         if default:
             hours.append({'id': '--', 'value': hour_default, 'selected': 1})
         else:

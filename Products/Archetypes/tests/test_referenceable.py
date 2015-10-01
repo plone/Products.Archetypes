@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Acquisition import aq_base
 import transaction
@@ -44,14 +44,14 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         uc = getattr(self.portal, UID_CATALOG)
         rc = getattr(self.portal, REFERENCE_CATALOG)
 
-        #Verify all UIDs resolve
+        # Verify all UIDs resolve
         uids = uc.uniqueValuesFor('UID')
         brains = uc(dict(UID=uids))
 
         uobjects = [b.getObject() for b in brains]
         self.assertFalse(None in uobjects, """bad uid resolution""")
 
-        #Verify all references resolve
+        # Verify all references resolve
         uids = rc.uniqueValuesFor('UID')
         brains = rc(dict(UID=uids))
 
@@ -169,18 +169,18 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
     def test_renamecontainerKeepsReferences2(self):
         # test for [ 1013363 ] References break on folder rename
         folderA = makeContent(self.folder,
-                                portal_type=self.FOLDER_TYPE,
-                                title='Spam',
-                                id='folderA')
+                              portal_type=self.FOLDER_TYPE,
+                              title='Spam',
+                              id='folderA')
         objA = makeContent(folderA,
                            portal_type='SimpleType',
                            title='Eggs',
                            id='objA')
 
         folderB = makeContent(self.folder,
-                                portal_type=self.FOLDER_TYPE,
-                                title='Spam',
-                                id='folderB')
+                              portal_type=self.FOLDER_TYPE,
+                              title='Spam',
+                              id='folderB')
         objB = makeContent(folderB,
                            portal_type='SimpleType',
                            title='Eggs',
@@ -220,7 +220,8 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         transaction.savepoint(optimistic=True)
         self.folder.manage_renameObject(id=obj_id, new_id=new_id)
 
-        #now, make a new one with the same ID and check it gets a different UID
+        # now, make a new one with the same ID and check it gets a different
+        # UID
         doc2 = makeContent(self.folder,
                            portal_type='DDocument',
                            title='Foo',
@@ -244,7 +245,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         c = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id=owned_id)
 
-        #Two made up kinda refs
+        # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
         b.addReference(a, "KnowsAbout")
         a.addReference(c, "Owns")
@@ -319,7 +320,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         c = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id=owned_id)
 
-        #Two made up kinda refs
+        # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
         a.addReference(c, "Owns")
 
@@ -336,7 +337,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertEqual(a.getRefs(), [b])
         self.assertEqual(c.getBRefs(), [])
 
-        #test querying references using the targetObject parameter
+        # test querying references using the targetObject parameter
         d = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id=other_id)
 
@@ -344,7 +345,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         a.addReference(d, 'KnowsAbout')
 
         self.assertEqual(len(a.getReferenceImpl()), 3)
-        #get only refs to d
+        # get only refs to d
         self.assertEqual(len(a.getReferenceImpl(targetObject=d)), 2)
 
     def test_back_relationships(self):
@@ -399,16 +400,18 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
     def test_singleReference(self):
         # If an object is referenced don't record its reference again
-        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
-        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='b')
 
-        #Add the same ref twice
+        # Add the same ref twice
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
 
         self.assertEqual(len(a.getRefs('KnowsAbout')),  1)
 
-        #In this case its a different relationship
+        # In this case its a different relationship
         a.addReference(b, 'Flogs')
         self.assertEqual(len(a.getRefs('KnowsAbout')), 1)
         self.assertEqual(len(a.getRefs()), 2)
@@ -416,24 +419,29 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
     def test_multipleReferences(self):
         # If you provide updateReferences=False to addReference, it
         # will add, not replace the reference
-        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
-        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='b')
 
-        #Add the same ref twice
+        # Add the same ref twice
         a.addReference(b, "KnowsAbout", updateReferences=False)
         a.addReference(b, "KnowsAbout", updateReferences=False)
 
         self.assertEqual(len(a.getRefs('KnowsAbout')),  2)
 
-        #In this case its a different relationship
+        # In this case its a different relationship
         a.addReference(b, 'Flogs')
         self.assertEqual(len(a.getRefs('KnowsAbout')), 2)
         self.assertEqual(len(a.getRefs()), 3)
 
     def test_hasRelationship(self):
-        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
-        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
-        c = makeContent(self.folder, portal_type='DDocument', title='Foo', id='c')
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='c')
 
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -489,9 +497,12 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
     def test_referenceReference(self):
         # Reference a reference object for fun (no, its like RDFs
         # metamodel)
-        a = makeContent(self.folder, portal_type='DDocument', title='Foo', id='a')
-        b = makeContent(self.folder, portal_type='DDocument', title='Foo', id='b')
-        c = makeContent(self.folder, portal_type='DDocument', title='Foo', id='c')
+        a = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='a')
+        b = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='b')
+        c = makeContent(self.folder, portal_type='DDocument',
+                        title='Foo', id='c')
         a.addReference(b)
 
         ref = a._getReferenceAnnotations().objectValues()[0]
@@ -515,7 +526,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
             (test124.UID(), test124.getId()),
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
-            ])
+        ])
 
         got = field.Vocabulary(dummy)
         self.assertEqual(got, expected)
@@ -531,7 +542,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ('', u'label_no_reference'),
-            ])
+        ])
         self.assertEqual(field.Vocabulary(dummy), expected)
 
         field = field.copy()
@@ -542,7 +553,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
             (test125.UID(), test125.getId()),
             (dummy.UID(), dummy.getId()),
             ('', u'label_no_reference'),
-            ])
+        ])
         self.assertNotEqual(field.Vocabulary(dummy), expected)
         field.vocabulary_display_path_bound = -1
         self.assertEqual(field.Vocabulary(dummy), expected)
@@ -602,7 +613,8 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
         # Original object should keep references
         self.assertEqual(a.getRefs(), [b])
-        # Original non-copied object should point to both the original and the copied object
+        # Original non-copied object should point to both the original and the
+        # copied object
         self.assertEqual(b.getBRefs(), [a, copy_a])
 
     def test_copyPasteSupport(self):
@@ -677,7 +689,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                  title='Destination folder',
                                  id='dst_folder')
         my_folder = makeContent(org_folder, portal_type=self.FOLDER_TYPE,
-                                                             id='my_folder')
+                                id='my_folder')
         a = makeContent(my_folder, portal_type='DDocument', id='a')
         b = makeContent(my_folder, portal_type='DDocument', id='b')
         a.addReference(b)
@@ -699,7 +711,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertEqual(copy_a.getRefs(), [])
         self.assertFalse(copy_a in b.getBRefs())
 
-        #The copy's uid should have changed
+        # The copy's uid should have changed
         self.assertFalse(ca_uid == a_uid)
 
         # Original object should keep references
@@ -719,7 +731,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                                  title='Destination folder',
                                  id='dst_folder')
         my_folder = makeContent(org_folder, portal_type=self.FOLDER_TYPE,
-                                                             id='my_folder')
+                                id='my_folder')
         a = makeContent(my_folder, portal_type='DDocument', id='a')
         b = makeContent(my_folder, portal_type='DDocument', id='b')
         a.addReference(b)
@@ -740,7 +752,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertEqual(copy_a.getRefs(), [copy_b])
         self.assertEqual(copy_b.getBRefs(), [copy_a])
 
-        #The copy's uid should have changed
+        # The copy's uid should have changed
         self.assertTrue(ca_uid == a_uid, (a_uid, ca_uid))
 
 

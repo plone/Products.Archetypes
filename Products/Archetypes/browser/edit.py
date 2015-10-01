@@ -37,13 +37,13 @@ class Edit(BrowserView):
         return [
             key for key in schematas.keys()
             if (schematas[key].editableFields(context, visible_only=True))
-            ]
+        ]
 
     def fields(self, fieldsets):
         context = aq_inner(self.context)
         schematas = context.Schemata()
         return [f for key in fieldsets
-                  for f in schematas[key].editableFields(context)]
+                for f in schematas[key].editableFields(context)]
 
     def getTranslatedSchemaLabel(self, schema):
         label = u"label_schema_%s" % schema

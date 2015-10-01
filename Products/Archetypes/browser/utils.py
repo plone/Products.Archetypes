@@ -35,6 +35,7 @@ class Utils(BrowserView):
             custom_domain = getattr(widget, 'i18n_domain', None)
             if custom_domain:
                 domain = custom_domain
+
         def _(value):
             return translate(value,
                              domain=domain,

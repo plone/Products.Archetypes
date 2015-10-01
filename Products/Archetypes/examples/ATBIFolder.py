@@ -4,6 +4,7 @@ from Products.Archetypes.AllowedTypesByIface import AllowedTypesByIfaceMixin
 
 schema = BaseFolderSchema
 
+
 class ATBIFolder(AllowedTypesByIfaceMixin, BaseFolder):
     """A simple folder that uses AllowedTypesByIfaceMixin"""
     schema = schema

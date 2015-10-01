@@ -130,7 +130,7 @@ class BaseSQLStorage(StorageLayer):
 
     def initializeInstance(self, instance, item=None, container=None):
         if (self.is_initialized(instance) or
-            getattr(instance, '_at_is_fake_instance', None)):
+                getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be initialized twice
             return
         factory = getToolByName(instance, 'portal_factory')
@@ -138,7 +138,7 @@ class BaseSQLStorage(StorageLayer):
             return
 
         fields = instance.Schema().fields()
-        fields = [f for f in fields if IObjectField.providedBy(f) \
+        fields = [f for f in fields if IObjectField.providedBy(f)
                   and f.getStorage().__class__ is self.__class__]
         columns = []
         args = {}
@@ -154,7 +154,7 @@ class BaseSQLStorage(StorageLayer):
         args['PARENTUID'] = getattr(aq_base(parent), 'UID', lambda: None)()
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
+        # args['db_encoding']=kwargs.get('db_encoding',None)
         args['columns'] = ', ' + ', '.join(columns)
         if not self.table_exists(instance):
             self._query(instance, self.query_create, args)
@@ -220,7 +220,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
+        # args['db_encoding']=kwargs.get('db_encoding',None)
         field_name = '%s:%s' % (name, type)
         if default:
             if type == 'string':
@@ -235,14 +235,14 @@ class BaseSQLStorage(StorageLayer):
 
     def cleanupInstance(self, instance, item=None, container=None):
         if (self.is_cleaned(instance) or
-            getattr(instance, '_at_is_fake_instance', None)):
+                getattr(instance, '_at_is_fake_instance', None)):
             # duh, we don't need to be cleaned twice
             return
         # the object is being deleted. remove data from sql.  but
         # first, made a temporary copy of the field values in case we
         # are being moved
         fields = instance.Schema().fields()
-        fields = [f for f in fields if IObjectField.providedBy(f) \
+        fields = [f for f in fields if IObjectField.providedBy(f)
                   and f.getStorage().__class__ is self.__class__]
         temps = {}
         for f in fields:
@@ -254,7 +254,7 @@ class BaseSQLStorage(StorageLayer):
         args = {}
         args['table'] = instance.portal_type
         args['UID'] = instance.UID()
-        #args['db_encoding']=kwargs.get('db_encoding',None)
+        # args['db_encoding']=kwargs.get('db_encoding',None)
         method = SQLMethod(instance)
         method.edit(connection_id, ' '.join(args.keys()), self.query_delete)
         try:
@@ -398,7 +398,7 @@ class MySQLSQLStorage(BaseSQLStorage):
 
     def table_exists(self, instance):
         result = [r[0].lower() for r in
-                   self._query(instance, '''show tables''', {})]
+                  self._query(instance, '''show tables''', {})]
         return instance.portal_type.lower() in result
 
 

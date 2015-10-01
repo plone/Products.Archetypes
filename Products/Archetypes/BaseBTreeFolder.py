@@ -34,7 +34,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         (permissions.ModifyPortalContent,
          ('manage_cutObjects', 'manage_pasteObjects',
           'manage_renameObject', 'manage_renameObjects',)),
-        )
+    )
     security.declareProtected('Copy or Move', 'manage_copyObjects')
 
     def __init__(self, oid, **kwargs):
@@ -42,6 +42,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         BaseFolder.__init__(self, oid, **kwargs)
 
     security.declarePrivate('manage_afterAdd')
+
     def manage_afterAdd(self, item, container):
         # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
@@ -50,6 +51,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         BaseFolder.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
+
     def manage_afterClone(self, item):
         # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
@@ -58,6 +60,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         BaseFolder.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
+
     def manage_beforeDelete(self, item, container):
         # CMFBTreeFolder inherits from PortalFolder, which has the same
         # base class as SkinnedFolder, and SkinnedFolder doesn't
@@ -94,22 +97,27 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected(permissions.ModifyPortalContent, 'reindexObject')
     reindexObject = BaseFolder.reindexObject.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'reindexObjectSecurity')
+    security.declareProtected(
+        permissions.ModifyPortalContent, 'reindexObjectSecurity')
     reindexObjectSecurity = BaseFolder.reindexObjectSecurity.im_func
 
     security.declarePrivate('notifyWorkflowCreated')
     notifyWorkflowCreated = BaseFolder.notifyWorkflowCreated.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueItems')
+    security.declareProtected(
+        permissions.AccessContentsInformation, 'opaqueItems')
     opaqueItems = BaseFolder.opaqueItems.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueIds')
+    security.declareProtected(
+        permissions.AccessContentsInformation, 'opaqueIds')
     opaqueIds = BaseFolder.opaqueIds.im_func
 
-    security.declareProtected(permissions.AccessContentsInformation, 'opaqueValues')
+    security.declareProtected(
+        permissions.AccessContentsInformation, 'opaqueValues')
     opaqueValues = BaseFolder.opaqueValues.im_func
 
-    security.declareProtected(permissions.ListFolderContents, 'listFolderContents')
+    security.declareProtected(
+        permissions.ListFolderContents, 'listFolderContents')
     listFolderContents = BaseFolder.listFolderContents.im_func
 
     security.declareProtected(permissions.AccessContentsInformation,
@@ -129,7 +137,7 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
         request = getattr(self, 'REQUEST', None)
         if request and 'REQUEST_METHOD' in request:
             if (request.maybe_webdav_client and
-                request['REQUEST_METHOD'] in ['PUT']):
+                    request['REQUEST_METHOD'] in ['PUT']):
                 # Very likely a WebDAV client trying to create something
                 nr = NullResource(self, 'index_html')
                 nr.__replaceable__ = REPLACEABLE
@@ -150,7 +158,8 @@ class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     security.declareProtected(permissions.View, 'Description')
     Description = BaseFolder.Description.im_func
 
-    security.declareProtected(permissions.ModifyPortalContent, 'setDescription')
+    security.declareProtected(
+        permissions.ModifyPortalContent, 'setDescription')
     setDescription = BaseFolder.setDescription.im_func
 
     manage_addFolder = BaseFolder.manage_addFolder.im_func

@@ -11,4 +11,4 @@ def test_suite():
                              package='Products.Archetypes',
                              test_class=ATFunctionalSiteTestCase,
                              optionflags=optionflags),
-        ])
+    ])

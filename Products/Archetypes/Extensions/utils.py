@@ -5,7 +5,7 @@ from App.Common import package_home
 from OFS.ObjectManager import BadRequestException
 from Products.CMFCore.ActionInformation import ActionInformation
 from Products.CMFCore.DirectoryView import addDirectoryViews, \
-     registerDirectory, manage_listAvailableDirectories
+    registerDirectory, manage_listAvailableDirectories
 from Products.CMFCore.utils import getToolByName, getPackageName
 from Products.Archetypes.config import REFERENCE_CATALOG
 from Products.Archetypes.ArchetypeTool import fixActionsForType
@@ -74,7 +74,8 @@ def install_subskin(self, out, globals=types_globals, product_skins_dir='skins')
         # directory view has already been added
         pass
 
-    fullProductSkinsPath = os.path.join(package_home(globals), product_skins_dir)
+    fullProductSkinsPath = os.path.join(
+        package_home(globals), product_skins_dir)
     files = os.listdir(fullProductSkinsPath)
     for productSkinName in files:
         # skip directories with a dot or special dirs
@@ -110,9 +111,9 @@ def install_types(self, out, types, package_name):
         # default FTI as default
         fti_meta_type = getattr(klass, '_at_fti_meta_type', None)
         if not fti_meta_type or fti_meta_type == 'simple item':
-            ## rr: explicitly catching 'simple item' because
-            ## CMF 2.0 removed the meta_type from the basic TIs :-(
-            ## seems to me, 'manage_addTypeInformation' is just broken
+            # rr: explicitly catching 'simple item' because
+            # CMF 2.0 removed the meta_type from the basic TIs :-(
+            # seems to me, 'manage_addTypeInformation' is just broken
             fti_meta_type = 'Factory-based Type Information'
         try:
             typesTool.manage_addTypeInformation(fti_meta_type,
@@ -121,9 +122,10 @@ def install_types(self, out, types, package_name):
         except ValueError:
             print "failed to add '%s'" % klass.portal_type
             print "fti_meta_type = %s" % fti_meta_type
-        ## rr: from CMF-2.0 onward typeinfo_name from the call above
-        ## is ignored and we have to do some more work
-        t, fti = _getFtiAndDataFor(typesTool, klass.portal_type, klass.__name__, package_name)
+        # rr: from CMF-2.0 onward typeinfo_name from the call above
+        # is ignored and we have to do some more work
+        t, fti = _getFtiAndDataFor(
+            typesTool, klass.portal_type, klass.__name__, package_name)
         if t and fti:
             t.manage_changeProperties(**fti)
             if 'aliases' in fti:
@@ -154,8 +156,8 @@ def _getFtiAndDataFor(tool, typename, klassname, package_name):
 def install_actions(self, out, types):
     typesTool = getToolByName(self, 'portal_types')
     for portal_type in types:
-        ## rr: XXX TODO somehow the following doesn't do anymore what
-        ## it used to do :-(
+        # rr: XXX TODO somehow the following doesn't do anymore what
+        # it used to do :-(
         fixActionsForType(portal_type, typesTool)
 
 
@@ -209,7 +211,8 @@ def install_indexes(self, out, types):
                 # to list its schema-columns to not conflict with archetypes
                 # schema
                 hasNewWayMethod = hasattr(catalog, 'zcschema')
-                hasOldWayMethod = not isArchetype and hasattr(catalog, 'schema')
+                hasOldWayMethod = not isArchetype and hasattr(
+                    catalog, 'schema')
                 notInNewWayResults = hasNewWayMethod and accessor not in catalog.zcschema()
                 notInOldWayResults = hasOldWayMethod and accessor not in catalog.schema()
                 if use_column and (notInNewWayResults or notInOldWayResults):
@@ -223,7 +226,7 @@ def install_indexes(self, out, types):
                 # add index
 
                 # if you want to add a schema field without an index
-                #if not parts[0]:
+                # if not parts[0]:
                 #    continue
 
                 for itype in parts:
@@ -237,7 +240,7 @@ def install_indexes(self, out, types):
                     else:
                         props = None
                     try:
-                        #Check for the index and add it if missing
+                        # Check for the index and add it if missing
                         catalog.addIndex(accessor, itype,
                                          extra=props)
                         catalog.manage_reindexIndex(ids=(accessor,))
@@ -294,6 +297,7 @@ def filterTypes(self, out, types, package_name):
 
     return filtered_types
 
+
 def setupEnvironment(self, out, types,
                      package_name,
                      globals=types_globals,
@@ -326,6 +330,7 @@ def setupEnvironment(self, out, types,
     install_indexes(self, out, ftypes)
     install_actions(self, out, ftypes)
 
+
 def doubleCheckDefaultTypeActions(self, ftypes):
     # rr: for some reason, AT's magic wrt adding the default type actions
     # stopped working when moving to CMF-2.0
@@ -351,7 +356,7 @@ def doubleCheckDefaultTypeActions(self, ftypes):
             fti._actions = tuple(prepend + actions)
 
 
-## The master installer
+# The master installer
 def installTypes(self, out, types, package_name,
                  globals=types_globals, product_skins_dir='skins',
                  require_dependencies=True, refresh_references=False,
@@ -363,11 +368,12 @@ def installTypes(self, out, types, package_name,
     setupEnvironment(self, out, types, package_name,
                      globals, product_skins_dir, require_dependencies,
                      install_deps)
-    ## rr: sometimes the default actions are still missing
+    # rr: sometimes the default actions are still missing
     doubleCheckDefaultTypeActions(self, ftypes)
     if refresh_references and ftypes:
         rc = getToolByName(self, REFERENCE_CATALOG)
         rc.manage_rebuildCatalog()
+
 
 def refreshReferenceCatalog(self, out, types=None, package_name=None, ftypes=None):
     """refresh the reference catalog to reindex objects after reinstalling a

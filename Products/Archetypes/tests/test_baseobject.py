@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
@@ -31,6 +31,7 @@ from Products.Archetypes import atapi
 
 
 class DummyDiscussionTool:
+
     def isDiscussionAllowedFor(self, content):
         return False
 
@@ -39,10 +40,10 @@ class DummyDiscussionTool:
 
 MULTIPLEFIELD_LIST = atapi.DisplayList(
     (
-    ('1', _(u'Option 1 : printemps')),
-    ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')),  # e-acute t e-acute
-    ('3', u'Option 3 : automne'),
-    ('4', _(u'option3', default=u'Option 3 : hiver')),
+        ('1', _(u'Option 1 : printemps')),
+        ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')),  # e-acute t e-acute
+        ('3', u'Option 3 : automne'),
+        ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
 
 schema = atapi.BaseSchema + atapi.Schema((
@@ -52,12 +53,12 @@ schema = atapi.BaseSchema + atapi.Schema((
         vocabulary=MULTIPLEFIELD_LIST,
         widget=atapi.MultiSelectionWidget(
             i18n_domain='plone',
-            ),
         ),
+    ),
     atapi.TextField(
         'TEXTFIELD',
         primary=True,
-        ),
+    ),
 ))
 
 
@@ -74,7 +75,7 @@ class BaseObjectTest(ATSiteTestCase):
     def afterSetUp(self):
         ATSiteTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
-                                      schema=schema)
+                                       schema=schema)
 
     def test_searchableText(self):
         """
@@ -91,13 +92,13 @@ class BaseObjectTest(ATSiteTestCase):
         # cases, which during test runs would mean they would get
         # formatted as '[[plone][some value]]' instead of 'some value'.
         self.assertEqual(searchable,
-            '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
+                         '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
 
         dummy.setMULTIPLEFIELD(['3', '4'])
         searchable = dummy.SearchableText()
 
         self.assertEqual(searchable,
-            '3 4 Option 3 : automne option3')
+                         '3 4 Option 3 : automne option3')
 
     def test_searchableTextUsesIndexMethod(self):
         """See http://dev.plone.org/archetypes/ticket/645

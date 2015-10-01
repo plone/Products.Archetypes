@@ -114,8 +114,10 @@ class ValidationEventTests(ATSiteTestCase):
         # validation, whilst the pre-validation works before, and may
         # short-circuit schema validation.
 
-        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject2,))
-        component.provideSubscriptionAdapter(PostValidation, adapts=(IObject3,))
+        component.provideSubscriptionAdapter(
+            PostValidation, adapts=(IObject2,))
+        component.provideSubscriptionAdapter(
+            PostValidation, adapts=(IObject3,))
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
@@ -141,9 +143,12 @@ class ValidationEventTests(ATSiteTestCase):
 
     def testInitializedAndEditedEvent(self):
 
-        component.provideHandler(created_handler, (IObject1, IObjectCreatedEvent,))
-        component.provideHandler(initialized_handler, (IObject1, IObjectInitializedEvent,))
-        component.provideHandler(edited_handler, (IObject1, IObjectEditedEvent,))
+        component.provideHandler(
+            created_handler, (IObject1, IObjectCreatedEvent,))
+        component.provideHandler(
+            initialized_handler, (IObject1, IObjectInitializedEvent,))
+        component.provideHandler(
+            edited_handler, (IObject1, IObjectEditedEvent,))
 
         ob = Dummy('dummy')
         directlyProvides(ob, IObject1)
@@ -166,5 +171,6 @@ class ValidationEventTests(ATSiteTestCase):
 
         sm = component.getSiteManager()
         sm.unregisterHandler(created_handler, (IObject1, IObjectCreatedEvent,))
-        sm.unregisterHandler(initialized_handler, (IObject1, IObjectCreatedEvent,))
+        sm.unregisterHandler(initialized_handler,
+                             (IObject1, IObjectCreatedEvent,))
         sm.unregisterHandler(edited_handler, (IObject1, IObjectCreatedEvent,))

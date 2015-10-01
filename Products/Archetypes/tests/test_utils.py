@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -22,7 +22,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -167,10 +167,14 @@ class IntDisplayListTest(ATTestCase):
         ta = (1, 2, 3)
         tb = (1, 3, 2)
         td = (3, 2, 1)
-        self.assertTrue(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(ta, ta)))
-        self.assertFalse(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(ta, tb)))
-        self.assertTrue(IntDisplayList(zip(ta, ta)) == IntDisplayList(zip(td, td)))
-        self.assertTrue(IntDisplayList(zip(tb, ta)) == IntDisplayList(zip(tb, ta)))
+        self.assertTrue(IntDisplayList(zip(ta, ta)) ==
+                        IntDisplayList(zip(ta, ta)))
+        self.assertFalse(IntDisplayList(zip(ta, ta)) ==
+                         IntDisplayList(zip(ta, tb)))
+        self.assertTrue(IntDisplayList(zip(ta, ta)) ==
+                        IntDisplayList(zip(td, td)))
+        self.assertTrue(IntDisplayList(zip(tb, ta)) ==
+                        IntDisplayList(zip(tb, ta)))
         self.assertRaises(TypeError, cmp, IntDisplayList(), '')
 
     def test_slice(self):

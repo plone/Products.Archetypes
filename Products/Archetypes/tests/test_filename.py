@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -162,6 +162,7 @@ class SetFilenameTest(ATSiteTestCase):
 
 
 class LargeFileTest(ATSiteTestCase):
+
     def testSetFilenameOfLargeFile(self):
         """Test for https://dev.plone.org/archetypes/ticket/635
         """
@@ -175,6 +176,7 @@ class LargeFileTest(ATSiteTestCase):
 
 
 class StrangeIdTest(ATSiteTestCase):
+
     def test_strangeUnallowedIds(self):
         """ Certain IDs used to give an error and are unusable
 

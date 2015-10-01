@@ -5,19 +5,20 @@ from AccessControl import ClassSecurityInfo
 
 schema = atapi.BaseSchema + atapi.Schema((
     atapi.TextField('body',
-              required=1,
-              searchable=1,
-              default_output_type='text/html',
-              allowable_content_types=('text/plain',
-                                       'text/restructured',
-                                       'text/html',
-                                       'application/msword'),
-              widget=atapi.RichWidget(description="""Enter or upload text for the Body of the document"""),
-              ),
+                    required=1,
+                    searchable=1,
+                    default_output_type='text/html',
+                    allowable_content_types=('text/plain',
+                                             'text/restructured',
+                                             'text/html',
+                                             'application/msword'),
+                    widget=atapi.RichWidget(
+                        description="""Enter or upload text for the Body of the document"""),
+                    ),
     atapi.StringField('ptype',
-              default_method='Type'
-              ),
-    ))
+                      default_method='Type'
+                      ),
+))
 
 
 class SimpleType(atapi.BaseContent):
@@ -49,6 +50,7 @@ class SimpleProtectedType(SimpleType):
         f.write_permission = TestWrite
 
     security.declareProtected(TestView, 'foo')
+
     def foo(self):
         return 'bar'
 

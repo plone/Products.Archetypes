@@ -5,9 +5,9 @@ from Products.Archetypes.Storage import MetadataStorage
 from Products.Archetypes.Layer import DefaultLayerContainer
 from Products.Archetypes.interfaces.field import IField
 from Products.Archetypes.interfaces.layer import ILayerContainer, \
-     ILayerRuntime, ILayer
+    ILayerRuntime, ILayer
 from Products.Archetypes.interfaces.schema import ISchema, ISchemata, \
-     IManagedSchema
+    IManagedSchema
 from Products.Archetypes.utils import OrderedDict, mapply, shasattr
 from Products.Archetypes.mimetype_utils import getDefaultContentType
 from Products.Archetypes.exceptions import SchemaException
@@ -70,6 +70,7 @@ class Schemata(Base):
                 self.addField(field)
 
     security.declareProtected(permissions.View, 'getName')
+
     def getName(self):
         """Returns the Schemata's name."""
         return self.__name__
@@ -88,6 +89,7 @@ class Schemata(Base):
         return c
 
     security.declareProtected(permissions.View, 'copy')
+
     def copy(self):
         """Returns a deep copy of this Schemata.
         """
@@ -97,6 +99,7 @@ class Schemata(Base):
         return c
 
     security.declareProtected(permissions.View, 'fields')
+
     def fields(self):
         """Returns a list of my fields in order of their indices."""
         return [self._fields[name] for name in self._names]
@@ -105,6 +108,7 @@ class Schemata(Base):
     values = fields
 
     security.declareProtected(permissions.View, 'editableFields')
+
     def editableFields(self, instance, visible_only=False):
         """Returns a list of editable fields for the given instance
         """
@@ -112,13 +116,14 @@ class Schemata(Base):
         portal = getToolByName(instance, 'portal_url').getPortalObject()
         for field in self.fields():
             if field.writeable(instance, debug=False) and    \
-                   (not visible_only or
-                    field.widget.isVisible(instance, 'edit') != 'invisible') and \
-                  field.widget.testCondition(instance.aq_parent, portal, instance):
+                    (not visible_only or
+                        field.widget.isVisible(instance, 'edit') != 'invisible') and \
+                    field.widget.testCondition(instance.aq_parent, portal, instance):
                 ret.append(field)
         return ret
 
     security.declareProtected(permissions.View, 'viewableFields')
+
     def viewableFields(self, instance):
         """Returns a list of viewable fields for the given instance
         """
@@ -126,6 +131,7 @@ class Schemata(Base):
                 if field.checkPermission('view', instance)]
 
     security.declareProtected(permissions.View, 'widgets')
+
     def widgets(self):
         """Returns a dictionary that contains a widget for
         each field, using the field name as key."""
@@ -137,6 +143,7 @@ class Schemata(Base):
 
     security.declareProtected(permissions.View,
                               'filterFields')
+
     def filterFields(self, *predicates, **values):
         """Returns a subset of self.fields(), containing only fields that
         satisfy the given conditions.
@@ -158,17 +165,20 @@ class Schemata(Base):
 
             # predicate failed:
             failed = [pred for pred in predicates if not pred(field)]
-            if failed: continue
+            if failed:
+                continue
 
             # attribute missing:
-            missing_attrs = [attr for attr in values.keys() \
+            missing_attrs = [attr for attr in values.keys()
                              if not shasattr(field, attr)]
-            if missing_attrs: continue
+            if missing_attrs:
+                continue
 
             # attribute value unequal:
-            diff_values = [attr for attr in values.keys() \
+            diff_values = [attr for attr in values.keys()
                            if getattr(field, attr) != values[attr]]
-            if diff_values: continue
+            if diff_values:
+                continue
 
             results.append(field)
 
@@ -180,6 +190,7 @@ class Schemata(Base):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'addField')
+
     def addField(self, field):
         """Adds a given field to my dictionary of fields."""
         field = aq_base(field)
@@ -204,7 +215,7 @@ class Schemata(Base):
                     "Tried to add '%s' as primary field "
                     "but %s already has the primary field '%s'." %
                     (name, repr(self), res.getName())
-                    )
+                )
         for pname in ('accessor', 'edit_accessor', 'mutator'):
             res = self._checkPropertyDupe(field, pname)
             if res is not False:
@@ -213,7 +224,7 @@ class Schemata(Base):
                     "Tried to add '%s' with property '%s' set "
                     "to %s but '%s' has the same value." %
                     (name, pname, repr(value), res.getName())
-                    )
+                )
         # Do not allowed unqualified references
         if field.type in ('reference', ):
             relationship = getattr(field, 'relationship', '')
@@ -223,7 +234,7 @@ class Schemata(Base):
                     "unsupported relationship var type in field '%s'. "
                     "The relationship qualifer must be a non empty "
                     "string." % name
-                    )
+                )
 
     def __delitem__(self, name):
         if name not in self._fields:
@@ -235,16 +246,19 @@ class Schemata(Base):
         return self._fields[name]
 
     security.declareProtected(permissions.View, 'get')
+
     def get(self, name, default=None):
         return self._fields.get(name, default)
 
     security.declareProtected(permissions.View, 'has_key')
+
     def has_key(self, name):
         return name in self._fields
 
     __contains__ = has_key
 
     security.declareProtected(permissions.View, 'keys')
+
     def keys(self):
         return self._names
 
@@ -257,6 +271,7 @@ class Schemata(Base):
     updateField = addField
 
     security.declareProtected(permissions.View, 'searchable')
+
     def searchable(self):
         """Returns a list containing names of all searchable fields."""
 
@@ -303,11 +318,11 @@ class SchemaLayerContainer(DefaultLayerContainer):
 
     _properties = {
         'marshall': None
-        }
+    }
 
     def __init__(self):
         DefaultLayerContainer.__init__(self)
-        #Layer init work
+        # Layer init work
         marshall = self._props.get('marshall')
         if marshall:
             self.registerLayer('marshall', marshall)
@@ -315,6 +330,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
     # ILayerRuntime
     security.declareProtected(permissions.ModifyPortalContent,
                               'initializeLayers')
+
     def initializeLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers optionally
         # call its initializeInstance method and then the
@@ -339,12 +355,13 @@ class SchemaLayerContainer(DefaultLayerContainer):
         if ILayerContainer.providedBy(self):
             for layer, obj in self.registeredLayers():
                 if (not called((layer, obj)) and
-                    ILayer.providedBy(obj)):
+                        ILayer.providedBy(obj)):
                     obj.initializeInstance(instance, item, container)
                     initializedLayers.append((layer, obj))
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'cleanupLayers')
+
     def cleanupLayers(self, instance, item=None, container=None):
         # scan each field looking for registered layers optionally
         # call its cleanupInstance method and then the cleanupField
@@ -370,7 +387,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
         if ILayerContainer.providedBy(self):
             for layer, obj in self.registeredLayers():
                 if (not queued((layer, obj)) and
-                    ILayer.providedBy(obj)):
+                        ILayer.providedBy(obj)):
                     obj.cleanupInstance(instance, item, container)
                     queuedLayers.append((layer, obj))
 
@@ -386,6 +403,7 @@ class SchemaLayerContainer(DefaultLayerContainer):
         return c
 
     security.declareProtected(permissions.View, 'copy')
+
     def copy(self):
         c = SchemaLayerContainer()
         for k, v in self.registeredLayers():
@@ -449,6 +467,7 @@ class BasicSchema(Schemata):
         return c
 
     security.declareProtected(permissions.View, 'copy')
+
     def copy(self):
         """Returns a deep copy of this Schema.
         """
@@ -461,20 +480,24 @@ class BasicSchema(Schemata):
         return c
 
     security.declareProtected(permissions.ModifyPortalContent, 'edit')
+
     def edit(self, instance, name, value):
         if self.allow(name):
             instance[name] = value
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setDefaults')
+
     def setDefaults(self, instance):
         """Only call during object initialization. Sets fields to
         schema defaults
         """
-        ## TODO think about layout/vs dyn defaults
+        # TODO think about layout/vs dyn defaults
         for field in self.values():
-            if field.getName().lower() == 'id': continue
-            if field.type == "reference": continue
+            if field.getName().lower() == 'id':
+                continue
+            if field.type == "reference":
+                continue
 
             # always set defaults on writable fields
             mutator = field.getMutator(instance)
@@ -498,6 +521,7 @@ class BasicSchema(Schemata):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'updateAll')
+
     def updateAll(self, instance, **kwargs):
         """This method mutates fields in the given instance.
 
@@ -527,10 +551,12 @@ class BasicSchema(Schemata):
             method(kwargs[name])
 
     security.declareProtected(permissions.View, 'allow')
+
     def allow(self, name):
         return name in self
 
     security.declareProtected(permissions.View, 'validate')
+
     def validate(self, instance=None, REQUEST=None,
                  errors=None, data=None, metadata=None):
         """Validate the state of the entire object.
@@ -589,7 +615,8 @@ class BasicSchema(Schemata):
             else:
                 result = None
             if result is None or result is _marker:
-                accessor = field.getEditAccessor(instance) or field.getAccessor(instance)
+                accessor = field.getEditAccessor(
+                    instance) or field.getAccessor(instance)
                 if accessor is not None:
                     value = accessor()
                 else:
@@ -613,6 +640,7 @@ class BasicSchema(Schemata):
     # TODO FIXME!
     security.declareProtected(permissions.View,
                               'toString')
+
     def toString(self):
         s = '%s: {' % self.__class__.__name__
         for f in self.fields():
@@ -622,6 +650,7 @@ class BasicSchema(Schemata):
 
     security.declareProtected(permissions.View,
                               'signature')
+
     def signature(self):
         try:
             from hashlib import md5
@@ -631,6 +660,7 @@ class BasicSchema(Schemata):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'changeSchemataForField')
+
     def changeSchemataForField(self, fieldname, schemataname):
         """ change the schemata for a field """
         field = self[fieldname]
@@ -639,6 +669,7 @@ class BasicSchema(Schemata):
         self.addField(field)
 
     security.declareProtected(permissions.View, 'getSchemataNames')
+
     def getSchemataNames(self):
         """Return list of schemata names in order of appearing"""
         lst = []
@@ -648,6 +679,7 @@ class BasicSchema(Schemata):
         return lst
 
     security.declareProtected(permissions.View, 'getSchemataFields')
+
     def getSchemataFields(self, name):
         """Return list of fields belong to schema 'name'
         in order of appearing
@@ -656,6 +688,7 @@ class BasicSchema(Schemata):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'replaceField')
+
     def replaceField(self, name, field):
         if IField.providedBy(field):
             oidx = self._names.index(name)
@@ -703,6 +736,7 @@ class Schema(BasicSchema, SchemaLayerContainer):
         return c
 
     security.declareProtected(permissions.View, 'copy')
+
     def copy(self, factory=None):
         """Returns a deep copy of this Schema.
         """
@@ -719,12 +753,14 @@ class Schema(BasicSchema, SchemaLayerContainer):
         return c
 
     security.declareProtected(permissions.View, 'wrapped')
+
     def wrapped(self, parent):
         schema = self.copy(factory=WrappedSchema)
         return schema.__of__(parent)
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'moveField')
+
     def moveField(self, name, direction=None, pos=None, after=None, before=None):
         """Move a field
 
@@ -908,6 +944,7 @@ class ManagedSchema(Schema):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'delSchemata')
+
     def delSchemata(self, name):
         """Remove all fields belonging to schemata 'name'"""
         for f in self.fields():
@@ -916,6 +953,7 @@ class ManagedSchema(Schema):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'addSchemata')
+
     def addSchemata(self, name):
         """Create a new schema by adding a new field with schemata 'name' """
         from Products.Archetypes.Field import StringField
@@ -926,6 +964,7 @@ class ManagedSchema(Schema):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'moveSchemata')
+
     def moveSchemata(self, name, direction):
         """Move a schemata to left (direction=-1) or to right
         (direction=1)
@@ -973,6 +1012,7 @@ class MetadataSchema(Schema):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'addField')
+
     def addField(self, field):
         """Strictly enforce the contract that metadata is stored w/o
         markup and make sure each field is marked as such for

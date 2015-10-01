@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from unittest import TestSuite, makeSuite
 
@@ -72,7 +72,8 @@ tests = []
 input_files = glob.glob(os.path.join(PACKAGE_HOME, "input", "rest*.rst"))
 for f in input_files:
     fname = os.path.split(f)[1]
-    outname = os.path.join(PACKAGE_HOME, "output", '%s.out' % fname.split('.')[0])
+    outname = os.path.join(PACKAGE_HOME, "output",
+                           '%s.out' % fname.split('.')[0])
 
     class BaseUnitTestSubclass(BaseUnitTest):
         input = f

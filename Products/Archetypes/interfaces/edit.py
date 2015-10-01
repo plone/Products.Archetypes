@@ -1,5 +1,6 @@
 from zope.interface import Interface
 
+
 class IEditForm(Interface):
     """Archetypes edit form view
     """

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
 from Products.Archetypes.tests.utils import makeContent
@@ -33,7 +33,7 @@ from Products.Archetypes.interfaces.base import IBaseUnit
 class ExternalEditorTest(ATSiteTestCase):
 
     def testExternalEditor(self):
-        #really a test that baseobject.__getitem__ returns something
-        #which externaleditor can use
+        # really a test that baseobject.__getitem__ returns something
+        # which externaleditor can use
         obj = makeContent(self.folder, portal_type='SimpleType', id='obj')
         self.assertTrue(IBaseUnit.providedBy(obj.body))

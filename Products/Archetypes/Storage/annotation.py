@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Acquisition import aq_base
 from AccessControl import ClassSecurityInfo
@@ -36,6 +36,7 @@ from Products.Archetypes.Registry import setSecurity
 from Products.Archetypes.Registry import registerStorage
 from Products.Archetypes.utils import shasattr
 from Products.CMFCore.utils import getToolByName
+
 
 class BaseAnnotationStorage(Storage):
     """Stores data using annotations on the instance
@@ -59,6 +60,7 @@ class BaseAnnotationStorage(Storage):
         raise NotImplementedError
 
     security.declarePrivate('get')
+
     def get(self, name, instance, **kwargs):
         ann = getAnnotation(instance)
         value = ann.getSubkey(self._key, subkey=name, default=_marker)
@@ -70,6 +72,7 @@ class BaseAnnotationStorage(Storage):
         return value
 
     security.declarePrivate('set')
+
     def set(self, name, instance, value, **kwargs):
         # Remove acquisition wrappers
         value = aq_base(value)
@@ -79,6 +82,7 @@ class BaseAnnotationStorage(Storage):
             self._cleanup(name, instance, value, **kwargs)
 
     security.declarePrivate('unset')
+
     def unset(self, name, instance, **kwargs):
         ann = getAnnotation(instance)
         try:
@@ -87,6 +91,7 @@ class BaseAnnotationStorage(Storage):
             pass
 
 setSecurity(BaseAnnotationStorage)
+
 
 class AnnotationStorage(BaseAnnotationStorage):
     """Stores values as ATAnnotations on the object
@@ -101,8 +106,9 @@ class AnnotationStorage(BaseAnnotationStorage):
         """
         value = getattr(aq_base(instance), name, _marker)
         if value is _marker:
-                raise AttributeError(name)
-        delattr(instance, name)  # explicit del althought set would do the job, too
+            raise AttributeError(name)
+        # explicit del althought set would do the job, too
+        delattr(instance, name)
         self.set(name, instance, value, **kwargs)
         return value
 
@@ -111,6 +117,7 @@ class AnnotationStorage(BaseAnnotationStorage):
             delattr(instance, name)
 
 registerStorage(AnnotationStorage)
+
 
 class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
     """Stores metadata as ATAnnotations on the object
@@ -142,11 +149,13 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
             pass
 
     security.declarePrivate('initializeInstance')
+
     def initializeInstance(self, instance, item=None, container=None):
         # annotations are initialized on first access
         pass
 
     security.declarePrivate('initializeField')
+
     def initializeField(self, instance, field):
         # Check for already existing field to avoid  the reinitialization
         # (which means overwriting) of an already existing field after a
@@ -156,12 +165,14 @@ class MetadataAnnotationStorage(BaseAnnotationStorage, StorageLayer):
             self.set(field.getName(), instance, field.getDefault(instance))
 
     security.declarePrivate('cleanupField')
+
     def cleanupField(self, instance, field, **kwargs):
         # Don't clean up the field self to avoid problems with copy/rename. The
         # python garbarage system will clean up if needed.
         pass
 
     security.declarePrivate('cleanupInstance')
+
     def cleanupInstance(self, instance, item=None, container=None):
         # Don't clean up the instance self to avoid problems with copy/rename. The
         # python garbarage system will clean up if needed.
@@ -184,28 +195,31 @@ def migrateStorageOfType(portal, portal_type, schema):
     brains = catalog(dict(Type=portal_type))
 
     fields = [field.getName()
-        for field in schema.fields()
-        if field.storage.__class__ == AnnotationStorage
-        ]
+              for field in schema.fields()
+              if field.storage.__class__ == AnnotationStorage
+              ]
     md_fields = [field.getName()
-        for field in schema.fields()
-        if field.storage.__class__ == MetadataAnnotationStorage
-        ]
+                 for field in schema.fields()
+                 if field.storage.__class__ == MetadataAnnotationStorage
+                 ]
 
     for brain in brains:
         obj = brain.getObject()
         if obj is None:
             continue
 
-        try: state = obj._p_changed
-        except: state = 0
+        try:
+            state = obj._p_changed
+        except:
+            state = 0
 
         ann = getAnnotation(obj)
         clean_obj = aq_base(obj)
         _attr2ann(clean_obj, ann, fields)
         _meta2ann(clean_obj, ann, md_fields)
 
-        if state is None: obj._p_deactivate()
+        if state is None:
+            obj._p_deactivate()
 
 
 def _attr2ann(clean_obj, ann, fields):

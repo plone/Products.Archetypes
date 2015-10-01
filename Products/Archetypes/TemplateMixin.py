@@ -17,17 +17,17 @@ from zope.interface import implements
 TemplateMixinSchema = Schema((
     # TemplateMixin
     StringField('layout',
-        write_permission=permissions.ModifyPortalContent,
-        default_method="getDefaultLayout",
-        vocabulary="_voc_templates",
-        widget=SelectionWidget(label=_(u'label_template_mixin',
-                                       default=u'View template'),
-                               description=_(u'help_template_mixin',
-                                             default=u'Choose a template that will be used for viewing this item.'),
-                               visible={'view': 'hidden',
-                                        'edit': 'visible'},)
-               ),
-    ))
+                write_permission=permissions.ModifyPortalContent,
+                default_method="getDefaultLayout",
+                vocabulary="_voc_templates",
+                widget=SelectionWidget(label=_(u'label_template_mixin',
+                                               default=u'View template'),
+                                       description=_(u'help_template_mixin',
+                                                     default=u'Choose a template that will be used for viewing this item.'),
+                                       visible={'view': 'hidden',
+                                                'edit': 'visible'},)
+                ),
+))
 
 
 class TemplateMixin(Base):
@@ -40,15 +40,15 @@ class TemplateMixin(Base):
          'name': 'View',
          'action': 'string:${object_url}/',
          'permissions': (permissions.View,),
-        },
-        )
+         },
+    )
 
     aliases = {
         '(Default)': '',
         'index_html': '',
         'view': '',
         'gethtml': 'source_html',
-        }
+    }
 
     # if default_view is None TemplateMixin is using the immediate_view from
     # the type information
@@ -75,6 +75,7 @@ class TemplateMixin(Base):
     templates = _voc_templates
 
     security.declareProtected(permissions.View, 'getLayout')
+
     def getLayout(self, **kw):
         """Get the current layout or the default layout if the current one is None
         """
@@ -90,6 +91,7 @@ class TemplateMixin(Base):
             return self.getDefaultLayout()
 
     security.declareProtected(permissions.View, 'getDefaultLayout')
+
     def getDefaultLayout(self):
         """Get the default layout used for TemplateMixin.
 

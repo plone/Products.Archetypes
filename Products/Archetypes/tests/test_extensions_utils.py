@@ -20,7 +20,8 @@ class InstallIndexesTests(ATSiteTestCase):
     def test_base_usage(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,))
-        self.assertTrue('getRichtextfield' in self.portal.portal_catalog.indexes())
+        self.assertTrue(
+            'getRichtextfield' in self.portal.portal_catalog.indexes())
 
     def test_index_method(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
@@ -30,21 +31,24 @@ class InstallIndexesTests(ATSiteTestCase):
 
         ComplexType.schema['richtextfield'].index_method = '_at_accessor'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,))
-        self.assertTrue('getRichtextfield' in self.portal.portal_catalog.indexes())
+        self.assertTrue(
+            'getRichtextfield' in self.portal.portal_catalog.indexes())
 
         ComplexType.schema['richtextfield'].index_method = '_at_edit_accessor'
         utils.install_indexes(self.portal, StringIO(), (ComplexType,))
-        self.assertTrue('getRawRichtextfield' in self.portal.portal_catalog.indexes())
+        self.assertTrue(
+            'getRawRichtextfield' in self.portal.portal_catalog.indexes())
 
     def test_bad_index_method(self):
         ComplexType.schema['richtextfield'].index = 'FieldIndex'
         ComplexType.schema['richtextfield'].index_method = lambda x: 'yop'
         self.assertRaises(ValueError,
-                              utils.install_indexes, self.portal, StringIO(), (ComplexType,))
+                          utils.install_indexes, self.portal, StringIO(), (ComplexType,))
         ComplexType.schema['richtextfield'].index_method = lambda x: 'yop'
         self.assertRaises(ValueError,
-                              utils.install_indexes, self.portal, StringIO(), (ComplexType,))
+                          utils.install_indexes, self.portal, StringIO(), (ComplexType,))
 
-        ComplexType.schema['richtextfield'].index_method = ComplexType._get_selection_vocab
+        ComplexType.schema[
+            'richtextfield'].index_method = ComplexType._get_selection_vocab
         self.assertRaises(ValueError,
-                              utils.install_indexes, self.portal, StringIO(), (ComplexType,))
+                          utils.install_indexes, self.portal, StringIO(), (ComplexType,))

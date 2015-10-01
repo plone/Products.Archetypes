@@ -11,7 +11,8 @@ class UtilsMethodsTests(ATSiteTestCase):
     def test_translate_vocab_with_special_chars(self):
         vocab = DisplayList((('Sp\xc3\xa9cial char key', 'Sp\xc3\xa9cial char value'),
                              ('normal_key', 'With sp\xc3\xa9cial char'), ))
-        utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
+        utilsView = getMultiAdapter(
+            (self.portal, self.portal.REQUEST), name='at_utils')
         # Note that due to the test setup, the result is expected to
         # be u'[[domain][translation]]'.
         self.assertEqual(utilsView.translate(vocab, value='Sp\xc3\xa9cial char key'),
@@ -28,7 +29,8 @@ class UtilsMethodsTests(ATSiteTestCase):
         vocab = IntDisplayList(((1, 'Sp\xc3\xa9cial char value'),
                                 (2, 'two'),
                                 (3, 42), ))
-        utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
+        utilsView = getMultiAdapter(
+            (self.portal, self.portal.REQUEST), name='at_utils')
         self.assertEqual(utilsView.translate(vocab, value=1),
                          u'[[plone][Sp\xe9cial char value]]')
         self.assertEqual(utilsView.translate(vocab, value=2),
@@ -39,7 +41,8 @@ class UtilsMethodsTests(ATSiteTestCase):
     def test_translate_empty(self):
         vocab = DisplayList((('one', 'One'),
                              ('two', 'Two'), ))
-        utilsView = getMultiAdapter((self.portal, self.portal.REQUEST), name='at_utils')
+        utilsView = getMultiAdapter(
+            (self.portal, self.portal.REQUEST), name='at_utils')
         self.assertEqual(utilsView.translate(vocab, value=''), u'')
         self.assertEqual(utilsView.translate(vocab, value=None), u'')
         self.assertEqual(utilsView.translate(vocab, value=[]), u'')

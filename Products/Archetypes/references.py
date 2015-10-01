@@ -3,6 +3,7 @@ from Products.Archetypes.exceptions import ReferenceException
 
 
 class HoldingReference(Reference):
+
     def beforeTargetDeleteInformSource(self):
         raise ReferenceException, ("Can't delete target, "
                                    "its held by %s" %
@@ -10,6 +11,7 @@ class HoldingReference(Reference):
 
 
 class CascadeReference(Reference):
+
     def beforeSourceDeleteInformTarget(self):
         tObj = self.getTargetObject()
         parent = tObj.aq_parent
@@ -17,6 +19,8 @@ class CascadeReference(Reference):
 
 
 FOLDERISH_REFERENCE = "at_folder_reference"
+
+
 class FolderishReference(Reference):
     """Used by reference folder under the covers of the folderish API"""
 

@@ -9,9 +9,12 @@ class RefSpeedupTestMixin:
     def afterSetUp(self):
         self.rc = getToolByName(self.portal, 'reference_catalog')
         self.loginAsPortalOwner()
-        self.doc1 = makeContent(self.portal, portal_type='DDocument', id='doc1')
-        self.doc2 = makeContent(self.portal, portal_type='DDocument', id='doc2')
-        self.doc3 = makeContent(self.portal, portal_type='DDocument', id='doc3')
+        self.doc1 = makeContent(
+            self.portal, portal_type='DDocument', id='doc1')
+        self.doc2 = makeContent(
+            self.portal, portal_type='DDocument', id='doc2')
+        self.doc3 = makeContent(
+            self.portal, portal_type='DDocument', id='doc3')
 
 
 class TestGetReferences(RefSpeedupTestMixin, ATTestCase):
@@ -19,11 +22,13 @@ class TestGetReferences(RefSpeedupTestMixin, ATTestCase):
     def test_none(self):
         self.assertEqual(self.rc.getReferences(self.doc1), [])
         self.assertEqual(self.rc.getReferences(self.doc1, 'related'), [])
-        self.assertEqual(self.rc.getReferences(self.doc1, 'related', self.doc2), [])
+        self.assertEqual(self.rc.getReferences(
+            self.doc1, 'related', self.doc2), [])
 
         result = self.rc.getReferences(self.doc1, ['related', 'rel2'])
         self.assertEqual(result, [])
-        result = self.rc.getReferences(self.doc1, ['related', 'rel2'], self.doc2)
+        result = self.rc.getReferences(
+            self.doc1, ['related', 'rel2'], self.doc2)
         self.assertEqual(result, [])
 
         self.assertEqual(self.doc1.getReferences(), [])
@@ -46,17 +51,20 @@ class TestGetReferences(RefSpeedupTestMixin, ATTestCase):
         result = [r.getTargetObject() for r in result]
         self.assertEqual(set(result), set([self.doc2, self.doc3]))
 
-        result = self.rc.getReferences(self.doc1, ['related', 'rel2'], self.doc2)
+        result = self.rc.getReferences(
+            self.doc1, ['related', 'rel2'], self.doc2)
         result = [r.getTargetObject() for r in result]
         self.assertEqual(set(result), set([self.doc2]))
 
     def test_many(self):
         uids = [self.doc2.UID(), self.doc3.UID()]
         self.doc1.setRelated(uids)
-        result = [r.getTargetObject() for r in self.rc.getReferences(self.doc1)]
+        result = [r.getTargetObject()
+                  for r in self.rc.getReferences(self.doc1)]
         self.assertEqual(set(result), set([self.doc2, self.doc3]))
 
-        self.assertEqual(set(self.doc1.getReferences()), set([self.doc2, self.doc3]))
+        self.assertEqual(set(self.doc1.getReferences()),
+                         set([self.doc2, self.doc3]))
 
         self.doc1.setRel2([self.doc2.UID()])
         result = self.rc.getReferences(self.doc1, ['related', 'rel2'])
@@ -66,9 +74,11 @@ class TestGetReferences(RefSpeedupTestMixin, ATTestCase):
     def test_bidi(self):
         self.doc1.setRelated([self.doc2.UID()])
         self.doc2.setRelated([self.doc1.UID()])
-        result = [r.getTargetObject() for r in self.rc.getReferences(self.doc1)]
+        result = [r.getTargetObject()
+                  for r in self.rc.getReferences(self.doc1)]
         self.assertEqual(result, [self.doc2])
-        result = [r.getTargetObject() for r in self.rc.getReferences(self.doc2)]
+        result = [r.getTargetObject()
+                  for r in self.rc.getReferences(self.doc2)]
         self.assertEqual(result, [self.doc1])
 
         self.doc1.setRel2([self.doc3.UID()])
@@ -79,7 +89,8 @@ class TestGetReferences(RefSpeedupTestMixin, ATTestCase):
     def test_missing_uid_catalog_entry(self):
         self.doc1.setRelated([self.doc2.UID()])
 
-        result = [r.getTargetObject() for r in self.rc.getReferences(self.doc1)]
+        result = [r.getTargetObject()
+                  for r in self.rc.getReferences(self.doc1)]
         self.assertEqual(result, [self.doc2])
 
         # Forcefully remove the target object from the uid catalog
@@ -97,11 +108,12 @@ class TestGetBackReferences(RefSpeedupTestMixin, ATTestCase):
         self.assertEqual(self.rc.getBackReferences(self.doc1), [])
         self.assertEqual(self.rc.getBackReferences(self.doc1, 'related'), [])
         self.assertEqual(self.rc.getBackReferences(self.doc1, 'related', self.doc2),
-                          [])
+                         [])
 
         result = self.rc.getBackReferences(self.doc1, ['related', 'rel2'])
         self.assertEqual(result, [])
-        result = self.rc.getBackReferences(self.doc1, ['related', 'rel2'], self.doc2)
+        result = self.rc.getBackReferences(
+            self.doc1, ['related', 'rel2'], self.doc2)
         self.assertEqual(result, [])
 
         self.assertEqual(self.doc1.getBackReferences(), [])
@@ -123,16 +135,19 @@ class TestGetBackReferences(RefSpeedupTestMixin, ATTestCase):
         self.doc1.setRel2([self.doc3.UID()])
         result = self.rc.getBackReferences(self.doc2, ['related', 'rel2'])
         self.assertEqual(result[0].getSourceObject(), self.doc1)
-        result = self.rc.getBackReferences(self.doc2, ['related', 'rel2'], self.doc1)
+        result = self.rc.getBackReferences(
+            self.doc2, ['related', 'rel2'], self.doc1)
         self.assertEqual(result[0].getSourceObject(), self.doc1)
 
     def test_many(self):
         uids = [self.doc2.UID(), self.doc3.UID()]
         self.doc1.setRelated(uids)
 
-        result = [r.getSourceObject() for r in self.rc.getBackReferences(self.doc2)]
+        result = [r.getSourceObject()
+                  for r in self.rc.getBackReferences(self.doc2)]
         self.assertEqual(set(result), set([self.doc1]))
-        result = [r.getSourceObject() for r in self.rc.getBackReferences(self.doc3)]
+        result = [r.getSourceObject()
+                  for r in self.rc.getBackReferences(self.doc3)]
         self.assertEqual(set(result), set([self.doc1]))
 
         self.assertEqual(set(self.doc2.getBackReferences()), set([self.doc1]))
@@ -147,9 +162,11 @@ class TestGetBackReferences(RefSpeedupTestMixin, ATTestCase):
         self.doc1.setRelated([self.doc2.UID()])
         self.doc2.setRelated([self.doc1.UID()])
 
-        result = [r.getSourceObject() for r in self.rc.getBackReferences(self.doc1)]
+        result = [r.getSourceObject()
+                  for r in self.rc.getBackReferences(self.doc1)]
         self.assertEqual(result, [self.doc2])
-        result = [r.getSourceObject() for r in self.rc.getBackReferences(self.doc2)]
+        result = [r.getSourceObject()
+                  for r in self.rc.getBackReferences(self.doc2)]
         self.assertEqual(result, [self.doc1])
 
         self.doc2.setRel2([self.doc1.UID()])
@@ -160,7 +177,8 @@ class TestGetBackReferences(RefSpeedupTestMixin, ATTestCase):
     def test_missing_uid_catalog_entry(self):
         self.doc2.setRelated([self.doc1.UID()])
 
-        result = [r.getSourceObject() for r in self.rc.getBackReferences(self.doc1)]
+        result = [r.getSourceObject()
+                  for r in self.rc.getBackReferences(self.doc1)]
         self.assertEqual(result, [self.doc2])
 
         # Forcefully remove the target object from the uid catalog
@@ -190,9 +208,11 @@ class TestReferenceable(RefSpeedupTestMixin, ATTestCase):
     def test_many_references(self):
         uids = [self.doc2.UID(), self.doc3.UID()]
         self.doc1.setRelated(uids)
-        self.assertEqual(set(self.doc1.getRelated()), set([self.doc2, self.doc3]))
+        self.assertEqual(set(self.doc1.getRelated()),
+                         set([self.doc2, self.doc3]))
         self.assertEqual(set(self.doc1.getRawRelated()), set(uids))
-        self.assertEqual(set(self.doc1.getReferences()), set([self.doc2, self.doc3]))
+        self.assertEqual(set(self.doc1.getReferences()),
+                         set([self.doc2, self.doc3]))
         self.assertEqual(self.doc1.getRelationships(), ['related'])
 
     def test_bidi_references(self):

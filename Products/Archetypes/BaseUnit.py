@@ -42,7 +42,7 @@ class BaseUnit(File):
         File.__setstate__(self, dict)
 
     def update(self, data, instance, **kw):
-        #Convert from str to unicode as needed
+        # Convert from str to unicode as needed
         mimetype = kw.get('mimetype', None)
         filename = kw.get('filename', None)
         encoding = kw.get('encoding', None)
@@ -87,10 +87,10 @@ class BaseUnit(File):
         if not orig:
             return None
 
-        #on ZODB Transaction commit there is by specification
-        #no acquisition context. If it is not present, take
-        #the untransformed getRaw, this is necessary for
-        #being used with APE
+        # on ZODB Transaction commit there is by specification
+        # no acquisition context. If it is not present, take
+        # the untransformed getRaw, this is necessary for
+        # being used with APE
         # Also don't break if transform was applied with a stale instance
         # from the catalog while rebuilding the catalog
         if not getattr(instance, 'aq_parent', None) is not None:
@@ -106,9 +106,9 @@ class BaseUnit(File):
             _data = data.getData()
             instance.addSubObjects(data.getSubObjects())
             portal_encoding = kwargs.get('encoding', None) or \
-                              self.portalEncoding(instance)
+                self.portalEncoding(instance)
             encoding = data.getMetadata().get("encoding") or encoding \
-                       or portal_encoding
+                or portal_encoding
             if portal_encoding != encoding:
                 _data = unicode(_data, encoding).encode(portal_encoding)
             return _data
@@ -118,7 +118,7 @@ class BaseUnit(File):
         # FIXME: is this really the behaviour we want ?
         if not self.isBinary():
             portal_encoding = kwargs.get('encoding', None) or \
-                              self.portalEncoding(instance)
+                self.portalEncoding(instance)
             if portal_encoding != encoding:
                 orig = self.getRaw(portal_encoding)
             return orig
@@ -223,8 +223,9 @@ class BaseUnit(File):
         if shasattr(self, '_v_transform_cache'):
             delattr(self, '_v_transform_cache')
 
-    ### index_html
+    # index_html
     security.declareProtected(permissions.View, "index_html")
+
     def index_html(self, REQUEST, RESPONSE):
         """download method"""
         filename = self.getFilename()
@@ -237,8 +238,9 @@ class BaseUnit(File):
         RESPONSE.write(self.getRaw(encoding=self.original_encoding))
         return ''
 
-    ### webDAV me this, webDAV me that
+    # webDAV me this, webDAV me that
     security.declareProtected(permissions.ModifyPortalContent, 'PUT')
+
     def PUT(self, REQUEST, RESPONSE):
         """Handle HTTP PUT requests"""
         self.dav__init(REQUEST, RESPONSE)

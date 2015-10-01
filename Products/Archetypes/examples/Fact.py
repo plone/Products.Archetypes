@@ -24,10 +24,11 @@ schema = BaseSchema.copy() + Schema((
 
     StringField('url',
                 widget=StringWidget(description="A URL citing the fact",
-                                  label="URL"),
+                                    label="URL"),
                 validators=('isURL',),
                 ),
-    ))
+))
+
 
 class Fact(BaseContent):
     """A quoteable fact or tidbit"""

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -22,7 +22,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -45,7 +45,7 @@ class WidgetTests(ATTestCase):
     def afterSetUp(self):
         # XXX messing up with global vars is bad!
         global stub_text_file, stub_text_content, \
-               stub_bin_file, stub_bin_content
+            stub_bin_file, stub_bin_content
         stub_text_file = open(os.path.join(PACKAGE_HOME, 'input', 'rest1.rst'))
         stub_text_content = stub_text_file.read()
         stub_text_file.seek(0)
@@ -121,19 +121,19 @@ class WidgetTests(ATTestCase):
         # page.  The related change in unicodeTestIn speeds this up
         # from 42 to 15 seconds.
         #vocab += [str(x) for x in range(3000)]
-        #for x in range(1000, 1050):
+        # for x in range(1000, 1050):
         #    self.assertEqual(self.portal.unicodeTestIn(str(x), vocab), True)
 
     def _test_widgets(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
 
-        #Now render this doc in view and edit modes. If this works
-        #then we have pretty decent assurance that things are working
+        # Now render this doc in view and edit modes. If this works
+        # then we have pretty decent assurance that things are working
         view = doc.base_view()
         edit = doc.base_edit()
 
-        #No exceptions are good, parse the results more if you need to
-        #I feel fine...
+        # No exceptions are good, parse the results more if you need to
+        # I feel fine...
 
     def test_appendtextarea_widget(self):
         request = FakeRequest()
@@ -180,7 +180,8 @@ class WidgetTests(ATTestCase):
 
         doc.Schema()[field.getName()].set(doc, mystring)
         form = {'textarea_appendonly_timestamp': mystring}
-        expectation = mystring + '\n\n' + str(DateTime()) + widget.divider + mystring, {}
+        expectation = mystring + '\n\n' + \
+            str(DateTime()) + widget.divider + mystring, {}
         results = widget.process_form(doc, field, form)
 
         # some magic (nightmares?) here for rectifying DateTime delay
@@ -273,8 +274,8 @@ class WidgetTests(ATTestCase):
 
         # XXX: This makes wv-1.0.3 spin.
         #form = {'richtextfield_file': stub_bin_file}
-        #request.form.update(form)
-        #doc.processForm(REQUEST=request)
+        # request.form.update(form)
+        # doc.processForm(REQUEST=request)
         #self.assertEqual(field.getContentType(doc), 'application/msword')
         #self.assertEqual(str(doc[field.getName()]), stub_bin_content)
 
@@ -418,6 +419,6 @@ class WidgetTests(ATTestCase):
         result = trans(vocab, ['spoon2'], widget)
         self.assertEqual(result, u'[[attesti18n][spoon2]]')
         # Combine all.
-        result = trans(vocab, ['complex2','bar2', 'spoon2'], widget)
+        result = trans(vocab, ['complex2', 'bar2', 'spoon2'], widget)
         self.assertEqual(result,
-            u'[[attesti18n][C\xf6mpl\xe8x 2]], [[domain1][Bar 2]], [[attesti18n][spoon2]]')
+                         u'[[attesti18n][C\xf6mpl\xe8x 2]], [[domain1][Bar 2]], [[attesti18n][spoon2]]')

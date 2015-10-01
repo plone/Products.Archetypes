@@ -1,6 +1,6 @@
 # -*- coding: ISO-8859-1 -*-
 # XXX change encoding to UTF-8
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -23,7 +23,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -37,6 +37,7 @@ from Products.PortalTransforms.data import datastream
 
 
 class FakeTransformer:
+
     def __init__(self, expected):
         self.expected = expected
 

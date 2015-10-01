@@ -40,7 +40,7 @@ class NonLoweringMessage(Message):
         i = line.find(':')
         if i > 0:
             return line[:i]
-            #return line[:i].lower()
+            # return line[:i].lower()
         else:
             return None
 
@@ -56,7 +56,6 @@ class NonLoweringMessage(Message):
 
 
 def formatRFC822Headers(headers):
-
     """ Convert the key-value pairs in 'headers' to valid RFC822-style
         headers, including adding leading whitespace to elements which
         contain newlines in order to preserve continuation-line semantics.
@@ -256,7 +255,8 @@ class RFC822Marshaller(Marshaller):
             if p and hasattr(p, 'getContentType'):
                 content_type = p.getContentType(instance) or 'text/plain'
             else:
-                content_type = body and guess_content_type(body) or 'text/plain'
+                content_type = body and guess_content_type(
+                    body) or 'text/plain'
 
         headers = []
         fields = [f for f in instance.Schema().fields()

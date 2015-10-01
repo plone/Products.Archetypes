@@ -7,6 +7,7 @@ from zope.datetime import parseDatetimetz
 
 from zope.site.hooks import getSite
 
+
 class ATFieldProperty(object):
     """Field properties based on Archetypes schema
 
@@ -111,6 +112,7 @@ class ATFieldProperty(object):
             value = self._set_transform(value)
         field.set(inst, value)
 
+
 class ATToolDependentFieldProperty(ATFieldProperty):
     """A version of the field property type which is able to acquire
     tools. This uses a not-very-nice acquisition hack, and is not
@@ -174,9 +176,11 @@ class ATToolDependentFieldProperty(ATFieldProperty):
             value = self._set_transform(value)
         field.set(inst.__of__(getSite()), value)
 
+
 class ATReferenceFieldProperty(ATToolDependentFieldProperty):
     """A more friendly/use-case-specific name for ATReferenceFieldProperty.
     """
+
 
 class ATDateTimeFieldProperty(ATFieldProperty):
     """A field property for DateTime fields. This takes care of converting
@@ -212,7 +216,8 @@ class ATDateTimeFieldProperty(ATFieldProperty):
     """
 
     def __init__(self, name):
-        super(ATDateTimeFieldProperty, self).__init__(name, self._zope2python_dt, self._python2zope_dt)
+        super(ATDateTimeFieldProperty, self).__init__(
+            name, self._zope2python_dt, self._python2zope_dt)
 
     def _zope2python_dt(self, zope_dt):
         if zope_dt is None:

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 import operator
 
@@ -46,7 +46,8 @@ class SchemataTest(ATSiteTestCase):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        content_types, constructors, ftis = process_types(
+            listTypes(), PKG_NAME)
         self._dummy = Dummy(oid='dummy')
 
     def test_availschemata(self):
@@ -128,7 +129,7 @@ class SchemataTest(ATSiteTestCase):
                                          accessor='getSomething',
                                          edit_accessor='editSomething',
                                          mutator='setSomething',
-                                  ),))
+                                         ),))
         field = StringField('bar',
                             accessor='getSomething',
                             edit_accessor='editThat',
@@ -183,15 +184,15 @@ class SchemataTest(ATSiteTestCase):
                 widget=StringWidget(visible={'edit': 'invisible'}),
             ),
             StringField('f2',
-                mutator='setF2',
-                write_permission=ModifyPortalContent,
-                widget=StringWidget(visible={'edit': 'hidden'}),
-            ),
+                        mutator='setF2',
+                        write_permission=ModifyPortalContent,
+                        widget=StringWidget(visible={'edit': 'hidden'}),
+                        ),
             StringField('f3',
-                mutator='setF3',
-                write_permission=ModifyPortalContent,
-                widget=StringWidget(condition='python:False',),
-            ),
+                        mutator='setF3',
+                        write_permission=ModifyPortalContent,
+                        widget=StringWidget(condition='python:False',),
+                        ),
         )
 
         for f in fields:
@@ -207,8 +208,8 @@ class SchemataTest(ATSiteTestCase):
 
         # get editable fields
         schemata = dummy.Schemata()['default']
-        editable_field_ids = [f.getName() for f in \
-            schemata.editableFields(dummy, visible_only=True)]
+        editable_field_ids = [f.getName() for f in
+                              schemata.editableFields(dummy, visible_only=True)]
 
         self.assertTrue('f1' not in editable_field_ids)
         self.assertTrue('f2' in editable_field_ids)

@@ -7,6 +7,7 @@ from Products.Five.browser import BrowserView
 from Products.Archetypes.event import EditBegunEvent
 from Products.Archetypes.event import EditCancelledEvent
 
+
 class Lifecycle(BrowserView):
     """Helper functions to trigger lifecycle events from TTW code
     """

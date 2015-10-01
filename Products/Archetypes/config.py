@@ -6,13 +6,13 @@ UID_CATALOG = "uid_catalog"
 
 REGISTER_DEMO_TYPES = True  # Initialize the demo types
 DEBUG = False  # Hide debug messages
-#DEBUG = True  # See debug messages
+# DEBUG = True  # See debug messages
 
 RENAME_AFTER_CREATION_ATTEMPTS = 100
 # Try up to -100 at the end of the id when doing title-to-id renaming
 
 
-##Reference Engine bits
+# Reference Engine bits
 REFERENCE_CATALOG = "reference_catalog"
 UUID_ATTR = "_at_uid"
 REFERENCE_ANNOTATION = "at_references"
@@ -30,7 +30,7 @@ MYSQL_SQLSTORAGE_TABLE_TYPE = 'INNODB'
 
 # Debug security settings of Fields, Widgets and Storages?
 DEBUG_SECURITY = False
-#DEBUG_SECURITY=True
+# DEBUG_SECURITY=True
 
 # BBB constants for removed graphviz suppport
 GRAPHVIZ_BINARY = None

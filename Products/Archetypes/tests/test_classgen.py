@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -50,43 +50,44 @@ Subtitle
 
 schema = atapi.BaseSchema + atapi.Schema((
     atapi.TextField('atextfield',
-              default_content_type='text/x-rst',
-              default=default_text,
-              widget=atapi.RichWidget(description="Just a text field for the testing",
-                                  label="A Text Field",
-                                  )),
+                    default_content_type='text/x-rst',
+                    default=default_text,
+                    widget=atapi.RichWidget(description="Just a text field for the testing",
+                                            label="A Text Field",
+                                            )),
 
     atapi.FileField('afilefield',
-              primary=1,
-              widget=atapi.RichWidget(description="Just a file field for the testing",
-                                  label="A File Field",
-                                  )),
+                    primary=1,
+                    widget=atapi.RichWidget(description="Just a file field for the testing",
+                                            label="A File Field",
+                                            )),
 
     atapi.FileField('anotherfilefield', widget=atapi.FileWidget),
 
     atapi.LinesField('alinesfield', widget=atapi.LinesWidget),
 
     atapi.DateTimeField('adatefield',
-                  widget=atapi.CalendarWidget(description="A date field",
-                                        label="A Date Field")),
+                        widget=atapi.CalendarWidget(description="A date field",
+                                                    label="A Date Field")),
 
     atapi.ObjectField('anobjectfield',
-                widget=atapi.StringWidget(description="An object field",
-                                    label="An Object Field"),
-                validators=('isURL',),
-                ),
+                      widget=atapi.StringWidget(description="An object field",
+                                                label="An Object Field"),
+                      validators=('isURL',),
+                      ),
 
     atapi.FixedPointField('afixedpointfield',
-                    widget=atapi.DecimalWidget(description="A fixed point field",
-                                         label="A Fixed Point Field"),
-                    ),
+                          widget=atapi.DecimalWidget(description="A fixed point field",
+                                                     label="A Fixed Point Field"),
+                          ),
     atapi.StringField('awriteonlyfield', mode="w"),
 
     atapi.StringField('areadonlyfield', mode="r"),
-    ))
+))
 
 
 class DummyDiscussionTool:
+
     def isDiscussionAllowedFor(self, content):
         return False
 
@@ -137,7 +138,7 @@ class ClassGenTest(ATSiteTestCase):
 
     def test_methods(self):
         obj = self._dummy
-        #setters
+        # setters
         self.assertTrue(hasattr(obj, 'setAtextfield'))
         self.assertTrue(hasattr(obj, 'setAfilefield'))
         self.assertTrue(hasattr(obj, 'setAlinesfield'))
@@ -146,7 +147,7 @@ class ClassGenTest(ATSiteTestCase):
         self.assertTrue(hasattr(obj, 'setAfixedpointfield'))
         self.assertTrue(hasattr(obj, 'setAwriteonlyfield'))
         self.assertTrue(not hasattr(obj, 'setAreadonlyfield'))
-        #getters
+        # getters
         self.assertTrue(hasattr(obj, 'getAtextfield'))
         self.assertTrue(hasattr(obj, 'getAfilefield'))
         self.assertTrue(hasattr(obj, 'getAlinesfield'))
@@ -155,7 +156,7 @@ class ClassGenTest(ATSiteTestCase):
         self.assertTrue(hasattr(obj, 'getAfixedpointfield'))
         self.assertTrue(not hasattr(obj, 'getAwriteonlyfield'))
         self.assertTrue(hasattr(obj, 'getAreadonlyfield'))
-        #raw getters
+        # raw getters
         self.assertTrue(hasattr(obj, 'getRawAtextfield'))
         self.assertTrue(hasattr(obj, 'getRawAfilefield'))
         self.assertTrue(hasattr(obj, 'getRawAlinesfield'))
@@ -250,9 +251,9 @@ class SecDummy5:
         return 'foo'
 
 foo_field = atapi.StringField('foo',
-                        accessor='makeFoo',
-                        read_permission='Modify portal content',
-                        write_permission='Modify portal content')
+                              accessor='makeFoo',
+                              read_permission='Modify portal content',
+                              write_permission='Modify portal content')
 
 
 class ClassGenSecurityTest(unittest.TestCase):
@@ -267,7 +268,7 @@ class ClassGenSecurityTest(unittest.TestCase):
         got = SecDummy1.__ac_permissions__
         expected = (('Modify portal content',
                      ('setFoo', 'getRawFoo')),
-                     ('View', ('makeFoo',)),)
+                    ('View', ('makeFoo',)),)
         self.assertEqual(got, expected)
 
     def test_security_dont_stomp_existing_decl_public(self):

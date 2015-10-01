@@ -8,8 +8,9 @@ schema = BaseSchema + Schema((
               primary=1,
               widget=FileWidget(),
               ),
-    ),
-      marshall=PrimaryFieldMarshaller())
+),
+    marshall=PrimaryFieldMarshaller())
+
 
 class SimpleFile(BaseContent):
     """An File (test) type"""

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 # registering and type processing
 from Products.Archetypes.ArchetypeTool import registerType
@@ -96,4 +96,4 @@ skipExports = ('skipExports', 'sys',)
 __all__ = tuple([export
                  for export in dir(sys.modules[__name__])
                  if export not in skipExports and not export.startswith('_')
-                ])
+                 ])

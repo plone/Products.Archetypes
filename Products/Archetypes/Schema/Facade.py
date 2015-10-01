@@ -15,30 +15,32 @@ from zope.interface import implements
 # Crude mapping for now. We should instantiate
 # the right widgets for some specialized fields
 # that map better.
-_field_mapping = {'CheckBoxField':BooleanField,
-                  'DateTimeField':DateTimeField,
-                  'EmailField':StringField,
-                  'FileField':FileField,
-                  'FloatField':FloatField,
-                  'IntegerField':IntegerField,
-                  'LinesField':LinesField,
-                  'LinkField':StringField,
-                  'ListField':LinesField,
-                  'ListTextAreaField':LinesField,
-                  'MethodField':StringField,
-                  'MultiCheckBoxField':LinesField,
-                  'MultiListField':LinesField,
-                  'PasswordField':StringField,
-                  'PatternField':StringField,
-                  'RadioField':StringField,
-                  'RangedIntegerField':StringField,
-                  'RawTextAreaField':StringField,
-                  'StringField':StringField,
-                  'TALESField':StringField,
-                  'TextAreaField':StringField}
+_field_mapping = {'CheckBoxField': BooleanField,
+                  'DateTimeField': DateTimeField,
+                  'EmailField': StringField,
+                  'FileField': FileField,
+                  'FloatField': FloatField,
+                  'IntegerField': IntegerField,
+                  'LinesField': LinesField,
+                  'LinkField': StringField,
+                  'ListField': LinesField,
+                  'ListTextAreaField': LinesField,
+                  'MethodField': StringField,
+                  'MultiCheckBoxField': LinesField,
+                  'MultiListField': LinesField,
+                  'PasswordField': StringField,
+                  'PatternField': StringField,
+                  'RadioField': StringField,
+                  'RangedIntegerField': StringField,
+                  'RawTextAreaField': StringField,
+                  'StringField': StringField,
+                  'TALESField': StringField,
+                  'TextAreaField': StringField}
+
 
 def getFactory(name):
     return _field_mapping.get(name)
+
 
 def fieldsFromSet(set, schema):
     fields = {}
@@ -57,12 +59,14 @@ def fieldsFromSet(set, schema):
         fields[name] = field
     return fields
 
+
 def fieldNamesFromSet(set, schema):
     fields = []
     for element in set.getElements():
         name = '%s%s' % (set.id, element.id)
         fields.append(name)
     return fields
+
 
 class CMFMetadataFieldsDescriptor:
     """A nice descriptor that computes a set of Archetypes
@@ -83,6 +87,7 @@ class CMFMetadataFieldsDescriptor:
         generateMethods(klass, fields.values())
         return fields
 
+
 class CMFMetadataFieldNamesDescriptor:
     """A nice descriptor that computes a set of Archetypes
     fields from a CMFMetadata Set (Formulator-based)"""
@@ -93,6 +98,7 @@ class CMFMetadataFieldNamesDescriptor:
             return []
         set = pm.getMetadataSet(obj.set_id)
         return fieldNamesFromSet(set, obj)
+
 
 class FacadeMetadataSchema(BasicSchema):
     """A Facade Schema, which adapts CMFMetadata 'Sets'
@@ -120,6 +126,7 @@ class FacadeMetadataSchema(BasicSchema):
         self.context = context
 
     security.declareProtected(View, 'validate')
+
     def validate(self, instance=None, REQUEST=None,
                  errors=None, data=None, metadata=None):
         """Validate the state of the entire object.

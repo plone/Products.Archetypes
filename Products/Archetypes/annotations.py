@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from UserDict import DictMixin
 
@@ -116,7 +116,8 @@ class ATAnnotations(DictMixin, Explicit):
             k = '%s-%s' % (key, subkey)
             return self.get(k, default)
         else:
-            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+            raise TypeError(
+                'Invalid subkey type %s, must be string type' % type(subkey))
 
     def setSubkey(self, key, value, subkey):
         """Stores data using a key and one subkey
@@ -125,7 +126,8 @@ class ATAnnotations(DictMixin, Explicit):
             k = '%s-%s' % (key, subkey)
             self[k] = value
         else:
-            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+            raise TypeError(
+                'Invalid subkey type %s, must be string type' % type(subkey))
 
     def delSubkey(self, key, subkey):
         """Removes a subkey
@@ -134,7 +136,8 @@ class ATAnnotations(DictMixin, Explicit):
             k = '%s-%s' % (key, subkey)
             del self[k]
         else:
-            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+            raise TypeError(
+                'Invalid subkey type %s, must be string type' % type(subkey))
 
     def hasSubkey(self, key, subkey):
         """Checks for the existence of a sub key
@@ -143,7 +146,8 @@ class ATAnnotations(DictMixin, Explicit):
             k = '%s-%s' % (key, subkey)
             return k in self
         else:
-            raise TypeError('Invalid subkey type %s, must be string type' % type(subkey))
+            raise TypeError(
+                'Invalid subkey type %s, must be string type' % type(subkey))
 
     def getObject(self):
         return self._obj
@@ -155,23 +159,23 @@ class ATAnnotations(DictMixin, Explicit):
             return None
 
     # DictMixin does define the following methods:
-    #def __iter__(self):
-    #def has_key(self, key):
-    #def __contains__(self, key):
-    #def iteritems(self):
-    #def iterkeys(self):
-    #def itervalues(self):
-    #def values(self):
-    #def items(self):
-    #def clear(self):
-    #def setdefault(self, key, default):
-    #def pop(self, key, *args):
-    #def popitem(self):
-    #def update(self, other):
-    #def get(self, key, default=None):
-    #def __repr__(self):
-    #def __cmp__(self, other):
-    #def __len__(self):
+    # def __iter__(self):
+    # def has_key(self, key):
+    # def __contains__(self, key):
+    # def iteritems(self):
+    # def iterkeys(self):
+    # def itervalues(self):
+    # def values(self):
+    # def items(self):
+    # def clear(self):
+    # def setdefault(self, key, default):
+    # def pop(self, key, *args):
+    # def popitem(self):
+    # def update(self, other):
+    # def get(self, key, default=None):
+    # def __repr__(self):
+    # def __cmp__(self, other):
+    # def __len__(self):
 
 InitializeClass(ATAnnotations)
 

@@ -20,7 +20,7 @@ class Registry:
     def register(self, name, item):
         if not isinstance(item, self.__allowed_class):
             raise TypeError, "Invalid value for item: %r (should be %r)" % \
-                  (item, self.__allowed_class)
+                (item, self.__allowed_class)
         self.__registry[name] = item
 
     def unregister(self, name):
@@ -51,7 +51,8 @@ class FieldDescription:
                  title='', description=''):
         self.id = className(klass)
         self.klass = klass
-        default_widget = default_widget or klass._properties.get('widget', None)
+        default_widget = default_widget or klass._properties.get(
+            'widget', None)
         if default_widget is None:
             raise ValueError, '%r Must have a default_widget' % klass
         if type(default_widget) not in [types.StringType, types.UnicodeType]:
@@ -170,6 +171,8 @@ class TypeDescription:
 
 fieldDescriptionRegistry = Registry(FieldDescription)
 availableFields = fieldDescriptionRegistry.items
+
+
 def registerField(klass, **kw):
     setSecurity(klass, defaultAccess='allow', objectPermission=None)
     field = FieldDescription(klass, **kw)
@@ -177,6 +180,8 @@ def registerField(klass, **kw):
 
 widgetDescriptionRegistry = Registry(WidgetDescription)
 availableWidgets = widgetDescriptionRegistry.items
+
+
 def registerWidget(klass, **kw):
     setSecurity(klass, defaultAccess='allow', objectPermission=None)
     widget = WidgetDescription(klass, **kw)
@@ -185,6 +190,8 @@ def registerWidget(klass, **kw):
 
 storageDescriptionRegistry = Registry(StorageDescription)
 availableStorages = storageDescriptionRegistry.items
+
+
 def registerStorage(klass, **kw):
     setSecurity(klass, defaultAccess=None, objectPermission=None)
     storage = StorageDescription(klass, **kw)
@@ -204,7 +211,7 @@ class TypeRegistry:
                                  module=t['module'],
                                  )
                  )
-                 for t in listTypes()]
+                for t in listTypes()]
 
     def keys(self):
         return [k for k, v in self.items()]
@@ -253,6 +260,8 @@ class ValidatorRegistry:
 
 validatorDescriptionRegistry = ValidatorRegistry()
 availableValidators = validatorDescriptionRegistry.items
+
+
 def registerValidator(item, name=''):
     name = name or item.name
     validatorDescriptionRegistry.register(name, item)

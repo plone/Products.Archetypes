@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 # @@ auto generating tests is bullshit. this should go somewhere more
 # easily auditable, like doctests.  DWM
@@ -49,6 +49,7 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
 from Products.Archetypes.atapi import registerType
 
 from plone.app.testing.bbb import PTC_FUNCTIONAL_TESTING
+
 
 def className(klass):
     """ get the short class name """
@@ -83,27 +84,27 @@ class InterfaceTest(TestCase):
         """ tests if the klass implements the interface in the right way """
         # is the class really implemented by the given interface?
         self.assertTrue(interface.implementedBy(klass),
-            'The class %s does not implement %s' % (className(klass), className(interface)))
+                        'The class %s does not implement %s' % (className(klass), className(interface)))
         # verify if the implementation is correct
         try:
             verifyClass(interface, klass)
         except (BrokenImplementation, DoesNotImplement,
-          BrokenMethodImplementation), errmsg:
+                BrokenMethodImplementation), errmsg:
             self.fail('The class %s does not implement %s correctly: \n%s'
-                % (className(klass), className(interface), errmsg))
+                      % (className(klass), className(interface), errmsg))
 
     def interfaceImplementedBy(self, instance, interface):
         """ tests if the instance implements the interface in the right way """
         # is the class really implemented by the given interface?
         self.assertTrue(interface.providedBy(instance),
-            'The instance of %s does not implement %s' % (className(instance), className(interface)))
+                        'The instance of %s does not implement %s' % (className(instance), className(interface)))
         # verify if the implementation is correct
         try:
             verifyObject(interface, instance)
         except (BrokenImplementation, DoesNotImplement,
-          BrokenMethodImplementation), errmsg:
+                BrokenMethodImplementation), errmsg:
             self.fail('The instance of %s does not implement %s correctly: \n%s'
-                % (className(instance), className(interface), errmsg))
+                      % (className(instance), className(interface), errmsg))
 
     def getImplementsOfInstanceOf(self, klass):
         """ returns the interfaces implemented by the klass (flat)"""
@@ -119,7 +120,8 @@ class InterfaceTest(TestCase):
             interfaces = (interfaces)
         impl = self.getImplementsOfInstanceOf(klass)
         for interface in interfaces:
-            self.assertTrue(interface in impl, 'The class %s does not implement %s' % (className(klass), className(interface)))
+            self.assertTrue(interface in impl, 'The class %s does not implement %s' % (
+                className(klass), className(interface)))
 
     def doesImplementBy(self, instance, interfaces):
         """ make shure that the klass implements at least these interfaces"""
@@ -127,7 +129,8 @@ class InterfaceTest(TestCase):
             interfaces = (interfaces)
         impl = self.getImplementsOf(instance)
         for interface in interfaces:
-            self.assertTrue(interface in impl, 'The instance of %s does not implement %s' % (className(instance), className(interface)))
+            self.assertTrue(interface in impl, 'The instance of %s does not implement %s' % (
+                className(instance), className(interface)))
 
     def _testStuff(self):
         """ test self.klass and self.instance """
@@ -171,10 +174,10 @@ testClasses = [
     (Marshaller, ()), (PrimaryFieldMarshaller, ()), (RFC822Marshaller, ()),
     (Schema, ()),
     (Storage, ()), (ReadOnlyStorage, ()), (StorageLayer, ()),
-        (AttributeStorage, ()), (ObjectManagedStorage, ()),
-        (MetadataStorage, ()),
+    (AttributeStorage, ()), (ObjectManagedStorage, ()),
+    (MetadataStorage, ()),
     (BaseSQLStorage, ()), (GadflySQLStorage, ()), (MySQLSQLStorage, ()),
-        (PostgreSQLStorage, ()),
+    (PostgreSQLStorage, ()),
 ]
 
 PROJECTNAME = 'Archetypes.tests'

@@ -205,7 +205,7 @@ class Field(DefaultLayerContainer):
                                          # are the accessor and edit accessor
         'schemata': 'default',
         'languageIndependent': False,
-        }
+    }
 
     def __init__(self, name=None, **kwargs):
         """
@@ -230,6 +230,7 @@ class Field(DefaultLayerContainer):
         self.registerLayer('storage', self.storage)
 
     security.declarePrivate('copy')
+
     def copy(self, name=None):
         """
         Return a copy of field instance, consisting of field name and
@@ -283,9 +284,11 @@ class Field(DefaultLayerContainer):
             if len(self.validators):
                 # got a non empty list or string - create a chain
                 try:
-                    validators = ValidationChain(chainname, validators=self.validators)
+                    validators = ValidationChain(
+                        chainname, validators=self.validators)
                 except (UnknowValidatorError, FalseValidatorError), msg:
-                    log("WARNING: Disabling validation for %s: %s" % (self.getName(), msg))
+                    log("WARNING: Disabling validation for %s: %s" %
+                        (self.getName(), msg))
                     validators = ()
             else:
                 validators = ()
@@ -301,13 +304,14 @@ class Field(DefaultLayerContainer):
                 # is not isEmpty
                 if not validators[0][0].name.startswith('isEmpty'):
                     validators.insertSufficient('isEmptyNoError')
-                    #validators.insertSufficient('isEmpty')
+                    # validators.insertSufficient('isEmpty')
             else:
                 validators.insertSufficient('isEmpty')
 
         self.validators = validators
 
     security.declarePublic('validate')
+
     def validate(self, value, instance, errors=None, **kwargs):
         """
         Validate passed-in value using all field validators.
@@ -350,6 +354,7 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePrivate('validate_validators')
+
     def validate_validators(self, value, instance, errors, **kwargs):
         """
         """
@@ -363,6 +368,7 @@ class Field(DefaultLayerContainer):
             return result
 
     security.declarePrivate('validate_required')
+
     def validate_required(self, instance, value, errors):
         if not value:
             request = aq_get(instance, 'REQUEST')
@@ -379,6 +385,7 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePrivate('validate_vocabulary')
+
     def validate_vocabulary(self, instance, value, errors):
         """Make sure value is inside the allowed values
         for a given vocabulary"""
@@ -416,8 +423,8 @@ class Field(DefaultLayerContainer):
             if isinstance(val, Message):
                 val = translate(val, context=request)
             error = _(u'error_vocabulary',
-                default=u'Values ${val} are not allowed for vocabulary of element ${label}.',
-                mapping={'val': unicode(badvalues), 'label': label})
+                      default=u'Values ${val} are not allowed for vocabulary of element ${label}.',
+                      mapping={'val': unicode(badvalues), 'label': label})
             error = translate(error, context=request)
             errors[self.getName()] = error
         return error
@@ -440,7 +447,7 @@ class Field(DefaultLayerContainer):
         elif isinstance(value, StringType):
             body = value
         elif isinstance(value, BlobWrapper) or isinstance(value, File):
-            # get data if value is an instance of BlobWrapper or 
+            # get data if value is an instance of BlobWrapper or
             # is of OFS.Image.File based
             body = value.data
 
@@ -482,6 +489,7 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePublic('Vocabulary')
+
     def Vocabulary(self, content_instance=None):
         """
         Returns a DisplayList.
@@ -531,11 +539,13 @@ class Field(DefaultLayerContainer):
         if not isinstance(value, DisplayList) and not value:
             factory_name = getattr(self, 'vocabulary_factory', None)
             if factory_name is not None:
-                factory = component.getUtility(schema.interfaces.IVocabularyFactory, name=factory_name)
+                factory = component.getUtility(
+                    schema.interfaces.IVocabularyFactory, name=factory_name)
                 factory_context = content_instance
                 if factory_context is None:
                     factory_context = self
-                data = [(t.value, t.title or t.token) for t in factory(factory_context)]
+                data = [(t.value, t.title or t.token)
+                        for t in factory(factory_context)]
                 if data and not isinstance(data[0][0], basestring):
                     value = IntDisplayList(data)
                 else:
@@ -552,7 +562,7 @@ class Field(DefaultLayerContainer):
                           'field': self}
                     value = mapply(method, *args, **kw)
             elif content_instance is not None and \
-                 IVocabulary.providedBy(value):
+                    IVocabulary.providedBy(value):
                 # Dynamic vocabulary provided by a class that
                 # implements IVocabulary
                 value = value.getDisplayList(content_instance)
@@ -578,13 +588,14 @@ class Field(DefaultLayerContainer):
         if content_instance:
             # Translate vocabulary
             i18n_domain = (getattr(self, 'i18n_domain', None) or
-                          getattr(self.widget, 'i18n_domain', None))
+                           getattr(self.widget, 'i18n_domain', None))
 
             return Vocabulary(value, content_instance, i18n_domain)
 
         return value
 
     security.declarePublic('checkPermission')
+
     def checkPermission(self, mode, instance):
         """
         Check whether the security context allows the given permission on
@@ -604,10 +615,11 @@ class Field(DefaultLayerContainer):
         return getSecurityManager().checkPermission(perm, instance)
 
     security.declarePublic('writeable')
+
     def writeable(self, instance, debug=False):
         if 'w' not in self.mode:
             if debug:
-                log("Tried to update %s:%s but field is not writeable." % \
+                log("Tried to update %s:%s but field is not writeable." %
                     (instance.portal_type, self.getName()))
             return False
 
@@ -627,6 +639,7 @@ class Field(DefaultLayerContainer):
         return True
 
     security.declarePublic('checkExternalEditor')
+
     def checkExternalEditor(self, instance):
         """ Checks if the user may edit this field and if
         external editor is enabled on this instance """
@@ -635,27 +648,31 @@ class Field(DefaultLayerContainer):
         sp = getattr(pp, 'site_properties', None)
         if sp is not None:
             if getattr(sp, 'ext_editor', None) \
-                   and self.checkPermission(mode='edit', instance=instance):
+                    and self.checkPermission(mode='edit', instance=instance):
                 return True
         return None
 
     security.declarePublic('getWidgetName')
+
     def getWidgetName(self):
         """Return the widget name that is configured for this field as
         a string"""
         return self.widget.getName()
 
     security.declarePublic('getName')
+
     def getName(self):
         """Return the name of this field as a string"""
         return self.__name__
 
     security.declarePublic('getType')
+
     def getType(self):
         """Return the type of this field as a string"""
         return className(self)
 
     security.declarePublic('getDefault')
+
     def getDefault(self, instance):
         """Return the default value to be used for initializing this
         field"""
@@ -671,13 +688,15 @@ class Field(DefaultLayerContainer):
                                  ' nor a callable' % (self.getName(),
                                                       instance.__class__))
         if not self.default:
-            default_adapter = component.queryAdapter(instance, IFieldDefaultProvider, name=self.__name__)
+            default_adapter = component.queryAdapter(
+                instance, IFieldDefaultProvider, name=self.__name__)
             if default_adapter is not None:
                 return default_adapter()
 
         return self.default
 
     security.declarePublic('getAccessor')
+
     def getAccessor(self, instance):
         """Return the accessor method for getting data out of this
         field"""
@@ -686,6 +705,7 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePublic('getEditAccessor')
+
     def getEditAccessor(self, instance):
         """Return the accessor method for getting raw data out of this
         field e.g.: for editing
@@ -695,6 +715,7 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePublic('getMutator')
+
     def getMutator(self, instance):
         """Return the mutator method used for changing the value
         of this field"""
@@ -703,12 +724,14 @@ class Field(DefaultLayerContainer):
         return None
 
     security.declarePublic('getIndexAccessor')
+
     def getIndexAccessor(self, instance):
         """Return the index accessor, i.e. the getter for an indexable
         value."""
         return getattr(instance, self.getIndexAccessorName())
 
     security.declarePublic('getIndexAccessorName')
+
     def getIndexAccessorName(self):
         """Return the index accessor's name defined by the
         'index_method' field property."""
@@ -728,6 +751,7 @@ class Field(DefaultLayerContainer):
             return self.index_method
 
     security.declarePrivate('toString')
+
     def toString(self):
         """Utility method for converting a Field to a string for the
         purpose of comparing fields.  This comparison is used for
@@ -748,12 +772,14 @@ class Field(DefaultLayerContainer):
         return s
 
     security.declarePublic('isLanguageIndependent')
+
     def isLanguageIndependent(self, instance):
         """Get the language independed flag for i18n content
         """
         return self.languageIndependent
 
     security.declarePublic('getI18nDomain')
+
     def getI18nDomain(self):
         """ returns the internationalization domain for translation """
         pass
@@ -773,11 +799,12 @@ class ObjectField(Field):
     _properties.update({
         'type': 'object',
         'default_content_type': 'application/octet-stream',
-        })
+    })
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         __traceback_info__ = (self.getName(), instance, kwargs)
         try:
@@ -803,6 +830,7 @@ class ObjectField(Field):
             return default
 
     security.declarePrivate('getRaw')
+
     def getRaw(self, instance, **kwargs):
         if self.accessor is not None:
             accessor = self.getAccessor(instance)
@@ -811,28 +839,33 @@ class ObjectField(Field):
             accessor = None
         kwargs.update({'field': self,
                        'encoding': kwargs.get('encoding', None),
-                     })
+                       })
         if accessor is None:
             args = [instance]
             return mapply(self.get, *args, **kwargs)
         return mapply(accessor, **kwargs)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
-        kwargs['mimetype'] = kwargs.get('mimetype', getattr(self, 'default_content_type', 'application/octet-stream'))
+        kwargs['mimetype'] = kwargs.get('mimetype', getattr(
+            self, 'default_content_type', 'application/octet-stream'))
         # Remove acquisition wrappers
         value = aq_base(value)
         __traceback_info__ = (self.getName(), instance, value, kwargs)
-        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
+        self.getStorage(instance).set(
+            self.getName(), instance, value, **kwargs)
 
     security.declarePrivate('unset')
+
     def unset(self, instance, **kwargs):
         #kwargs['field'] = self
         __traceback_info__ = (self.getName(), instance, kwargs)
         self.getStorage(instance).unset(self.getName(), instance, **kwargs)
 
     security.declarePrivate('setStorage')
+
     def setStorage(self, instance, storage):
         if not IStorage.providedBy(storage):
             raise ObjectFieldException, "Not a valid Storage method"
@@ -845,27 +878,32 @@ class ObjectField(Field):
         self.set(instance, value)
 
     security.declarePrivate('getStorage')
+
     def getStorage(self, instance=None):
         return self.storage
 
     security.declarePublic('getStorageName')
+
     def getStorageName(self, instance=None):
         """Return the storage name that is configured for this field
         as a string"""
         return self.getStorage(instance).getName()
 
     security.declarePublic('getStorageType')
+
     def getStorageType(self, instance=None):
         """Return the type of the storage of this field as a string"""
         return className(self.getStorage(instance))
 
     security.declarePrivate('setContentType')
+
     def setContentType(self, instance, value):
         """Set mimetype in the base unit.
         """
         pass
 
     security.declarePublic('getContentType')
+
     def getContentType(self, instance, fromBaseUnit=True):
         """Return the mime type of object if known or can be guessed;
         otherwise, return default_content_type value or fallback to
@@ -900,6 +938,7 @@ class ObjectField(Field):
         return mimetype
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
 
@@ -924,13 +963,14 @@ class StringField(ObjectField):
         'type': 'string',
         'default': '',
         'default_content_type': 'text/plain',
-        })
+    })
 
     implements(IStringField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
         if getattr(self, 'raw', False):
@@ -938,12 +978,14 @@ class StringField(ObjectField):
         return encode(value, instance, **kwargs)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         kwargs['field'] = self
         # Remove acquisition wrappers
         if not getattr(self, 'raw', False):
             value = decode(aq_base(value), instance, **kwargs)
-        self.getStorage(instance).set(self.getName(), instance, value, **kwargs)
+        self.getStorage(instance).set(
+            self.getName(), instance, value, **kwargs)
 
 
 class FileField(ObjectField):
@@ -960,11 +1002,12 @@ class FileField(ObjectField):
         'widget': FileWidget,
         'content_class': File,
         'default_content_type': 'application/octet-stream',
-        })
+    })
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('setContentType')
+
     def setContentType(self, instance, value):
         """Set mimetype in the base unit.
         """
@@ -978,6 +1021,7 @@ class FileField(ObjectField):
             self.set(instance, file)
 
     security.declarePublic('getContentType')
+
     def getContentType(self, instance, fromBaseUnit=True):
         file = self.get(instance)
         return getattr(file, 'content_type', self.default_content_type)
@@ -1047,7 +1091,8 @@ class FileField(ObjectField):
             else:
                 mimetype = getattr(file, 'content_type', None)
                 if mimetype is None:
-                    mimetype, enc = guess_content_type(filename, body, mimetype)
+                    mimetype, enc = guess_content_type(
+                        filename, body, mimetype)
         # mimetype, if coming from request can be like:
         # text/plain; charset='utf-8'
         mimetype = str(mimetype).split(';')[0].strip()
@@ -1086,17 +1131,19 @@ class FileField(ObjectField):
         return self.content_class(id, title, file)
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs)
         if value and not isinstance(value, self.content_class):
             value = self._wrapValue(instance, value)
         if (shasattr(value, '__of__', acquire=True)
-            and not kwargs.get('unwrapped', False)):
+                and not kwargs.get('unwrapped', False)):
             return value.__of__(instance)
         else:
             return value
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """
         Assign input value to object. If mimetype is not specified,
@@ -1179,6 +1226,7 @@ class FileField(ObjectField):
         return obj
 
     security.declarePrivate('getBaseUnit')
+
     def getBaseUnit(self, instance, full=False):
         """Return the value of the field wrapped in a base unit object
         """
@@ -1203,6 +1251,7 @@ class FileField(ObjectField):
         return bu
 
     security.declarePrivate('getFilename')
+
     def getFilename(self, instance, fromBaseUnit=True):
         """Get file name of underlaying file object
         """
@@ -1223,6 +1272,7 @@ class FileField(ObjectField):
         return filename
 
     security.declarePrivate('setFilename')
+
     def setFilename(self, instance, filename):
         """Set file name in the base unit.
         """
@@ -1231,11 +1281,13 @@ class FileField(ObjectField):
         self.set(instance, bu)
 
     security.declarePrivate('validate_required')
+
     def validate_required(self, instance, value, errors):
         value = getattr(value, 'get_size', lambda: value and str(value))()
         return ObjectField.validate_required(self, instance, value, errors)
 
     security.declareProtected(permissions.View, 'download')
+
     def download(self, instance, REQUEST=None, RESPONSE=None, no_output=False):
         """Kicks download.
 
@@ -1262,6 +1314,7 @@ class FileField(ObjectField):
         return file.index_html(REQUEST, RESPONSE)
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1272,6 +1325,7 @@ class FileField(ObjectField):
         return len(str(file))
 
     security.declarePublic('getIndexAccessor')
+
     def getIndexAccessor(self, instance):
         name = self.getIndexAccessorName()
         if name in (self.edit_accessor, self.accessor):
@@ -1280,6 +1334,7 @@ class FileField(ObjectField):
             return ObjectField.getIndexAccessor(self, instance)
 
     security.declarePrivate('getIndexable')
+
     def getIndexable(self, instance):
         # XXX Naive implementation that loads all data contents into
         # memory.  To have this not happening set your field to not
@@ -1301,7 +1356,7 @@ class FileField(ObjectField):
                 str(f),
                 mimetype=orig_mt,
                 filename=self.getFilename(instance, 0),
-                )
+            )
         except (ConflictError, KeyboardInterrupt):
             raise
         except Exception, e:
@@ -1326,17 +1381,19 @@ class TextField(FileField):
         'allowable_content_types': None,
         'primary': False,
         'content_class': BaseUnit,
-        })
+    })
 
     implements(ITextField)
 
     security = ClassSecurityInfo()
 
     security.declarePublic('defaultView')
+
     def defaultView(self):
         return self.default_output_type
 
     security.declarePrivate('setContentType')
+
     def setContentType(self, instance, value):
         """Set mimetype in the base unit.
         """
@@ -1351,6 +1408,7 @@ class TextField(FileField):
     getContentType = ObjectField.getContentType.im_func
 
     security.declarePublic('getAllowedContentTypes')
+
     def getAllowedContentTypes(self, instance):
         """ returns the list of allowed content types for this field.
             If the fields schema doesn't define any, the site's default
@@ -1448,6 +1506,7 @@ class TextField(FileField):
         return file, str(file.getContentType()), file.getFilename()
 
     security.declarePrivate('getRaw')
+
     def getRaw(self, instance, raw=False, **kwargs):
         """
         If raw, return the base unit object, else return encoded raw data
@@ -1461,6 +1520,7 @@ class TextField(FileField):
         return mapply(value.getRaw, *args, **kw)
 
     security.declarePrivate('get')
+
     def get(self, instance, mimetype=None, raw=False, **kwargs):
         """ If raw, return the base unit object, else return value of
         object transformed into requested mime type.
@@ -1509,12 +1569,14 @@ class TextField(FileField):
         return data or ''
 
     security.declarePrivate('getBaseUnit')
+
     def getBaseUnit(self, instance, full=False):
         """Return the value of the field wrapped in a base unit object
         """
         return self.get(instance, raw=True)
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1528,13 +1590,14 @@ class DateTimeField(ObjectField):
     _properties.update({
         'type': 'datetime',
         'widget': CalendarWidget,
-        })
+    })
 
     implements(IDateTimeField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
+
     def validate_required(self, instance, value, errors):
         try:
             DateTime(value)
@@ -1547,6 +1610,7 @@ class DateTimeField(ObjectField):
         return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """
         Check if value is an actual date/time value. If not, attempt
@@ -1578,13 +1642,14 @@ class LinesField(ObjectField):
         'type': 'lines',
         'default': (),
         'widget': LinesWidget,
-        })
+    })
 
     implements(ILinesField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """
         If passed-in value is a string, split at line breaks and
@@ -1601,6 +1666,7 @@ class LinesField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         value = ObjectField.get(self, instance, **kwargs) or ()
         data = [encode(v, instance, **kwargs) for v in value]
@@ -1610,10 +1676,12 @@ class LinesField(ObjectField):
             return data
 
     security.declarePrivate('getRaw')
+
     def getRaw(self, instance, **kwargs):
         return self.get(instance, **kwargs)
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -1632,13 +1700,14 @@ class IntegerField(ObjectField):
         'size': '10',
         'widget': IntegerWidget,
         'default': None,
-        })
+    })
 
     implements(IIntegerField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
+
     def validate_required(self, instance, value, errors):
         try:
             int(value)
@@ -1649,6 +1718,7 @@ class IntegerField(ObjectField):
         return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         if value == '':
             value = None
@@ -1666,13 +1736,14 @@ class FloatField(ObjectField):
     _properties.update({
         'type': 'float',
         'default': None
-        })
+    })
 
     implements(IFloatField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('validate_required')
+
     def validate_required(self, instance, value, errors):
         try:
             float(value)
@@ -1683,6 +1754,7 @@ class FloatField(ObjectField):
         return ObjectField.validate_required(self, instance, result, errors)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """Convert passed-in value to a float. If failure, set value to
         None."""
@@ -1717,7 +1789,7 @@ class FixedPointField(ObjectField):
         'default': None,
         'widget': DecimalWidget,
         'validators': ('isDecimal'),
-        })
+    })
 
     implements(IFixedPointField)
 
@@ -1809,11 +1881,13 @@ class FixedPointField(ObjectField):
         return value
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         value = self._to_tuple(instance, value)
         ObjectField.set(self, instance, value, **kwargs)
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         template = '%%s%%d.%%0%dd' % self.precision
         value = ObjectField.get(self, instance, **kwargs)
@@ -1862,7 +1936,7 @@ class ReferenceField(ObjectField):
         'referencesSortable': False,
         'callStorageOnSet': False,
         'index_method': '_at_edit_accessor',
-        })
+    })
 
     implements(IReferenceField)
 
@@ -1871,6 +1945,7 @@ class ReferenceField(ObjectField):
     referencesSortable = False
 
     security.declarePrivate('get')
+
     def get(self, instance, aslist=False, **kwargs):
         """get() returns the list of objects referenced under the relationship
         """
@@ -1903,6 +1978,7 @@ class ReferenceField(ObjectField):
         return [rd[uid] for uid in order if uid in rd.keys()]
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """Mutator.
 
@@ -1971,9 +2047,9 @@ class ReferenceField(ObjectField):
             value = value,
         elif not self.multiValued and len(value) > 1:
             raise ValueError, \
-                  "Multiple values given for single valued field %r" % self
+                "Multiple values given for single valued field %r" % self
 
-        #convert objects to uids if necessary
+        # convert objects to uids if necessary
         uids = []
         for v in value:
             if isinstance(v, basestring):
@@ -2002,15 +2078,17 @@ class ReferenceField(ObjectField):
             if not hasattr(aq_base(instance), 'at_ordered_refs'):
                 instance.at_ordered_refs = {}
 
-            instance.at_ordered_refs[self.relationship] = tuple(filter(None, uids))
+            instance.at_ordered_refs[
+                self.relationship] = tuple(filter(None, uids))
 
         if self.callStorageOnSet:
-            #if this option is set the reference fields's values get written
-            #to the storage even if the reference field never use the storage
-            #e.g. if i want to store the reference UIDs into an SQL field
+            # if this option is set the reference fields's values get written
+            # to the storage even if the reference field never use the storage
+            # e.g. if i want to store the reference UIDs into an SQL field
             ObjectField.set(self, instance, self.getRaw(instance), **kwargs)
 
     security.declarePrivate('getRaw')
+
     def getRaw(self, instance, aslist=False, **kwargs):
         """Return the list of UIDs referenced under this fields
         relationship
@@ -2035,6 +2113,7 @@ class ReferenceField(ObjectField):
         return [r for r in order if r in res]
 
     security.declarePublic('Vocabulary')
+
     def Vocabulary(self, content_instance=None):
         """Use vocabulary property if it's been defined."""
         if self.vocabulary or getattr(self, 'vocabulary_factory', None):
@@ -2088,7 +2167,7 @@ class ReferenceField(ObjectField):
 
         abs_paths = {}
         abs_path = lambda b, p=portal_base: '%s/%s' % (p, b.getPath())
-        [abs_paths.update({abs_path(b):b}) for b in brains]
+        [abs_paths.update({abs_path(b): b}) for b in brains]
 
         pc_brains = pc(path=abs_paths.keys(), **skw)
 
@@ -2114,9 +2193,9 @@ class ReferenceField(ObjectField):
                 if uid is None:
                     # the brain doesn't have an uid because the catalog has a
                     # staled object. THAT IS BAD!
-                    raise ReferenceException("Brain for the object at %s "\
-                        "doesn't have an UID assigned with. Please update your"\
-                        " reference catalog!" % b_path)
+                    raise ReferenceException("Brain for the object at %s "
+                                             "doesn't have an UID assigned with. Please update your"
+                                             " reference catalog!" % b_path)
                 pairs.append((uid, label(b)))
 
         if not self.required and not self.multiValued:
@@ -2128,6 +2207,7 @@ class ReferenceField(ObjectField):
         return DisplayList(pairs)
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -2143,22 +2223,25 @@ class ComputedField(Field):
         'widget': ComputedWidget,
         'mode': 'r',
         'storage': ReadOnlyStorage(),
-        })
+    })
 
     implements(IComputedField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('set')
+
     def set(self, *ignored, **kwargs):
         pass
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         """Return the computed value."""
         return eval(self.expression, {'context': instance, 'here': instance})
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data.
 
@@ -2175,13 +2258,14 @@ class BooleanField(ObjectField):
         'default': None,
         'vocabulary': (('True', 'Yes', 'yes'), ('False', 'No', 'no')),
         'widget': BooleanWidget,
-        })
+    })
 
     implements(IBooleanField)
 
     security = ClassSecurityInfo()
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         value = super(BooleanField, self).get(instance, **kwargs)
         if value is None:
@@ -2189,6 +2273,7 @@ class BooleanField(ObjectField):
         return bool(value)
 
     security.declarePrivate('getRaw')
+
     def getRaw(self, instance, **kwargs):
         value = super(BooleanField, self).getRaw(instance, **kwargs)
         if value is None:
@@ -2196,6 +2281,7 @@ class BooleanField(ObjectField):
         return bool(value)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         """If value is not defined or equal to 0, set field to false;
         otherwise, set to true."""
@@ -2207,6 +2293,7 @@ class BooleanField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
         """
@@ -2226,15 +2313,15 @@ class CMFObjectField(ObjectField):
         'widget': FileWidget,
         'storage': ObjectManagedStorage(),
         'workflowable': True,
-        })
+    })
 
     security = ClassSecurityInfo()
 
     def _process_input(self, value, default=None, **kwargs):
         __traceback_info__ = (value, type(value))
         if not isinstance(value, basestring):
-            if ((isinstance(value, FileUpload) and value.filename != '') or \
-                (isinstance(value, FileType) and value.name != '')):
+            if ((isinstance(value, FileUpload) and value.filename != '') or
+                    (isinstance(value, FileType) and value.name != '')):
                 # OK, its a file, is it empty?
                 value.seek(-1, 2)
                 size = value.tell()
@@ -2254,6 +2341,7 @@ class CMFObjectField(ObjectField):
         raise ObjectFieldException('Value is not File or String')
 
     security.declarePrivate('get')
+
     def get(self, instance, **kwargs):
         try:
             return self.getStorage(instance).get(self.getName(), instance, **kwargs)
@@ -2268,7 +2356,7 @@ class CMFObjectField(ObjectField):
             if info is None:
                 raise ValueError('No such content type: %s' % type_name)
             if not shasattr(info, 'constructInstance'):
-                raise ValueError('Cannot construct content type: %s' % \
+                raise ValueError('Cannot construct content type: %s' %
                                  type_name)
             args = [instance, self.getName()]
             for k in ['field', 'schema']:
@@ -2276,9 +2364,10 @@ class CMFObjectField(ObjectField):
             return mapply(info.constructInstance, *args, **kwargs)
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         obj = self.get(instance, **kwargs)
-        value = self._process_input(value, default=self.getDefault(instance), \
+        value = self._process_input(value, default=self.getDefault(instance),
                                     **kwargs)
         if value is None or value == '':
             # do nothing
@@ -2397,7 +2486,7 @@ class ImageField(FileField):
         'widget': ImageWidget,
         'storage': AttributeStorage(),
         'content_class': Image,
-        })
+    })
 
     implements(IImageField)
 
@@ -2406,6 +2495,7 @@ class ImageField(FileField):
     default_view = "view"
 
     security.declarePrivate('set')
+
     def set(self, instance, value, **kwargs):
         # Do we have to delete the image?
         if value == "DELETE_IMAGE" or value is None:
@@ -2444,6 +2534,7 @@ class ImageField(FileField):
         self.createScales(instance, value=data)
 
     security.declareProtected(permissions.View, 'getAvailableSizes')
+
     def getAvailableSizes(self, instance):
         """Get sizes
 
@@ -2464,9 +2555,12 @@ class ImageField(FileField):
         elif sizes is None:
             return {}
         else:
-            raise TypeError, 'Wrong self.sizes has wrong type: %s' % type(sizes)
+            raise TypeError, 'Wrong self.sizes has wrong type: %s' % type(
+                sizes)
 
-    security.declareProtected(permissions.ModifyPortalContent, 'rescaleOriginal')
+    security.declareProtected(
+        permissions.ModifyPortalContent, 'rescaleOriginal')
+
     def rescaleOriginal(self, value, **kwargs):
         """rescales the original image and sets the data
 
@@ -2486,7 +2580,7 @@ class ImageField(FileField):
             w = h = 0
             if self.max_size:
                 if value.width > self.max_size[0] or \
-                       value.height > self.max_size[1]:
+                        value.height > self.max_size[1]:
                     factor = min(float(self.max_size[0]) / float(value.width),
                                  float(self.max_size[1]) / float(value.height))
                     w = int(factor * value.width)
@@ -2503,6 +2597,7 @@ class ImageField(FileField):
         return data
 
     security.declarePrivate('createOriginal')
+
     def createOriginal(self, instance, value, **kwargs):
         """create the original image (save it)
         """
@@ -2514,6 +2609,7 @@ class ImageField(FileField):
         ObjectField.set(self, instance, image, **kwargs)
 
     security.declarePrivate('removeScales')
+
     def removeScales(self, instance, **kwargs):
         """Remove the scaled image
         """
@@ -2533,6 +2629,7 @@ class ImageField(FileField):
                     pass
 
     security.declareProtected(permissions.ModifyPortalContent, 'createScales')
+
     def createScales(self, instance, value=_marker):
         """creates the scales and save them
         """
@@ -2591,9 +2688,10 @@ class ImageField(FileField):
         return self.content_class(id, title, file, content_type)
 
     security.declarePrivate('scale')
+
     def scale(self, data, w, h, default_format='PNG'):
         """ scale image (with material from ImageTag_Hotfix)"""
-        #make sure we have valid int's
+        # make sure we have valid int's
         size = int(w), int(h)
 
         original_file = StringIO(data)
@@ -2643,6 +2741,7 @@ class ImageField(FileField):
         return thumbnail_file, target_format.lower()
 
     security.declareProtected(permissions.View, 'getSize')
+
     def getSize(self, instance, scale=None):
         """get size of scale or original
         """
@@ -2652,6 +2751,7 @@ class ImageField(FileField):
         return img.width, img.height
 
     security.declareProtected(permissions.View, 'getScale')
+
     def getScale(self, instance, scale=None, **kwargs):
         """Get scale by name or original
         """
@@ -2670,6 +2770,7 @@ class ImageField(FileField):
                 return image
 
     security.declareProtected(permissions.View, 'getScaleName')
+
     def getScaleName(self, scale=None):
         """Get the full name of the attribute for the scale
         """
@@ -2679,6 +2780,7 @@ class ImageField(FileField):
             return ''
 
     security.declarePublic('get_size')
+
     def get_size(self, instance):
         """Get size of the stored data used for get_size in BaseObject
 
@@ -2700,6 +2802,7 @@ class ImageField(FileField):
         return size
 
     security.declareProtected(permissions.View, 'tag')
+
     def tag(self, instance, scale=None, height=None, width=None, alt=None,
             css_class=None, title=None, **kwargs):
         """Create a tag including scale
@@ -2732,7 +2835,7 @@ class ImageField(FileField):
                   'title': escape(title, quote=True),
                   'height': height,
                   'width': width,
-                 }
+                  }
 
         result = '<img src="%(src)s" alt="%(alt)s" title="%(title)s" '\
                  'height="%(height)s" width="%(width)s"' % values

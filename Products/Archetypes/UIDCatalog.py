@@ -80,6 +80,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
     security = ClassSecurityInfo()
 
     security.declarePrivate('getObject')
+
     def getObject(self, REQUEST=None):
         """
         Used to resolve UIDs into real objects. This also must be
@@ -112,7 +113,7 @@ class UIDCatalogBrains(AbstractCatalogBrain):
             raise
         except:
             logger.log(logging.INFO,
-                'UIDCatalogBrains getObject raised an error', exc_info=True)
+                       'UIDCatalogBrains getObject raised an error', exc_info=True)
 
 InitializeClass(UIDCatalogBrains)
 
@@ -120,6 +121,7 @@ InitializeClass(UIDCatalogBrains)
 class IndexableObjectWrapper(object):
     """Wwrapper for object indexing
     """
+
     def __init__(self, obj):
         self._obj = obj
 
@@ -142,7 +144,7 @@ class IndexableObjectWrapper(object):
 _marker = []
 
 
-#let rewrite Title indexer with plone.indexer
+# let rewrite Title indexer with plone.indexer
 @indexer(interface.Interface, IUIDCatalog)
 def Title(obj):
     title = obj.Title()
@@ -164,6 +166,7 @@ class UIDResolver(Base):
     security = ClassSecurityInfo()
 
     security.declarePrivate('catalog_object')
+
     def catalog_object(self, obj, uid=None, **kwargs):
         """Use the relative path from the portal root as uid
 
@@ -211,6 +214,7 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         self._catalog = UIDBaseCatalog()
 
     security.declareProtected(ManageZCatalogEntries, 'catalog_object')
+
     def catalog_object(self, object, uid, idxs=None,
                        update_metadata=1, pghandler=None):
 
@@ -218,8 +222,10 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
             idxs = []
         w = object
         if not IIndexableObject.providedBy(object):
-            # This is the CMF 2.2 compatible approach, which should be used going forward
-            wrapper = component.queryMultiAdapter((object, self), IIndexableObject)
+            # This is the CMF 2.2 compatible approach, which should be used
+            # going forward
+            wrapper = component.queryMultiAdapter(
+                (object, self), IIndexableObject)
             if wrapper is not None:
                 w = wrapper
 
@@ -233,7 +239,9 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
         url = getRelURL(self, obj.getPhysicalPath())
         self.catalog_object(obj, url)
 
-    security.declareProtected(CMFCore.permissions.ManagePortal, 'manage_rebuildCatalog')
+    security.declareProtected(
+        CMFCore.permissions.ManagePortal, 'manage_rebuildCatalog')
+
     def manage_rebuildCatalog(self, REQUEST=None, RESPONSE=None):
         """
         """
@@ -265,12 +273,12 @@ class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
 
         if RESPONSE:
             RESPONSE.redirect(
-            REQUEST.URL1 +
-            '/manage_catalogView?manage_tabs_message=' +
-            urllib.quote('Catalog Rebuilded\n'
-                         'Total time: %s\n'
-                         'Total CPU time: %s'
-                         % (`elapse`, `c_elapse`))
+                REQUEST.URL1 +
+                '/manage_catalogView?manage_tabs_message=' +
+                urllib.quote('Catalog Rebuilded\n'
+                             'Total time: %s\n'
+                             'Total CPU time: %s'
+                             % (`elapse`, `c_elapse`))
             )
 
 InitializeClass(UIDCatalog)

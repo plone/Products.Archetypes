@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 """
 """
 
@@ -42,20 +42,25 @@ class OrderedDictTest(ATTestCase):
         self.assertTrue(self.d.keys() == ['a', 'b', 'c'])
         self.assertTrue(self.d.values() == ['1', '2', '3'])
         self.assertTrue(self.d.items() == [('a', '1'), ('b', '2'), ('c', '3')])
-        self.assertTrue(self.d.reverse() == [('c', '3'), ('b', '2'), ('a', '1')])
+        self.assertTrue(self.d.reverse() == [
+                        ('c', '3'), ('b', '2'), ('a', '1')])
 
     def test_setitem(self):
         self.d['d'] = '4'
         self.assertTrue(self.d.keys() == ['a', 'b', 'c', 'd'])
         self.assertTrue(self.d.values() == ['1', '2', '3', '4'])
-        self.assertTrue(self.d.items() == [('a', '1'), ('b', '2'), ('c', '3'), ('d', '4')])
-        self.assertTrue(self.d.reverse() == [('d', '4'), ('c', '3'), ('b', '2'), ('a', '1')])
+        self.assertTrue(self.d.items() == [
+                        ('a', '1'), ('b', '2'), ('c', '3'), ('d', '4')])
+        self.assertTrue(self.d.reverse() == [
+                        ('d', '4'), ('c', '3'), ('b', '2'), ('a', '1')])
 
         self.d['c'] = 'C'
         self.assertTrue(self.d.keys() == ['a', 'b', 'c', 'd'])
         self.assertTrue(self.d.values() == ['1', '2', 'C', '4'])
-        self.assertTrue(self.d.items() == [('a', '1'), ('b', '2'), ('c', 'C'), ('d', '4')])
-        self.assertTrue(self.d.reverse() == [('d', '4'), ('c', 'C'), ('b', '2'), ('a', '1')])
+        self.assertTrue(self.d.items() == [
+                        ('a', '1'), ('b', '2'), ('c', 'C'), ('d', '4')])
+        self.assertTrue(self.d.reverse() == [
+                        ('d', '4'), ('c', 'C'), ('b', '2'), ('a', '1')])
 
     def test_del(self):
         del self.d['b']
@@ -78,8 +83,10 @@ class OrderedDictTest(ATTestCase):
         self.d.update(d2)
         self.assertTrue(self.d.keys() == ['a', 'b', 'c', 'd'])
         self.assertTrue(self.d.values() == ['1', 'B', '3', '4'])
-        self.assertTrue(self.d.items() == [('a', '1'), ('b', 'B'), ('c', '3'), ('d', '4')])
-        self.assertTrue(self.d.reverse() == [('d', '4'), ('c', '3'), ('b', 'B'), ('a', '1')])
+        self.assertTrue(self.d.items() == [
+                        ('a', '1'), ('b', 'B'), ('c', '3'), ('d', '4')])
+        self.assertTrue(self.d.reverse() == [
+                        ('d', '4'), ('c', '3'), ('b', 'B'), ('a', '1')])
 
     def test_popitem(self):
         (k, v) = self.d.popitem()

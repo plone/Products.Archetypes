@@ -21,9 +21,9 @@ from zope import event
 from zope.interface import implements
 
 FOLDER_MANAGE_OPTIONS = (
- {'action': 'manage_main', 'label': 'Contents'},
- {'action': 'manage_access', 'label': 'Security'},
- {'action': 'manage_interfaces', 'label': 'Interfaces'},
+    {'action': 'manage_main', 'label': 'Contents'},
+    {'action': 'manage_access', 'label': 'Security'},
+    {'action': 'manage_interfaces', 'label': 'Interfaces'},
 )
 
 
@@ -43,7 +43,7 @@ class BaseFolderMixin(CatalogMultiplex,
         (permissions.ModifyPortalContent,
          ('manage_cutObjects', 'manage_pasteObjects',
           'manage_renameObject', 'manage_renameObjects',)),
-        )
+    )
     security.declareProtected('Copy or Move', 'manage_copyObjects')
 
     manage_options = FOLDER_MANAGE_OPTIONS
@@ -90,21 +90,25 @@ class BaseFolderMixin(CatalogMultiplex,
                 child._notifyOfCopyTo(self, op)
 
     security.declarePrivate('manage_afterAdd')
+
     def manage_afterAdd(self, item, container):
         BaseObject.manage_afterAdd(self, item, container)
 
     security.declarePrivate('manage_afterClone')
+
     def manage_afterClone(self, item):
         BaseObject.manage_afterClone(self, item)
 
     security.declarePrivate('manage_beforeDelete')
+
     def manage_beforeDelete(self, item, container):
         BaseObject.manage_beforeDelete(self, item, container)
-        #and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
+        # and reset the rename flag (set in Referenceable._notifyCopyOfCopyTo)
         self._v_cp_refs = None
 
     security.declareProtected(permissions.DeleteObjects,
                               'manage_delObjects')
+
     def manage_delObjects(self, ids=None, REQUEST=None):
         """We need to enforce security."""
         if ids is None:
@@ -120,11 +124,13 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
+
     def listFolderContents(self, contentFilter=None, suppressHiddenFiles=0):
         """Optionally you can suppress "hidden" files, or files that begin
         with a dot.
         """
-        contents = PortalFolder.listFolderContents(self, contentFilter=contentFilter)
+        contents = PortalFolder.listFolderContents(
+            self, contentFilter=contentFilter)
         if suppressHiddenFiles:
             contents = [obj for obj in contents if obj.getId()[:1] != '.']
 
@@ -132,6 +138,7 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.AccessContentsInformation,
                               'folderlistingFolderContents')
+
     def folderlistingFolderContents(self, contentFilter=None,
                                     suppressHiddenFiles=0):
         """Calls listFolderContents in protected only by ACI so that
@@ -141,6 +148,7 @@ class BaseFolderMixin(CatalogMultiplex,
                                        suppressHiddenFiles=suppressHiddenFiles)
 
     security.declareProtected(permissions.View, 'Title')
+
     def Title(self, **kwargs):
         """We have to override Title here to handle arbitrary arguments since
         PortalFolder defines it."""
@@ -148,6 +156,7 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setTitle')
+
     def setTitle(self, value, **kwargs):
         """We have to override setTitle here to handle arbitrary
         arguments since PortalFolder defines it."""
@@ -170,6 +179,7 @@ class BaseFolderMixin(CatalogMultiplex,
     # use instead "_at_type_subfolder" or our own type.
     security.declareProtected(permissions.AddPortalFolders,
                               'manage_addFolder')
+
     def manage_addFolder(self,
                          id,
                          title='',
@@ -220,6 +230,7 @@ class BaseFolderMixin(CatalogMultiplex,
         return result
 
     security.declarePrivate('manage_afterMKCOL')
+
     def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
         """After MKCOL handler.
         """
@@ -241,7 +252,8 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
 
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish, IExtensibleMetadata)
+    implements(IBaseFolder, IBaseObject, IReferenceable,
+               IContentish, IExtensibleMetadata)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 
@@ -255,6 +267,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
 
     security.declareProtected(permissions.View,
                               'Description')
+
     def Description(self, **kwargs):
         """We have to override Description here to handle arbitrary
         arguments since PortalFolder defines it."""
@@ -262,6 +275,7 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setDescription')
+
     def setDescription(self, value, **kwargs):
         """We have to override setDescription here to handle arbitrary
         arguments since PortalFolder defines it."""

@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 import sys
 
@@ -40,13 +40,13 @@ textfield1b = TextField('TEXTFIELD1', required=False, default='A')
 textfield2 = TextField('TEXTFIELD2', default='B')
 
 schema1 = BaseSchema + Schema((
-        textfield1,
-        ))
+    textfield1,
+))
 
 schema2 = BaseSchema + Schema((
-        textfield1b,
-        textfield2,
-        ))
+    textfield1b,
+    textfield2,
+))
 
 
 class Dummy1(BaseContent):

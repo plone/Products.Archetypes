@@ -1,4 +1,4 @@
-################################################################################
+##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
 #                              the respective authors. All rights reserved.
@@ -21,7 +21,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-################################################################################
+##########################################################################
 
 from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import BaseSchema, BaseContent, Schema, \
@@ -41,7 +41,8 @@ class VarSchemataTest(ATTestCase):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')
-        content_types, constructors, ftis = process_types(listTypes(), PKG_NAME)
+        content_types, constructors, ftis = process_types(
+            listTypes(), PKG_NAME)
 
     def test_variableschema(self):
         self.folder.dummy = Dummy(oid='dummy')
@@ -49,10 +50,10 @@ class VarSchemataTest(ATTestCase):
         dummy.setTitle('dummy1')
         self.assertEqual(dummy.Title(), 'dummy1')
 
-        #change the schema
+        # change the schema
         dummy.schema = schema1
-        #try to read an old value using the new schema
+        # try to read an old value using the new schema
         self.assertEqual(dummy.Title(), 'dummy1')
         dummy.setAdditionalField('flurb')
-        #check if we can read the new field using the new schema
+        # check if we can read the new field using the new schema
         self.assertEqual(dummy.getAdditionalField(), 'flurb')

@@ -19,46 +19,48 @@ for f in fields:
 
 schema = atapi.Schema(tuple(field_instances) + (
     atapi.LinesField('selectionlinesfield1',
-               vocabulary='_get_selection_vocab',
-               enforceVocabulary=1,
-               widget=atapi.SelectionWidget(label='Selection'),
-               ),
+                     vocabulary='_get_selection_vocab',
+                     enforceVocabulary=1,
+                     widget=atapi.SelectionWidget(label='Selection'),
+                     ),
     atapi.LinesField('selectionlinesfield2',
-               vocabulary='_get_selection_vocab',
-               widget=atapi.SelectionWidget(label='Selection',i18n_domain="attesti18n"),
-               ),
+                     vocabulary='_get_selection_vocab',
+                     widget=atapi.SelectionWidget(
+                         label='Selection', i18n_domain="attesti18n"),
+                     ),
     atapi.LinesField('selectionlinesfield3',
-               vocabulary='_get_selection_vocab2',
-               widget=atapi.MultiSelectionWidget(label='MultiSelection',i18n_domain="attesti18n"),
-               ),
+                     vocabulary='_get_selection_vocab2',
+                     widget=atapi.MultiSelectionWidget(
+                         label='MultiSelection', i18n_domain="attesti18n"),
+                     ),
     atapi.TextField('textarea_appendonly',
-              widget=atapi.TextAreaWidget(label='TextArea',
-                                    append_only=1,),
-              ),
+                    widget=atapi.TextAreaWidget(label='TextArea',
+                                                append_only=1,),
+                    ),
     atapi.TextField('textarea_appendonly_timestamp',
-              widget=atapi.TextAreaWidget(label='TextArea',
-                                    append_only=1,
-                                    timestamp=1,),
-              ),
+                    widget=atapi.TextAreaWidget(label='TextArea',
+                                                append_only=1,
+                                                timestamp=1,),
+                    ),
     atapi.TextField('textarea_maxlength',
-              widget=atapi.TextAreaWidget(label='TextArea',
-                                    maxlength=20,),
-              ),
+                    widget=atapi.TextAreaWidget(label='TextArea',
+                                                maxlength=20,),
+                    ),
     atapi.TextField('richtextfield',
-              allowable_content_types=('text/plain',
-                                       'text/structured',
-                                       'text/restructured',
-                                       'text/html',
-                                       'application/msword'),
-              widget=atapi.RichWidget(label='rich'),
-              ),
+                    allowable_content_types=('text/plain',
+                                             'text/structured',
+                                             'text/restructured',
+                                             'text/html',
+                                             'application/msword'),
+                    widget=atapi.RichWidget(label='rich'),
+                    ),
     atapi.ReferenceField('referencefield',
-                   relationship='complextype',
-                   widget=atapi.ReferenceWidget(addable=1),
-                   allowed_types=('ComplexType', ),
-                   multiValued=1,
-                  ),
-    )) + atapi.ExtensibleMetadata.schema
+                         relationship='complextype',
+                         widget=atapi.ReferenceWidget(addable=1),
+                         allowed_types=('ComplexType', ),
+                         multiValued=1,
+                         ),
+)) + atapi.ExtensibleMetadata.schema
 
 
 _domain1 = MessageFactory('domain1')
@@ -77,7 +79,7 @@ class ComplexType(SimpleType):
             ('complex', u'C\xf6mpl\xe8x'),
             ('bar', _domain1(u'Bar')),
             ('hello', _domain2(u'Hello')),
-            ))
+        ))
 
     def _get_selection_vocab2(self):
         return atapi.DisplayList((
@@ -85,7 +87,7 @@ class ComplexType(SimpleType):
             ('complex2', u'C\xf6mpl\xe8x 2'),
             ('bar2', _domain1(u'Bar 2')),
             ('hello2', _domain2(u'Hello 2')),
-            ))
+        ))
 
 
 atapi.registerType(ComplexType, PKG_NAME)

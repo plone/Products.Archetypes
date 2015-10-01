@@ -1,5 +1,6 @@
 from plone.uuid.interfaces import IUUIDAware
 
+
 class IReferenceable(IUUIDAware):
     """ Referenceable """
 

@@ -6,7 +6,8 @@ from Products.Archetypes.atapi import ImageField
 from ZPublisher.BaseRequest import DefaultPublishTraverse
 
 
-class Fallback(Exception): pass
+class Fallback(Exception):
+    pass
 
 
 class ImageTraverser(DefaultPublishTraverse):

@@ -13,6 +13,7 @@ logger = logging.getLogger('Archetypes')
 
 
 class SafeFileWrapper:
+
     def __init__(self, fp):
         self.fp = fp
 
@@ -67,13 +68,15 @@ class Log:
 
     def log_exc(self, msg=None, *args, **kwargs):
         self.log(''.join(traceback.format_exception(*sys.exc_info())), offset=1)
-        if msg: self.log(msg, collapse=0, deep=0, *args, **kwargs)
+        if msg:
+            self.log(msg, collapse=0, deep=0, *args, **kwargs)
 
     def __call__(self, msg):
         self.log(msg)
 
 
 class NullLog(Log):
+
     def __init__(self, target):
         pass
 
@@ -134,6 +137,7 @@ class ClassLog(Log):
 
 
 class ZPTLogger(ClassLog):
+
     def generateFrames(self, start=None, end=None):
         frames = inspect.stack()
         for f in frames:
@@ -144,6 +148,7 @@ class ZPTLogger(ClassLog):
 
 
 class ZLogger(ClassLog):
+
     def log(self, msg, *args, **kwargs):
         level = kwargs.get('level', logging.INFO)
         msg = "%s\n" % (self.munge_message(msg, **kwargs))

@@ -35,6 +35,7 @@ class DummyObject(Acquisition.Implicit, persistent.Persistent,
 
 
 class ATHistoryAwareTests(unittest.TestCase):
+
     def setUp(self):
         # Set up a ZODB and Application object. We can't use DemoStorage
         # as it doesn't support the history() API.

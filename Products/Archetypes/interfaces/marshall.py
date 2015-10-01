@@ -1,5 +1,6 @@
 from Products.Archetypes.interfaces.layer import ILayer
 
+
 class IMarshall(ILayer):
     """De/Marshall data.
     """
