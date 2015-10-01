@@ -321,10 +321,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
             implements(IAttributeUUID)
 
         with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            registry = Mock()
-            registry.get.return_value = ['SomeType']
-            mock_method.return_value = registry
-
             obj1 = ExampleContent()
             obj2 = ExampleContent()
             notify(ObjectCreatedEvent(obj1))
@@ -333,7 +329,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
             self.field.getName.return_value = 'fieldname'
             self.field.getAccessor.return_value = lambda: [obj1, obj2]
             self.field.multiValued = True
-            self.context.portal_registry.get.return_value = ['SomeType']
 
             widget = RelatedItemsWidget()
 
@@ -343,7 +338,7 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                     'pattern': 'relateditems',
                     'pattern_options': {
-                        'folderTypes': ['SomeType'],
+                        'folderTypes': ['Folder'],
                         'homeText': u'Home',
                         'searchAllText': u'Entire site',
                         'searchText': u'Search',
@@ -377,10 +372,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.multiValued = False
 
         with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            registry = Mock()
-            registry.get.return_value = ['SomeType']
-            mock_method.return_value = registry
-
             widget = RelatedItemsWidget()
 
             self.assertEqual(
@@ -389,7 +380,7 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'value': '{}'.format(IUUID(obj1)),
                     'pattern': 'relateditems',
                     'pattern_options': {
-                        'folderTypes': ['SomeType'],
+                        'folderTypes': ['Folder'],
                         'homeText': u'Home',
                         'separator': ';',
                         'orderable': True,
@@ -412,10 +403,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.multiValued = False
 
         with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            registry = Mock()
-            registry.get.return_value = ['SomeType']
-            mock_method.return_value = registry
-
             widget = RelatedItemsWidget()
 
             self.assertEqual(
@@ -424,7 +411,7 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'value': '',
                     'pattern': 'relateditems',
                     'pattern_options': {
-                        'folderTypes': ['SomeType'],
+                        'folderTypes': ['Folder'],
                         'homeText': u'Home',
                         'separator': ';',
                         'orderable': True,
@@ -456,10 +443,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         notify(ObjectCreatedEvent(obj2))
 
         with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            registry = Mock()
-            registry.get.return_value = ['SomeType']
-            mock_method.return_value = registry
-
             self.context.fieldvalue = lambda: obj1
 
             field1 = ReferenceField(
@@ -476,7 +459,7 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'value': '{}'.format(IUUID(obj1)),
                     'pattern': 'relateditems',
                     'pattern_options': {
-                        'folderTypes': ['SomeType'],
+                        'folderTypes': ['Folder'],
                         'homeText': u'Home',
                         'separator': ';',
                         'orderable': True,
@@ -506,7 +489,7 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                     'pattern': 'relateditems',
                     'pattern_options': {
-                        'folderTypes': ['SomeType'],
+                        'folderTypes': ['Folder'],
                         'homeText': u'Home',
                         'separator': ';',
                         'orderable': True,
