@@ -1,6 +1,6 @@
-include *
+include *.rst
 
-recursive-include docs *
-recursive-include Products *
+graft docs
+graft Products
 
 global-exclude *pyc
