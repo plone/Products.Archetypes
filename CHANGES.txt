@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.8.9 (unreleased)
+1.8.9 (2015-10-12)
 ------------------
 
 - Make sure @@at_utils.translate method always returns a string (empty or
