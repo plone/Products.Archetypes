@@ -4,6 +4,8 @@ Changelog
 1.10.11 (unreleased)
 --------------------
 
+Fixes:
+
 - White space only pep8 cleanup.  Not in the skins.
   [maurits]
 
