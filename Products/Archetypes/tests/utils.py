@@ -28,8 +28,8 @@
 import re
 import sys
 import logging
+import difflib
 
-from zope.tal import ndiff
 from App.Common import package_home
 from ZPublisher.HTTPRequest import HTTPRequest
 from ZPublisher.HTTPResponse import HTTPResponse
@@ -88,15 +88,7 @@ def nicerange(lo, hi):
 
 
 def showdiff(a, b):
-    cruncher = ndiff.SequenceMatcher(ndiff.IS_LINE_JUNK, a, b)
-    for tag, alo, ahi, blo, bhi in cruncher.get_opcodes():
-        if tag == "equal":
-            continue
-        print nicerange(alo, ahi) + tag[0] + nicerange(blo, bhi)
-        ndiff.dump('<', a, alo, ahi)
-        if a and b:
-            print '---'
-        ndiff.dump('>', b, blo, bhi)
+    print(''.join(difflib.ndiff(a, b)))
 
 
 def populateFolder(folder, folder_type, doc_type):

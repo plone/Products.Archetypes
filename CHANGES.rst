@@ -10,7 +10,8 @@ New:
 
 Fixes:
 
-- *add item here*
+- Replace zope.tal.ndiff with difflib.ndiff. It was removed in zope.tal 4.0.0.
+  [pbauer]
 
 
 1.10.11 (2015-10-27)
