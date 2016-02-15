@@ -4,10 +4,6 @@ Changelog
 1.10.12 (unreleased)
 --------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Replace zope.tal.ndiff with difflib.ndiff. It was removed in zope.tal 4.0.0.
