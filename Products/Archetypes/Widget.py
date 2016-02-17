@@ -1396,10 +1396,10 @@ class TinyMCEWidget(BasePatternWidget):
                          ).decode('utf-8')
 
         args.setdefault('pattern_options', {})
-        merged = base_widgets.dict_merge(
+        options = base_widgets.dict_merge(
             utils.get_tinymce_options(context, field, request),
             args['pattern_options'])
-        args['pattern_options'] = merged['pattern_options']
+        args['pattern_options'] = options
         return args
 
     def edit(self, context, field, request):
