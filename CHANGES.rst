@@ -10,7 +10,10 @@ New:
 
 Fixes:
 
-- *add item here*
+- Fix tinymce pattern-options merging to be compatible with change in
+  p.a.widgets and p.a.z3cform.
+  [alecm]
+
 
 
 1.10.12 (2016-02-15)
