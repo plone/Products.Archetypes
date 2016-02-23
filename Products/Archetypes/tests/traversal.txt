@@ -177,7 +177,7 @@ We need to do some site magic, or our we end up with the SimpleView class
 being persisted in the local component registry. We really shouldn't do
 ZCML registrations in function tests.
 
-  >>> from zope.site.hooks import getSite, setSite
+  >>> from zope.component.hooks import getSite, setSite
   >>> site = getSite()
 
   >>> setSite(None)

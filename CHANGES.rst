@@ -10,6 +10,9 @@ New:
 
 Fixes:
 
+- Replace deprecated ``zope.site.hooks`` import with ``zope.component.hooks``.
+  [thet]
+
 - Fix tinymce pattern-options merging to be compatible with change in
   p.a.widgets and p.a.z3cform.
   [alecm]

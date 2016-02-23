@@ -2,10 +2,8 @@
 """
 
 from DateTime import DateTime
-from datetime import datetime
+from zope.component.hooks import getSite
 from zope.datetime import parseDatetimetz
-
-from zope.site.hooks import getSite
 
 
 class ATFieldProperty(object):
