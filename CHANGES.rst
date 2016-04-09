@@ -10,6 +10,11 @@ Incompatibilities:
 
 New:
 
+- Added uninstall profile.  Most importantly this removes the
+  ``archetype_tool``, ``reference_catalog``, and ``uid_catalog``.
+  Needs Products.GenericSetup 1.8.3.
+  [maurits]
+
 - Removed ``error_log`` from ``toolset.xml``, because this is already
   in the toolset of ``Products.CMFPlone``.   [maurits]
 
