@@ -10,7 +10,8 @@ Incompatibilities:
 
 New:
 
-- *add item here*
+- Removed ``error_log`` from ``toolset.xml``, because this is already
+  in the toolset of ``Products.CMFPlone``.   [maurits]
 
 Fixes:
 
