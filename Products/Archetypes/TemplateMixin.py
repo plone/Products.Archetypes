@@ -77,8 +77,8 @@ class TemplateMixin(Base):
     security.declareProtected(permissions.View, 'getLayout')
 
     def getLayout(self, **kw):
-        """Get the current layout or the default layout if the current one is None
-        """
+        # Get the current layout or the default layout if the current one is
+        # None.
         if 'schema' in kw:
             schema = kw['schema']
         else:
