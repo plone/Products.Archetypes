@@ -4,7 +4,10 @@ Changelog
 1.9.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+Fixes:
+
+- Removed docstrings from some methods to avoid publishing them.  From
+  Products.PloneHotfix20160419.  [maurits]
 
 
 1.9.10 (2015-04-30)

@@ -221,12 +221,11 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'Type')
     def Type(self):
-        """Dublin Core element - Object type.
-
-        this method is redefined in ExtensibleMetadata but we need this
-        at the object level (i.e. with or without metadata) to interact
-        with the uid catalog.
-        """
+        # Dublin Core element - Object type.
+        #
+        # This method is redefined in ExtensibleMetadata but we need this
+        # at the object level (i.e. with or without metadata) to interact
+        # with the uid catalog.
         if shasattr(self, 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:

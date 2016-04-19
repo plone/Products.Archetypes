@@ -351,8 +351,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'EffectiveDate')
     def EffectiveDate(self, zone=None):
-        """ Dublin Core element - date resource becomes effective.
-        """
+        # Dublin Core element - date resource becomes effective.
         if zone is None:
             zone = _zone
         effective = self.getField('effectiveDate').get(self)
@@ -368,8 +367,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'ExpirationDate')
     def ExpirationDate(self, zone=None):
-        """Dublin Core element - date resource expires.
-        """
+        # Dublin Core element - date resource expires.
         if zone is None:
             zone = _zone
         expires = self.getField('expirationDate').get(self)
@@ -563,7 +561,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'Type')
     def Type(self):
-        """Dublin Core element - Object type"""
+        # Dublin Core element - Object type.
         if hasattr(aq_base(self), 'getTypeInfo'):
             ti = self.getTypeInfo()
             if ti is not None:
