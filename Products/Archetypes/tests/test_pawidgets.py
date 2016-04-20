@@ -303,7 +303,9 @@ class RelatedItemsWidgetTests(unittest.TestCase):
     def setUp(self):
 
         self.request = TestRequest(environ={'HTTP_ACCEPT_LANGUAGE': 'en'})
-        self.context = Mock(absolute_url=lambda: '')
+        self.context = Mock(
+            absolute_url=lambda: '',
+            getPhysicalPath=lambda: ('', 'Plone', 'doc'))
         self.field = Mock()
 
         xmlconfig.file('configure.zcml', plone.uuid,
@@ -347,6 +349,12 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname',
+                    'basePath': '/Plone/doc',
+                    'rootPath': '/',
+                    'sort_on': 'sortable_title',
+                    'sort_order': 'ascending',
+                    'treeVocabularyUrl': '/@@getVocabulary?name='
+                                         'plone.app.vocabularies.Catalog',
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -388,6 +396,12 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname',
+                    'basePath': '/Plone/doc',
+                    'rootPath': '/',
+                    'sort_on': 'sortable_title',
+                    'sort_order': 'ascending',
+                    'treeVocabularyUrl': '/@@getVocabulary?name='
+                                         'plone.app.vocabularies.Catalog',
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -418,6 +432,12 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname',
+                    'basePath': '/Plone/doc',
+                    'rootPath': '/',
+                    'sort_on': 'sortable_title',
+                    'sort_order': 'ascending',
+                    'treeVocabularyUrl': '/@@getVocabulary?name='
+                                         'plone.app.vocabularies.Catalog',
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -465,6 +485,12 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname1',
+                    'basePath': '/Plone/doc',
+                    'rootPath': '/',
+                    'sort_on': 'sortable_title',
+                    'sort_order': 'ascending',
+                    'treeVocabularyUrl': '/@@getVocabulary?name='
+                                         'plone.app.vocabularies.Catalog',
                 },
             },
             field1.widget._base_args(self.context, field1, self.request),
@@ -495,6 +521,12 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname2',
+                    'basePath': '/Plone/doc',
+                    'rootPath': '/',
+                    'sort_on': 'sortable_title',
+                    'sort_order': 'ascending',
+                    'treeVocabularyUrl': '/@@getVocabulary?name='
+                                         'plone.app.vocabularies.Catalog',
                 },
             },
             field2.widget._base_args(self.context, field2, self.request),
