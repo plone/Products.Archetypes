@@ -76,12 +76,11 @@ class BaseUnit(File):
         self._cacheExpire()
 
     def transform(self, instance, mt, **kwargs):
-        """Takes a mimetype so object.foo.transform('text/plain') should return
-        a plain text version of the raw content
-
-        return None if no data or if data is untranformable to desired output
-        mime type
-        """
+        # Takes a mimetype so object.foo.transform('text/plain') should return
+        # a plain text version of the raw content.
+        #
+        # Return None if no data or if data is untranformable to desired output
+        # mime type.
         encoding = self.original_encoding
         orig = self.getRaw(encoding, instance)
         if not orig:
@@ -134,8 +133,7 @@ class BaseUnit(File):
         return self.get_size()
 
     def isBinary(self):
-        """Return true if this contains a binary value, else false.
-        """
+        # Return true if this contains a binary value, else false.
         try:
             return self.binary
         except AttributeError:
@@ -150,13 +148,11 @@ class BaseUnit(File):
 
     # File handling
     def get_size(self):
-        """Return the file size.
-        """
+        # Return the file size.
         return self.size
 
     def getRaw(self, encoding=None, instance=None):
-        """Return the file encoded raw value.
-        """
+        # Return the file encoded raw value.
         if self.isBinary() or not isinstance(self.raw, unicode):
             return self.raw
         if encoding is None:
@@ -168,10 +164,8 @@ class BaseUnit(File):
         return self.raw.encode(encoding)
 
     def portalEncoding(self, instance):
-        """Return the default portal encoding, using an external python script.
-
-        Look the archetypes skin directory for the default implementation.
-        """
+        # Return the default portal encoding, using an external python script.
+        # Look the archetypes skin directory for the default implementation.
         try:
             return instance.getCharset()
         except AttributeError:
@@ -180,16 +174,14 @@ class BaseUnit(File):
             return 'utf-8'
 
     def getContentType(self):
-        """Return the file mimetype string.
-        """
+        # Return the file mimetype string.
         return self.mimetype
 
     # Backward compatibility
     content_type = getContentType
 
     def setContentType(self, instance, value):
-        """Set the file mimetype string.
-        """
+        # Set the file mimetype string.
         mtr = getToolByName(instance, 'mimetypes_registry')
         result = mtr.lookup(value)
         if not result:
@@ -202,13 +194,11 @@ class BaseUnit(File):
         self._cacheExpire()
 
     def getFilename(self):
-        """Return the file name.
-        """
+        # Return the file name.
         return self.filename
 
     def setFilename(self, filename):
-        """Set the file name.
-        """
+        # Set the file name.
         if isinstance(filename, str):
             filename = os.path.basename(filename)
             filename = filename.split("\\")[-1]

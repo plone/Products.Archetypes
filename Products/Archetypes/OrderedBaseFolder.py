@@ -38,8 +38,7 @@ class OrderedContainer(OrderSupport):
 
     security.declarePrivate('getCMFObjectsSubsetIds')
     def getIdsSubset(self, objs):
-        """Get the ids of only cmf objects (used for moveObjectsByDelta)
-        """
+        # Get the ids of only cmf objects (used for moveObjectsByDelta).
         ttool = getToolByName(self, 'portal_types')
         cmf_meta_types = [ti.Metatype() for ti in ttool.listTypeInfo()]
         return [obj['id'] for obj in objs

@@ -137,8 +137,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'initializeArchetype')
     def initializeArchetype(self, **kwargs):
-        """Called by the generated add* factory in types tool.
-        """
+        # Called by the generated add* factory in types tool.
         try:
             self.initializeLayers()
             self.markCreationFlag()
@@ -189,14 +188,12 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getId')
     def getId(self):
-        """Gets the object id.
-        """
+        # Gets the object id.
         return self.id
 
     security.declareProtected(permissions.ModifyPortalContent, 'setId')
     def setId(self, value):
-        """Sets the object id.
-        """
+        # Sets the object id.
         # avoid CopyError in OFS.CopySupport.manage_renameObject(),
         # see http://dev.plone.org/ticket/8338
         value = value.strip()
@@ -234,29 +231,24 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getField')
     def getField(self, key, wrapped=False):
-        """Returns a field object.
-        """
+        # Returns a field object.
         return self.Schema().get(key)
 
     security.declareProtected(permissions.View, 'getWrappedField')
     def getWrappedField(self, key):
-        """Gets a field by id which is explicitly wrapped.
-
-        XXX Maybe we should subclass field from Acquisition.Explicit?
-        """
+        # Gets a field by id which is explicitly wrapped.
+        # XXX Maybe we should subclass field from Acquisition.Explicit?
         return ExplicitAcquisitionWrapper(self.getField(key), self)
 
     security.declareProtected(permissions.View, 'getDefault')
     def getDefault(self, field):
-        """Return the default value of a field.
-        """
+        # Return the default value of a field.
         field = self.getField(field)
         return field.getDefault(self)
 
     security.declareProtected(permissions.View, 'isBinary')
     def isBinary(self, key):
-        """Return wether a field contains binary data.
-        """
+        # Return wether a field contains binary data.
         field = self.getField(key)
         if IFileField.providedBy(field):
             value = field.getBaseUnit(self)
@@ -270,15 +262,13 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'isTransformable')
     def isTransformable(self, name):
-        """Returns wether a field is transformable.
-        """
+        # Returns wether a field is transformable.
         field = self.getField(name)
         return isinstance(field, TextField) or not self.isBinary(name)
 
     security.declareProtected(permissions.View, 'widget')
     def widget(self, field_name, mode="view", field=None, **kwargs):
-        """Returns the rendered widget.
-        """
+        # Returns the rendered widget.
         if field is None:
             field = self.Schema()[field_name]
         widget = field.widget
@@ -287,8 +277,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getFilename')
     def getFilename(self, key=None):
-        """Returns the filename from a field.
-        """
+        # Returns the filename from a field.
         value = None
 
         if key is None:
@@ -303,8 +292,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getContentType')
     def getContentType(self, key=None):
-        """Returns the content type from a field.
-        """
+        # Returns the content type from a field.
         value = 'text/plain'
 
         if key is None:
@@ -330,8 +318,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'setContentType')
     def setContentType(self, value, key=None):
-        """Sets the content type of a field.
-        """
+        # Sets the content type of a field.
         if key is None:
             field = self.getPrimaryField()
         else:
@@ -342,8 +329,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.ModifyPortalContent, 'setFilename')
     def setFilename(self, value, key=None):
-        """Sets the filename of a field.
-        """
+        # Sets the filename of a field.
         if key is None:
             field = self.getPrimaryField()
         else:
@@ -354,9 +340,8 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getPrimaryField')
     def getPrimaryField(self):
-        """The primary field is some object that responds to
-        PUT/manage_FTPget events.
-        """
+        # The primary field is some object that responds to
+        # PUT/manage_FTPget events.
         fields = self.Schema().filterFields(primary=1)
         if fields:
             return fields[0]
@@ -364,8 +349,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'get_portal_metadata')
     def get_portal_metadata(self, field):
-        """Returns the portal_metadata for a field.
-        """
+        # Returns the portal_metadata for a field.
         pmt = getToolByName(self, 'portal_metadata')
         policy = None
         try:
@@ -386,8 +370,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'Vocabulary')
     def Vocabulary(self, key):
-        """Returns the vocabulary for a specified field.
-        """
+        # Returns the vocabulary for a specified field.
         vocab, enforce = None, 0
         field = self.getField(key)
         if field:
@@ -433,14 +416,12 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('setDefaults')
     def setDefaults(self):
-        """Sets the field values to the default values.
-        """
+        # Sets the field values to the default values.
         self.Schema().setDefaults(self)
 
     security.declareProtected(permissions.ModifyPortalContent, 'update')
     def update(self, **kwargs):
-        """Changes the values of the field and reindex the object.
-        """
+        # Changes the values of the field and reindex the object.
         initializing = kwargs.get('_initializing_', False)
         if initializing:
             del kwargs['_initializing_']
@@ -456,15 +437,14 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.View,
                               'validate_field')
     def validate_field(self, name, value, errors):
-        """Field's validate hook.
-
-        Write a method: validate_foo(new_value) -> "error" or None
-        If there is a validate method defined for a given field invoke
-        it by name
-        name -- the name to register errors under
-        value -- the proposed new value
-        errors -- dict to record errors in
-        """
+        # Field's validate hook.
+        #
+        # Write a method: validate_foo(new_value) -> "error" or None
+        # If there is a validate method defined for a given field invoke
+        # it by name
+        # name -- the name to register errors under
+        # value -- the proposed new value
+        # errors -- dict to record errors in
         methodName = "validate_%s" % name
         result = None
         if shasattr(self, methodName):
@@ -486,8 +466,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'validate')
     def validate(self, REQUEST=None, errors=None, data=None, metadata=None):
-        """Validates the form data from the request.
-        """
+        # Validates the form data from the request.
         if errors is None:
             errors = {}
 
@@ -522,9 +501,8 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'SearchableText')
     def SearchableText(self):
-        """All fields marked as 'searchable' are concatenated together
-        here for indexing purpose.
-        """
+        # All fields marked as 'searchable' are concatenated together
+        # here for indexing purpose.
         data = []
         for field in self.Schema().fields():
             if not field.searchable:
@@ -566,14 +544,12 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getCharset')
     def getCharset(self):
-        """Returns the site default charset, or utf-8.
-        """
+        # Returns the site default charset, or utf-8.
         return 'utf-8'
 
     security.declareProtected(permissions.View, 'get_size')
     def get_size(self):
-        """Used for FTP and apparently the ZMI now too.
-        """
+        # Used for FTP and apparently the ZMI now too.
         size = 0
         for field in self.Schema().fields():
             size += field.get_size(self)
@@ -647,8 +623,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.ModifyPortalContent, 'processForm')
     def processForm(self, data=1, metadata=0, REQUEST=None, values=None):
-        """Processes the schema looking for data in the form.
-        """
+        # Processes the schema looking for data in the form.
         is_new_object = self.checkCreationFlag()
         self._processForm(data=data, metadata=metadata,
                           REQUEST=REQUEST, values=values)
@@ -679,12 +654,11 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'markCreationFlag')
     def markCreationFlag(self):
-        """Sets flag on the instance to indicate that the object hasn't been
-        saved properly (unset in content_edit).
-
-        This will only be done if a REQUEST is present to ensure that objects
-        created programmatically are considered fully created.
-        """
+        # Sets flag on the instance to indicate that the object hasn't been
+        # saved properly (unset in content_edit).
+        #
+        # This will only be done if a REQUEST is present to ensure that objects
+        # created programmatically are considered fully created.
         req = getattr(self, 'REQUEST', None)
         if shasattr(req, 'get'):
             if req.get('SCHEMA_UPDATE', None) is not None:
@@ -699,22 +673,19 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'unmarkCreationFlag')
     def unmarkCreationFlag(self):
-        """Removes the creation flag.
-        """
+        # Removes the creation flag.
         if shasattr(aq_inner(self), '_at_creation_flag'):
             self._at_creation_flag = False
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'checkCreationFlag')
     def checkCreationFlag(self):
-        """Returns True if the object has not been fully saved, False otherwise.
-        """
+        # Returns True if the object has not been fully saved, False otherwise.
         return getattr(aq_base(self), '_at_creation_flag', False)
 
     def generateNewId(self):
-        """Suggest an id for this object.
-        This id is used when automatically renaming an object after creation.
-        """
+        # Suggest an id for this object.
+        # This id is used when automatically renaming an object after creation.
         title = self.Title()
         # Can't work w/o a title
         if not title:
@@ -735,8 +706,7 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_renameAfterCreation')
     def _renameAfterCreation(self, check_auto_id=False):
-        """Renames an object like its normalized title.
-        """
+        # Renames an object like its normalized title.
         old_id = self.getId()
         if check_auto_id and not self._isIDAutoGenerated(old_id):
             # No auto generated id
@@ -771,11 +741,10 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_findUniqueId')
     def _findUniqueId(self, id):
-        """Find a unique id in the parent folder, based on the given id, by
-        appending -n, where n is a number between 1 and the constant
-        RENAME_AFTER_CREATION_ATTEMPTS, set in config.py. If no id can be
-        found, return None.
-        """
+        # Find a unique id in the parent folder, based on the given id, by
+        # appending -n, where n is a number between 1 and the constant
+        # RENAME_AFTER_CREATION_ATTEMPTS, set in config.py. If no id can be
+        # found, return None.
         check_id = getattr(self, 'check_id', None)
         if check_id is None:
             parent = aq_parent(aq_inner(self))
@@ -797,9 +766,8 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_isIDAutoGenerated')
     def _isIDAutoGenerated(self, id):
-        """Avoid busting setDefaults if we don't have a proper acquisition
-        context.
-        """
+        # Avoid busting setDefaults if we don't have a proper acquisition
+        # context.
         plone_tool = getToolByName(self, 'plone_utils', None)
         if plone_tool is not None and \
            shasattr(plone_tool, 'isIDAutoGenerated'):
@@ -808,19 +776,16 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'Schemata')
     def Schemata(self):
-        """Returns the Schemata for the Object.
-        """
+        # Returns the Schemata for the Object.
         return getSchemata(self)
 
     def Schema(self):
-        """Return a (wrapped) schema instance for this object instance.
-        """
+        # Return a (wrapped) schema instance for this object instance.
         return ImplicitAcquisitionWrapper(ISchema(self), self)
 
     security.declarePrivate('_isSchemaCurrent')
     def _isSchemaCurrent(self):
-        """Determines whether the current object's schema is up to date.
-        """
+        # Determines whether the current object's schema is up to date.
         return self._signature == self.Schema().signature()
 
     security.declarePrivate('_updateSchema')
@@ -906,7 +871,7 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_migrateGetValue')
     def _migrateGetValue(self, name, new_schema=None):
-        """Try to get a value from an object using a variety of methods."""
+        # Try to get a value from an object using a variety of methods.
         schema = self.Schema()
         # Migrate pre-AT 1.3 schemas.
         schema = fixSchema(schema)
@@ -999,7 +964,7 @@ class BaseObject(Referenceable):
 
     security.declarePrivate('_migrateSetValue')
     def _migrateSetValue(self, name, value, old_schema=None, **kw):
-        """Try to set an object value using a variety of methods."""
+        # Try to set an object value using a variety of methods.
         schema = self.Schema()
         # Migrate pre-AT 1.3 schemas.
         schema = fixSchema(schema)
@@ -1025,17 +990,15 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'isTemporary')
     def isTemporary(self):
-        """Checks to see if we are created as temporary object by
-        portal factory.
-        """
+        # Checks to see if we are created as temporary object by
+        # portal factory.
         parent = aq_parent(aq_inner(self))
         return shasattr(parent, 'meta_type') and \
                parent.meta_type == 'TempFolder'
 
     security.declareProtected(permissions.View, 'getFolderWhenPortalFactory')
     def getFolderWhenPortalFactory(self):
-        """Returns the folder where this object was created temporarily.
-        """
+        # Returns the folder where this object was created temporarily.
         ctx = aq_inner(self)
         if not ctx.isTemporary():
             # Not a temporary object!
@@ -1065,8 +1028,7 @@ class BaseObject(Referenceable):
     security.declareProtected(permissions.ModifyPortalContent,
                               'addSubObjects')
     def addSubObjects(self, objects, REQUEST=None):
-        """Adds a dictionary of objects to a volatile attribute.
-        """
+        # Adds a dictionary of objects to a volatile attribute.
         if objects:
             storage = getattr(aq_base(self), '_v_at_subobjects', None)
             if storage is None:
@@ -1077,8 +1039,7 @@ class BaseObject(Referenceable):
 
     security.declareProtected(permissions.View, 'getSubObject')
     def getSubObject(self, name, REQUEST, RESPONSE=None):
-        """Gets a dictionary of objects from a volatile attribute.
-        """
+        # Gets a dictionary of objects from a volatile attribute.
         storage = getattr(aq_base(self), '_v_at_subobjects', None)
         if storage is None:
             return None
@@ -1092,9 +1053,9 @@ class BaseObject(Referenceable):
         return Wrapper(data, name, str(mt) or 'application/octet-stream').__of__(self)
 
     def __bobo_traverse__(self, REQUEST, name):
-        """Allows transparent access to session subobjects.
-        """
-        # sometimes, the request doesn't have a response, e.g. when
+        # Allows transparent access to session subobjects.
+        #
+        # Sometimes, the request doesn't have a response, e.g. when
         # PageTemplates traverse through the object path, they pass in
         # a phony request (a dict).
         RESPONSE = getattr(REQUEST, 'RESPONSE', None)

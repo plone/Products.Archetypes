@@ -122,9 +122,8 @@ class BaseFolderMixin(CatalogMultiplex,
     security.declareProtected(permissions.ListFolderContents,
                               'listFolderContents')
     def listFolderContents(self, contentFilter=None, suppressHiddenFiles=0):
-        """Optionally you can suppress "hidden" files, or files that begin
-        with a dot.
-        """
+        # Optionally you can suppress "hidden" files, or files that begin
+        # with a dot.
         contents = PortalFolder.listFolderContents(self, contentFilter=contentFilter)
         if suppressHiddenFiles:
             contents = [obj for obj in contents if obj.getId()[:1] != '.']
@@ -135,24 +134,23 @@ class BaseFolderMixin(CatalogMultiplex,
                               'folderlistingFolderContents')
     def folderlistingFolderContents(self, contentFilter=None,
                                     suppressHiddenFiles=0):
-        """Calls listFolderContents in protected only by ACI so that
-        folder_listing can work without the List folder contents permission,
-        as in CMFDefault.
-        """
+        # Calls listFolderContents in protected only by ACI so that
+        # folder_listing can work without the List folder contents permission,
+        # as in CMFDefault.
         return self.listFolderContents(contentFilter=contentFilter,
                                        suppressHiddenFiles=suppressHiddenFiles)
 
     security.declareProtected(permissions.View, 'Title')
     def Title(self, **kwargs):
-        """We have to override Title here to handle arbitrary arguments since
-        PortalFolder defines it."""
+        # We have to override Title here to handle arbitrary arguments since
+        # PortalFolder defines it.
         return self.getField('title').get(self, **kwargs)
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setTitle')
     def setTitle(self, value, **kwargs):
-        """We have to override setTitle here to handle arbitrary
-        arguments since PortalFolder defines it."""
+        # We have to override setTitle here to handle arbitrary
+        # arguments since PortalFolder defines it.
         self.getField('title').set(self, value, **kwargs)
 
     def __getitem__(self, key):
@@ -223,8 +221,7 @@ class BaseFolderMixin(CatalogMultiplex,
 
     security.declarePrivate('manage_afterMKCOL')
     def manage_afterMKCOL(self, id, result, REQUEST=None, RESPONSE=None):
-        """After MKCOL handler.
-        """
+        # After MKCOL handler.
         pass
 
     security.declareProtected(permissions.ModifyPortalContent, 'PUT')
@@ -258,15 +255,15 @@ class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     security.declareProtected(permissions.View,
                               'Description')
     def Description(self, **kwargs):
-        """We have to override Description here to handle arbitrary
-        arguments since PortalFolder defines it."""
+        # We have to override Description here to handle arbitrary
+        # arguments since PortalFolder defines it.
         return self.getField('description').get(self, **kwargs)
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setDescription')
     def setDescription(self, value, **kwargs):
-        """We have to override setDescription here to handle arbitrary
-        arguments since PortalFolder defines it."""
+        # We have to override setDescription here to handle arbitrary
+        # arguments since PortalFolder defines it.
         self.getField('description').set(self, value, **kwargs)
 
 InitializeClass(BaseFolder)

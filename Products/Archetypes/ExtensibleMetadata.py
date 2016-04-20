@@ -219,7 +219,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declarePrivate('defaultLanguage')
     def defaultLanguage(self):
-        """Retrieve the default language"""
+        # Retrieve the default language
         tool = getToolByName(self, 'portal_languages', None)
         if tool is not None:
             return tool.getDefaultLanguage()
@@ -227,7 +227,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declarePrivate('defaultRights')
     def defaultRights(self):
-        """Retrieve the default rights"""
+        # Retrieve the default rights.
         mdtool = getToolByName(self, 'portal_metadata', None)
         if mdtool is None:
             return ''
@@ -307,8 +307,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'languages')
     def languages(self):
-        """Vocabulary method for the language field
-        """
+        # Vocabulary method for the language field.
         util = None
 
         use_combined = False
@@ -341,8 +340,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'CreationDate')
     def CreationDate(self, zone=None):
-        """ Dublin Core element - date resource created.
-        """
+        # Dublin Core element - date resource created.
         if zone is None:
             zone = _zone
         creation = self.getField('creation_date').get(self)
@@ -358,8 +356,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return effective is None and 'None' or effective.toZone(zone).ISO8601()
 
     def _effective_date(self):
-        """Computed attribute accessor
-        """
+        # Computed attribute accessor.
         return self.getField('effectiveDate').get(self)
 
     security.declareProtected(permissions.View, 'effective_date')
@@ -374,8 +371,7 @@ class ExtensibleMetadata(Persistence.Persistent):
         return expires is None and 'None' or expires.toZone(zone).ISO8601()
 
     def _expiration_date(self):
-        """Computed attribute accessor
-        """
+        # Computed attribute accessor.
         return self.getField('expirationDate').get(self)
 
     security.declareProtected(permissions.View, 'expiration_date')
@@ -383,9 +379,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'Date')
     def Date(self, zone=None):
-        """
-        Dublin Core element - default date
-        """
+        # Dublin Core element - default date
         # Return effective_date if specifically set, modification date
         # otherwise
         if zone is None:
@@ -398,28 +392,26 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'Format')
     def Format(self):
-        """cmf/backward compat
-        Dublin Core element - resource format
-        """
+        # cmf/backward compat
+        # Dublin Core element - resource format
         # FIXME: get content type from marshaller
         return self.getContentType()
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'setFormat')
     def setFormat(self, value):
-        """cmf/backward compat: ignore setFormat"""
+        # cmf/backward compat: ignore setFormat.
         self.setContentType(value)
 
     def Identifer(self):
-        """ dublin core getId method"""
+        # dublin core getId method.
         return self.getId()
 
     #  DublinCore utility methods #############################################
 
     security.declareProtected(permissions.View, 'contentEffective')
     def contentEffective(self, date):
-        """Is the date within the resource's effective range?
-        """
+        # Is the date within the resource's effective range?
         effective = self.getField('effectiveDate').get(self)
         expires = self.getField('expirationDate').get(self)
         pastEffective = (effective is None or effective <= date)
@@ -428,7 +420,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'contentExpired')
     def contentExpired(self, date=None):
-        """ Is the date after resource's expiration """
+        # Is the date after resource's expiration.
         if not date:
             date = DateTime()
         expires = self.getField('expirationDate').get(self)
@@ -440,35 +432,31 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'created')
     def created(self):
-        """Dublin Core element - date resource created,
-        returned as DateTime.
-        """
+        # Dublin Core element - date resource created,
+        # returned as DateTime.
         # allow for non-existent creation_date, existed always
         created = self.getField('creation_date').get(self)
         return created is None and FLOOR_DATE or created
 
     security.declareProtected(permissions.View, 'modified')
     def modified(self):
-        """Dublin Core element - date resource last modified,
-        returned as DateTime.
-        """
+        # Dublin Core element - date resource last modified,
+        # returned as DateTime.
         modified = self.getField('modification_date').get(self)
         # TODO may return None
         return modified
 
     security.declareProtected(permissions.View, 'effective')
     def effective(self):
-        """Dublin Core element - date resource becomes effective,
-        returned as DateTime.
-        """
+        # Dublin Core element - date resource becomes effective,
+        # returned as DateTime.
         effective = self.getField('effectiveDate').get(self)
         return effective is None and FLOOR_DATE or effective
 
     security.declareProtected(permissions.View, 'expires')
     def expires(self):
-        """Dublin Core element - date resource expires,
-        returned as DateTime.
-        """
+        # Dublin Core element - date resource expires,
+        # returned as DateTime.
         expires = self.getField('expirationDate').get(self)
         return expires is None and CEILING_DATE or expires
 
@@ -495,10 +483,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.ModifyPortalContent,
                               'notifyModified')
     def notifyModified(self):
-        """
-        Take appropriate action after the resource has been modified.
-        For now, change the modification_date.
-        """
+        # Take appropriate action after the resource has been modified.
+        # For now, change the modification_date.
         self.setModificationDate(DateTime())
         if shasattr(self, 'http__refreshEtag'):
             self.http__refreshEtag()
@@ -506,9 +492,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.ManagePortal,
                               'setModificationDate')
     def setModificationDate(self, modification_date=None):
-        """Set the date when the resource was last modified.
-        When called without an argument, sets the date to now.
-        """
+        # Set the date when the resource was last modified.
+        # When called without an argument, sets the date to now.
         if modification_date is None:
             modified = DateTime()
         else:
@@ -518,9 +503,8 @@ class ExtensibleMetadata(Persistence.Persistent):
     security.declareProtected(permissions.ManagePortal,
                               'setCreationDate')
     def setCreationDate(self, creation_date=None):
-        """Set the date when the resource was created.
-        When called without an argument, sets the date to now.
-        """
+        # Set the date when the resource was created.
+        # When called without an argument, sets the date to now.
         if creation_date is None:
             created = DateTime()
         else:
@@ -529,8 +513,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declarePrivate('_datify')
     def _datify(self, date):
-        """Try to convert something into a DateTime instance or None
-        """
+        # Try to convert something into a DateTime instance or None.
         # stupid web
         if date == 'None':
             date = None
@@ -544,15 +527,13 @@ class ExtensibleMetadata(Persistence.Persistent):
     #
     security.declareProtected(permissions.View, 'Publisher')
     def Publisher(self):
-        """Dublin Core element - resource publisher
-        """
+        # Dublin Core element - resource publisher
         # XXX: fixme using 'portal_metadata'
         return 'No publisher'
 
     security.declareProtected(permissions.View, 'ModificationDate')
     def ModificationDate(self, zone=None):
-        """ Dublin Core element - date resource last modified.
-        """
+        # Dublin Core element - date resource last modified.
         if zone is None:
             zone = _zone
         modified = self.modified()
@@ -570,21 +551,20 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'Identifier')
     def Identifier(self):
-        """Dublin Core element - Object ID"""
+        # Dublin Core element - Object ID
         # XXX: fixme using 'portal_metadata' (we need to prepend the
         #      right prefix to self.getPhysicalPath().
         return self.absolute_url()
 
     security.declareProtected(permissions.View, 'listContributors')
     def listContributors(self):
-        """Dublin Core element - Contributors"""
+        # Dublin Core element - Contributors.
         return self.Contributors()
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'addCreator')
     def addCreator(self, creator=None):
-        """ Add creator to Dublin Core creators.
-        """
+        # Add creator to Dublin Core creators.
         if creator is None:
             mtool = getToolByName(self, 'portal_membership', None)
             if mtool is None:
@@ -598,8 +578,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'listCreators')
     def listCreators(self):
-        """ List Dublin Core Creator elements - resource authors.
-        """
+        # List Dublin Core Creator elements - resource authors.
         creators = self.Schema()['creators']
         if not creators.get(self):
             # for content created with CMF versions before 1.5
@@ -614,8 +593,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'Creator')
     def Creator(self):
-        """ Dublin Core Creator element - resource author.
-        """
+        # Dublin Core Creator element - resource author.
         creators = self.listCreators()
         return creators and creators[0] or ''
 
@@ -635,8 +613,7 @@ class ExtensibleMetadata(Persistence.Persistent):
 
     security.declareProtected(permissions.View, 'getMetadataHeaders')
     def getMetadataHeaders(self):
-        """ Return RFC-822-style headers.
-        """
+        # Return RFC-822-style headers.
         hdrlist = []
         hdrlist.append(('Title', self.Title()))
         hdrlist.append(('Subject', string.join(self.Subject(), ', ')))
@@ -670,8 +647,7 @@ class ExtensibleMetadata(Persistence.Persistent):
                       language=_marker,
                       rights=_marker,
                       ):
-        """ Update the editable metadata for this resource.
-        """
+        # Update the editable metadata for this resource.
         if title is not _marker:
             self.setTitle(title)
         if subject is not _marker:
@@ -732,10 +708,8 @@ class ExtensibleMetadata(Persistence.Persistent):
                      language='en-US',
                      rights='',
                      ):
-        """
-        used to be:  editMetadata = WorkflowAction(_editMetadata)
-        Need to add check for webDAV locked resource for TTW methods.
-        """
+        # Used to be:  editMetadata = WorkflowAction(_editMetadata)
+        # Need to add check for webDAV locked resource for TTW methods.
         self.failIfLocked()
         self._editMetadata(title=title,
                            subject=subject,

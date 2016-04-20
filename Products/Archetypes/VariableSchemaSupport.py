@@ -22,10 +22,8 @@ class VarClassGen(ClassGenerator):
         self.schema = schema
 
     def updateMethods(self, klass):
-        """Update the methods of the klass to support a new schema.
-
-        This will re-generate methods.
-        """
+        # Update the methods of the klass to support a new schema.
+        # This will re-generate methods.
         self.generateMethods(klass, self.schema.fields())
 
 #

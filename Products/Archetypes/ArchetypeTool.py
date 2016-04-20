@@ -550,10 +550,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'lookupTemplates')
     def lookupTemplates(self, instance_or_portaltype=None):
-        """Lookup templates by giving an instance or a portal_type.
-
-        Returns a DisplayList.
-        """
+        # Lookup templates by giving an instance or a portal_type.
+        # Returns a DisplayList.
         results = []
         if not isinstance(instance_or_portaltype, basestring):
             portal_type = instance_or_portaltype.getTypeInfo().getId()
@@ -573,14 +571,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'listTemplates')
     def listTemplates(self):
-        """Lists all the templates.
-        """
+        # Lists all the templates.
         return DisplayList(self._registeredTemplates.items()).sortedByValue()
 
     security.declareProtected(permissions.ManagePortal, 'bindTemplate')
     def bindTemplate(self, portal_type, templateList):
-        """Creates binding between a type and its associated views.
-        """
+        # Creates binding between a type and its associated views.
         self._templates[portal_type] = templateList
 
     security.declareProtected(permissions.ManagePortal,
@@ -604,8 +600,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'typeImplementsInterfaces')
     def typeImplementsInterfaces(self, type, interfaces):
-        """Checks if an type uses one of the given interfaces.
-        """
+        # Checks if an type uses one of the given interfaces.
         if isinstance(type, dict) and 'klass' in type:
             type = type['klass']
         for iface in interfaces:
@@ -616,14 +611,12 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'isTemplateEnabled')
     def isTemplateEnabled(self, type):
-        """Checks if an type uses ITemplateMixin.
-        """
+        # Checks if an type uses ITemplateMixin.
         return self.typeImplementsInterfaces(type, [ITemplateMixin])
 
     security.declareProtected(permissions.View, 'listTemplateEnabledPortalTypes')
     def listTemplateEnabledPortalTypes(self):
-        """Return a list of portal_types with ITemplateMixin
-        """
+        # Return a list of portal_types with ITemplateMixin
         return self.listPortalTypesWithInterfaces([ITemplateMixin])
 
     security.declareProtected(permissions.View, 'listPortalTypesWithInterfaces')
@@ -656,8 +649,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     # Type/Schema Management
     security.declareProtected(permissions.View, 'listRegisteredTypes')
     def listRegisteredTypes(self, inProject=False, portalTypes=False):
-        """Return the list of sorted types.
-        """
+        # Return the list of sorted types.
 
         def type_sort(a, b):
             v = cmp(a['package'], b['package'])
@@ -695,8 +687,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'listTypes')
     def listTypes(self, package=None, type=None):
-        """Just the class.
-        """
+        # Just the class.
         if type is None:
             return [t['klass'] for t in listTypes(package)]
         else:
@@ -767,8 +758,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declarePublic('getSearchWidgets')
     def getSearchWidgets(self, package=None, type=None,
                          context=None, nosort=None):
-        """Empty widgets for searching.
-        """
+        # Empty widgets for searching.
         return self.getWidgets(package=package, type=type,
                                context=context, mode='search', nosort=nosort)
 
@@ -777,8 +767,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
                    package=None, type=None,
                    context=None, mode='edit',
                    fields=None, schemata=None, nosort=None):
-        """Empty widgets for standalone rendering.
-        """
+        # Empty widgets for standalone rendering.
         widgets = []
         w_keys = {}
         context = context is not None and context or self
@@ -842,8 +831,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declarePrivate('_rawEnum')
     def _rawEnum(self, callback, *args, **kwargs):
-        """Finds all object to check if they are 'referenceable'.
-        """
+        # Finds all object to check if they are 'referenceable'.
         catalog = getToolByName(self, 'portal_catalog')
         brains = catalog(dict(id=[]))
         for b in brains:
@@ -867,8 +855,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'Content')
     def Content(self):
-        """Return a list of all the content ids.
-        """
+        # Return a list of all the content ids.
         catalog = getToolByName(self, UID_CATALOG)
         keys = catalog.uniqueValuesFor('UID')
         results = catalog(dict(UID=keys))
@@ -920,8 +907,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     index = manage_reindex
 
     def _listAllTypes(self):
-        """List all types -- either currently known or known to us.
-        """
+        # List all types -- either currently known or known to us.
         allTypes = _types.copy()
         allTypes.update(self._types)
         return allTypes.keys()
@@ -929,10 +915,8 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(permissions.ManagePortal,
                               'getChangedSchema')
     def getChangedSchema(self):
-        """Returns a list of tuples indicating which schema have changed.
-
-        Tuples have the form (schema, changed).
-        """
+        # Returns a list of tuples indicating which schema have changed.
+        # Tuples have the form (schema, changed).
         list = []
         currentTypes = _types
         ourTypes = self._types
@@ -1046,8 +1030,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(permissions.View,
                               'listCatalogs')
     def listCatalogs(self):
-        """Show the catalog mapping.
-        """
+        # Show the catalog mapping.
         return self.catalog_map
 
     security.declareProtected(permissions.ManagePortal,
@@ -1069,17 +1052,14 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
     security.declareProtected(permissions.ManagePortal,
                               'setCatalogsByType')
     def setCatalogsByType(self, portal_type, catalogList):
-        """ associate catalogList with meta_type. (unfortunally not portal_type).
-
-            catalogList is a list of strings with the ids of the catalogs.
-            Each catalog is has to be a tool, means unique in site root.
-        """
+        # Associate catalogList with meta_type. (unfortunately not portal_type).
+        # catalogList is a list of strings with the ids of the catalogs.
+        # Each catalog is has to be a tool, means unique in site root.
         self.catalog_map[portal_type] = catalogList
 
     security.declareProtected(permissions.View, 'getCatalogsByType')
     def getCatalogsByType(self, portal_type):
-        """Return the catalog objects assoicated with a given type.
-        """
+        # Return the catalog objects assoicated with a given type.
         catalogs = []
         catalog_map = getattr(self, 'catalog_map', None)
         if catalog_map is not None:
@@ -1099,8 +1079,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'getCatalogsInSite')
     def getCatalogsInSite(self):
-        """Return a list of ids for objects implementing ZCatalog.
-        """
+        # Return a list of ids for objects implementing ZCatalog.
         portal = getToolByName(self, 'portal_url').getPortalObject()
         res = []
         for object in portal.objectValues():
@@ -1117,12 +1096,10 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
 
     security.declareProtected(permissions.View, 'visibleLookup')
     def visibleLookup(self, field, vis_key, vis_value='visible'):
-        """Checks the value of a specific key in the field widget's
-        'visible' dictionary.
-
-        Returns True or False so it can be used within a lambda as
-        the predicate for a filterFields call.
-        """
+        # Checks the value of a specific key in the field widget's
+        # 'visible' dictionary.
+        # Returns True or False so it can be used within a lambda as
+        # the predicate for a filterFields call.
         vis_dict = field.widget.visible
         value = ''
         if vis_key in vis_dict:
@@ -1133,8 +1110,7 @@ class ArchetypeTool(UniqueObject, ActionProviderBase, \
             return False
 
     def has_graphviz(self):
-        """Runtime check for graphviz, used in condition on tab.
-        """
+        # Runtime check for graphviz, used in condition on tab.
         return HAS_GRAPHVIZ
 
 InitializeClass(ArchetypeTool)

@@ -50,8 +50,7 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
     security.declareProtected(ModifyPortalContent, 'reindexObjectSecurity')
     def reindexObjectSecurity(self, skip_self=False):
-        """update security information in all registered catalogs.
-        """
+        # Update security information in all registered catalogs.
         if isFactoryContained(self):
             return
         at = getToolByName(self, TOOL_NAME, None)
@@ -84,14 +83,13 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
     security.declareProtected(ModifyPortalContent, 'reindexObject')
     def reindexObject(self, idxs=None):
-        """update indexes of this object in all registered catalogs.
-
-        Catalogs are registered per 'meta_type' in archetypes tool.
-
-        'idxs' are a list of index names. If this list is given only the given
-        indexes are refreshed. If a index does not exist in catalog its
-        silently ignored.
-        """
+        # Update indexes of this object in all registered catalogs.
+        #
+        # Catalogs are registered per 'meta_type' in archetypes tool.
+        #
+        # 'idxs' are a list of index names. If this list is given only the given
+        # indexes are refreshed. If a index does not exist in catalog its
+        # silently ignored.
         if idxs is None:
             idxs = []
         if isFactoryContained(self):
