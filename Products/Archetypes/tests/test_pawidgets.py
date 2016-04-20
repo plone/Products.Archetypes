@@ -320,38 +320,37 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         class ExampleContent(object):
             implements(IAttributeUUID)
 
-        with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            obj1 = ExampleContent()
-            obj2 = ExampleContent()
-            notify(ObjectCreatedEvent(obj1))
-            notify(ObjectCreatedEvent(obj2))
+        obj1 = ExampleContent()
+        obj2 = ExampleContent()
+        notify(ObjectCreatedEvent(obj1))
+        notify(ObjectCreatedEvent(obj2))
 
-            self.field.getName.return_value = 'fieldname'
-            self.field.getAccessor.return_value = lambda: [obj1, obj2]
-            self.field.multiValued = True
+        self.field.getName.return_value = 'fieldname'
+        self.field.getAccessor.return_value = lambda: [obj1, obj2]
+        self.field.multiValued = True
 
-            widget = RelatedItemsWidget()
+        widget = RelatedItemsWidget()
 
-            self.assertEqual(
-                {
-                    'name': 'fieldname',
-                    'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
-                    'pattern': 'relateditems',
-                    'pattern_options': {
-                        'folderTypes': ['Folder'],
-                        'homeText': u'Home',
-                        'searchAllText': u'Entire site',
-                        'searchText': u'Search',
-                        'separator': ';',
-                        'orderable': True,
-                        'maximumSelectionSize': -1,
-                        'vocabularyUrl': '/@@getVocabulary?name='
-                                         'plone.app.vocabularies.Catalog'
-                                         '&field=fieldname',
-                    },
+        self.assertEqual(
+            {
+                'name': 'fieldname',
+                'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
+                'pattern': 'relateditems',
+                'pattern_options': {
+                    'folderTypes': ['Folder'],
+                    'homeText': u'Home',
+                    'searchAllText': u'Entire site',
+                    'searchText': u'Search',
+                    'separator': ';',
+                    'orderable': True,
+                    'maximumSelectionSize': -1,
+                    'vocabularyUrl': '/@@getVocabulary?name='
+                                     'plone.app.vocabularies.Catalog'
+                                     '&field=fieldname',
                 },
-                widget._base_args(self.context, self.field, self.request),
-            )
+            },
+            widget._base_args(self.context, self.field, self.request),
+        )
 
     def test_single_value(self):
         from zope.event import notify
@@ -371,29 +370,28 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.getAccessor.return_value = lambda: obj1
         self.field.multiValued = False
 
-        with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            widget = RelatedItemsWidget()
+        widget = RelatedItemsWidget()
 
-            self.assertEqual(
-                {
-                    'name': 'fieldname',
-                    'value': '{}'.format(IUUID(obj1)),
-                    'pattern': 'relateditems',
-                    'pattern_options': {
-                        'folderTypes': ['Folder'],
-                        'homeText': u'Home',
-                        'separator': ';',
-                        'orderable': True,
-                        'searchAllText': u'Entire site',
-                        'searchText': u'Search',
-                        'maximumSelectionSize': 1,
-                        'vocabularyUrl': '/@@getVocabulary?name='
-                                         'plone.app.vocabularies.Catalog'
-                                         '&field=fieldname',
-                    },
+        self.assertEqual(
+            {
+                'name': 'fieldname',
+                'value': '{}'.format(IUUID(obj1)),
+                'pattern': 'relateditems',
+                'pattern_options': {
+                    'folderTypes': ['Folder'],
+                    'homeText': u'Home',
+                    'separator': ';',
+                    'orderable': True,
+                    'searchAllText': u'Entire site',
+                    'searchText': u'Search',
+                    'maximumSelectionSize': 1,
+                    'vocabularyUrl': '/@@getVocabulary?name='
+                                     'plone.app.vocabularies.Catalog'
+                                     '&field=fieldname',
                 },
-                widget._base_args(self.context, self.field, self.request),
-            )
+            },
+            widget._base_args(self.context, self.field, self.request),
+        )
 
     def test_single_valued_empty(self):
         from Products.Archetypes.Widget import RelatedItemsWidget
@@ -402,29 +400,28 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.getAccessor.return_value = lambda: None
         self.field.multiValued = False
 
-        with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            widget = RelatedItemsWidget()
+        widget = RelatedItemsWidget()
 
-            self.assertEqual(
-                {
-                    'name': 'fieldname',
-                    'value': '',
-                    'pattern': 'relateditems',
-                    'pattern_options': {
-                        'folderTypes': ['Folder'],
-                        'homeText': u'Home',
-                        'separator': ';',
-                        'orderable': True,
-                        'searchAllText': u'Entire site',
-                        'searchText': u'Search',
-                        'maximumSelectionSize': 1,
-                        'vocabularyUrl': '/@@getVocabulary?name='
-                                         'plone.app.vocabularies.Catalog'
-                                         '&field=fieldname',
-                    },
+        self.assertEqual(
+            {
+                'name': 'fieldname',
+                'value': '',
+                'pattern': 'relateditems',
+                'pattern_options': {
+                    'folderTypes': ['Folder'],
+                    'homeText': u'Home',
+                    'separator': ';',
+                    'orderable': True,
+                    'searchAllText': u'Entire site',
+                    'searchText': u'Search',
+                    'maximumSelectionSize': 1,
+                    'vocabularyUrl': '/@@getVocabulary?name='
+                                     'plone.app.vocabularies.Catalog'
+                                     '&field=fieldname',
                 },
-                widget._base_args(self.context, self.field, self.request),
-            )
+            },
+            widget._base_args(self.context, self.field, self.request),
+        )
 
     def test_multiple_widgets(self):
         from zope.event import notify
@@ -442,67 +439,66 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         notify(ObjectCreatedEvent(obj1))
         notify(ObjectCreatedEvent(obj2))
 
-        with mock.patch('plone.app.widgets.utils.getUtility') as mock_method:
-            self.context.fieldvalue = lambda: obj1
+        self.context.fieldvalue = lambda: obj1
 
-            field1 = ReferenceField(
-                'fieldname1',
-                relationship="A",
-                multiValued=False,
-                widget=RelatedItemsWidget(),
-            )
-            field1.accessor = "fieldvalue"
+        field1 = ReferenceField(
+            'fieldname1',
+            relationship="A",
+            multiValued=False,
+            widget=RelatedItemsWidget(),
+        )
+        field1.accessor = "fieldvalue"
 
-            self.assertEqual(
-                {
-                    'name': 'fieldname1',
-                    'value': '{}'.format(IUUID(obj1)),
-                    'pattern': 'relateditems',
-                    'pattern_options': {
-                        'folderTypes': ['Folder'],
-                        'homeText': u'Home',
-                        'separator': ';',
-                        'orderable': True,
-                        'searchAllText': u'Entire site',
-                        'searchText': u'Search',
-                        'maximumSelectionSize': 1,
-                        'vocabularyUrl': '/@@getVocabulary?name='
-                                         'plone.app.vocabularies.Catalog'
-                                         '&field=fieldname1',
-                    },
+        self.assertEqual(
+            {
+                'name': 'fieldname1',
+                'value': '{}'.format(IUUID(obj1)),
+                'pattern': 'relateditems',
+                'pattern_options': {
+                    'folderTypes': ['Folder'],
+                    'homeText': u'Home',
+                    'separator': ';',
+                    'orderable': True,
+                    'searchAllText': u'Entire site',
+                    'searchText': u'Search',
+                    'maximumSelectionSize': 1,
+                    'vocabularyUrl': '/@@getVocabulary?name='
+                                     'plone.app.vocabularies.Catalog'
+                                     '&field=fieldname1',
                 },
-                field1.widget._base_args(self.context, field1, self.request),
-            )
+            },
+            field1.widget._base_args(self.context, field1, self.request),
+        )
 
-            field2 = ReferenceField(
-                'fieldname2',
-                relationship="A",
-                multiValued=True,
-                widget=RelatedItemsWidget(),
-            )
-            field2.accessor = "fieldvalue"
-            self.context.fieldvalue = lambda: [obj1, obj2]
+        field2 = ReferenceField(
+            'fieldname2',
+            relationship="A",
+            multiValued=True,
+            widget=RelatedItemsWidget(),
+        )
+        field2.accessor = "fieldvalue"
+        self.context.fieldvalue = lambda: [obj1, obj2]
 
-            self.assertEqual(
-                {
-                    'name': 'fieldname2',
-                    'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
-                    'pattern': 'relateditems',
-                    'pattern_options': {
-                        'folderTypes': ['Folder'],
-                        'homeText': u'Home',
-                        'separator': ';',
-                        'orderable': True,
-                        'searchAllText': u'Entire site',
-                        'searchText': u'Search',
-                        'maximumSelectionSize': -1,
-                        'vocabularyUrl': '/@@getVocabulary?name='
-                                         'plone.app.vocabularies.Catalog'
-                                         '&field=fieldname2',
-                    },
+        self.assertEqual(
+            {
+                'name': 'fieldname2',
+                'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
+                'pattern': 'relateditems',
+                'pattern_options': {
+                    'folderTypes': ['Folder'],
+                    'homeText': u'Home',
+                    'separator': ';',
+                    'orderable': True,
+                    'searchAllText': u'Entire site',
+                    'searchText': u'Search',
+                    'maximumSelectionSize': -1,
+                    'vocabularyUrl': '/@@getVocabulary?name='
+                                     'plone.app.vocabularies.Catalog'
+                                     '&field=fieldname2',
                 },
-                field2.widget._base_args(self.context, field2, self.request),
-            )
+            },
+            field2.widget._base_args(self.context, field2, self.request),
+        )
 
 
 class QueryStringWidgetTests(unittest.TestCase):
