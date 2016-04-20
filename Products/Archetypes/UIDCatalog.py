@@ -53,9 +53,8 @@ class PluggableCatalog(Catalog):
     # XXX FIXME more security
 
     def useBrains(self, brains):
-        """Tricky brains overrides, we need to use our own class here
-        with annotation support
-        """
+        # Tricky brains overrides, we need to use our own class here
+        # with annotation support.
         class plugbrains(self.BASE_CLASS, brains):
             pass
 
@@ -119,7 +118,7 @@ InitializeClass(UIDCatalogBrains)
 
 
 class IndexableObjectWrapper(object):
-    """Wwrapper for object indexing
+    """Wrapper for object indexing
     """
 
     def __init__(self, obj):

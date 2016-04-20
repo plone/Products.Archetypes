@@ -110,8 +110,7 @@ class ATAnnotations(DictMixin, Explicit):
         self[key] = value
 
     def getSubkey(self, key, subkey, default=None):
-        """Get annotations using a key and onesubkey
-        """
+        # Get annotations using a key and one subkey.
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             return self.get(k, default)
@@ -120,8 +119,7 @@ class ATAnnotations(DictMixin, Explicit):
                 'Invalid subkey type %s, must be string type' % type(subkey))
 
     def setSubkey(self, key, value, subkey):
-        """Stores data using a key and one subkey
-        """
+        # Stores data using a key and one subkey.
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             self[k] = value
@@ -130,8 +128,7 @@ class ATAnnotations(DictMixin, Explicit):
                 'Invalid subkey type %s, must be string type' % type(subkey))
 
     def delSubkey(self, key, subkey):
-        """Removes a subkey
-        """
+        # Removes a subkey.
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             del self[k]
@@ -140,8 +137,7 @@ class ATAnnotations(DictMixin, Explicit):
                 'Invalid subkey type %s, must be string type' % type(subkey))
 
     def hasSubkey(self, key, subkey):
-        """Checks for the existence of a sub key
-        """
+        # Checks for the existence of a sub key.
         if isinstance(subkey, basestring):
             k = '%s-%s' % (key, subkey)
             return k in self
