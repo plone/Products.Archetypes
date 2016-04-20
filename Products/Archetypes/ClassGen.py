@@ -48,7 +48,7 @@ class Generator:
         method = None
         if mode == "r":
             def generatedAccessor(self, **kw):
-                """Default Accessor."""
+                # Default Accessor.
                 if 'schema' in kw:
                     schema = kw['schema']
                 else:
@@ -58,7 +58,7 @@ class Generator:
             method = generatedAccessor
         elif mode == "m":
             def generatedEditAccessor(self, **kw):
-                """Default Edit Accessor."""
+                # Default Edit Accessor.
                 if 'schema' in kw:
                     schema = kw['schema']
                 else:
@@ -68,7 +68,7 @@ class Generator:
             method = generatedEditAccessor
         elif mode == "w":
             def generatedMutator(self, value, **kw):
-                """Default Mutator."""
+                # Default Mutator.
                 if 'schema' in kw:
                     schema = kw['schema']
                 else:

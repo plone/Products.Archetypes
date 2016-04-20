@@ -82,7 +82,7 @@ class Reference(Referenceable, SimpleItem):
                                                      self.relationship)
 
     def UID(self):
-        """the uid method for compat"""
+        # the uid method for compat.
         return IUUID(self, None)
 
     # Convenience methods
@@ -124,13 +124,13 @@ class Reference(Referenceable, SimpleItem):
     # OFS Operations Policy Hooks
     # These Hooks are experimental and subject to change
     def beforeTargetDeleteInformSource(self):
-        """called before target object is deleted so
-        the source can have a say"""
+        # Called before target object is deleted so
+        # the source can have a say.
         pass
 
     def beforeSourceDeleteInformTarget(self):
-        """called when the refering source Object is
-        about to be deleted"""
+        # Called when the refering source Object is
+        # about to be deleted.
         pass
 
     def manage_afterAdd(self, item, container):
@@ -233,9 +233,9 @@ class PluggableCatalog(Catalog):
     # XXX FIXME more security
 
     def useBrains(self, brains):
-        """Tricky brains overrides, we need to use our own class here
-        with annotation support
-        """
+        # Tricky brains overrides, we need to use our own class here
+        # with annotation support.
+
         class plugbrains(self.BASE_CLASS, brains):
             pass
 
@@ -392,9 +392,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return brains
 
     def _optimizedQuery(self, uid, indexname, relationship):
-        """query reference catalog for object matching the info we are
-        given, returns brains
-        """
+        # Query reference catalog for object matching the info we are
+        # given, returns brains.
         if not uid:  # pragma: no cover
             return []
 
@@ -583,7 +582,7 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
         return objects
 
     def _makeName(self, *args):
-        """get a uuid"""
+        # Get a uuid.
         name = make_uuid(*args)
         return name
 

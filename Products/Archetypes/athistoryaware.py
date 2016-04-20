@@ -175,7 +175,7 @@ class ATHistoryAwareMixin:
         tids = sorted(history.iterkeys(), reverse=True)
 
         def find_revision(tids, key):
-            """First revision of key in a series of tids"""
+            # First revision of key in a series of tids.
             has_revision = lambda t, h=history, k=key: k in h[t]
             next_tid = itertools.ifilter(has_revision, tids).next()
             return history[next_tid][key]
