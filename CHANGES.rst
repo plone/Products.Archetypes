@@ -14,7 +14,7 @@ New:
 
 Fixes:
 
-- *add item here*
+- No longer try to mock plone.app.widgets in tests.  [maurits]
 
 
 1.10.13 (2016-02-25)
