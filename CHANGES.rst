@@ -4,14 +4,6 @@ Changelog
 1.10.14 (unreleased)
 --------------------
 
-Incompatibilities:
-
-- *add item here*
-
-New:
-
-- *add item here*
-
 Fixes:
 
 - No longer try to mock plone.app.widgets in tests.  [maurits]
