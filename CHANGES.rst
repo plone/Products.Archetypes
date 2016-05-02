@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.10.14 (unreleased)
---------------------
+1.11.0 (unreleased)
+-------------------
 
 Incompatibilities:
 
