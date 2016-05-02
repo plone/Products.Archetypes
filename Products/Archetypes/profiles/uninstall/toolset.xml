@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tool-setup>
+  <forbidden tool_id="archetype_tool" />
+  <forbidden tool_id="reference_catalog" />
+  <forbidden tool_id="uid_catalog" />
+</tool-setup>

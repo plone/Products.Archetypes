@@ -11,4 +11,11 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="Archetypes uninstall"
+      directory="profiles/uninstall"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
 </configure>

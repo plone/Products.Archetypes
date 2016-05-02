@@ -1,0 +1,6 @@
+<registry>
+
+  <record name="Products.Archetypes.calendar_starting_year" remove="true" />
+  <record name="Products.Archetypes.calendar_future_years_available" remove="true" />
+
+</registry>

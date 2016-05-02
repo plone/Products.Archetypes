@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<object name="portal_skins">
+  <object name="archetypes" remove="true" />
+  <skin-path name="*">
+    <layer name="archetypes" remove="true" />
+  </skin-path>
+</object>
