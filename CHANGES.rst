@@ -21,6 +21,8 @@ New:
 Fixes:
 
 - No longer try to mock plone.app.widgets in tests.  [maurits]
+- Removed docstrings from some methods to avoid publishing them.  From
+  Products.PloneHotfix20160419.  [maurits]
 
 
 1.10.13 (2016-02-25)
