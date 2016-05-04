@@ -7,8 +7,8 @@ setup(name='Products.Archetypes',
       description="Archetypes is a developers framework for rapidly "
                   "developing and deploying rich, full featured content "
                   "types within the context of Zope/CMF and Plone.",
-      long_description=open("README.txt").read() + "\n" +
-                       open("CHANGES.txt").read(),
+      long_description=(open("README.rst").read() + "\n" +
+                        open("CHANGES.rst").read()),
       classifiers=[
         "Framework :: Plone",
         "Framework :: Zope2",
