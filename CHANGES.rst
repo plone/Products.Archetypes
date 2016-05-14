@@ -4,14 +4,6 @@ Changelog
 1.10.15 (unreleased)
 --------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Removed docstrings from some methods to avoid publishing them.  From
