@@ -4,10 +4,6 @@ Changelog
 1.11.0 (unreleased)
 -------------------
 
-Incompatibilities:
-
-- *add item here*
-
 New:
 
 - Added uninstall profile.  Most importantly this removes the
