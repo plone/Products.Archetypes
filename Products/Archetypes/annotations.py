@@ -34,7 +34,7 @@ from App.class_init import InitializeClass
 from Products.Archetypes.interfaces.annotations import IATAnnotations
 from Products.Archetypes.interfaces.annotations import IATAnnotatable
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import adapts
 
 # annotation keys
@@ -47,11 +47,11 @@ AT_REF = 'Archetypes.referenceEngine.Reference'
 AT_ANN_KEYS = (AT_ANN_STORAGE, AT_MD_STORAGE, AT_FIELD_MD, AT_REF)
 
 
+@implementer(IATAnnotations)
 class ATAnnotations(DictMixin, Explicit):
     """Store annotations in the '__annotations__' attribute on a IATAnnotatable
        object.
     """
-    implements(IATAnnotations)
     adapts(IATAnnotatable)
 
     security = ClassSecurityInfo()

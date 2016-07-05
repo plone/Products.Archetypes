@@ -11,7 +11,7 @@ from App.class_init import InitializeClass
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from ExtensionClass import Base
-from zope.interface import implements
+from zope.interface import implementer
 
 
 TemplateMixinSchema = Schema((
@@ -30,8 +30,8 @@ TemplateMixinSchema = Schema((
 ))
 
 
+@implementer(ITemplateMixin)
 class TemplateMixin(Base):
-    implements(ITemplateMixin)
 
     schema = TemplateMixinSchema
 

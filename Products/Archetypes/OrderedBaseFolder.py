@@ -3,7 +3,7 @@
 OrderedBaseFolder derived from OrderedFolder by Stephan Richter, iuveno AG.
 """
 
-from zope.interface import implements
+from zope.interface import implementer
 
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
@@ -62,10 +62,9 @@ class OrderedContainer(OrderSupport):
 InitializeClass(OrderedContainer)
 
 
+@implementer(IDynamicType)
 class OrderedBaseFolder(BaseFolder, OrderedContainer):
     """ An ordered base folder implementation """
-
-    implements(IDynamicType)
 
     security = ClassSecurityInfo()
 

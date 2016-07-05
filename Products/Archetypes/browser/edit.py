@@ -1,5 +1,5 @@
 from zope.component import queryUtility
-from zope.interface import implements
+from zope.interface import implementer
 
 from Acquisition import aq_inner
 from zExceptions import Unauthorized
@@ -19,8 +19,8 @@ except ImportError:
     ID_NORMALIZER = False
 
 
+@implementer(IEditForm)
 class Edit(BrowserView):
-    implements(IEditForm)
 
     def isTemporaryObject(self):
         factory = getToolByName(aq_inner(self.context), 'portal_factory', None)

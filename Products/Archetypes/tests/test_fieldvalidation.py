@@ -31,11 +31,11 @@ from Products.Archetypes.atapi import Field, IntegerField
 from Products.Archetypes.BaseObject import BaseObject
 from Products.validation import validation as validationService
 from Products.validation.interfaces.IValidator import IValidator
-from zope.interface import implements
+from zope.interface import implementer
 
 
+@implementer(IValidator)
 class MyValidator:
-    implements(IValidator)
 
     def __init__(self, name, fun):
         self.name = name

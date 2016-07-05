@@ -313,14 +313,15 @@ class RelatedItemsWidgetTests(unittest.TestCase):
 
     def test_multi_valued(self):
         from zope.event import notify
-        from zope.interface import implements
+        from zope.interface import implementer
         from zope.lifecycleevent import ObjectCreatedEvent
         from plone.uuid.interfaces import IUUID
         from plone.uuid.interfaces import IAttributeUUID
         from Products.Archetypes.Widget import RelatedItemsWidget
 
+        @implementer(IAttributeUUID)
         class ExampleContent(object):
-            implements(IAttributeUUID)
+            pass
 
         obj1 = ExampleContent()
         obj2 = ExampleContent()
@@ -362,14 +363,15 @@ class RelatedItemsWidgetTests(unittest.TestCase):
 
     def test_single_value(self):
         from zope.event import notify
-        from zope.interface import implements
+        from zope.interface import implementer
         from zope.lifecycleevent import ObjectCreatedEvent
         from plone.uuid.interfaces import IUUID
         from plone.uuid.interfaces import IAttributeUUID
         from Products.Archetypes.Widget import RelatedItemsWidget
 
+        @implementer(IAttributeUUID)
         class ExampleContent(object):
-            implements(IAttributeUUID)
+            pass
 
         obj1 = ExampleContent()
         notify(ObjectCreatedEvent(obj1))
@@ -446,13 +448,14 @@ class RelatedItemsWidgetTests(unittest.TestCase):
     def test_multiple_widgets(self):
         from zope.event import notify
         from Products.Archetypes.Widget import RelatedItemsWidget
-        from zope.interface import implements
+        from zope.interface import implementer
         from zope.lifecycleevent import ObjectCreatedEvent
         from plone.uuid.interfaces import IUUID
         from plone.uuid.interfaces import IAttributeUUID
 
+        @implementer(IAttributeUUID)
         class ExampleContent(object):
-            implements(IAttributeUUID)
+            pass
 
         obj1 = ExampleContent()
         obj2 = ExampleContent()

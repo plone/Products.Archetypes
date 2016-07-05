@@ -10,17 +10,16 @@ from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
 from Acquisition import Implicit, aq_parent, aq_inner
 from Products.CMFCore.permissions import View, ModifyPortalContent
-from zope.interface import implements
+from zope.interface import implementer
 
 
+@implementer(ICompositeSchema, ILayerRuntime, ILayerContainer)
 class CompositeSchema(Implicit):
     """Act on behalf of a set of Schemas, pretending it
     was a single one.
 
     Note that if field names overlap, they last schema wins.
     """
-
-    implements(ICompositeSchema, ILayerRuntime, ILayerContainer)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

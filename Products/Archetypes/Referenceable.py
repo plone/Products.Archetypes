@@ -1,4 +1,4 @@
-from zope.interface import implements
+from zope.interface import implementer
 
 from plone.uuid.interfaces import IUUID
 
@@ -30,10 +30,10 @@ from AccessControl import ClassSecurityInfo
 ####
 
 
+@implementer(IReferenceable)
 class Referenceable(CopySource):
     """ A Mix-in for Referenceable objects """
     isReferenceable = 1
-    implements(IReferenceable)
 
     security = ClassSecurityInfo()
     # Note: methods of this class are made non-publishable by not giving them

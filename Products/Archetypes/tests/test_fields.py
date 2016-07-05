@@ -27,7 +27,7 @@ import os
 import PIL
 
 from zope.annotation.interfaces import IAttributeAnnotatable
-from zope.interface import implements, alsoProvides
+from zope.interface import implementer, alsoProvides
 from zope.component import getSiteManager
 from zope.publisher.browser import TestRequest
 from zope.schema.interfaces import IVocabularyFactory
@@ -134,8 +134,8 @@ schema = Schema(tuple(field_instances))
 sampleDisplayList = DisplayList([('e1', 'e1'), ('element2', 'element2')])
 
 
+@implementer(IVocabulary)
 class sampleInterfaceVocabulary:
-    implements(IVocabulary)
 
     def getDisplayList(self, instance):
         return sampleDisplayList
@@ -154,8 +154,8 @@ class Dummy(BaseContentMixin):
         return "World"
 
 
+@implementer(IVocabularyFactory)
 class DummyVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary.fromItems([("title1", "value1"), ("t2", "v2")])
@@ -163,8 +163,8 @@ class DummyVocabulary(object):
 DummyVocabFactory = DummyVocabulary()
 
 
+@implementer(IVocabularyFactory)
 class DummyIntVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary.fromItems([("title1", 1), ("t2", 2)])
@@ -523,8 +523,8 @@ class ProcessingTest(ATSiteTestCase):
         # Adapter
         field.default_method = None
 
+        @implementer(IFieldDefaultProvider)
         class DefaultFor(object):
-            implements(IFieldDefaultProvider)
 
             def __init__(self, context):
                 self.context = context

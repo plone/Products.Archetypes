@@ -1,5 +1,5 @@
 import os.path
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.Archetypes.interfaces import IBaseUnit
 from Products.Archetypes.log import log
@@ -17,8 +17,8 @@ from webdav.interfaces import IWriteLock
 _marker = []
 
 
+@implementer(IBaseUnit, IWriteLock)
 class BaseUnit(File):
-    implements(IBaseUnit, IWriteLock)
 
     isUnit = 1
     mimetype = None

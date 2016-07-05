@@ -5,7 +5,7 @@ from App.class_init import InitializeClass
 
 from zope.i18n import translate
 from zope.i18nmessageid import Message
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 
 
 class iwidget(Interface):
@@ -28,6 +28,7 @@ class iwidget(Interface):
         """Returns the description, possibly translated."""
 
 
+@implementer(iwidget)
 class widget:
     """Base class for widgets.
 
@@ -39,8 +40,6 @@ class widget:
     visible     -- visible[default] | invisible | hidden
     condition   -- TALES expression to control the widget display
     """
-
-    implements(iwidget)
 
     security = ClassSecurityInfo()
     security.declareObjectPublic()

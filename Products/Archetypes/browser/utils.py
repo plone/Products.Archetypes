@@ -1,11 +1,11 @@
-from zope.interface import implements
+from zope.interface import implementer
 from Products.Five import BrowserView
 from Products.Archetypes.interfaces.utils import IUtils
 from zope.i18n import translate
 
 
+@implementer(IUtils)
 class Utils(BrowserView):
-    implements(IUtils)
 
     def translate(self, vocab, value, widget=None):
         """Translate an input value from a vocabulary.

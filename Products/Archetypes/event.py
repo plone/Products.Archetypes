@@ -1,7 +1,7 @@
 """Event definitions
 """
 
-from zope.interface import implements
+from zope.interface import implementer
 
 from zope.component.interfaces import ObjectEvent
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -16,37 +16,37 @@ from Products.Archetypes.interfaces import IEditCancelledEvent
 # Modification
 
 
+@implementer(IObjectInitializedEvent)
 class ObjectInitializedEvent(ObjectModifiedEvent):
     """An object is being initialised, i.e. populated for the first time
     """
-    implements(IObjectInitializedEvent)
 
 
+@implementer(IWebDAVObjectInitializedEvent)
 class WebDAVObjectInitializedEvent(ObjectInitializedEvent):
     """An object is being initialised via WebDAV
     """
-    implements(IWebDAVObjectInitializedEvent)
 
 
+@implementer(IObjectEditedEvent)
 class ObjectEditedEvent(ObjectModifiedEvent):
     """An object is being edited, i.e. modified after the first save
     """
-    implements(IObjectEditedEvent)
 
 
+@implementer(IWebDAVObjectEditedEvent)
 class WebDAVObjectEditedEvent(ObjectEditedEvent):
     """An object is being edited via WebDAV
     """
-    implements(IWebDAVObjectEditedEvent)
 
 
+@implementer(IEditBegunEvent)
 class EditBegunEvent(ObjectEvent):
     """An edit operation was begun
     """
-    implements(IEditBegunEvent)
 
 
+@implementer(IEditCancelledEvent)
 class EditCancelledEvent(ObjectEvent):
     """An edit operation was cancelled
     """
-    implements(IEditCancelledEvent)
