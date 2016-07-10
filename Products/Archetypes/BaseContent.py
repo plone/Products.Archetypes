@@ -13,7 +13,7 @@ from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
 
-from zope.interface import implements
+from zope.interface import implementer
 
 CONTENT_MANAGE_OPTIONS = (
     {'action': 'manage_change_history_page', 'label': 'History'},
@@ -22,14 +22,13 @@ CONTENT_MANAGE_OPTIONS = (
 )
 
 
+@implementer(IBaseContent, IReferenceable)
 class BaseContentMixin(CatalogMultiplex,
                        BaseObject,
                        PortalContent,
                        Historical):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
-
-    implements(IBaseContent, IReferenceable)
 
     security = ClassSecurityInfo()
     manage_options = CONTENT_MANAGE_OPTIONS
@@ -75,13 +74,12 @@ class BaseContentMixin(CatalogMultiplex,
 InitializeClass(BaseContentMixin)
 
 
+@implementer(IBaseContent, IReferenceable, IExtensibleMetadata)
 class BaseContent(BaseContentMixin,
                   ExtensibleMetadata,
                   PropertyManager):
     """A not-so-basic CMF Content implementation with Dublin Core
     Metadata included"""
-
-    implements(IBaseContent, IReferenceable, IExtensibleMetadata)
 
     schema = BaseContentMixin.schema + ExtensibleMetadata.schema
 

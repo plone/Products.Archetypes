@@ -19,7 +19,7 @@ from ExtensionClass import Base
 from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
-from zope.interface import implements
+from zope.interface import implementer
 
 __docformat__ = 'reStructuredText'
 _marker = []
@@ -44,6 +44,7 @@ def getSchemata(obj):
     return schemata
 
 
+@implementer(ISchemata)
 class Schemata(Base):
     """Manage a list of fields by grouping them together.
 
@@ -52,8 +53,6 @@ class Schemata(Base):
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
-
-    implements(ISchemata)
 
     def __init__(self, name='default', fields=None):
         """Initialize Schemata and add optional fields."""
@@ -413,10 +412,9 @@ class SchemaLayerContainer(DefaultLayerContainer):
 InitializeClass(SchemaLayerContainer)
 
 
+@implementer(ISchema)
 class BasicSchema(Schemata):
     """Manage a list of fields and run methods over them."""
-
-    implements(ISchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -702,12 +700,11 @@ class BasicSchema(Schemata):
 InitializeClass(BasicSchema)
 
 
+@implementer(ILayerRuntime, ILayerContainer, ISchema)
 class Schema(BasicSchema, SchemaLayerContainer):
     """
     Schema
     """
-
-    implements(ILayerRuntime, ILayerContainer, ISchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
@@ -932,6 +929,7 @@ class WrappedSchema(Schema, Explicit):
 InitializeClass(WrappedSchema)
 
 
+@implementer(IManagedSchema)
 class ManagedSchema(Schema):
     """
     Managed Schema
@@ -939,8 +937,6 @@ class ManagedSchema(Schema):
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')
-
-    implements(IManagedSchema)
 
     security.declareProtected(permissions.ModifyPortalContent,
                               'delSchemata')

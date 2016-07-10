@@ -1,4 +1,4 @@
-from zope.interface import implements
+from zope.interface import implementer
 
 from Acquisition import aq_base, aq_inner, aq_parent
 from OFS.ObjectManager import BeforeDeleteException
@@ -14,10 +14,9 @@ from Products.Archetypes.Storage import StorageLayer, type_map
 from Products.CMFCore.utils import getToolByName
 
 
+@implementer(ISQLStorage, ILayer)
 class BaseSQLStorage(StorageLayer):
     """ SQLStorage Base, more or less ISO SQL """
-
-    implements(ISQLStorage, ILayer)
 
     query_create = ('create table <dtml-var table> '
                     '(UID char(50) primary key not null, '

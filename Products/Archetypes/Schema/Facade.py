@@ -9,7 +9,7 @@ from Products.Archetypes.ClassGen import generateMethods
 from AccessControl import ClassSecurityInfo
 from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.permissions import View
-from zope.interface import implements
+from zope.interface import implementer
 
 
 # Crude mapping for now. We should instantiate
@@ -100,12 +100,11 @@ class CMFMetadataFieldNamesDescriptor:
         return fieldNamesFromSet(set, obj)
 
 
+@implementer(IBindableSchema)
 class FacadeMetadataSchema(BasicSchema):
     """A Facade Schema, which adapts CMFMetadata 'Sets'
     to groups of Archetypes fields
     """
-
-    implements(IBindableSchema)
 
     security = ClassSecurityInfo()
     security.setDefaultAccess('allow')

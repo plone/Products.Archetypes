@@ -43,9 +43,9 @@ from plone.indexer import wrapper
 from Acquisition import Explicit
 
 
+@interface.implementer(IAttributeUUID)
 class DexterityLike(Explicit):
     """Create a new class non based on Archetypes"""
-    interface.implements(IAttributeUUID)
 
     def __init__(self):
         self.id = "myid"

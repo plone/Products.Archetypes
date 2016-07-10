@@ -37,7 +37,7 @@ from AccessControl import ClassSecurityInfo
 
 from annotations import AT_ANN_KEYS
 from interfaces.athistoryaware import IATHistoryAware
-from zope.interface import implements
+from zope.interface import implementer
 
 # A note about this implementation
 #
@@ -111,6 +111,7 @@ def _objectRevisions(obj, limit=10):
         yield tid, rev
 
 
+@implementer(IATHistoryAware)
 class ATHistoryAwareMixin:
     """Archetypes history aware mixin class
 
@@ -118,8 +119,6 @@ class ATHistoryAwareMixin:
     these transactions are available only up to the last pack.
 
     """
-
-    implements(IATHistoryAware)
 
     security = ClassSecurityInfo()
 

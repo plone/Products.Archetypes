@@ -18,7 +18,7 @@ from Products.CMFCore.PortalContent import PortalContent
 from Products.CMFCore.utils import _checkPermission
 
 from zope import event
-from zope.interface import implements
+from zope.interface import implementer
 
 FOLDER_MANAGE_OPTIONS = (
     {'action': 'manage_main', 'label': 'Contents'},
@@ -27,14 +27,13 @@ FOLDER_MANAGE_OPTIONS = (
 )
 
 
+@implementer(IBaseFolder, IBaseObject, IReferenceable, IContentish)
 class BaseFolderMixin(CatalogMultiplex,
                       BaseObject,
                       PortalFolder,
                       ):
     """A not-so-basic Folder implementation, with no Dublin Core
     Metadata"""
-
-    implements(IBaseFolder, IBaseObject, IReferenceable, IContentish)
 
     security = ClassSecurityInfo()
 
@@ -245,12 +244,11 @@ class BaseFolderMixin(CatalogMultiplex,
 InitializeClass(BaseFolderMixin)
 
 
+@implementer(IBaseFolder, IBaseObject, IReferenceable,
+               IContentish, IExtensibleMetadata)
 class BaseFolder(BaseFolderMixin, ExtensibleMetadata):
     """A not-so-basic Folder implementation, with Dublin Core
     Metadata included"""
-
-    implements(IBaseFolder, IBaseObject, IReferenceable,
-               IContentish, IExtensibleMetadata)
 
     schema = BaseFolderMixin.schema + ExtensibleMetadata.schema
 

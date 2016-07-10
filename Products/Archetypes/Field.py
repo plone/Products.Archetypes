@@ -9,7 +9,7 @@ from zope.i18n import translate
 from zope.i18nmessageid import Message
 from zope import schema
 from zope import component
-from zope.interface import implements
+from zope.interface import implementer
 
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
@@ -159,6 +159,7 @@ def decode(value, instance, **kwargs):
 _field_count = 0
 
 
+@implementer(IField, ILayerContainer)
 class Field(DefaultLayerContainer):
     """
     Extend `DefaultLayerContainer`.
@@ -167,8 +168,6 @@ class Field(DefaultLayerContainer):
     Class attribute _properties is a dictionary containing all of a
     field's property values.
     """
-
-    implements(IField, ILayerContainer)
 
     security = ClassSecurityInfo()
 
@@ -787,13 +786,13 @@ class Field(DefaultLayerContainer):
 setSecurity(Field)
 
 
+@implementer(IObjectField, ILayerContainer)
 class ObjectField(Field):
     """Base Class for Field objects that fundamentaly deal with raw
     data. This layer implements the interface to IStorage and other
     Field Types should subclass this to delegate through the storage
     layer.
     """
-    implements(IObjectField, ILayerContainer)
 
     _properties = Field._properties.copy()
     _properties.update({
@@ -956,6 +955,7 @@ class ObjectField(Field):
 setSecurity(ObjectField)
 
 
+@implementer(IStringField)
 class StringField(ObjectField):
     """A field that stores strings"""
     _properties = Field._properties.copy()
@@ -964,8 +964,6 @@ class StringField(ObjectField):
         'default': '',
         'default_content_type': 'text/plain',
     })
-
-    implements(IStringField)
 
     security = ClassSecurityInfo()
 
@@ -988,11 +986,10 @@ class StringField(ObjectField):
             self.getName(), instance, value, **kwargs)
 
 
+@implementer(IFileField, ILayerContainer)
 class FileField(ObjectField):
     """Something that may be a file, but is not an image and doesn't
     want text format conversion"""
-
-    implements(IFileField, ILayerContainer)
 
     _properties = ObjectField._properties.copy()
     _properties.update({
@@ -1367,6 +1364,7 @@ class FileField(ObjectField):
         return value
 
 
+@implementer(ITextField)
 class TextField(FileField):
     """Base Class for Field objects that rely on some type of
     transformation"""
@@ -1382,8 +1380,6 @@ class TextField(FileField):
         'primary': False,
         'content_class': BaseUnit,
     })
-
-    implements(ITextField)
 
     security = ClassSecurityInfo()
 
@@ -1583,6 +1579,7 @@ class TextField(FileField):
         return len(self.getBaseUnit(instance))
 
 
+@implementer(IDateTimeField)
 class DateTimeField(ObjectField):
     """A field that stores dates and times"""
 
@@ -1591,8 +1588,6 @@ class DateTimeField(ObjectField):
         'type': 'datetime',
         'widget': CalendarWidget,
     })
-
-    implements(IDateTimeField)
 
     security = ClassSecurityInfo()
 
@@ -1634,6 +1629,7 @@ class DateTimeField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 
+@implementer(ILinesField)
 class LinesField(ObjectField):
     """For creating lines objects"""
 
@@ -1643,8 +1639,6 @@ class LinesField(ObjectField):
         'default': (),
         'widget': LinesWidget,
     })
-
-    implements(ILinesField)
 
     security = ClassSecurityInfo()
 
@@ -1691,6 +1685,7 @@ class LinesField(ObjectField):
         return size
 
 
+@implementer(IIntegerField)
 class IntegerField(ObjectField):
     """A field that stores an integer"""
 
@@ -1701,8 +1696,6 @@ class IntegerField(ObjectField):
         'widget': IntegerWidget,
         'default': None,
     })
-
-    implements(IIntegerField)
 
     security = ClassSecurityInfo()
 
@@ -1730,6 +1723,7 @@ class IntegerField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 
+@implementer(IFloatField)
 class FloatField(ObjectField):
     """A field that stores floats"""
     _properties = Field._properties.copy()
@@ -1737,8 +1731,6 @@ class FloatField(ObjectField):
         'type': 'float',
         'default': None
     })
-
-    implements(IFloatField)
 
     security = ClassSecurityInfo()
 
@@ -1770,6 +1762,7 @@ class FloatField(ObjectField):
         ObjectField.set(self, instance, value, **kwargs)
 
 
+@implementer(IFixedPointField)
 class FixedPointField(ObjectField):
     """A field for storing numerical data with fixed points
 
@@ -1790,8 +1783,6 @@ class FixedPointField(ObjectField):
         'widget': DecimalWidget,
         'validators': ('isDecimal'),
     })
-
-    implements(IFixedPointField)
 
     security = ClassSecurityInfo()
 
@@ -1905,6 +1896,7 @@ class FixedPointField(ObjectField):
         return template % (sign, front, fra)
 
 
+@implementer(IReferenceField)
 class ReferenceField(ObjectField):
     """A field for creating references between objects.
 
@@ -1937,8 +1929,6 @@ class ReferenceField(ObjectField):
         'callStorageOnSet': False,
         'index_method': '_at_edit_accessor',
     })
-
-    implements(IReferenceField)
 
     security = ClassSecurityInfo()
 
@@ -2214,6 +2204,7 @@ class ReferenceField(ObjectField):
         return 0
 
 
+@implementer(IComputedField)
 class ComputedField(Field):
     """A field that always returns a computed."""
     _properties = Field._properties.copy()
@@ -2224,8 +2215,6 @@ class ComputedField(Field):
         'mode': 'r',
         'storage': ReadOnlyStorage(),
     })
-
-    implements(IComputedField)
 
     security = ClassSecurityInfo()
 
@@ -2250,6 +2239,7 @@ class ComputedField(Field):
         return 0
 
 
+@implementer(IBooleanField)
 class BooleanField(ObjectField):
     """A field that stores boolean values."""
     _properties = Field._properties.copy()
@@ -2259,8 +2249,6 @@ class BooleanField(ObjectField):
         'vocabulary': (('True', 'Yes', 'yes'), ('False', 'No', 'no')),
         'widget': BooleanWidget,
     })
-
-    implements(IBooleanField)
 
     security = ClassSecurityInfo()
 
@@ -2401,6 +2389,7 @@ class Image(BaseImage):
         return True
 
 
+@implementer(IImageField)
 class ImageField(FileField):
     """ implements an image attribute. it stores
         it's data in an image sub-object
@@ -2487,8 +2476,6 @@ class ImageField(FileField):
         'storage': AttributeStorage(),
         'content_class': Image,
     })
-
-    implements(IImageField)
 
     security = ClassSecurityInfo()
 

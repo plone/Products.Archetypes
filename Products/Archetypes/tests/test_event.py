@@ -2,7 +2,7 @@
 Unittests for the events fired by Archetypes.
 """
 
-from zope.interface import implements, Interface, directlyProvides
+from zope.interface import implementer, Interface, directlyProvides
 from zope import component
 
 from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
@@ -40,8 +40,8 @@ utils.gen_class(Dummy)
 # Subscription adapters for validation
 
 
+@implementer(IObjectPreValidation)
 class PreValidation(object):
-    implements(IObjectPreValidation)
 
     def __init__(self, context):
         self.context = context
@@ -50,8 +50,8 @@ class PreValidation(object):
         return dict(foo="Foo was invalid.")
 
 
+@implementer(IObjectPostValidation)
 class PostValidation(object):
-    implements(IObjectPostValidation)
 
     def __init__(self, context):
         self.context = context

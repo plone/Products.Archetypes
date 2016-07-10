@@ -54,7 +54,7 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from zope import event
-from zope.interface import implements, Interface
+from zope.interface import implementer, Interface
 from zope.component import subscribers
 from zope.component import queryMultiAdapter
 from zope.component import queryUtility
@@ -111,6 +111,7 @@ content_type = Schema((
 ), marshall=RFC822Marshaller())
 
 
+@implementer(IBaseObject, IReferenceable)
 class BaseObject(Referenceable):
 
     security = ClassSecurityInfo()
@@ -129,8 +130,6 @@ class BaseObject(Referenceable):
     installMode = ['type', 'actions', 'indexes']
 
     _at_rename_after_creation = False  # rename object according to title?
-
-    implements(IBaseObject, IReferenceable)
 
     def __init__(self, oid, **kwargs):
         self.id = oid

@@ -2,7 +2,7 @@ import logging
 import os
 import time
 import urllib
-from zope.interface import implements
+from zope.interface import implementer
 from zope import component
 from zope import interface
 
@@ -197,13 +197,13 @@ class UIDBaseCatalog(PluggableCatalog):
     BASE_CLASS = UIDCatalogBrains
 
 
+@implementer(IUIDCatalog)
 class UIDCatalog(UniqueObject, UIDResolver, ZCatalog):
     """Unique id catalog
     """
 
     id = UID_CATALOG
     security = ClassSecurityInfo()
-    implements(IUIDCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
 

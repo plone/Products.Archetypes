@@ -1,7 +1,7 @@
 import string
 from logging import DEBUG
 from zope.component import queryUtility
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.Field import BooleanField, LinesField, TextField, \
@@ -45,11 +45,10 @@ except ImportError:
 
 
 # MIXIN
+@implementer(IExtensibleMetadata)
 class ExtensibleMetadata(Persistence.Persistent):
     """ A DC metadata implementation for Plone Archetypes
     """
-
-    implements(IExtensibleMetadata)
 
     security = ClassSecurityInfo()
 

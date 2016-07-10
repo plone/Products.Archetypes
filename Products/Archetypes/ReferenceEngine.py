@@ -2,7 +2,7 @@ import os
 from types import StringType, UnicodeType
 import time
 import urllib
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.interfaces.referenceable import IReferenceable
@@ -42,15 +42,8 @@ from UIDCatalog import UIDCatalogBrains
 from UIDCatalog import UIDResolver
 
 
+@implementer(IReference)
 class Reference(Referenceable, SimpleItem):
-    # Added base level support for referencing References
-    # They respond to the UUID protocols, but are not
-    # catalog aware. This means that you can't move/rename
-    # reference objects and expect them to work, but you can't
-    # do this anyway. However they should fine the correct
-    # events when they are added/deleted, etc
-
-    implements(IReference)
 
     security = ClassSecurityInfo()
     portal_type = 'Reference'
@@ -154,10 +147,9 @@ InitializeClass(Reference)
 REFERENCE_CONTENT_INSTANCE_NAME = 'content'
 
 
+@implementer(IContentReference)
 class ContentReference(ObjectManager, Reference):
     '''Subclass of Reference to support contentish objects inside references '''
-
-    implements(IContentReference)
 
     def __init__(self, *args, **kw):
         Reference.__init__(self, *args, **kw)
@@ -280,13 +272,13 @@ class IndexableObjectWrapper(object):
             return self._obj.getId()
 
 
+@implementer(IReferenceCatalog)
 class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     """Reference catalog
     """
 
     id = REFERENCE_CATALOG
     security = ClassSecurityInfo()
-    implements(IReferenceCatalog)
 
     manage_catalogFind = DTMLFile('catalogFind', _catalog_dtml)
     manage_options = ZCatalog.manage_options

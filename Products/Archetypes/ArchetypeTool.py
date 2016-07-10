@@ -4,7 +4,7 @@ from copy import deepcopy
 from DateTime import DateTime
 from StringIO import StringIO
 
-from zope.interface import implements
+from zope.interface import implementer
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.interfaces import IArchetypeTool
@@ -438,14 +438,13 @@ class WidgetWrapper:
 last_load = DateTime()
 
 
+@implementer(IArchetypeTool)
 class ArchetypeTool(UniqueObject, ActionProviderBase,
                     SQLStorageConfig, Folder):
     """Archetypes tool, manage aspects of Archetype instances.
     """
     id = TOOL_NAME
     meta_type = TOOL_NAME.title().replace('_', ' ')
-
-    implements(IArchetypeTool)
 
     isPrincipiaFolderish = True  # Show up in the ZMI
 

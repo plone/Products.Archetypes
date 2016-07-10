@@ -5,7 +5,7 @@ from Products.CMFCore import permissions
 from Products.CMFCore.CMFBTreeFolder import CMFBTreeFolder
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
-from zope.interface import implements
+from zope.interface import implementer
 
 # to keep backward compatibility
 has_btree = 1
@@ -22,12 +22,11 @@ class BaseBTreeFolder(Base):
     _ordering = 'unordered'     # old large folder remain unordered at first
 
 
+@implementer(IBaseFolder)
 class ObsoleteBaseBTreeFolder(CMFBTreeFolder, BaseFolder):
     """ A BaseBTreeFolder with all the bells and whistles"""
 
     security = ClassSecurityInfo()
-
-    implements(IBaseFolder)
 
     # Fix permissions set by CopySupport.py
     __ac_permissions__ = (

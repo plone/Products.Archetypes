@@ -8,7 +8,7 @@ from Persistence import PersistentMapping
 
 from AccessControl import ClassSecurityInfo
 from Products.Archetypes.Registry import setSecurity, registerStorage
-from zope.interface import implements
+from zope.interface import implementer
 
 type_map = {'text': 'string',
             'datetime': 'date',
@@ -20,11 +20,10 @@ _marker = []
 
 
 # XXX subclass from Base?
+@implementer(IStorage)
 class Storage:
     """Basic, abstract class for Storages. You need to implement
     at least those methods"""
-
-    implements(IStorage)
 
     security = ClassSecurityInfo()
 
@@ -63,12 +62,11 @@ class ReadOnlyStorage(Storage):
     security = ClassSecurityInfo()
 
 
+@implementer(IStorage, ILayer)
 class StorageLayer(Storage):
     """Base, abstract StorageLayer. Storages that need to manipulate
     how they are initialized per instance and/or per field must
     subclass and implement those methods"""
-
-    implements(IStorage, ILayer)
 
     security = ClassSecurityInfo()
 

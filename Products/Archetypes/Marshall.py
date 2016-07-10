@@ -4,7 +4,7 @@ from cStringIO import StringIO
 from rfc822 import Message
 
 from zope.contenttype import guess_content_type
-from zope.interface import implements
+from zope.interface import implementer
 
 from AccessControl import ClassSecurityInfo
 from Acquisition import aq_base
@@ -102,8 +102,8 @@ def parseRFC822(body):
     return headers, buffer.read()
 
 
+@implementer(IMarshall, ILayer)
 class Marshaller:
-    implements(IMarshall, ILayer)
 
     security = ClassSecurityInfo()
     security.declareObjectPrivate()

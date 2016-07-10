@@ -9,12 +9,11 @@ from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.event import WebDAVObjectInitializedEvent
 from Products.Archetypes.event import WebDAVObjectEditedEvent
 from Products.Archetypes.utils import shasattr, mapply
-from zope.interface import implements, Interface
+from zope.interface import implementer, Interface
 
 
+@implementer(IStreamIterator)
 class PdataStreamIterator(object):
-
-    implements(IStreamIterator)
 
     def __init__(self, data, size, streamsize=1 << 16):
         # Consume the whole data into a TemporaryFile when
