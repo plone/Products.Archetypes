@@ -10,7 +10,11 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Support Autotoc pattern, if plone.app.widgets 1.x is installed, such
+  that form tabbing is enabled using this pattern.  Markup change
+  is consistent with how plone.app.z3cform 1.0.x templates specify
+  pattern use and configuration in edit forms/fieldsets.
+  [seanupton]
 
 Bug fixes:
 
