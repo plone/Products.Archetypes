@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- DateWidget, DatetimeWidget now able to clear previous values; backported
+  fix from 1.11.1.
+  [seanupton]
 
 
 1.10.15 (2016-05-15)
