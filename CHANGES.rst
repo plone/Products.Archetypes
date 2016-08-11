@@ -14,6 +14,9 @@ New features:
 
 Bug fixes:
 
+- DateWidget, DatetimeWidget now able to clear previous values.
+  [seanupton]
+
 - Use zope.interface decorator.
   [gforcada]
 
