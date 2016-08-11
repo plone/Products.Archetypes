@@ -4,10 +4,6 @@ Changelog
 1.9.12 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Support Autotoc pattern, if plone.app.widgets 1.x is installed, such
@@ -15,10 +11,6 @@ New features:
   is consistent with how plone.app.z3cform 1.0.x templates specify
   pattern use and configuration in edit forms/fieldsets.
   [seanupton]
-
-Bug fixes:
-
-- *add item here*
 
 
 1.9.11 (2016-05-05)
