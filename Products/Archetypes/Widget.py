@@ -1023,6 +1023,10 @@ class DateWidget(BasePatternWidget):
 
         value = value.split('-')
 
+        if value[0] == '':
+            # empty value, clear any previous value
+            return None, {}
+
         try:
             value = DateTime(datetime(*map(int, value)))
         except:
@@ -1102,8 +1106,11 @@ class DatetimeWidget(DateWidget):
             return empty_marker
 
         tmp = value.split(' ')
+
         if not tmp[0]:
-            return empty_marker
+            # empty: clear, not preserve, any previous value
+            return None, {}
+
         value = tmp[0].split('-')
         if len(tmp) == 2 and ':' in tmp[1]:
             value += tmp[1].split(':')
