@@ -12,6 +12,7 @@ setup(name='Products.Archetypes',
       classifiers=[
         "Framework :: Plone",
         "Framework :: Plone :: 5.0",
+        "Framework :: Plone :: 5.1",
         "Framework :: Zope2",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
