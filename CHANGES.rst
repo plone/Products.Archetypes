@@ -4,14 +4,6 @@ Changelog
 1.11.1 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - DateWidget, DatetimeWidget now able to clear previous values.
