@@ -1,6 +1,22 @@
 Changelog
 =========
 
+1.11.2 (unreleased)
+-------------------
+
+Breaking changes:
+
+- *add item here*
+
+New features:
+
+- *add item here*
+
+Bug fixes:
+
+- *add item here*
+
+
 1.11.1 (2016-08-18)
 -------------------
 
