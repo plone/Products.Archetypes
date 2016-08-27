@@ -59,7 +59,7 @@
       <form name="edit_form"
             method="post"
             enctype="multipart/form-data"
-            class="enableUnloadProtection"
+            class="pat-formunloadalert"
             tal:attributes="action python:context.absolute_url()+'/'+template.id">
 
           <tal:fields repeat="field fields">
