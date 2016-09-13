@@ -4,14 +4,6 @@ Changelog
 1.10.16 (unreleased)
 --------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - DateWidget, DatetimeWidget now able to clear previous values; backported
