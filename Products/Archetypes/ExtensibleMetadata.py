@@ -91,7 +91,6 @@ class ExtensibleMetadata(Persistence.Persistent):
             searchable=1,
             accessor="Description",
             default_content_type='text/plain',
-            allowable_content_types=('text/plain',),
             widget=TextAreaWidget(
                 label=_(u'label_description', default=u'Description'),
                 description=_(u'help_description',
