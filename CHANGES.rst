@@ -14,6 +14,9 @@ New features:
 
 Bug fixes:
 
+- no allowable_content_types for description (avoid validation)
+  [tschorr]
+
 - *add item here*
 
 
