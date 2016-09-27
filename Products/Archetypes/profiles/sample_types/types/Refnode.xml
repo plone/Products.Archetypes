@@ -4,7 +4,7 @@
  <property name="title">Refnode</property>
  <property
     name="description">A simple archetype for testing references. It can point to itself</property>
- <property name="content_icon">document_icon.gif</property>
+ <property name="content_icon">document_icon.png</property>
  <property name="content_meta_type">Refnode</property>
  <property name="product">Archetypes</property>
  <property name="factory">addRefnode</property>

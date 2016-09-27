@@ -14,10 +14,10 @@ New features:
 
 Bug fixes:
 
+- Don't use document/folder_icon.gif in the test profile.  Use png instead.  [maurits]
+
 - no allowable_content_types for description (avoid validation)
   [tschorr]
-
-- *add item here*
 
 
 1.11.2 (2016-09-14)
