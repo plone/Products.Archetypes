@@ -3,7 +3,7 @@
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="title">Demo Doc</property>
  <property name="description">An extensible Document (test) type</property>
- <property name="content_icon">document_icon.gif</property>
+ <property name="content_icon">document_icon.png</property>
  <property name="content_meta_type">DDocument</property>
  <property name="product">Archetypes</property>
  <property name="factory">addDDocument</property>

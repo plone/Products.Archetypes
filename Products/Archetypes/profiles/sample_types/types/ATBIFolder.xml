@@ -4,7 +4,7 @@
  <property name="title">ATBIFolder</property>
  <property
     name="description">A simple folder that uses AllowedTypesByIfaceMixin</property>
- <property name="content_icon">folder_icon.gif</property>
+ <property name="content_icon">folder_icon.png</property>
  <property name="content_meta_type">ATBIFolder</property>
  <property name="product">Archetypes</property>
  <property name="factory">addATBIFolder</property>

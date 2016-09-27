@@ -3,7 +3,7 @@
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="title">Simple Folder</property>
  <property name="description">A simple folderish archetype</property>
- <property name="content_icon">folder_icon.gif</property>
+ <property name="content_icon">folder_icon.png</property>
  <property name="content_meta_type">SimpleFolder</property>
  <property name="product">Archetypes</property>
  <property name="factory">addSimpleFolder</property>
