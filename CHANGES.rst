@@ -4,14 +4,6 @@ Changelog
 1.11.3 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Don't use document/folder_icon.gif in the test profile.  Use png instead.  [maurits]
