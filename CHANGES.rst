@@ -4,14 +4,6 @@ Changelog
 1.9.13 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - no allowable_content_types for description (avoid validation)
