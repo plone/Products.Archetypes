@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- More flexible test of getBestIcon.
+  [jensens]
 
 
 1.11.3 (2016-10-03)
