@@ -305,7 +305,7 @@ class WidgetTests(ATTestCase):
 
     def test_getBestIcon(self):
         doc = makeContent(self.folder, 'SimpleType', id='doc')
-        self.assertEqual(doc.getBestIcon(), 'txt.png')
+        self.assertTrue(doc.getBestIcon().endswith('txt.png'))
 
     def test_vocabulary_enforced(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')
