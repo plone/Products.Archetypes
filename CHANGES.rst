@@ -10,7 +10,9 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- ``OFS.HistoryAware`` was dropped in Zope 4.
+  Make AnnotationStorage awareness of it optional.
+  [jensens]
 
 Bug fixes:
 
