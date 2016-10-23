@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##########################################################################
 #
 # Copyright (c) 2002-2005, Benjamin Saller <bcsaller@ideasuite.com>, and
@@ -25,19 +26,24 @@
 """Archetypes history awareness"""
 __author__ = 'Martijn Pieters <mj@zopatista.com>'
 
+from AccessControl import ClassSecurityInfo
+from Acquisition import aq_parent
+from annotations import AT_ANN_KEYS
+from App.class_init import InitializeClass
+from BTrees.OOBTree import OOBTree
+from DateTime import DateTime
+from Products.Archetypes.interfaces.athistoryaware import IATHistoryAware
+from zope.interface import implementer
+
 import itertools
 
-from DateTime import DateTime
-from OFS.History import HystoryJar
-from Acquisition import aq_parent
-from BTrees.OOBTree import OOBTree
-from App.class_init import InitializeClass
+try:
+    from OFS.History import HystoryJar
+    HAS_OFS_HISTORY = True
+except ImportError:
+    # OFS.History modue was dropped in Zope 4
+    HAS_OFS_HISTORY = False
 
-from AccessControl import ClassSecurityInfo
-
-from annotations import AT_ANN_KEYS
-from interfaces.athistoryaware import IATHistoryAware
-from zope.interface import implementer
 
 # A note about this implementation
 #
@@ -122,8 +128,7 @@ class ATHistoryAwareMixin:
 
     security = ClassSecurityInfo()
 
-    security.declarePrivate('_constructAnnotatedHistory')
-
+    @security.private
     def _constructAnnotatedHistory(self, max=10):
         """Reconstruct historical revisions of archetypes objects
 
@@ -135,6 +140,10 @@ class ATHistoryAwareMixin:
         # For every tid, keep a dict with object revisions, keyed on annotation
         # id, or None for self and '__annotations__' for the ann OOBTree
         # Initialize with self revisions
+
+        # in Zope 4 this featire was dropped.
+        if not HAS_OFS_HISTORY:
+            return
         history = dict([(tid, {None: rev})
                         for (tid, rev) in _objectRevisions(self, max)])
 
@@ -229,8 +238,7 @@ class ATHistoryAwareMixin:
 
             yield revision
 
-    security.declarePrivate('getHistories')
-
+    @security.private
     def getHistories(self, max=10):
         """Iterate over historic revisions.
 
