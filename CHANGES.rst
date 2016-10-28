@@ -14,6 +14,10 @@ New features:
   Make AnnotationStorage awareness of it optional.
   [jensens]
 
+- moved script ``date_components_support.py`` from CMFPlone over here, 
+  hence its only used here.
+  [jensens]
+
 Bug fixes:
 
 - More flexible test of getBestIcon.
