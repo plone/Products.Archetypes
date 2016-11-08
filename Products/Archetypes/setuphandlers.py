@@ -1,9 +1,25 @@
 """
 Archetypes setup handlers.
 """
-
+from Products.Archetypes.config import REFERENCE_CATALOG
+from Products.Archetypes.config import TOOL_NAME
+from Products.Archetypes.config import UID_CATALOG
 from Products.CMFCore.utils import getToolByName
-from Products.Archetypes.config import TOOL_NAME, REFERENCE_CATALOG, UID_CATALOG
+from Products.CMFPlone.interfaces import INonInstallable
+from zope.interface import implementer
+
+
+@implementer(INonInstallable)
+class HiddenProfiles(object):
+
+    def getNonInstallableProfiles(self):
+        """Prevents uninstall profile from showing up in the profile list
+        when creating a Plone site.
+
+        """
+        return [
+            u'Products.Archetypes:uninstall',
+        ]
 
 
 def install_uidcatalog(out, site, rebuild=False):
@@ -23,7 +39,7 @@ def install_uidcatalog(out, site, rebuild=False):
             reindex = True
 
     for metadata in metadata_defs:
-        if not indexName in catalog.schema():
+        if indexName not in catalog.schema():
             catalog.addColumn(metadata)
             reindex = True
     if reindex:
@@ -39,10 +55,10 @@ def install_referenceCatalog(out, site, rebuild=False):
                                  ('targetUID', 'FieldIndex'),
                                  ('relationship', 'FieldIndex'),
                                  ('targetId', 'FieldIndex'),):
-        if not indexName in catalog.indexes():
+        if indexName not in catalog.indexes():
             catalog.addIndex(indexName, indexType, extra=None)
             reindex = True
-        if not indexName in catalog.schema():
+        if indexName not in catalog.schema():
             catalog.addColumn(indexName)
             reindex = True
     if reindex:

@@ -18,4 +18,9 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <utility
+      name="Products.Archetypes"
+      factory=".setuphandlers.HiddenProfiles"
+    />
+
 </configure>
