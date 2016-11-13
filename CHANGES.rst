@@ -14,9 +14,11 @@ New features:
   Make AnnotationStorage awareness of it optional.
   [jensens]
 
-- moved script ``date_components_support.py`` from CMFPlone over here, 
-  hence its only used here.
-  [jensens]
+- Moved scripts that are only used by Archetypes from CMFPlone
+  to Products.Archetypes:
+  - ``date_components_support.py``
+  - ``show_id.py``
+  [jensens, davisagli]
 
 Bug fixes:
 
