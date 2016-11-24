@@ -7,6 +7,7 @@ Goal is to have values from selection widgets translated in /base_view::
     >>> from plone.app.testing import login
     >>> from plone.testing.z2 import Browser
     >>> from Products.Archetypes.tests.utils import makeContent
+    >>> from zope.component import getGlobalSiteManager
     >>> from zope.component import provideUtility
     >>> from zope.i18n import ITranslationDomain
     >>> from zope.interface import implements
@@ -33,8 +34,8 @@ First make a custom translator for our i18n domain::
     ...                   default=None):
     ...         return "translated:%s" % (msgid)
     >>> t = TranslationDomain()
-    >>> provideUtility(t, ITranslationDomain, 'attesti18n')
-
+    >>> gsm = getGlobalSiteManager()
+    >>> gsm.registerUtility(t, ITranslationDomain, 'attesti18n')
 
 Now be sure our values are correctly translated in view::
 
@@ -43,4 +44,6 @@ Now be sure our values are correctly translated in view::
     >>> transaction.commit()
     >>> br = browser(doc.absolute_url()+"/base_view")
     >>> 'translated:test2' in br.contents and 'translated:Test' in br.contents
+    True
+    >>> gsm.unregisterUtility(t, ITranslationDomain, 'attesti18n')
     True
