@@ -18,6 +18,7 @@ DOCTEST_MODULES = (
 
 DOCTEST_FILES = (
     'events.txt',
+    'translate.txt',
     'traversal_4981.txt',
     'folder_marshall.txt',
     'webdav_operations.txt',

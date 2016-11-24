@@ -10,6 +10,9 @@ Breaking changes:
 
 New features:
 
+- Moved selection widget translation tests from CMFPlone to Archetypes.
+  [maurits]
+
 - ``OFS.HistoryAware`` was dropped in Zope 4.
   Make AnnotationStorage awareness of it optional.
   [jensens]
