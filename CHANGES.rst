@@ -4,10 +4,6 @@ Changelog
 1.11.4 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Moved selection widget translation tests from CMFPlone to Archetypes.
