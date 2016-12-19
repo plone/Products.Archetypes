@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix tests to work with latest plone.app.widgets 2.1.
+  [thet]
 
 
 1.12 (2016-12-06)
