@@ -21,6 +21,9 @@ Bug fixes:
   Needed to work with latest zope.i18nmessageid 4.0.3 release (and later).
   [jensens]
 
+- fix randomly failing test in ``test_referenceable``.
+  [jensens]
+
 1.12 (2016-12-06)
 -----------------
 
