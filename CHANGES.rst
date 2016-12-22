@@ -17,6 +17,9 @@ Bug fixes:
 - Fix tests to work with latest plone.app.widgets 2.1.
   [thet]
 
+- Default display value of a ``Vocabulary`` i18n-message must be unicode, enforce.
+  Needed to work with latest zope.i18nmessageid 4.0.3 release (and later).
+  [jensens]
 
 1.12 (2016-12-06)
 -----------------

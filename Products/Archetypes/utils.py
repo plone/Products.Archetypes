@@ -598,6 +598,8 @@ class Vocabulary(DisplayList):
             # that can be translated elsewhere.
             if not isinstance(msg, unicode):
                 msg = msg.decode('utf-8')
+            if not isinstance(value, unicode):
+                value = value.decode('utf-8')
             return Message(msg, domain=self._i18n_domain, default=value)
         else:
             return value
