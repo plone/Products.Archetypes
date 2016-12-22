@@ -615,7 +615,10 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         self.assertEqual(a.getRefs(), [b])
         # Original non-copied object should point to both the original and the
         # copied object
-        self.assertEqual(sorted(b.getBRefs()), sorted([a, copy_a]))
+        self.assertEqual(
+            sorted([x.absolute_url() for x in b.getBRefs()]),
+            sorted([x.absolute_url() for x in [a, copy_a]])
+        )
 
     def test_copyPasteSupport(self):
         # copy/paste behaviour test
