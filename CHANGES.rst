@@ -10,7 +10,8 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Remove Products.PlacelessTranslationService as dependency b/c it is not used in Archetypes.
+  [jensens]
 
 Bug fixes:
 
