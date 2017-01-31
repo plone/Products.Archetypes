@@ -10,7 +10,8 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- manage_reindexIndex requires index names (Zope4).
+  [tschorr]
 
 Bug fixes:
 
