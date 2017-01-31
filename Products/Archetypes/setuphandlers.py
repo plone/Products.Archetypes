@@ -43,18 +43,15 @@ def install_uidcatalog(out, site, rebuild=False):
             catalog.addColumn(metadata)
             reindex = True
     if reindex:
-        catalog.manage_reindexIndex()
+        catalog.manage_reindexIndex(index_defs)
 
 
 def install_referenceCatalog(out, site, rebuild=False):
     catalog = getToolByName(site, REFERENCE_CATALOG)
     reindex = False
 
-    for indexName, indexType in (('UID', 'FieldIndex'),
-                                 ('sourceUID', 'FieldIndex'),
-                                 ('targetUID', 'FieldIndex'),
-                                 ('relationship', 'FieldIndex'),
-                                 ('targetId', 'FieldIndex'),):
+    index_names = ('UID', 'sourceUID', 'targetUID', 'relationship', 'targetId')
+    for indexName, indexType in zip(index_names, ('FieldIndex',) * 5):
         if indexName not in catalog.indexes():
             catalog.addIndex(indexName, indexType, extra=None)
             reindex = True
@@ -62,7 +59,7 @@ def install_referenceCatalog(out, site, rebuild=False):
             catalog.addColumn(indexName)
             reindex = True
     if reindex:
-        catalog.manage_reindexIndex()
+        catalog.manage_reindexIndex(index_names)
 
 
 def install_templates(out, site):

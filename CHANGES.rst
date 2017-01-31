@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.12.1 (unreleased)
+1.13.0 (unreleased)
 -------------------
 
 Breaking changes:
@@ -9,6 +9,9 @@ Breaking changes:
 - *add item here*
 
 New features:
+
+- manage_reindexIndex requires index names (Zope4).
+  [tschorr]
 
 - Remove Products.PlacelessTranslationService as dependency b/c it is not used in Archetypes.
   [jensens]
