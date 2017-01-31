@@ -14,6 +14,8 @@ New features:
   [tschorr]
 - Remove Products.PlacelessTranslationService as dependency b/c it is not used in Archetypes.
   [jensens]
+- manage_reindexIndex requires index names (Zope4).
+  [tschorr]
 
 Bug fixes:
 
