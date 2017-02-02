@@ -57,7 +57,7 @@ enable the new behaviour on folderish objects that have
   >>> folder.called_afterPUT_hook
   Traceback (most recent call last):
   ...
-  AttributeError: ... has no attribute 'called_afterPUT_hook'
+  AttributeError: ...called_afterPUT_hook...
 
   >>> print folder.Description()
   <BLANKLINE>
@@ -138,7 +138,7 @@ The same for BTreeFolder:
   >>> folder.called_afterPUT_hook
   Traceback (most recent call last):
   ...
-  AttributeError: ... object has no attribute 'called_afterPUT_hook'
+  AttributeError: ...called_afterPUT_hook...
 
 Note that 'GET' will also result in the same response. We simulate a
 WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
