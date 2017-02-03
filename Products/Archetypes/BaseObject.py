@@ -54,9 +54,9 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from zope import event
-from zope.interface import implements, Interface
+from zope.interface import implementer, Interface, providedBy
+from zope.component import getSiteManager
 from zope.component import subscribers
-from zope.component import queryMultiAdapter
 from zope.component import queryUtility
 
 # Import conditionally, so we don't introduce a hard depdendency
@@ -1147,8 +1147,11 @@ class BaseObject(Referenceable):
             if shasattr(self, name):  # attributes of self come first
                 target = getattr(self, name)
             else:  # then views
-                target = queryMultiAdapter((self, REQUEST), Interface, name)
-                if target is not None:
+                gsm = getSiteManager()
+                factory = gsm.adapters.lookup(
+                    (providedBy(self), providedBy(REQUEST)), Interface, name
+                )
+                if factory is not None:
                     # We don't return the view, we raise an
                     # AttributeError instead (below)
                     target = None

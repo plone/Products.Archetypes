@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Don't instantiate browser view to check for existence.
+  [malthe]
 
 
 1.10.17 (2017-05-23)
