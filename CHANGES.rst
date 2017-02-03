@@ -18,6 +18,9 @@ New features:
 
 Bug fixes:
 
+- Fix tests to work with HTTP1.0 as well as HTTP1.1 answers.
+  [gogobd]
+
 - Fix tests to work with latest plone.app.widgets 2.1.
   [thet]
 
