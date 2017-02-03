@@ -4,7 +4,10 @@ Changelog
 1.9.17 (unreleased)
 -------------------
 
-- Nothing changed yet.
+Bug fixes:
+
+- Don't instantiate browser view to check for existence.
+  [malthe]
 
 
 1.9.16 (2017-05-23)
