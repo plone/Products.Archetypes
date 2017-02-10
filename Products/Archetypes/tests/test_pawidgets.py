@@ -90,7 +90,6 @@ class DateWidgetTests(unittest.TestCase):
                         'firstDay': 0,
                         'min': [current_year - 100, 1, 1],
                         'max': [current_year + 20, 1, 1],
-                        'clear': u'Clear',
                         'format': 'mmmm d, yyyy',
                         'monthsFull': [u'January', u'February', u'March',
                                        u'April', u'May', u'June', u'July',
@@ -101,14 +100,16 @@ class DateWidgetTests(unittest.TestCase):
                         'weekdaysFull': [u'Sunday', u'Monday', u'Tuesday',
                                          u'Wednesday', u'Thursday', u'Friday',
                                          u'Saturday'],
-                        'today': u'Today',
                         'selectYears': 200,
                         'placeholder': u'Enter date...',
                         'monthsShort': [u'Jan', u'Feb', u'Mar', u'Apr', u'May',
                                         u'Jun', u'Jul', u'Aug', u'Sep', u'Oct',
                                         u'Nov', u'Dec']
                     },
-                    'time': False
+                    'time': False,
+                    'today': u'Today',
+                    'clear': u'Clear',
+
                 }
             },
             self.widget._base_args(self.context, self.field, self.request),
@@ -160,7 +161,6 @@ class DatetimeWidgetTests(unittest.TestCase):
                         'firstDay': 0,
                         'min': [current_year - 100, 1, 1],
                         'max': [current_year + 20, 1, 1],
-                        'clear': u'Clear',
                         'format': 'mmmm d, yyyy',
                         'monthsFull': [u'January', u'February', u'March',
                                        u'April', u'May', u'June', u'July',
@@ -171,7 +171,6 @@ class DatetimeWidgetTests(unittest.TestCase):
                         'weekdaysFull': [u'Sunday', u'Monday', u'Tuesday',
                                          u'Wednesday', u'Thursday', u'Friday',
                                          u'Saturday'],
-                        'today': u'Today',
                         'selectYears': 200,
                         'placeholder': u'Enter date...',
                         'monthsShort': [u'Jan', u'Feb', u'Mar', u'Apr', u'May',
@@ -180,9 +179,10 @@ class DatetimeWidgetTests(unittest.TestCase):
                     },
                     'time': {
                         'placeholder': u'Enter time...',
-                        'today': u'Today',
                         'format': 'h:i a'
-                    }
+                    },
+                    'today': u'Today',
+                    'clear': u'Clear',
                 }
             },
             self.widget._base_args(self.context, self.field, self.request),
