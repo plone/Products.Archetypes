@@ -4,10 +4,6 @@ Changelog
 1.13.0 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - manage_reindexIndex requires index names (Zope4).
