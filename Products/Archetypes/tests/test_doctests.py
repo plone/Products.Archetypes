@@ -23,7 +23,7 @@ DOCTEST_FILES = (
     'folder_marshall.txt',
     'webdav_operations.txt',
     'traversal.txt',
-    'reindex_sanity.txt')
+)
 
 OPTIONFLAGS = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE |

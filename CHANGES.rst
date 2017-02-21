@@ -6,7 +6,9 @@ Changelog
 
 Breaking changes:
 
-- *add item here*
+- Update code to the new indexing operations queueing.
+  Part of PLIP 1343: https://github.com/plone/Products.CMFPlone/issues/1343
+  [gforcada]
 
 New features:
 
