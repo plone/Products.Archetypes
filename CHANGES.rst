@@ -10,14 +10,6 @@ Breaking changes:
   Part of PLIP 1343: https://github.com/plone/Products.CMFPlone/issues/1343
   [gforcada]
 
-New features:
-
-- *add item here*
-
-Bug fixes:
-
-- *add item here*
-
 
 1.13.0 (2017-02-12)
 -------------------
