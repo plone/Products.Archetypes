@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Use ``$`` instead of ``jq`` in ``textcount.js``.
+  This is for example used by PloneFormGen when you set a
+  maximum character count for a text field.  [maurits]
 
 
 1.9.13 (2016-10-03)
