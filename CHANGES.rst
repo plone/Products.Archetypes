@@ -4,14 +4,6 @@ Changelog
 1.9.14 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Use ``$`` instead of ``jq`` in ``textcount.js``.
