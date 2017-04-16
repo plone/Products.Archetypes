@@ -67,7 +67,7 @@
       <style type="text/css"
              media="all"
              tal:condition="python:exists('portal/%s' % item)"
-             tal:content="structure string:&lt;!-- @import url($portal_url/$item); --&gt;">
+             tal:content="structure string:@import url($portal_url/$item);">
       </style>
     </tal:css>
     <tal:block define="macro edit_macros/css | nothing"
