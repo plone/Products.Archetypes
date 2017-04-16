@@ -106,6 +106,8 @@
                      i18n:translate="">
                   Help
                 </span>
+                <div class="fieldErrorBox" role="alert"
+                     tal:content="error_id" i18n:translate="">Validation Error</div>
             </label>
           </tal:ifLabel>
           <span tal:condition="field/workflowable | nothing"
@@ -121,8 +123,6 @@
               review_state
             </a>
           </span>
-          <div class="fieldErrorBox"
-               tal:content="error_id" i18n:translate="">Validation Error</div>
           <div metal:define-slot="widget_body"></div>
         </div>
       </tal:condition>
