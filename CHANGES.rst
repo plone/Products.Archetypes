@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix bug with Widget's postback attribute, that prevented fields from
+being populated with the submitted empty value in the case of an error.
+  [pgrunewald]
 
 
 1.9.14 (2017-04-08)
@@ -34,8 +36,6 @@ Bug fixes:
 
 - no allowable_content_types for description (avoid validation)
   [tschorr]
-
-- *add item here*
 
 
 1.9.12 (2016-08-12)
