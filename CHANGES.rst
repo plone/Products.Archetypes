@@ -15,7 +15,7 @@ New features:
 Bug fixes:
 
 - Fix bug with Widget's postback attribute, that prevented fields from
-being populated with the submitted empty value in the case of an error.
+  being populated with the submitted empty value in the case of an error.
   [pgrunewald]
 
 
