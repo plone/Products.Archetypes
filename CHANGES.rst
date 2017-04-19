@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix bugs with Widget's postback attribute, that prevented fields from
+  being populated with the submitted empty value in the case of an error.
+  [pgrunewald]
 
 
 1.14.0 (2017-04-01)
