@@ -4,14 +4,6 @@ Changelog
 1.9.15 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix bug with Widget's postback attribute, that prevented fields from
