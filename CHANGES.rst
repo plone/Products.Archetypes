@@ -14,6 +14,10 @@ New features:
 
 Bug fixes:
 
+- Fix related items widget tests to reflect latest plone.app.widgets changes.
+  Refs: https://github.com/plone/plone.app.widgets/pull/159
+  [thet]
+
 - Fix bugs with Widget's postback attribute, that prevented fields from
   being populated with the submitted empty value in the case of an error.
   [pgrunewald]
