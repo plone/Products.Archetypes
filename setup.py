@@ -31,6 +31,9 @@ setup(name='Products.Archetypes',
             'zope.publisher',
             'zope.testing',
             'plone.app.testing',
+            'plone.app.robotframework',
+            'Plone',
+            'mock',
         ]
       ),
       install_requires=[
