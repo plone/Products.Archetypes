@@ -43,6 +43,7 @@ MULTIPLEFIELD_LIST = atapi.DisplayList(
     (
     ('1', _(u'Option 1 : printemps')),
     ('2', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')),  # e-acute t e-acute
+    ('\xc3\xa9t\xc3\xa9', unicode('Option 2 : \xc3\xa9t\xc3\xa9', 'utf-8')),  # e-acute t e-acute
     ('3', u'Option 3 : automne'),
     ('4', _(u'option3', default=u'Option 3 : hiver')),
     ))
@@ -56,11 +57,22 @@ schema = atapi.BaseSchema + atapi.Schema((
             i18n_domain='plone',
             ),
         ),
+    atapi.LinesField(
+        'MULTIVALUED',
+        multiValued=1,
+        searchable=1,
+        vocabulary=MULTIPLEFIELD_LIST,
+        widget=atapi.MultiSelectionWidget(
+            i18n_domain='plone',
+            ),
+        ),
     atapi.TextField(
         'TEXTFIELD',
         primary=True,
         ),
 ))
+
+
 
 
 class Dummy(atapi.BaseContent):
@@ -85,7 +97,7 @@ class BaseObjectTest(ATSiteTestCase):
         dummy = self._dummy
 
         # Set a multiple field
-        dummy.setMULTIPLEFIELD(['1', '2'])
+        dummy.setMULTIPLEFIELD(['1', '2', '\xc3\xa9t\xc3\xa9'])
         searchable = dummy.SearchableText()
 
         self.assertTrue(isinstance(searchable, basestring))
@@ -93,7 +105,7 @@ class BaseObjectTest(ATSiteTestCase):
         # cases, which during test runs would mean they would get
         # formatted as '[[plone][some value]]' instead of 'some value'.
         self.assertEquals(searchable,
-            '1 2 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9')
+            '1 2 \xc3\xa9t\xc3\xa9 Option 1 : printemps Option 2 : \xc3\xa9t\xc3\xa9 Option 2 : \xc3\xa9t\xc3\xa9')
 
         dummy.setMULTIPLEFIELD(['3', '4'])
         searchable = dummy.SearchableText()

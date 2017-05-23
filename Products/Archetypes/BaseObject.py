@@ -524,6 +524,10 @@ class BaseObject(Referenceable):
                 if isinstance(datum, (list, tuple)):
                     # Unmangle vocabulary: we index key AND value
                     vocab_values = map(lambda value, vocab=vocab: vocab.getValue(value, ''), datum)
+                    vocab_values = [
+                        v.encode('utf-8') if isinstance(v, unicode) else v
+                        for v in vocab_values
+                    ]
                     datum = list(datum)
                     datum.extend(vocab_values)
                     datum = ' '.join(datum)
