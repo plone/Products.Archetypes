@@ -14,7 +14,7 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix bug in BaseObject SearchableText when vocabulary key is uft8 encoded string
 
 
 1.9.15 (2017-05-09)
