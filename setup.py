@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.14.1.dev0'
+version = '1.10.17.dev0'
 
 setup(name='Products.Archetypes',
       version=version,
@@ -11,7 +11,7 @@ setup(name='Products.Archetypes',
                        open("CHANGES.rst").read(),
       classifiers=[
         "Framework :: Plone",
-        "Framework :: Plone :: 5.1",
+        "Framework :: Plone :: 5.0",
         "Framework :: Zope2",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
@@ -31,6 +31,9 @@ setup(name='Products.Archetypes',
             'zope.publisher',
             'zope.testing',
             'plone.app.testing',
+            'Plone',
+            'mock',
+            'plone.app.robotframework',
         ]
       ),
       install_requires=[
@@ -52,8 +55,9 @@ setup(name='Products.Archetypes',
           'Products.CMFFormController',
           'Products.CMFQuickInstallerTool',
           'Products.DCWorkflow',
-          'Products.GenericSetup>=1.8.3',
+          'Products.GenericSetup',
           'Products.MimetypesRegistry>=2.0.3',
+          'Products.PlacelessTranslationService',
           'Products.PortalTransforms',
           'Products.ZSQLMethods',
           'Products.statusmessages',
