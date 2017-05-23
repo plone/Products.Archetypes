@@ -1,16 +1,8 @@
 Changelog
 =========
 
-1.9.16 (unreleased)
+1.9.16 (2017-05-23)
 -------------------
-
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
 
 Bug fixes:
 
