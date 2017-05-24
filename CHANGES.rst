@@ -1,6 +1,22 @@
 Changelog
 =========
 
+1.10.18 (unreleased)
+--------------------
+
+Breaking changes:
+
+- *add item here*
+
+New features:
+
+- *add item here*
+
+Bug fixes:
+
+- *add item here*
+
+
 1.10.17 (2017-05-23)
 --------------------
 
