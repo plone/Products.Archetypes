@@ -4,14 +4,6 @@ Changelog
 1.10.17 (unreleased)
 --------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix bug in BaseObject SearchableText when vocabulary key is uft8 encoded string
