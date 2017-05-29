@@ -4,14 +4,6 @@ Changelog
 1.14.1 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix related items widget tests to reflect latest plone.app.widgets changes.
