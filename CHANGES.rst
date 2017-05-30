@@ -1,12 +1,32 @@
 Changelog
 =========
 
-1.13.0 (unreleased)
+1.14.1 (unreleased)
+-------------------
+
+Bug fixes:
+
+- Fix related items widget tests to reflect latest plone.app.widgets changes.
+  Refs: https://github.com/plone/plone.app.widgets/pull/159
+  [thet]
+
+- Fix bugs with Widget's postback attribute, that prevented fields from
+  being populated with the submitted empty value in the case of an error.
+  [pgrunewald]
+
+
+1.14.0 (2017-04-01)
 -------------------
 
 Breaking changes:
 
-- *add item here*
+- Update code to the new indexing operations queueing.
+  Part of PLIP 1343: https://github.com/plone/Products.CMFPlone/issues/1343
+  [gforcada]
+
+
+1.13.0 (2017-02-12)
+-------------------
 
 New features:
 

@@ -37,6 +37,10 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
+            if c.id == 'portal_catalog':
+                # use catalog tool queuing system
+                c.indexObject(self)
+                continue
             c.catalog_object(self, url)
 
     security.declareProtected(ModifyPortalContent, 'unindexObject')
@@ -47,6 +51,10 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
         catalogs = self.getCatalogs()
         url = self.__url()
         for c in catalogs:
+            if c.id == 'portal_catalog':
+                # use catalog tool queuing system
+                c.unindexObject(self)
+                continue
             if c._catalog.uids.get(url, None) is not None:
                 c.uncatalog_object(url)
 
@@ -113,6 +121,10 @@ class CatalogMultiplex(CatalogAware, WorkflowAware, OpaqueItemManager):
 
         for c in catalogs:
             if c is not None:
+                if c.id == 'portal_catalog':
+                    # use catalog tool queuing system
+                    c.reindexObject(self, idxs=idxs)
+                    continue
                 # We want the intersection of the catalogs idxs
                 # and the incoming list.
                 lst = idxs

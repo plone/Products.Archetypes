@@ -90,7 +90,6 @@ class DateWidgetTests(unittest.TestCase):
                         'firstDay': 0,
                         'min': [current_year - 100, 1, 1],
                         'max': [current_year + 20, 1, 1],
-                        'clear': u'Clear',
                         'format': 'mmmm d, yyyy',
                         'monthsFull': [u'January', u'February', u'March',
                                        u'April', u'May', u'June', u'July',
@@ -101,14 +100,16 @@ class DateWidgetTests(unittest.TestCase):
                         'weekdaysFull': [u'Sunday', u'Monday', u'Tuesday',
                                          u'Wednesday', u'Thursday', u'Friday',
                                          u'Saturday'],
-                        'today': u'Today',
                         'selectYears': 200,
                         'placeholder': u'Enter date...',
                         'monthsShort': [u'Jan', u'Feb', u'Mar', u'Apr', u'May',
                                         u'Jun', u'Jul', u'Aug', u'Sep', u'Oct',
                                         u'Nov', u'Dec']
                     },
-                    'time': False
+                    'time': False,
+                    'today': u'Today',
+                    'clear': u'Clear',
+
                 }
             },
             self.widget._base_args(self.context, self.field, self.request),
@@ -160,7 +161,6 @@ class DatetimeWidgetTests(unittest.TestCase):
                         'firstDay': 0,
                         'min': [current_year - 100, 1, 1],
                         'max': [current_year + 20, 1, 1],
-                        'clear': u'Clear',
                         'format': 'mmmm d, yyyy',
                         'monthsFull': [u'January', u'February', u'March',
                                        u'April', u'May', u'June', u'July',
@@ -171,7 +171,6 @@ class DatetimeWidgetTests(unittest.TestCase):
                         'weekdaysFull': [u'Sunday', u'Monday', u'Tuesday',
                                          u'Wednesday', u'Thursday', u'Friday',
                                          u'Saturday'],
-                        'today': u'Today',
                         'selectYears': 200,
                         'placeholder': u'Enter date...',
                         'monthsShort': [u'Jan', u'Feb', u'Mar', u'Apr', u'May',
@@ -180,9 +179,10 @@ class DatetimeWidgetTests(unittest.TestCase):
                     },
                     'time': {
                         'placeholder': u'Enter time...',
-                        'today': u'Today',
                         'format': 'h:i a'
-                    }
+                    },
+                    'today': u'Today',
+                    'clear': u'Clear',
                 }
             },
             self.widget._base_args(self.context, self.field, self.request),
@@ -360,10 +360,6 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                 'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                 'pattern': 'relateditems',
                 'pattern_options': {
-                    'folderTypes': ['Folder'],
-                    'homeText': u'Home',
-                    'searchAllText': u'Entire site',
-                    'searchText': u'Search',
                     'separator': ';',
                     'orderable': True,
                     'maximumSelectionSize': -1,
@@ -371,10 +367,9 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname',
                     'basePath': '/Plone/doc',
+                    'contextPath': '/Plone/doc',
                     'rootPath': '/',
-                    'rootUrl': '',
-                    'sort_on': 'sortable_title',
-                    'sort_order': 'ascending',
+                    'rootUrl': ''
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -407,19 +402,14 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                 'value': '{}'.format(IUUID(obj1)),
                 'pattern': 'relateditems',
                 'pattern_options': {
-                    'folderTypes': ['Folder'],
-                    'homeText': u'Home',
                     'separator': ';',
                     'orderable': True,
-                    'searchAllText': u'Entire site',
-                    'searchText': u'Search',
                     'maximumSelectionSize': 1,
                     'vocabularyUrl': '/@@getVocabulary?name=plone.app.vocabularies.Catalog&field=fieldname',  # noqa
                     'basePath': '/Plone/doc',
+                    'contextPath': '/Plone/doc',
                     'rootPath': '/',
-                    'rootUrl': '',
-                    'sort_on': 'sortable_title',
-                    'sort_order': 'ascending',
+                    'rootUrl': ''
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -440,21 +430,16 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                 'value': '',
                 'pattern': 'relateditems',
                 'pattern_options': {
-                    'folderTypes': ['Folder'],
-                    'homeText': u'Home',
                     'separator': ';',
                     'orderable': True,
-                    'searchAllText': u'Entire site',
-                    'searchText': u'Search',
                     'maximumSelectionSize': 1,
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname',
                     'basePath': '/Plone/doc',
+                    'contextPath': '/Plone/doc',
                     'rootPath': '/',
                     'rootUrl': '',
-                    'sort_on': 'sortable_title',
-                    'sort_order': 'ascending',
                 },
             },
             widget._base_args(self.context, self.field, self.request),
@@ -493,21 +478,16 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                 'value': '{}'.format(IUUID(obj1)),
                 'pattern': 'relateditems',
                 'pattern_options': {
-                    'folderTypes': ['Folder'],
-                    'homeText': u'Home',
                     'separator': ';',
                     'orderable': True,
-                    'searchAllText': u'Entire site',
-                    'searchText': u'Search',
                     'maximumSelectionSize': 1,
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname1',
                     'basePath': '/Plone/doc',
+                    'contextPath': '/Plone/doc',
                     'rootPath': '/',
                     'rootUrl': '',
-                    'sort_on': 'sortable_title',
-                    'sort_order': 'ascending',
                 },
             },
             field1.widget._base_args(self.context, field1, self.request),
@@ -528,21 +508,16 @@ class RelatedItemsWidgetTests(unittest.TestCase):
                 'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                 'pattern': 'relateditems',
                 'pattern_options': {
-                    'folderTypes': ['Folder'],
-                    'homeText': u'Home',
                     'separator': ';',
                     'orderable': True,
-                    'searchAllText': u'Entire site',
-                    'searchText': u'Search',
                     'maximumSelectionSize': -1,
                     'vocabularyUrl': '/@@getVocabulary?name='
                                      'plone.app.vocabularies.Catalog'
                                      '&field=fieldname2',
                     'basePath': '/Plone/doc',
+                    'contextPath': '/Plone/doc',
                     'rootPath': '/',
                     'rootUrl': '',
-                    'sort_on': 'sortable_title',
-                    'sort_order': 'ascending',
                 },
             },
             field2.widget._base_args(self.context, field2, self.request),
