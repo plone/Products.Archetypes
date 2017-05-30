@@ -51,6 +51,9 @@ Bug fixes:
 - fix randomly failing test in ``test_referenceable``.
   [jensens]
 
+- Don't instantiate browser view to check for existence.
+  [malthe]
+
 1.12 (2016-12-06)
 -----------------
 
