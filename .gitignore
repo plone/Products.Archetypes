@@ -8,3 +8,5 @@ include/
 lib/
 .installed.cfg
 develop-eggs/
+src/
+.mr.developer.cfg
