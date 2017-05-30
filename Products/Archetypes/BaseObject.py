@@ -53,7 +53,7 @@ from ZPublisher import xmlrpc
 from webdav.NullResource import NullResource
 
 from zope import event
-from zope.interface import implementer, Interface, providedBy
+from zope.interface import implements, Interface, providedBy
 from zope.component import getSiteManager
 from zope.component import subscribers
 from zope.component import queryUtility
