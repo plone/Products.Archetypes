@@ -8,7 +8,7 @@ cache:
 before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
   - virtualenv .
-  - bin/python bootstrap.py
+  - bin/python bootstrap.py --setuptools-version=26.1.1 --buildout-version=2.5.3  #from http://dist.plone.org/release/5-latest/versions.cfg 2017-05-30 11:25
 install:
   - bin/buildout -Nvt 5 -c travis.cfg
 script:
