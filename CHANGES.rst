@@ -1,6 +1,22 @@
 Changelog
 =========
 
+1.10.19 (unreleased)
+--------------------
+
+Breaking changes:
+
+- *add item here*
+
+New features:
+
+- *add item here*
+
+Bug fixes:
+
+- *add item here*
+
+
 1.10.18 (2017-06-04)
 --------------------
 
