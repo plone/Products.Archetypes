@@ -14,7 +14,12 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fixed textcount.js support jquery>1.6.
+  [vkarppinen]
+
+- Fixed a bug (that it was possible to enter text length over maxlimit)
+  by replacing maxlimit alert() with highlighting textcountfield.
+  [vkarppinen]
 
 
 1.14.1 (2017-06-16)
