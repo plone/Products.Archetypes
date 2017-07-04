@@ -1,0 +1,5 @@
+textcount.js support for jquery>1.6.
+
+make it impossible to enter text longer than ``maxlimit``
+by replacing ``maxlimit alert()`` with highlighting textcountfield.
+[vkarppinen]
