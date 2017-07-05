@@ -700,8 +700,8 @@ class Field(DefaultLayerContainer):
         """Return the accessor method for getting data out of this
         field"""
         if self.accessor:
-            return getattr(instance, self.accessor, None)
-        return None
+            return getattr(instance, self.accessor, lambda: None)
+        return lambda: None
 
     security.declarePublic('getEditAccessor')
 
@@ -710,8 +710,8 @@ class Field(DefaultLayerContainer):
         field e.g.: for editing
         """
         if self.edit_accessor:
-            return getattr(instance, self.edit_accessor, None)
-        return None
+            return getattr(instance, self.edit_accessor, lambda: None)
+        return lambda: None
 
     security.declarePublic('getMutator')
 
