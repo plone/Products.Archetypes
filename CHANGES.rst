@@ -18,6 +18,8 @@ Bug fixes:
   Fixes https://github.com/plone/plone.app.contenttypes/issues/41
   [pbauer]
 
+- Make Field::getAccessor() fallback value to be callable as expected
+  [zemm]
 
 1.14.1 (2017-06-16)
 -------------------
