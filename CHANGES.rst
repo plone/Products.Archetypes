@@ -21,6 +21,10 @@ Bug fixes:
   by replacing maxlimit alert() with highlighting textcountfield.
   [vkarppinen]
 
+- Prevent AttributeError on deleting a Reference from a object that is gone.
+  Fixes https://github.com/plone/plone.app.contenttypes/issues/41
+  [pbauer]
+
 
 1.14.1 (2017-06-16)
 -------------------
