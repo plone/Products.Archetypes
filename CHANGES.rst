@@ -14,6 +14,13 @@ New features:
 
 Bug fixes:
 
+- Fixed textcount.js support jquery>1.6.
+  [vkarppinen]
+
+- Fixed a bug (that it was possible to enter text length over maxlimit)
+  by replacing maxlimit alert() with highlighting textcountfield.
+  [vkarppinen]
+
 - Prevent AttributeError on deleting a Reference from a object that is gone.
   Fixes https://github.com/plone/plone.app.contenttypes/issues/41
   [pbauer]
