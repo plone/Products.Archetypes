@@ -25,6 +25,8 @@ Bug fixes:
   Fixes https://github.com/plone/plone.app.contenttypes/issues/41
   [pbauer]
 
+- Remove Plone requirement on the testing extras.
+  [gforcada]
 
 1.14.1 (2017-06-16)
 -------------------

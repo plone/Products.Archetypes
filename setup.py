@@ -31,7 +31,7 @@ setup(name='Products.Archetypes',
             'zope.publisher',
             'zope.testing',
             'plone.app.testing',
-            'Plone',
+            'Products.ATContentTypes',
             'mock',
             'plone.app.robotframework',
         ]
