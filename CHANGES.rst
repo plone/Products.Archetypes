@@ -4,14 +4,6 @@ Changelog
 1.14.2 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fixed textcount.js support jquery>1.6.
