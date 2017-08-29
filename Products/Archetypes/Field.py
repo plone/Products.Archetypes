@@ -698,7 +698,7 @@ class Field(DefaultLayerContainer):
 
     def getAccessor(self, instance):
         """Return the accessor method for getting data out of this
-        field"""
+        field, or None if the field has no accessor"""
         if self.accessor:
             return getattr(instance, self.accessor, None)
         return None
