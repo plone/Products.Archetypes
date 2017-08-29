@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix a issue trying to add a existing column when reinstalling
+  plone.app.mulitlingual in Plone 5.1
+  [pbauer]
 
 
 1.14.2 (2017-08-27)

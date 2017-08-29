@@ -3,6 +3,9 @@ from Products.GenericSetup.utils import exportObjects
 from Products.GenericSetup.utils import importObjects
 from Products.GenericSetup.ZCatalog.exportimport import ZCatalogXMLAdapter
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def importCatalogTool(context, name='portal_catalog'):
     """Import catalog.
@@ -61,7 +64,10 @@ class CatalogXMLAdapter(ZCatalogXMLAdapter):
                     self.context.delColumn(col)
                 continue
             if col not in self.context.schema()[:]:
-                self.context.addColumn(col)
+                try:
+                    self.context.addColumn(col)
+                except Exception as e:
+                    logger.info(e)
                 # If we added a new column we need to update the
                 # metadata even if this will take a while
                 self.context.refreshCatalog()
