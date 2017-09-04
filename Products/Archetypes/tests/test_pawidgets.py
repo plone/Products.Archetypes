@@ -532,6 +532,18 @@ class QueryStringWidgetTests(unittest.TestCase):
         self.context.absolute_url.return_value = ''
         self.field = Mock()
 
+    @mock.patch(
+        'plone.app.widgets.utils.get_ajaxselect_options',
+        new=lambda *args, **kwargs: None
+    )
+    @mock.patch(
+        'plone.app.widgets.utils.get_date_options',
+        new=lambda *args, **kwargs: None
+    )
+    @mock.patch(
+        'plone.app.widgets.utils.get_relateditems_options',
+        new=lambda *args, **kwargs: None
+    )
     def test_widget(self):
         from Products.Archetypes.Widget import QueryStringWidget
 
@@ -552,6 +564,9 @@ class QueryStringWidgetTests(unittest.TestCase):
                     'indexOptionsUrl': '/@@qsOptions',
                     'previewCountURL': '/@@querybuildernumberofresults',
                     'previewURL': '/@@querybuilder_html_results',
+                    'patternAjaxSelectOptions': None,
+                    'patternDateOptions': None,
+                    'patternRelateditemsOptions': None,
                 },
             },
             widget._base_args(self.context, self.field, self.request),
