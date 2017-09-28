@@ -108,7 +108,7 @@
 
                         <option tal:repeat="item vocab"
                                 tal:attributes="value item;
-                                                selected python:item in selection and 'selected' or (not selection and not value and 'selected') or  None"
+                                                selected python:item in selection and 'selected' or  None"
                                 tal:content="python:vocab.getValue(item)"
                                 i18n:translate=""
                                 />
