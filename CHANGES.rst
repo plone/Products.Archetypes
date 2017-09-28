@@ -17,6 +17,10 @@ Bug fixes:
 - Test fixes for changes in plone.app.widgets querystring options.
   [thet]
 
+- Remove superfluous expression in select widget which leads to 
+  selected=selected attribute on all options if certain conditions are met.
+  [dhavlik]
+
 1.14.2 (2017-08-27)
 -------------------
 
