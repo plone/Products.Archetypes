@@ -17,6 +17,13 @@ Bug fixes:
 - Test fixes for changes in plone.app.widgets querystring options.
   [thet]
 
+- Have @@kss_field_decorator_view return itself when called.
+  In Zope 4 BrowserViews need to either implement a __call__ method or have a template.
+  Using context/@@kss_field_decorator_view in templates would raise
+  "AttributeError: __call__" since the view is called by chameleon.
+  [pbauer]
+
+
 1.14.2 (2017-08-27)
 -------------------
 
