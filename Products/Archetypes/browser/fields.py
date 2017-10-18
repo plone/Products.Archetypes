@@ -6,6 +6,8 @@ class DefaultFieldDecoratorView(BrowserView):
     meanwhile, allow it to be used from the templates if
     kss is not loaded.
     '''
+    def __call__(self):
+        return self
 
     def getKssUIDClass(self):
         return ''
