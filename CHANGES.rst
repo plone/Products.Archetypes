@@ -17,6 +17,9 @@ Bug fixes:
 - Test fixes for changes in plone.app.widgets querystring options.
   [thet]
 
+- Remove redefinition of builtin 'set' in a macro.
+  [pbauer]
+
 1.14.2 (2017-08-27)
 -------------------
 

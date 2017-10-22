@@ -49,13 +49,13 @@
 
       <div id="archetypes-schemata-links"
            tal:condition="python: fieldsets and not allow_tabbing">
-        <tal:block repeat="set fieldsets">
-          <tal:current condition="python:set == fieldset and fieldsets != ['default']">
-            <strong>[<span tal:content="set" i18n:translate="" />]</strong>
+        <tal:block repeat="fieldset fieldsets">
+          <tal:current condition="python:fieldset == fieldset and fieldsets != ['default']">
+            <strong>[<span tal:content="fieldset" i18n:translate="" />]</strong>
           </tal:current>
-          <tal:others condition="python:set != fieldset">
-            <a href="#" tal:attributes="href string:${context/absolute_url}/${template/getId}?fieldset=${set}">
-            [<span tal:content="set" i18n:translate="" />]</a>
+          <tal:others condition="python:fieldset != fieldset">
+            <a href="#" tal:attributes="href string:${context/absolute_url}/${template/getId}?fieldset=${fieldset}">
+            [<span tal:content="fieldset" i18n:translate="" />]</a>
           </tal:others>
         </tal:block>
       </div>
