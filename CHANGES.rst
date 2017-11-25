@@ -4,14 +4,6 @@ Changelog
 1.14.3 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Test fixes for changes in plone.app.widgets querystring options.
