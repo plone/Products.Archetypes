@@ -581,7 +581,7 @@ class TinyMCEWidgetTests(unittest.TestCase):
         self.portal = self.layer['portal']
         self.request = TestRequest(environ={'HTTP_ACCEPT_LANGUAGE': 'en'})
         self.field = Mock()
-        self.field.getAccessor.return_value = lambda: 'fieldvalue'
+        self.field.getEditAccessor.return_value = lambda: 'fieldvalue'
         self.field.getName.return_value = 'fieldname'
         self.field.getContentType.return_value = 'text/html'
 

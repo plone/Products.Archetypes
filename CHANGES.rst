@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Use the edit accessor to get text for TinyMCEWidget.
+  [davisagli]
 
 
 1.14.3 (2017-11-24)

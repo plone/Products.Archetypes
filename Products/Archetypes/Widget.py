@@ -1399,7 +1399,7 @@ class TinyMCEWidget(BasePatternWidget):
         args = super(TinyMCEWidget, self)._base_args(context, field, request)
         args['name'] = field.getName()
         args['value'] = (request.get(field.getName(),
-                                     field.getAccessor(context)())
+                                     field.getEditAccessor(context)())
                          ).decode('utf-8')
 
         args.setdefault('pattern_options', {})
