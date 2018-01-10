@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix test failures from https://github.com/plone/plone.app.widgets/pull/177
+  [thet]
 
 
 1.14.3 (2017-11-24)
