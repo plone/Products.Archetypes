@@ -306,19 +306,22 @@ def setupEnvironment(self, out, types,
                      install_deps=1):
 
     if install_deps:
-        qi = getToolByName(self, 'portal_quickinstaller', None)
         if require_dependencies:
-            if not qi.isProductInstalled('CMFFormController'):
-                qi.installProduct('CMFFormController', locked=1)
+            # Import here so it does not break when you manage to
+            # get a too old CMFPlone with a too new Archetypes.
+            from Products.CMFPlone.utils import get_installer
+            qi = get_installer(self)
+            if not qi.is_product_installed('Products.CMFFormController'):
+                qi.install_product('Products.CMFFormController', locked=1)
                 print >>out, 'Installing CMFFormController'
-            if not qi.isProductInstalled('MimetypesRegistry'):
-                qi.installProduct('MimetypesRegistry')
+            if not qi.is_product_installed('Products.MimetypesRegistry'):
+                qi.install_product('Products.MimetypesRegistry')
                 print >>out, 'Installing MimetypesRegistry'
-            if not qi.isProductInstalled('PortalTransforms'):
-                qi.installProduct('PortalTransforms')
+            if not qi.is_product_installed('Products.PortalTransforms'):
+                qi.install_product('Products.PortalTransforms')
                 print >>out, 'Installing PortalTransforms'
-            if not qi.isProductInstalled('Archetypes'):
-                qi.installProduct('Archetypes')
+            if not qi.is_product_installed('Archetypes'):
+                qi.install_product('Products.Archetypes')
                 print >>out, 'Installing Archetypes'
 
     if product_skins_dir:

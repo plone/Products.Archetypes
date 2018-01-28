@@ -10,7 +10,9 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Removed CMFQuickInstaller dependency.
+  This was only used in ancient migration code.
+  [maurits]
 
 Bug fixes:
 
