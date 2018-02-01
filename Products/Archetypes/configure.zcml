@@ -13,7 +13,6 @@
   <include package="plone.uuid" />
 
   <include package="Products.CMFFormController" />
-  <include package="Products.CMFQuickInstallerTool" />
   <include package="Products.MimetypesRegistry" />
   <include package="Products.PortalTransforms" />
   <include package="Products.statusmessages" />

@@ -31,16 +31,19 @@ class StdoutStringIO(StringIO):
 def reinstallArchetypes(portal, out):
     """let's quickinstaller (re)install Archetypes and it's dependencies
     """
-    qi = getToolByName(portal, 'portal_quickinstaller')
+    # Import here so it does not break when you manage to
+    # get a too old CMFPlone with a too new Archetypes.
+    from Products.CMFPlone.utils import get_installer
+    qi = get_installer(portal)
     products = ('MimetypesRegistry', 'PortalTransforms', 'Archetypes', )
     print >>out, 'Reinstalling Archetypes and it\'s dependencies'
     for product in products:
-        if qi.isProductInstalled(product):
-            qi.reinstallProducts([product])
-            print >>out, '... reinstalling %s' % product
-        else:
-            qi.installProducts([product])
-            print >>out, '... installing %s' % product
+        full_product = 'Products.{0}'.format(product)
+        if qi.is_product_installed(full_product):
+            qi.uninstall_product(full_product)
+            print >>out, '... uninstalling %s' % full_product
+        qi.install_product(full_product)
+        print >>out, '... installing %s' % full_product
     print >>out, 'Done\n'
 
 

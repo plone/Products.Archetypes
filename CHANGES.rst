@@ -10,12 +10,17 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Removed CMFQuickInstaller dependency.
+  This was only used in ancient migration code.
+  [maurits]
 
 Bug fixes:
 
 - Use the edit accessor to get text for TinyMCEWidget.
   [davisagli]
+
+- Fix test failures from https://github.com/plone/plone.app.widgets/pull/177
+  [thet]
 
 
 1.14.3 (2017-11-24)

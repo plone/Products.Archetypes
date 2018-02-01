@@ -331,6 +331,19 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         xmlconfig.file('configure.zcml', plone.uuid,
                        context=self.layer['configurationContext'])
 
+    def assertDictContainsSubset(self, dict_a, dict_b):
+        """Since ``assertDictContainsSubset`` is deprecated in Python 3.2 we
+        provide a substitution here.
+        From: https://stackoverflow.com/a/21213251/1337474
+        """
+        def extractDictAFromB(A, B):
+            return dict([(k, B[k]) for k in A.keys() if k in B.keys()])
+        self.assertEqual(dict_a, extractDictAFromB(dict_a, dict_b))
+
+    @mock.patch(
+        'plone.app.widgets.utils.getToolByName',
+        new=Mock(return_value=Mock(return_value='testuser'))
+    )
     def test_multi_valued(self):
         from zope.event import notify
         from zope.interface import implementer
@@ -353,28 +366,37 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.multiValued = True
 
         widget = RelatedItemsWidget()
+        base_args = widget._base_args(self.context, self.field, self.request)
 
-        self.assertEqual(
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname',
                 'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                 'pattern': 'relateditems',
-                'pattern_options': {
-                    'separator': ';',
-                    'orderable': True,
-                    'maximumSelectionSize': -1,
-                    'vocabularyUrl': '/@@getVocabulary?name='
-                                     'plone.app.vocabularies.Catalog'
-                                     '&field=fieldname',
-                    'basePath': '/Plone/doc',
-                    'contextPath': '/Plone/doc',
-                    'rootPath': '/',
-                    'rootUrl': ''
-                },
             },
-            widget._base_args(self.context, self.field, self.request),
+            base_args
         )
 
+        self.assertDictContainsSubset(
+            {
+                'separator': ';',
+                'orderable': True,
+                'maximumSelectionSize': -1,
+                'vocabularyUrl': '/@@getVocabulary?name='
+                                 'plone.app.vocabularies.Catalog'
+                                 '&field=fieldname',
+                'basePath': '/Plone/doc',
+                'contextPath': '/Plone/doc',
+                'rootPath': '/',
+                'rootUrl': ''
+            },
+            base_args.get('pattern_options', {})
+        )
+
+    @mock.patch(
+        'plone.app.widgets.utils.getToolByName',
+        new=Mock(return_value=Mock(return_value='testuser'))
+    )
     def test_single_value(self):
         from zope.event import notify
         from zope.interface import implementer
@@ -395,26 +417,35 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.multiValued = False
 
         widget = RelatedItemsWidget()
+        base_args = widget._base_args(self.context, self.field, self.request)
 
-        self.assertEqual(
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname',
                 'value': '{}'.format(IUUID(obj1)),
                 'pattern': 'relateditems',
-                'pattern_options': {
-                    'separator': ';',
-                    'orderable': True,
-                    'maximumSelectionSize': 1,
-                    'vocabularyUrl': '/@@getVocabulary?name=plone.app.vocabularies.Catalog&field=fieldname',  # noqa
-                    'basePath': '/Plone/doc',
-                    'contextPath': '/Plone/doc',
-                    'rootPath': '/',
-                    'rootUrl': ''
-                },
             },
-            widget._base_args(self.context, self.field, self.request),
+            base_args
         )
 
+        self.assertDictContainsSubset(
+            {
+                'separator': ';',
+                'orderable': True,
+                'maximumSelectionSize': 1,
+                'vocabularyUrl': '/@@getVocabulary?name=plone.app.vocabularies.Catalog&field=fieldname',  # noqa
+                'basePath': '/Plone/doc',
+                'contextPath': '/Plone/doc',
+                'rootPath': '/',
+                'rootUrl': ''
+            },
+            base_args.get('pattern_options', {})
+        )
+
+    @mock.patch(
+        'plone.app.widgets.utils.getToolByName',
+        new=Mock(return_value=Mock(return_value='testuser'))
+    )
     def test_single_valued_empty(self):
         from Products.Archetypes.Widget import RelatedItemsWidget
 
@@ -423,28 +454,37 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         self.field.multiValued = False
 
         widget = RelatedItemsWidget()
+        base_args = widget._base_args(self.context, self.field, self.request)
 
-        self.assertEqual(
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname',
                 'value': '',
                 'pattern': 'relateditems',
-                'pattern_options': {
-                    'separator': ';',
-                    'orderable': True,
-                    'maximumSelectionSize': 1,
-                    'vocabularyUrl': '/@@getVocabulary?name='
-                                     'plone.app.vocabularies.Catalog'
-                                     '&field=fieldname',
-                    'basePath': '/Plone/doc',
-                    'contextPath': '/Plone/doc',
-                    'rootPath': '/',
-                    'rootUrl': '',
-                },
             },
-            widget._base_args(self.context, self.field, self.request),
+            base_args
         )
 
+        self.assertDictContainsSubset(
+            {
+                'separator': ';',
+                'orderable': True,
+                'maximumSelectionSize': 1,
+                'vocabularyUrl': '/@@getVocabulary?name='
+                                 'plone.app.vocabularies.Catalog'
+                                 '&field=fieldname',
+                'basePath': '/Plone/doc',
+                'contextPath': '/Plone/doc',
+                'rootPath': '/',
+                'rootUrl': '',
+            },
+            base_args.get('pattern_options', {})
+        )
+
+    @mock.patch(
+        'plone.app.widgets.utils.getToolByName',
+        new=Mock(return_value=Mock(return_value='testuser'))
+    )
     def test_multiple_widgets(self):
         from zope.event import notify
         from Products.Archetypes.Widget import RelatedItemsWidget
@@ -471,26 +511,30 @@ class RelatedItemsWidgetTests(unittest.TestCase):
             widget=RelatedItemsWidget(),
         )
         field1.accessor = "fieldvalue"
+        base_args1 = field1.widget._base_args(self.context, field1, self.request)  # noqa
 
-        self.assertEqual(
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname1',
                 'value': '{}'.format(IUUID(obj1)),
                 'pattern': 'relateditems',
-                'pattern_options': {
-                    'separator': ';',
-                    'orderable': True,
-                    'maximumSelectionSize': 1,
-                    'vocabularyUrl': '/@@getVocabulary?name='
-                                     'plone.app.vocabularies.Catalog'
-                                     '&field=fieldname1',
-                    'basePath': '/Plone/doc',
-                    'contextPath': '/Plone/doc',
-                    'rootPath': '/',
-                    'rootUrl': '',
-                },
             },
-            field1.widget._base_args(self.context, field1, self.request),
+            base_args1
+        )
+        self.assertDictContainsSubset(
+            {
+                'separator': ';',
+                'orderable': True,
+                'maximumSelectionSize': 1,
+                'vocabularyUrl': '/@@getVocabulary?name='
+                                 'plone.app.vocabularies.Catalog'
+                                 '&field=fieldname1',
+                'basePath': '/Plone/doc',
+                'contextPath': '/Plone/doc',
+                'rootPath': '/',
+                'rootUrl': '',
+            },
+            base_args1.get('pattern_options', {})
         )
 
         field2 = ReferenceField(
@@ -501,26 +545,31 @@ class RelatedItemsWidgetTests(unittest.TestCase):
         )
         field2.accessor = "fieldvalue"
         self.context.fieldvalue = lambda: [obj1, obj2]
+        base_args2 = field2.widget._base_args(self.context, field2, self.request)  # noqa
 
-        self.assertEqual(
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname2',
                 'value': '{};{}'.format(IUUID(obj1), IUUID(obj2)),
                 'pattern': 'relateditems',
-                'pattern_options': {
-                    'separator': ';',
-                    'orderable': True,
-                    'maximumSelectionSize': -1,
-                    'vocabularyUrl': '/@@getVocabulary?name='
-                                     'plone.app.vocabularies.Catalog'
-                                     '&field=fieldname2',
-                    'basePath': '/Plone/doc',
-                    'contextPath': '/Plone/doc',
-                    'rootPath': '/',
-                    'rootUrl': '',
-                },
             },
-            field2.widget._base_args(self.context, field2, self.request),
+            base_args2
+        )
+
+        self.assertDictContainsSubset(
+            {
+                'separator': ';',
+                'orderable': True,
+                'maximumSelectionSize': -1,
+                'vocabularyUrl': '/@@getVocabulary?name='
+                                 'plone.app.vocabularies.Catalog'
+                                 '&field=fieldname2',
+                'basePath': '/Plone/doc',
+                'contextPath': '/Plone/doc',
+                'rootPath': '/',
+                'rootUrl': '',
+            },
+            base_args2.get('pattern_options', {})
         )
 
 
