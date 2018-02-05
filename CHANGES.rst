@@ -4,10 +4,6 @@ Changelog
 1.14.4 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Removed CMFQuickInstaller dependency.
