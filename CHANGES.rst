@@ -28,6 +28,9 @@ New features:
 
 Bug fixes:
 
+- Use the edit accessor to get text for TinyMCEWidget.
+  [davisagli]
+
 - Fix test failures from https://github.com/plone/plone.app.widgets/pull/177
   [thet]
 
