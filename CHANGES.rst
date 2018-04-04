@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fixed html errors in documentation found with latest version of i18ndude.
+  [vincentfretin]
 
 
 1.15 (2018-02-05)
