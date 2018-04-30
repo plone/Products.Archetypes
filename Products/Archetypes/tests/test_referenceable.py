@@ -624,6 +624,25 @@ class BaseReferenceableTests(ATSiteTestCase):
         # Original non-copied object should point to both the original and the copied object
         self.assertEqual(b.getBRefs(), [a, copy_a])
 
+    def test_at_ordered_refs_changes_are_persisted(self):
+        # when using 'referencesSortable' order is saved in
+        # instance.at_ordered_refs, as it is a dict, we make sure it is
+        # correctly persisted by using _p_changed upon changes
+        a = makeContent(self.folder, portal_type='DDocument', id='a')
+        b = makeContent(self.folder, portal_type='DDocument', id='b')
+        transaction.commit()
+        import ipdb; ipdb.set_trace()
+
+        related_field = a.getField('related')
+        related_field.referencesSortable = True
+        # first time it is set, at_ordered_refs dict is added
+        related_field.set(a, [b.UID()])
+        self.assertTrue(a._p_changed)
+        transaction.commit()
+        # second time changes occured, it is _p_changed too
+        related_field.set(a, [])
+        self.assertTrue(a._p_changed)
+
     def test_copyPasteSupport(self):
         # copy/paste behaviour test
         # in another folder, pasted object should lose all references
