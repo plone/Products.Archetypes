@@ -9,7 +9,7 @@ before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
   - virtualenv .
 # Keep in sync with buildout.cfg:
-  - bin/python bootstrap.py --setuptools-version=33.1.1 --buildout-version=2.11.0
+  - bin/python bootstrap.py --setuptools-version=33.1.1 --buildout-version=2.10.0
 install:
   - bin/buildout -Nvt 5 -c travis.cfg
 script:
