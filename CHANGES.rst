@@ -14,8 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
-
+- Make sure the 'at_ordered_refs' dict changes are persisted when setting
+  references by manually setting '_p_changed=1'.
+  [gbastien]
 
 1.15.1 (2018-04-04)
 -------------------
