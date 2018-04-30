@@ -2080,6 +2080,8 @@ class ReferenceField(ObjectField):
 
             instance.at_ordered_refs[
                 self.relationship] = tuple(filter(None, uids))
+            # persist changes that occured in at_ordered_refs
+            instance._p_changed = 1
 
         if self.callStorageOnSet:
             # if this option is set the reference fields's values get written
