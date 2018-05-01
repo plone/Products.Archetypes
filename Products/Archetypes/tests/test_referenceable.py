@@ -630,14 +630,14 @@ class BaseReferenceableTests(ATSiteTestCase):
         # correctly persisted by using _p_changed upon changes
         a = makeContent(self.folder, portal_type='DDocument', id='a')
         b = makeContent(self.folder, portal_type='DDocument', id='b')
-        transaction.commit()
+        transaction.savepoint(optimistic=True)
 
         related_field = a.getField('related')
         related_field.referencesSortable = True
         # first time it is set, at_ordered_refs dict is added
         related_field.set(a, [b.UID()])
         self.assertTrue(a._p_changed)
-        transaction.commit()
+        transaction.savepoint(optimistic=True)
         # second time changes occured, it is _p_changed too
         related_field.set(a, [])
         self.assertTrue(a._p_changed)
