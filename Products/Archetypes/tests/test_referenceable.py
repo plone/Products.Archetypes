@@ -631,7 +631,6 @@ class BaseReferenceableTests(ATSiteTestCase):
         a = makeContent(self.folder, portal_type='DDocument', id='a')
         b = makeContent(self.folder, portal_type='DDocument', id='b')
         transaction.commit()
-        import ipdb; ipdb.set_trace()
 
         related_field = a.getField('related')
         related_field.referencesSortable = True
