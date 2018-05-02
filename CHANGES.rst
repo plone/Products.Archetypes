@@ -4,7 +4,11 @@ Changelog
 1.9.18 (unreleased)
 -------------------
 
-- Nothing changed yet.
+Bug fixes:
+
+- Make sure the 'at_ordered_refs' dict changes are persisted when setting
+  references by manually setting '_p_changed=1'.
+  [gbastien]
 
 
 1.9.17 (2017-06-26)
