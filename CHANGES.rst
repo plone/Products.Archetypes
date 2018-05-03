@@ -4,14 +4,6 @@ Changelog
 1.10.19 (unreleased)
 --------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Make sure the 'at_ordered_refs' dict changes are persisted when setting
