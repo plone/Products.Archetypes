@@ -10,11 +10,13 @@ Breaking changes:
 
 New features:
 
-- *add item here*
+- Test against Plone 5.2
+  [icemac]
 
 Bug fixes:
 
-- *add item here*
+- Fix Travis CI setup.
+  [loechel]
 
 
 1.15.2 (2018-05-03)
