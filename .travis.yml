@@ -11,6 +11,7 @@ before_install:
 # Keep in sync with buildout.cfg:
   - bin/python bootstrap.py --setuptools-version=38.2.4 --buildout-version=2.11.3
 install:
+  - bin/buildout -Nvt 5 -c travis.cfg annotate
   - bin/buildout -Nvt 5 -c travis.cfg
 script:
   - bin/test
