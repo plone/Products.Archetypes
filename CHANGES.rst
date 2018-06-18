@@ -4,10 +4,6 @@ Changelog
 1.15.3 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
 New features:
 
 - Test against Plone 5.2
