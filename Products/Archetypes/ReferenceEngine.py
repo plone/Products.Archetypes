@@ -557,6 +557,8 @@ class ReferenceCatalog(UniqueObject, UIDResolver, ZCatalog):
     def _deleteReference(self, referenceObject):
         try:
             sobj = referenceObject.getSourceObject()
+            if sobj is None:
+                return
             referenceObject.delHook(self, sobj,
                                     referenceObject.getTargetObject())
         except ReferenceException:

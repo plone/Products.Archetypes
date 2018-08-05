@@ -14,8 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
-
+- Prevent AttributeError on deleting a Reference from a object that is
+  gone. Backport from master #91. Fixes plone/plone.app.contenttypes#41.
+  [fredvd, pbauer]
 
 1.9.18 (2018-05-03)
 -------------------
