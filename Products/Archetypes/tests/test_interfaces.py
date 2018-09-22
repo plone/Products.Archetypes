@@ -48,7 +48,7 @@ from Products.Archetypes.Storage import Storage, ReadOnlyStorage, \
     StorageLayer, AttributeStorage, ObjectManagedStorage, MetadataStorage
 from Products.Archetypes.atapi import registerType
 
-from plone.app.testing.bbb import PTC_FUNCTIONAL_TESTING
+from plone.app.testing.bbb_at import PTC_FUNCTIONAL_TESTING
 
 
 def className(klass):

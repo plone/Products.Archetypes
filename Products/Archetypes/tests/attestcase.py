@@ -1,4 +1,4 @@
-from plone.app.testing import bbb
+from plone.app.testing import bbb_at
 from plone.app.testing import FunctionalTesting, applyProfile
 from Products.GenericSetup import EXTENSION, profile_registry
 
@@ -12,9 +12,9 @@ def setupSampleTypeProfile():
                                      EXTENSION)
 
 
-class ATTestCaseFixture(bbb.PloneTestCaseFixture):
+class ATTestCaseFixture(bbb_at.PloneTestCaseFixture):
 
-    defaultBases = (bbb.PTC_FIXTURE,)
+    defaultBases = (bbb_at.PTC_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
         setupSampleTypeProfile()
@@ -30,7 +30,7 @@ AT_FUNCTIONAL_TESTING = FunctionalTesting(bases=(AT_FIXTURE,),
                                           name='Archetypes:Functional')
 
 
-class ATTestCase(bbb.PloneTestCase):
+class ATTestCase(bbb_at.PloneTestCase):
     """Simple AT test case
     """
 
