@@ -4,14 +4,6 @@ Changelog
 1.9.19 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Prevent AttributeError on deleting a Reference from a object that is
