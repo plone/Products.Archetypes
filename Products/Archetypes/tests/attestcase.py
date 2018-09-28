@@ -1,4 +1,8 @@
-from plone.app.testing import bbb_at
+try:
+    from plone.app.testing import bbb_at
+except ImportError:
+    # plone.app.testing 5 or earlier
+    from plone.app.testing import bbb as bbb_at
 from plone.app.testing import FunctionalTesting, applyProfile
 from Products.GenericSetup import EXTENSION, profile_registry
 
