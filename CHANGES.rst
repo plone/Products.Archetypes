@@ -15,7 +15,8 @@ New features:
 Bug fixes:
 
 - Switch to new TestCase using AT after PloneTestcase is now DX.
-  [pbauer]
+  Fall back to the old TestCase in case of an older plone.app.testing.
+  [pbauer, maurits]
 
 
 1.15.3 (2018-06-18)
