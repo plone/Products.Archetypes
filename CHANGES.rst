@@ -4,14 +4,6 @@ Changelog
 1.15.4 (unreleased)
 -------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Switch to new TestCase using AT after PloneTestcase is now DX.
