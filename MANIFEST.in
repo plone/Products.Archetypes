@@ -8,3 +8,6 @@ exclude .installed.cfg
 exclude .travis.yml
 exclude bootstrap.py
 exclude buidlout.cfg
+include pyproject.toml
+recursive-exclude news *
+exclude news
