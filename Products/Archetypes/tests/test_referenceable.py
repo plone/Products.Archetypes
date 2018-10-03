@@ -405,6 +405,9 @@ class SimpleFolderReferenceableTests(ATTestCase):
         b = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='b')
 
+        # cleanup
+        a.deleteReferences()
+        
         # Add the same ref twice
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
@@ -424,6 +427,9 @@ class SimpleFolderReferenceableTests(ATTestCase):
         b = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='b')
 
+        # cleanup
+        a.deleteReferences()
+
         # Add the same ref twice
         a.addReference(b, "KnowsAbout", updateReferences=False)
         a.addReference(b, "KnowsAbout", updateReferences=False)
@@ -442,6 +448,9 @@ class SimpleFolderReferenceableTests(ATTestCase):
                         title='Foo', id='b')
         c = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='c')
+
+        # cleanup
+        a.deleteReferences()
 
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
@@ -466,13 +475,12 @@ class SimpleFolderReferenceableTests(ATTestCase):
         # Again, lets assert the sanity of the UID and Ref Catalogs
         uc = self.portal.uid_catalog
         rc = self.portal.reference_catalog
-
+        
         uids = uc.uniqueValuesFor('UID')
         self.assertTrue(a.UID() in uids, (a.UID(), uids))
         self.assertTrue(b.UID() in uids, (b.UID(), uids))
 
-        uids = rc.uniqueValuesFor('UID')
-        refs = rc(dict(UID=uids))
+        refs = rc(dict(sourceUID=a.UID()))
         self.assertEqual(len(refs), 1)
         ref = refs[0].getObject()
         self.assertEqual(ref.targetUID, b.UID())
@@ -483,7 +491,7 @@ class SimpleFolderReferenceableTests(ATTestCase):
 
         self.verifyBrains()
 
-        uids = rc.uniqueValuesFor('UID')
+        uids = rc(dict(sourceUID=a.UID()))
         self.assertEqual(len(uids), 0)
 
     def test_reindexUIDCatalog(self):
