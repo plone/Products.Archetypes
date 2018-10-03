@@ -173,7 +173,7 @@ class TestFunctionalObjectCreation(ATTestCase):
 
         self.assertTrue(auto_id in self.folder.objectIds())
         new_obj = getattr(self.folder, auto_id)
-        import pdb; pdb.set_trace()
+
         # Change the title
         obj_title = "New Title for Object"
         new_obj_path = '/%s' % new_obj.absolute_url(1)
