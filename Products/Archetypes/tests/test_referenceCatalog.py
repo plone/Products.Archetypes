@@ -30,7 +30,7 @@ from zope.lifecycleevent import ObjectCreatedEvent
 from plone.indexer.interfaces import IIndexableObject
 from Products.ZCatalog.interfaces import IZCatalog
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes import config
@@ -67,7 +67,7 @@ class DexterityLike(Explicit):
         return self.id
 
 
-class ReferenceCatalogTests(ATSiteTestCase):
+class ReferenceCatalogTests(ATTestCase):
 
     def afterSetUp(self):
         # register the test class as indexable with plone.indexer default

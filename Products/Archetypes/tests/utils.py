@@ -39,6 +39,7 @@ from Products.Archetypes.atapi import process_types
 from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.atapi import BaseContent
 from Products.Archetypes.config import PKG_NAME
+from Products.Archetypes.utils import shasattr
 
 logger = logging.getLogger('Archetypes')
 
@@ -63,6 +64,8 @@ def mkDummyInContext(klass, oid, context, schema=None):
 
 
 def makeContent(container, portal_type, id='document', **kw):
+    if shasattr(container, id):
+        return getattr(container, id)
     container.invokeFactory(type_name=portal_type, id=id)
     return getattr(container, id)
 

@@ -27,7 +27,7 @@ import sys
 
 from ZPublisher.HTTPRequest import HTTPRequest
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.atapi import TextField, BaseSchema, Schema, BaseContent
 
@@ -57,10 +57,10 @@ class Dummy2(BaseContent):
     pass
 
 
-class TestUpdateSchema(ATSiteTestCase):
+class TestUpdateSchema(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self.attool = self.portal.archetype_tool
         # Calling mkDummyInContext adds content, but also registers
         # our classes and adds a copy of the schema.
@@ -211,7 +211,7 @@ class TestUpdateSchema(ATSiteTestCase):
         return [ti[0] for ti in self.attool.getChangedSchema() if ti[1]]
 
 
-class TestBasicSchemaUpdate(ATSiteTestCase):
+class TestBasicSchemaUpdate(ATTestCase):
     """Tests for update schema behavior which depend only on the basic
        types, and examine baseline behavior when no real schema changes have
        happened."""

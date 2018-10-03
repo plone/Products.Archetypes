@@ -28,7 +28,7 @@ from unittest import TestCase
 import os
 from OFS.Image import Pdata
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import aputrequest
 from Products.Archetypes.tests.utils import PACKAGE_HOME
@@ -37,7 +37,7 @@ from Products.Archetypes.WebDAVSupport import PdataStreamIterator
 from Products.Archetypes.examples.DDocument import DDocument
 
 
-class MarshallerTests(ATSiteTestCase):
+class MarshallerTests(ATTestCase):
 
     # XXX this test is fu... up the machine by eating all memory
     def XXX_test_textFieldObjectWordReplace(self):

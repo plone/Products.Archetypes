@@ -29,8 +29,8 @@
 
 from Testing import ZopeTestCase
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
-from test_classgen import Dummy
+from Products.Archetypes.tests.attestcase import ATTestCase
+from Products.Archetypes.tests.test_classgen import Dummy
 
 from Products.Archetypes.atapi import *
 from Products.PortalTransforms.data import datastream
@@ -49,7 +49,7 @@ class FakeTransformer:
         return data
 
 
-class UnicodeStringFieldTest(ATSiteTestCase):
+class UnicodeStringFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
@@ -65,7 +65,7 @@ class UnicodeStringFieldTest(ATSiteTestCase):
         self.assertEqual(f.get(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeLinesFieldTest(ATSiteTestCase):
+class UnicodeLinesFieldTest(ATTestCase):
 
     def test_set1(self):
         instance = Dummy()
@@ -98,7 +98,7 @@ class UnicodeLinesFieldTest(ATSiteTestCase):
         self.assertEqual(f.get(instance, encoding="ISO-8859-1"), iso)
 
 
-class UnicodeTextFieldTest(ATSiteTestCase):
+class UnicodeTextFieldTest(ATTestCase):
 
     def test_set(self):
         instance = Dummy()
@@ -114,7 +114,7 @@ class UnicodeTextFieldTest(ATSiteTestCase):
         self.assertEqual(f.getRaw(instance, encoding="ISO-8859-1"), 'héhéhé')
 
 
-class UnicodeBaseUnitTest(ATSiteTestCase):
+class UnicodeBaseUnitTest(ATTestCase):
 
     def afterSetUp(self):
         self.instance = Dummy().__of__(self.portal)

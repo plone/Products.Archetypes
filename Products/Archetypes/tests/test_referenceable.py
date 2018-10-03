@@ -26,7 +26,7 @@
 from Acquisition import aq_base
 import transaction
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.config import REFERENCE_CATALOG, UID_CATALOG, UUID_ATTR
@@ -35,7 +35,7 @@ from Products.Archetypes.atapi import DisplayList
 from plone.uuid.interfaces import IUUIDAware, IUUID
 
 
-class SimpleFolderReferenceableTests(ATSiteTestCase):
+class SimpleFolderReferenceableTests(ATTestCase):
     """ Test referencable behaviour with folders """
 
     FOLDER_TYPE = 'SimpleFolder'
@@ -460,6 +460,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
         a = makeContent(folder, portal_type='DDocument', title='Foo', id='a')
         b = makeContent(folder, portal_type='DDocument', title='Bar', id='b')
+
         a.addReference(b, "KnowsAbout")
 
         # Again, lets assert the sanity of the UID and Ref Catalogs
@@ -479,6 +480,7 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
         # Now Kill the folder and make sure it all went away
         self.folder._delObject("reftest")
+
         self.verifyBrains()
 
         uids = rc.uniqueValuesFor('UID')

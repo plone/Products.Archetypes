@@ -25,7 +25,7 @@
 
 import operator
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import BaseSchema, BaseContent, registerType, \
     process_types, listTypes, StringWidget
 from Products.Archetypes.config import PKG_NAME
@@ -42,7 +42,7 @@ class Dummy(BaseContent):
     schema = schema
 
 
-class SchemataTest(ATSiteTestCase):
+class SchemataTest(ATTestCase):
 
     def afterSetUp(self):
         registerType(Dummy, 'Archetypes')

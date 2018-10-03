@@ -27,7 +27,7 @@
 import os
 import unittest
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from OFS.Image import File
 
 from Products.Archetypes.atapi import MetadataStorage, BaseContent
@@ -60,7 +60,7 @@ class FileLike:
         return self.pos
 
 
-class FileFieldTest(ATSiteTestCase):
+class FileFieldTest(ATTestCase):
 
     def afterSetUp(self):
         from Products.Archetypes import Field

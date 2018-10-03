@@ -27,7 +27,7 @@
 
 import os
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 # this trigger zope imports
@@ -38,7 +38,7 @@ from Products.Archetypes.tests.test_classgen import default_text
 from Products.Archetypes.atapi import *
 
 
-class GetContentTypeTest(ATSiteTestCase):
+class GetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -106,7 +106,7 @@ class GetContentTypeTest(ATSiteTestCase):
         self.assertEqual(field.getContentType(obj), 'application/x-tar')
 
 
-class SetContentTypeTest(ATSiteTestCase):
+class SetContentTypeTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()

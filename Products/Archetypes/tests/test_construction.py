@@ -1,7 +1,7 @@
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 
 
-class FactoryTest(ATSiteTestCase):
+class FactoryTest(ATTestCase):
 
     def testSimplePortalType(self):
         self.folder.invokeFactory(id="dummy", type_name="SimpleType")

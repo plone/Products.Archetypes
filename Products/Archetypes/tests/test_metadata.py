@@ -26,7 +26,7 @@
 from Acquisition import aq_base
 from Acquisition import aq_parent
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes.tests.test_classgen import Dummy
@@ -115,10 +115,10 @@ class DummyFolder(BaseFolder):
     portal_membership = DummyPortalMembership()
 
 
-class ExtensibleMetadataTest(ATSiteTestCase):
+class ExtensibleMetadataTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.portal, schema=schema)
         # to enable overrideDiscussionFor
@@ -175,10 +175,10 @@ class ExtensibleMetadataTest(ATSiteTestCase):
                             'isMetadata not set correctly for field %s.' % meta)
 
 
-class ExtMetadataContextTest(ATSiteTestCase):
+class ExtMetadataContextTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(klass=Dummy, oid='dummy',
                                        context=self.portal, schema=schema)
         gen_class(DummyFolder)
@@ -219,7 +219,7 @@ class ExtMetadataContextTest(ATSiteTestCase):
                          'Some tests will give you false results!'))
 
 
-class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
+class ExtMetadataDefaultLanguageTest(ATTestCase):
 
     def testDefaultLanguage(self):
         # This is handled at creation time, so the prop must be set
@@ -230,7 +230,7 @@ class ExtMetadataDefaultLanguageTest(ATSiteTestCase):
         self.assertEqual(dummy.Language(), config.LANGUAGE_DEFAULT)
 
 
-class ExtMetadataSetFormatTest(ATSiteTestCase):
+class ExtMetadataSetFormatTest(ATTestCase):
 
     value = "fooooo"
     filename = 'foo.txt'
@@ -328,7 +328,7 @@ class ExtMetadataSetFormatTest(ATSiteTestCase):
         self.assertEqual(pfield.getContentType(dummy), 'image/jpeg')
 
 
-class TimeZoneTest(ATSiteTestCase):
+class TimeZoneTest(ATTestCase):
 
     def _makeDummyContent(self, name):
         return mkDummyInContext(

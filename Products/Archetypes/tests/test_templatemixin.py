@@ -24,12 +24,12 @@
 ##########################################################################
 
 from Products.Archetypes.config import TOOL_NAME
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.TemplateMixin import TemplateMixin
 from Products.CMFCore.utils import getToolByName
 
 
-class TemplateMixinTest(ATSiteTestCase):
+class TemplateMixinTest(ATTestCase):
 
     def test_isTemplateEnabled(self):
         at = getToolByName(self.portal, TOOL_NAME)

@@ -25,13 +25,13 @@
 
 import time
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes.tests.utils import makeContent
 from Products.ZCatalog.ZCatalog import manage_addZCatalog
 
 
-class ETagTest(ATSiteTestCase):
+class ETagTest(ATTestCase):
 
     def afterSetUp(self):
         self.setRoles(['Manager'])
@@ -70,7 +70,7 @@ class ETagTest(ATSiteTestCase):
         self.assertFalse(before == after)
 
 
-class ReindexTest(ATSiteTestCase):
+class ReindexTest(ATTestCase):
 
     def afterSetUp(self):
         self.setRoles(['Manager'])
@@ -88,7 +88,7 @@ class ReindexTest(ATSiteTestCase):
         self.assertEqual(len(ct(SearchableText='Mosquito')), 0)
 
 
-class MultiplexTest(ATSiteTestCase):
+class MultiplexTest(ATTestCase):
 
     def afterSetUp(self):
         self.setRoles(['Manager'])

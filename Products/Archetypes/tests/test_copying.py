@@ -34,7 +34,7 @@ from Acquisition import aq_base
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import noSecurityManager
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from plone.app.testing import SITE_OWNER_NAME as portal_owner
@@ -45,7 +45,7 @@ from plone.app.testing import PLONE_SITE_ID as portal_name
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 
-class CutPasteCopyPasteTests(ATSiteTestCase):
+class CutPasteCopyPasteTests(ATTestCase):
 
     def test_copy_and_paste(self):
         ffrom = makeContent(
@@ -76,10 +76,10 @@ class CutPasteCopyPasteTests(ATSiteTestCase):
         self.assertFalse('tourist' not in fto.contentIds())
 
 
-class PortalCopyTests(ATSiteTestCase):
+class PortalCopyTests(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self.setRoles(['Manager'])
 
         imgpath = os.path.join(PACKAGE_HOME, os.pardir, 'tool.gif')

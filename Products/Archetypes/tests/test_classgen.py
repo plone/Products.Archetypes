@@ -30,7 +30,7 @@ import unittest
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.SecurityInfo import ACCESS_PUBLIC, ACCESS_PRIVATE
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import gen_class
 from Products.Archetypes import atapi
@@ -128,10 +128,10 @@ def gen_dummy():
     gen_class(Dummy, schema)
 
 
-class ClassGenTest(ATSiteTestCase):
+class ClassGenTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy',
                                        context=self.portal,
                                        schema=schema)

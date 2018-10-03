@@ -1,11 +1,11 @@
 # test initialisation and setup
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.mimetype_utils import getDefaultContentType
 from Products.Archetypes.mimetype_utils import setDefaultContentType
 
 
-class TestDefaultMimeTypes(ATSiteTestCase):
+class TestDefaultMimeTypes(ATTestCase):
 
     def test_ATDocumentDefaultType(self):
         # move portal_properties out of the way. it was not here
