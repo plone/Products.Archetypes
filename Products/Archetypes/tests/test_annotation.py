@@ -23,7 +23,7 @@
 #
 ##########################################################################
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import BaseSchema, Schema, StringField, \
     AnnotationStorage, MetadataAnnotationStorage, AT_MD_STORAGE, \
     getAnnotation, AT_ANN_STORAGE
@@ -52,7 +52,7 @@ def gen_anndummy():
     gen_class(AnnDummy, annschema)
 
 
-class AnnotationTest(ATSiteTestCase):
+class AnnotationTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -102,7 +102,7 @@ class AnnotationTest(ATSiteTestCase):
         self.assertFalse(ann.hasSubkey('test', subkey='testsub'))
 
 
-class MetadataAnnotationStorageTest(ATSiteTestCase):
+class MetadataAnnotationStorageTest(ATTestCase):
 
     def afterSetUp(self):
         gen_anndummy()
@@ -128,7 +128,7 @@ class MetadataAnnotationStorageTest(ATSiteTestCase):
         self.assertEqual(ann.getSubkey(AT_MD_STORAGE, subkey='meta'), 'egg')
 
 
-class AnnotationStorageTest(ATSiteTestCase):
+class AnnotationStorageTest(ATTestCase):
 
     def afterSetUp(self):
         gen_anndummy()

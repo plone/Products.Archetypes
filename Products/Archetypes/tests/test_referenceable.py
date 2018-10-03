@@ -26,7 +26,7 @@
 from Acquisition import aq_base
 import transaction
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.config import REFERENCE_CATALOG, UID_CATALOG, UUID_ATTR
@@ -35,7 +35,7 @@ from Products.Archetypes.atapi import DisplayList
 from plone.uuid.interfaces import IUUIDAware, IUUID
 
 
-class SimpleFolderReferenceableTests(ATSiteTestCase):
+class SimpleFolderReferenceableTests(ATTestCase):
     """ Test referencable behaviour with folders """
 
     FOLDER_TYPE = 'SimpleFolder'
@@ -405,6 +405,9 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         b = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='b')
 
+        # cleanup
+        a.deleteReferences()
+        
         # Add the same ref twice
         a.addReference(b, "KnowsAbout")
         a.addReference(b, "KnowsAbout")
@@ -423,6 +426,9 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
                         title='Foo', id='a')
         b = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='b')
+
+        # cleanup
+        a.deleteReferences()
 
         # Add the same ref twice
         a.addReference(b, "KnowsAbout", updateReferences=False)
@@ -443,6 +449,9 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
         c = makeContent(self.folder, portal_type='DDocument',
                         title='Foo', id='c')
 
+        # cleanup
+        a.deleteReferences()
+
         # Two made up kinda refs
         a.addReference(b, "KnowsAbout")
 
@@ -460,18 +469,18 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
         a = makeContent(folder, portal_type='DDocument', title='Foo', id='a')
         b = makeContent(folder, portal_type='DDocument', title='Bar', id='b')
+
         a.addReference(b, "KnowsAbout")
 
         # Again, lets assert the sanity of the UID and Ref Catalogs
         uc = self.portal.uid_catalog
         rc = self.portal.reference_catalog
-
+        
         uids = uc.uniqueValuesFor('UID')
         self.assertTrue(a.UID() in uids, (a.UID(), uids))
         self.assertTrue(b.UID() in uids, (b.UID(), uids))
 
-        uids = rc.uniqueValuesFor('UID')
-        refs = rc(dict(UID=uids))
+        refs = rc(dict(sourceUID=a.UID()))
         self.assertEqual(len(refs), 1)
         ref = refs[0].getObject()
         self.assertEqual(ref.targetUID, b.UID())
@@ -479,9 +488,10 @@ class SimpleFolderReferenceableTests(ATSiteTestCase):
 
         # Now Kill the folder and make sure it all went away
         self.folder._delObject("reftest")
+
         self.verifyBrains()
 
-        uids = rc.uniqueValuesFor('UID')
+        uids = rc(dict(sourceUID=a.UID()))
         self.assertEqual(len(uids), 0)
 
     def test_reindexUIDCatalog(self):

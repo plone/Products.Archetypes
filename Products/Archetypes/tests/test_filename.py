@@ -28,7 +28,7 @@
 import os
 from StringIO import StringIO
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
 from Products.Archetypes.tests.test_classgen import Dummy
@@ -38,7 +38,7 @@ from Products.Archetypes.tests.test_classgen import default_text
 from Products.Archetypes.atapi import *
 
 
-class GetFilenameTest(ATSiteTestCase):
+class GetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -106,7 +106,7 @@ class GetFilenameTest(ATSiteTestCase):
         self.assertEqual(field.getFilename(obj), 'rest1.tgz')
 
 
-class SetFilenameTest(ATSiteTestCase):
+class SetFilenameTest(ATTestCase):
 
     def afterSetUp(self):
         gen_dummy()
@@ -161,7 +161,7 @@ class SetFilenameTest(ATSiteTestCase):
         self.assertEqual(field2.getFilename(obj), filename2)
 
 
-class LargeFileTest(ATSiteTestCase):
+class LargeFileTest(ATTestCase):
 
     def testSetFilenameOfLargeFile(self):
         """Test for https://dev.plone.org/archetypes/ticket/635
@@ -175,7 +175,7 @@ class LargeFileTest(ATSiteTestCase):
         self.assertEqual(obj.getBody().size, 140000)
 
 
-class StrangeIdTest(ATSiteTestCase):
+class StrangeIdTest(ATTestCase):
 
     def test_strangeUnallowedIds(self):
         """ Certain IDs used to give an error and are unusable

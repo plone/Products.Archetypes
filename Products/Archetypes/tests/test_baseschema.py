@@ -23,7 +23,7 @@
 #
 ##########################################################################
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 
 # need this to initialize new BU for tests
 from Products.Archetypes.tests.test_classgen import Dummy
@@ -44,10 +44,10 @@ EmptyValidator = ValidationChain('isEmpty')
 EmptyValidator.appendSufficient('isEmpty')
 
 
-class BaseSchemaTest(ATSiteTestCase):
+class BaseSchemaTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         atapi.registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = atapi.process_types(
             atapi.listTypes(), PKG_NAME)

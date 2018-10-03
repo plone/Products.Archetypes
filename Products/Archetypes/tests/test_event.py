@@ -5,7 +5,7 @@ Unittests for the events fired by Archetypes.
 from zope.interface import implementer, Interface, directlyProvides
 from zope import component
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests import utils
 
 from zope.publisher.browser import TestRequest
@@ -72,7 +72,7 @@ def edited_handler(ob, event):
     ob._editedCaught = True
 
 
-class ValidationEventTests(ATSiteTestCase):
+class ValidationEventTests(ATTestCase):
 
     def testPreValidatingEvent(self):
 

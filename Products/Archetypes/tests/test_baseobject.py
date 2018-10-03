@@ -23,7 +23,7 @@
 #
 ##########################################################################
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 
 from Products.Archetypes import PloneMessageFactory as _
@@ -70,10 +70,10 @@ class Dummy(atapi.BaseContent):
         return 'utf-8'
 
 
-class BaseObjectTest(ATSiteTestCase):
+class BaseObjectTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
                                        schema=schema)
 
@@ -140,6 +140,8 @@ class BaseObjectTest(ATSiteTestCase):
 
         dummy = self._dummy
         dummy.manage_permission(view, ('Manager',), False)
+        
+        self.setRoles(('Anonymous',))
         # dummy.content_type in a Python Script
         self.assertRaises(Unauthorized, guarded_getattr, dummy, 'content_type')
 

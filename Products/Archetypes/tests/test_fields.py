@@ -35,7 +35,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 from plone.app.testing import PLONE_SITE_ID as portal_name
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import mkDummyInContext
 from Products.Archetypes.tests.utils import PACKAGE_HOME
 
@@ -181,11 +181,11 @@ FakeRequest = TestRequest
 #        self.form = {}
 
 
-class ProcessingTest(ATSiteTestCase):
+class ProcessingTest(ATTestCase):
 
     def afterSetUp(self):
         self.setRoles(['Manager'])
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self._dummy = mkDummyInContext(Dummy, oid='dummy', context=self.portal,
                                        schema=schema)
         txt_file.seek(0)
@@ -554,12 +554,12 @@ class ProcessingTest(ATSiteTestCase):
         self.assertEqual('text/html', mimetype)
 
 
-class DownloadTest(ATSiteTestCase):
+class DownloadTest(ATTestCase):
 
     def afterSetUp(self):
         # Set up a content object with a field that has a word
         # document in it
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self.dummy = mkDummyInContext(
             Dummy, oid='dummy', context=self.portal, schema=schema)
         self.field = self.dummy.getField('textfield')

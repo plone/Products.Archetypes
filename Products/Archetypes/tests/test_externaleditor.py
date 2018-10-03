@@ -23,14 +23,14 @@
 #
 ##########################################################################
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.atapi import *
 from Products.Archetypes.interfaces.base import IBaseUnit
 
 
-class ExternalEditorTest(ATSiteTestCase):
+class ExternalEditorTest(ATTestCase):
 
     def testExternalEditor(self):
         # really a test that baseobject.__getitem__ returns something

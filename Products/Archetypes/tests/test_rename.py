@@ -23,7 +23,7 @@
 #
 ##########################################################################
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 
 from Products.Archetypes.tests.utils import makeContent
 from Products.Archetypes.tests.utils import populateFolder
@@ -109,17 +109,17 @@ meths = {'manage_afterAdd': manage_afterAdd,
          }
 
 
-class RenameTests(ATSiteTestCase):
+class RenameTests(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         for c in counts:
             c.reset()
         for name, meth in meths.items():
             wrap_method(BaseContent, name, meth, pattern='__test_%s__')
 
     def beforeTearDown(self):
-        ATSiteTestCase.beforeTearDown(self)
+        ATTestCase.beforeTearDown(self)
         for name in meths.keys():
             unwrap_method(BaseContent, name)
 

@@ -40,3 +40,9 @@ BaseObject.__bobo_traverse__ intercepts GET and POST, but not HEAD.
   ...
 
   >>> AppZapper().clear()
+  >>> del portal['test_document']
+  >>> del portal['simple_folder']
+  >>> del portal['simple_btree_folder']
+
+  >>> import transaction
+  >>> transaction.commit()

@@ -5,7 +5,7 @@ from Products.Archetypes.atapi import listTypes
 from Products.Archetypes.atapi import registerType
 from Products.Archetypes.atapi import process_types
 from Products.Archetypes.config import PKG_NAME
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.test_classgen import Dummy
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
@@ -14,10 +14,10 @@ from Products.CMFPlone.interfaces import ILanguageSchema
 Dummy.schema = BaseSchema
 
 
-class LanguageVocabularyTest(ATSiteTestCase):
+class LanguageVocabularyTest(ATTestCase):
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         registerType(Dummy, 'Archetypes')
         content_types, constructors, ftis = process_types(
             listTypes(), PKG_NAME)

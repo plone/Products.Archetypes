@@ -15,6 +15,9 @@ First, setup some content with references:
 
   >>> f = makeContent(folder, portal_type='Folder', title='Sub', id='f')
 
+  >>> import transaction
+  >>> transaction.commit()
+
   >>> _ = a.addReference(b, "KnowsAbout")
   >>> _ = b.addReference(a, "KnowsAbout")
 
@@ -74,3 +77,9 @@ Do a WebDAV move with 'b' and make sure it keeps the references:
 
 Clean up
   >>> AppZapper().clear()
+
+  >>> del folder['a']
+  >>> del folder['f']
+
+  >>> import transaction
+  >>> transaction.commit()

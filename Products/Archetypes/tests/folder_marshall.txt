@@ -197,6 +197,10 @@ like a normal resource:
 
   Clean up
 
+  >>> AppZapper().clear()
+
   >>> del portal['simple_folder']
   >>> del portal['simple_btree_folder']
-  >>> AppZapper().clear()
+
+  >>> import transaction
+  >>> transaction.commit()

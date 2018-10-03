@@ -1,19 +1,19 @@
 import textwrap
 from AccessControl import Unauthorized
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.tests.utils import makeContent
 
 from Products.Archetypes.Storage import AttributeStorage
 from Products.Archetypes.examples.SimpleType import TestView, TestWrite
 
 
-class AttributeProtectionTest(ATSiteTestCase):
+class AttributeProtectionTest(ATTestCase):
 
     _type = 'SimpleProtectedType'
 
     def afterSetUp(self):
-        ATSiteTestCase.afterSetUp(self)
+        ATTestCase.afterSetUp(self)
         self.setRoles(['Manager'])
         self.portal.invokeFactory('Folder', 'test_folder_')
         self.folder = self.portal.test_folder_

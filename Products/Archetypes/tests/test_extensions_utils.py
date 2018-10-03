@@ -1,16 +1,16 @@
 from cStringIO import StringIO
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.examples.ComplexType import ComplexType
 from Products.Archetypes.Extensions import utils
 
 ComplexType.installMode = ('indexes',)
 
 
-class InstallIndexesTests(ATSiteTestCase):
+class InstallIndexesTests(ATTestCase):
 
     def tearDown(self):
-        ATSiteTestCase.tearDown(self)
+        ATTestCase.tearDown(self)
         del ComplexType.schema['richtextfield'].index
         try:
             del ComplexType.schema['richtextfield'].index_method

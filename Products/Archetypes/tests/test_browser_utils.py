@@ -1,11 +1,11 @@
 from zope.component import getMultiAdapter
 
-from Products.Archetypes.tests.atsitetestcase import ATSiteTestCase
+from Products.Archetypes.tests.attestcase import ATTestCase
 from Products.Archetypes.atapi import DisplayList
 from Products.Archetypes.atapi import IntDisplayList
 
 
-class UtilsMethodsTests(ATSiteTestCase):
+class UtilsMethodsTests(ATTestCase):
     """Test the different methods in browser.utils view."""
 
     def test_translate_vocab_with_special_chars(self):
