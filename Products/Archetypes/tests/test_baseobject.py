@@ -140,6 +140,8 @@ class BaseObjectTest(ATTestCase):
 
         dummy = self._dummy
         dummy.manage_permission(view, ('Manager',), False)
+        
+        self.setRoles(('Anonymous',))
         # dummy.content_type in a Python Script
         self.assertRaises(Unauthorized, guarded_getattr, dummy, 'content_type')
 
