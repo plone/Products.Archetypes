@@ -8,7 +8,6 @@ from Products.Archetypes.CatalogMultiplex import CatalogMultiplex
 
 from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
-from OFS.History import Historical
 from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent
 from OFS.PropertyManager import PropertyManager
@@ -25,8 +24,7 @@ CONTENT_MANAGE_OPTIONS = (
 @implementer(IBaseContent, IReferenceable)
 class BaseContentMixin(CatalogMultiplex,
                        BaseObject,
-                       PortalContent,
-                       Historical):
+                       PortalContent):
     """A not-so-basic CMF Content implementation that doesn't
     include Dublin Core Metadata"""
 

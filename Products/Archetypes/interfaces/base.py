@@ -141,7 +141,6 @@ class IBaseContent(IBaseObject):
     Products.Archetypes.Referenceable.Referenceable
     Products.Archetypes.CatalogMultiplex.CatalogMultiplex
     Products.CMFCore.PortalContent.PortalContent
-    OFS.History.Historicall
     """
 
 
