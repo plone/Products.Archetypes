@@ -156,3 +156,9 @@ Test that a MKCOL also fires an IWebDAVObjectInitialized event:
 
 Clean up
   >>> AppZapper().clear()
+
+  >>> del folder['a']
+  >>> del folder['f1']
+
+  >>> import transaction
+  >>> transaction.commit()

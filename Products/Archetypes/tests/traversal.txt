@@ -388,4 +388,11 @@ test types are assigning a dummy var called_afterMKCOL_hook.
 Clean up
   >>> AppZapper().clear()
   
+  >>> del portal['test_document']
+  >>> del portal['index_html']
+  >>> del portal['simple_folder']
+  >>> del portal['simple_btree_folder']
+  
+  >>> import transaction
+  >>> transaction.commit()
 

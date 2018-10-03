@@ -47,3 +47,9 @@ Now be sure our values are correctly translated in view::
     True
     >>> gsm.unregisterUtility(t, ITranslationDomain, 'attesti18n')
     True
+
+Cleaup 
+
+    >>> del portal['vocdemodoc3']
+    >>> import transaction
+    >>> transaction.commit()
