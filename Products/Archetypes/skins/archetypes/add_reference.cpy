@@ -11,6 +11,7 @@
 
 from Products.Archetypes import PloneMessageFactory as _
 from Products.Archetypes.utils import addStatusMessage
+from Products.CMFPlone.utils import generate_unique_id
 
 REQUEST = context.REQUEST
 message = _(u'New reference created.')
@@ -50,7 +51,7 @@ destination = filter(None, destination.split('/'))
 destination_context = portal.restrictedTraverse(destination)
 
 # create a new object at destination context
-new_id = destination_context.generateUniqueId(add_reference.type)
+new_id = generate_unique_id(add_reference.type)
 if context.portal_factory.getFactoryTypes().has_key(add_reference.type):
     destination_list = destination + \
         ['portal_factory', add_reference.type, new_id]

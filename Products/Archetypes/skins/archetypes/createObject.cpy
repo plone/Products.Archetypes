@@ -8,6 +8,7 @@
 ##bind subpath=traverse_subpath
 ##parameters=id=None,type_name=None,script_id=None
 ##
+from Products.CMFPlone.utils import generate_unique_id
 from Products.CMFPlone.utils import transaction_note
 from Products.CMFPlone import PloneMessageFactory as _
 from Products.CMFCore.utils import getToolByName
@@ -20,7 +21,7 @@ response.setHeader('Cache-Control', 'no-cache')
 authenticator = context.restrictedTraverse("@@authenticator")
 
 if id is None:
-    id = context.generateUniqueId(type_name)
+    id = generate_unique_id(type_name)
 else:
     id = id.replace('$', '$$')
 
