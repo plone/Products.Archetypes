@@ -47,6 +47,7 @@ import transaction
 
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import check_id
 
 from Referenceable import Referenceable
 
@@ -768,19 +769,15 @@ class BaseObject(Referenceable):
         if new_id is None:
             return False
 
-        invalid_id = True
-        check_id = getattr(self, 'check_id', None)
-        if check_id is not None:
-            invalid_id = check_id(new_id, required=1)
+        invalid_id = check_id(self, new_id, required=1)
 
         # If check_id told us no, or if it was not found, make sure we have an
         # id unique in the parent folder.
         if invalid_id:
             unique_id = self._findUniqueId(new_id)
             if unique_id is not None:
-                if check_id is None or check_id(new_id, required=1):
-                    new_id = unique_id
-                    invalid_id = False
+                new_id = unique_id
+                invalid_id = False
 
         if not invalid_id:
             # Can't rename without a subtransaction commit when using
@@ -798,20 +795,14 @@ class BaseObject(Referenceable):
         # appending -n, where n is a number between 1 and the constant
         # RENAME_AFTER_CREATION_ATTEMPTS, set in config.py. If no id can be
         # found, return None.
-        check_id = getattr(self, 'check_id', None)
-        if check_id is None:
-            parent = aq_parent(aq_inner(self))
-            parent_ids = parent.objectIds()
-            check_id = lambda id, required: id in parent_ids
-
-        invalid_id = check_id(id, required=1)
+        invalid_id = check_id(self, id, required=1)
         if not invalid_id:
             return id
 
         idx = 1
         while idx <= RENAME_AFTER_CREATION_ATTEMPTS:
             new_id = "%s-%d" % (id, idx)
-            if not check_id(new_id, required=1):
+            if not check_id(self, new_id, required=1):
                 return new_id
             idx += 1
 
