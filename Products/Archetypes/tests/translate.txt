@@ -29,9 +29,10 @@ First make a custom translator for our i18n domain::
 
     >>> class TranslationDomain(object):
     ...     implements(ITranslationDomain)
-    ...     def translate(self, msgid, mapping=None,
+    ...     def translate(self, msgid, domain=None, mapping=None,
     ...                   context=None, target_language=None,
-    ...                   default=None):
+    ...                   default=None, msgid_plural=None,
+    ...                   default_plural=None, number=None):
     ...         return "translated:%s" % (msgid)
     >>> t = TranslationDomain()
     >>> gsm = getGlobalSiteManager()
@@ -48,7 +49,7 @@ Now be sure our values are correctly translated in view::
     >>> gsm.unregisterUtility(t, ITranslationDomain, 'attesti18n')
     True
 
-Cleaup 
+Cleaup
 
     >>> del portal['vocdemodoc3']
     >>> import transaction

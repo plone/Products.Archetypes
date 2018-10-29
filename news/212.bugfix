@@ -1,0 +1,2 @@
+Add PathReprProvider as a baseclass of BaseContentMixin to restore the original __repr__ behavior instead of the new __repr__ from persistent.Persistent. See https://github.com/plone/Products.CMFPlone/issues/2590
+[pbauer]

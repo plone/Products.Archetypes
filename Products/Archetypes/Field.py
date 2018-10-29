@@ -2023,8 +2023,8 @@ class ReferenceField(ObjectField):
 
         >>> _ = folder.invokeFactory('SimpleBTreeFolder', 'btf')
         >>> nodes[2].setLink(folder.btf)
-        >>> nodes[2].getLink()
-        <SimpleBTreeFolder...>
+        >>> nodes[2].getLink().id
+        'btf'
         """
         tool = getToolByName(instance, REFERENCE_CATALOG)
         targetUIDs = [ref.targetUID for ref in

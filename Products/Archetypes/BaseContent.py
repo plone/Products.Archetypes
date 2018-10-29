@@ -10,6 +10,7 @@ from AccessControl import ClassSecurityInfo
 from App.class_init import InitializeClass
 from Products.CMFCore import permissions
 from Products.CMFCore.PortalContent import PortalContent
+from OFS.SimpleItem import PathReprProvider
 from OFS.PropertyManager import PropertyManager
 
 from zope.interface import implementer
@@ -22,7 +23,8 @@ CONTENT_MANAGE_OPTIONS = (
 
 
 @implementer(IBaseContent, IReferenceable)
-class BaseContentMixin(CatalogMultiplex,
+class BaseContentMixin(PathReprProvider,
+                       CatalogMultiplex,
                        BaseObject,
                        PortalContent):
     """A not-so-basic CMF Content implementation that doesn't

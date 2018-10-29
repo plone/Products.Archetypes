@@ -61,21 +61,21 @@ will fire the modified event:
     <Products.Archetypes.event.ObjectInitializedEvent object at ...>)]
 
 
-Setup Content Type Registry so that a 'DDocument' is created: 
+Setup Content Type Registry so that a 'DDocument' is created:
 
-  >>> contents = StringIO('some contents') 
-  >>> request = aputrequest(contents, 'text/plain') 
-  >>> request.processInputs() 
-  >>> ignore = d.PUT(request, request.RESPONSE) 
-  >>> from Products.CMFCore.utils import getToolByName 
-  >>> ctr = getToolByName(portal, 'content_type_registry') 
-  >>> p_id = 'at_dav_test' 
-  >>> p_type = 'name_regex' 
-  >>> ctr.addPredicate(p_id, p_type) 
-  >>> class foo: pass 
-  >>> p_dict = foo() 
-  >>> p_dict.pattern = '.*' 
-  >>> ctr.updatePredicate(p_id, p_dict, 'DDocument') 
+  >>> contents = StringIO('some contents')
+  >>> request = aputrequest(contents, 'text/plain')
+  >>> request.processInputs()
+  >>> ignore = d.PUT(request, request.RESPONSE)
+  >>> from Products.CMFCore.utils import getToolByName
+  >>> ctr = getToolByName(portal, 'content_type_registry')
+  >>> p_id = 'at_dav_test'
+  >>> p_type = 'name_regex'
+  >>> ctr.addPredicate(p_id, p_type)
+  >>> class foo: pass
+  >>> p_dict = foo()
+  >>> p_dict.pattern = '.*'
+  >>> ctr.updatePredicate(p_id, p_dict, 'DDocument')
   >>> ctr.reorderPredicate(p_id, 0)
 
 Doing a `PUT` request that creates a brand new object should fire
@@ -90,7 +90,7 @@ IWebDAVObjectInitializedEvent:
   False
 
   >>> from Testing.ZopeTestCase.zopedoctest.functional import http
-  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper
   >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/some-document HTTP/1.1
@@ -134,7 +134,7 @@ IWebDAVObjectEditedEvent:
   [(<DDocument at /plone/Members/test_user_1_/some-document>,
     <Products.Archetypes.event.WebDAVObjectEditedEvent object at ...>)]
 
-Finally, cleanup the CTR predicate to not affect other tests: 
+Finally, cleanup the CTR predicate to not affect other tests:
 
   >>> ctr.removePredicate(p_id)
 
