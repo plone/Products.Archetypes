@@ -8,6 +8,23 @@ Changelog
 
 .. towncrier release notes start
 
+1.15.6 (2018-12-10)
+-------------------
+
+New features:
+
+
+- Move generateUniqueId script from CMFPlone here. It has no use outside
+  Archetypes world. (#114)
+- Removed travis config. Jenkins is used instead. (#116)
+
+
+Bug fixes:
+
+
+- Fix testlayer mess [petschki] (#113)
+- Use new utils.check_id from CMFPlone. [maurits] (#118)
+
 
 1.15.4 (2018-09-30)
 -------------------
