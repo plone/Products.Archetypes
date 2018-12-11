@@ -8,6 +8,29 @@ Changelog
 
 .. towncrier release notes start
 
+1.16.0 (2018-12-10)
+-------------------
+
+New features:
+
+
+- Move generateUniqueId script from CMFPlone here. 
+  It has no use outside Archetypes world. (#114)
+- Removed travis config. Jenkins is used instead. (#116)
+
+
+Bug fixes:
+
+
+- Fix packaging issues for Plone 5.2
+  [esteele] (#000)
+- Fix testlayer mess
+
+  [petschki] (#113)
+- Use new utils.check_id from CMFPlone.  [maurits] (#118)
+- Add PathReprProvider as a baseclass of BaseContentMixin to restore the original __repr__ behavior instead of the new __repr__ from persistent.Persistent. See https://github.com/plone/Products.CMFPlone/issues/2590
+  [pbauer] (#212)
+
 
 1.15.4 (2018-09-30)
 -------------------
