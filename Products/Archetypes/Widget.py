@@ -10,13 +10,14 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.Expression import Expression
 from Products.CMFCore.Expression import createExprContext
 
-from Products.Archetypes.Registry import registerWidget
-from Products.Archetypes.utils import className
-from Products.Archetypes.utils import unique
-from Products.Archetypes.utils import capitalize
 from Products.Archetypes.generator import macrowidget
 from Products.Archetypes.log import log
 from Products.Archetypes.Registry import registerPropertyType
+from Products.Archetypes.Registry import registerWidget
+from Products.Archetypes.utils import capitalize
+from Products.Archetypes.utils import className
+from Products.Archetypes.utils import safe_encode
+from Products.Archetypes.utils import unique
 
 from ExtensionClass import Base
 from App.class_init import InitializeClass
@@ -1471,8 +1472,8 @@ class TinyMCEWidget(BasePatternWidget):
 
             # Render the combined widget
             rendered = '{}\n{}'.format(
-                textarea_widget.render(),
-                etree.tostring(mt_select)
+                safe_encode(textarea_widget.render()),
+                safe_encode(etree.tostring(mt_select))
             )
         return rendered
 
