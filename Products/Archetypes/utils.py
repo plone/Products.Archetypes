@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import six
 from inspect import getargs, getmro
 from itertools import islice, count
 from types import ClassType, MethodType
@@ -249,7 +250,7 @@ class DisplayList:
     """Static display lists, can look up on
     either side of the dict, and get them in sorted order
 
-    NOTE: Both keys and values *must* contain unique entries! You can *not* 
+    NOTE: Both keys and values *must* contain unique entries! You can *not*
     have the same value twice. This is a "feature" not a bug. DisplayLists
     are meant to be used as a list inside html form entry like a drop down.
 
@@ -899,3 +900,11 @@ def isFactoryContained(obj):
         return False
     meta_type = getattr(aq_base(parent), 'meta_type', '')
     return meta_type == 'TempFolder'
+
+
+def safe_encode(value, encoding='utf-8'):
+    """Convert text to bytes of the specified encoding.
+    """
+    if isinstance(value, six.text_type):
+        value = value.encode(encoding)
+    return value
