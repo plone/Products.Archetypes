@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+1.15.7 (2019-01-09)
+-------------------
+
+Bug fixes:
+
+
+- Fix UnicodeEncodeError on textarea widget.
+  [agitator] (#122)
+
+
 1.15.6 (2018-12-10)
 -------------------
 
