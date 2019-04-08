@@ -9,10 +9,11 @@
 
 if vocab is None or len(vocab) == 0:
     return 0
-
-value = context.unicodeEncode(value)
+if not isinstance(value, str):
+    value = value.encode('utf-8')
 for v in vocab:
-    if context.unicodeEncode(v) == value:
+    if not isinstance(v, str):
+        v = v.encode('utf-8')
+    if v == value:
         return True
-
 return False
