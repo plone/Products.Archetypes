@@ -599,23 +599,16 @@ class QueryStringWidgetTests(unittest.TestCase):
         ]
 
         widget = QueryStringWidget()
-
-        self.assertEqual(
+        base_args = widget._base_args(self.context, self.field, self.request)
+        self.assertDictContainsSubset(
             {
                 'name': 'fieldname',
                 'value': '[{"query": "string1"}, {"query": "string2"}]',
                 'pattern': 'querystring',
-                'pattern_options': {
-                    'indexOptionsUrl': '/@@qsOptions',
-                    'previewCountURL': '/@@querybuildernumberofresults',
-                    'previewURL': '/@@querybuilder_html_results',
-                    'patternAjaxSelectOptions': None,
-                    'patternDateOptions': None,
-                    'patternRelateditemsOptions': None,
-                },
             },
-            widget._base_args(self.context, self.field, self.request),
+            base_args,
         )
+        self.assertIn('pattern_options', base_args.keys())
 
 
 class TinyMCEWidgetTests(unittest.TestCase):

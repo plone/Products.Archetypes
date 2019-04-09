@@ -1,0 +1,4 @@
+Problem: refactoring plone.app.widgets is not easy with too detailed expectations on the output of the pattern_options.
+Its also outside the scope of this test.
+Solution: check if there are pattern_options, but now what they are exactly.
+[jensens]
