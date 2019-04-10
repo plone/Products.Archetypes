@@ -116,13 +116,38 @@ class WidgetTests(ATTestCase):
         # The unicodeTestIn script can be called very often on edit
         # forms when you have lots of keywords (Subject) in your site.
         # So an interesting test here is: how fast is this?  For a
-        # speed test, uncomment the next few lines.  It basically
-        # tests having 3000 keywords, of which 50 are selected on a
-        # page.  The related change in unicodeTestIn speeds this up
+        # speed test, run the tests with 'export AT_UNICODETESTIN=3000'.
+        # It basically tests having 3000 keywords, of which 50 are selected
+        # on a page.  The related change in unicodeTestIn speeds this up
         # from 42 to 15 seconds.
-        #vocab += [str(x) for x in range(3000)]
-        # for x in range(1000, 1050):
-        #    self.assertEqual(self.portal.unicodeTestIn(str(x), vocab), True)
+        # And 9 years later it is 4.4 seconds for only this first part.
+        # And 0.03 seconds after some simple fixes to the script.
+        number = int(os.getenv('AT_UNICODETESTIN', 0))
+        if not number:
+            return
+        from time import time
+        print('\nTesting unicodeTestIn with {0} items, 50 selected.'.format(
+            number))
+        vocab += [str(x) for x in range(number)]
+        value = [str(x) for x in range(1000, 1050)]
+        time1 = time()
+        for v in value:
+           self.assertEqual(self.portal.unicodeTestIn(v, vocab), True)
+        time2 = time()
+        print('First test part finished in {0:.4f} seconds'.format(
+            time2 - time1))
+
+        # This is actually more how it is used:
+        # a large vocabulary, which is compared with a much smaller
+        # list of selected items.  Originally took 12.6 seconds for 3000 items.
+        # And 0.2 seconds after some simple fixes.
+        for v in vocab:
+            # Some of these are True, others False, so we don't test the outcome.
+            # We only call this to test the speed.
+            self.portal.unicodeTestIn(v, value)
+        time3 = time()
+        print('Second test part finished in {0:.4f} seconds'.format(
+            time3 - time2))
 
     def _test_widgets(self):
         doc = makeContent(self.folder, portal_type='ComplexType', id='demodoc')

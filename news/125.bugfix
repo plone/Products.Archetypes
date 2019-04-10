@@ -1,0 +1,2 @@
+Fixed slowness in ``unicodeTestIn`` script used by keyword template.
+[maurits]
