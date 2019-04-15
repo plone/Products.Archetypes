@@ -1470,7 +1470,7 @@ class TinyMCEWidget(BasePatternWidget):
                 mt_select.append(opt)
 
             # Render the combined widget
-            rendered = '{}\n{}'.format(
+            rendered = u'{}\n{}'.format(
                 textarea_widget.render(),
                 etree.tostring(mt_select)
             )
