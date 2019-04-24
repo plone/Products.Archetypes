@@ -7,7 +7,7 @@ global-exclude *pyc
 exclude .installed.cfg
 exclude .travis.yml
 exclude bootstrap.py
-exclude buidlout.cfg
+exclude buildout.cfg
 include pyproject.toml
 recursive-exclude news *
 exclude news
