@@ -23,6 +23,15 @@ Bug fixes:
 - Fixed ``UnicodeEncodeError`` when editing Archetypes rich text.  [maurits] (#2832)
 
 
+1.15.6 (2018-12-10)
+-------------------
+
+Bug fixes:
+
+- Reverted ``__repr__`` changes from 1.15.5.  That is only good for Plone 5.2.
+  The 1.16.0 release will contain that change.
+
+
 1.15.5 (2018-11-04)
 -------------------
 
