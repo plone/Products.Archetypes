@@ -8,6 +8,22 @@ Changelog
 
 .. towncrier release notes start
 
+1.16.1 (2019-05-06)
+-------------------
+
+Bug fixes:
+
+
+- Problem: refactoring plone.app.widgets is not easy with too detailed expectations on the output of the pattern_options.
+  Its also outside the scope of this test.
+  Solution: check if there are pattern_options, but now what they are exactly.
+  [jensens] (#124)
+- Fixed slowness in ``unicodeTestIn`` script used by keyword template.
+  [maurits] (#125)
+- Fixed changelog for releases 1.15.5, 1.15.6 and 1.16.0.  [maurits] (#130)
+- Fixed ``UnicodeEncodeError`` when editing Archetypes rich text.  [maurits] (#2832)
+
+
 1.16.0 (2018-12-10)
 -------------------
 
