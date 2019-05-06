@@ -13,7 +13,6 @@ Changelog
 
 Bug fixes:
 
-
 - Fix UnicodeEncodeError on textarea widget.
   [agitator] (#122)
 
@@ -21,19 +20,28 @@ Bug fixes:
 1.15.6 (2018-12-10)
 -------------------
 
+Bug fixes:
+
+- Reverted ``__repr__`` changes from 1.15.5.  That is only good for Plone 5.2.
+  The 1.16.0 release will contain that change.
+
+
+1.15.5 (2018-11-04)
+-------------------
+
 New features:
 
-
-- Move generateUniqueId script from CMFPlone here. It has no use outside
-  Archetypes world. (#114)
+- Move generateUniqueId script from CMFPlone here.
+  It has no use outside Archetypes world. (#114)
 - Removed travis config. Jenkins is used instead. (#116)
-
 
 Bug fixes:
 
-
-- Fix testlayer mess [petschki] (#113)
-- Use new utils.check_id from CMFPlone. [maurits] (#118)
+- Fix testlayer mess.  [petschki] (#113)
+- Use new utils.check_id from CMFPlone.  [maurits] (#118)
+- Add ``PathReprProvider`` as a baseclass of ``BaseContentMixin`` to restore the original ``__repr__`` behavior instead of the new ``__repr__`` from ``persistent.Persistent``.
+  See `issue 2590 <https://github.com/plone/Products.CMFPlone/issues/2590>`_.
+  [pbauer] (#212)
 
 
 1.15.4 (2018-09-30)
