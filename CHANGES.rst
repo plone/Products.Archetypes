@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+1.15.8 (2019-05-06)
+-------------------
+
+Bug fixes:
+
+
+- Fixed slowness in ``unicodeTestIn`` script used by keyword template.
+  [maurits] (#125)
+
+
 1.15.7 (2019-01-09)
 -------------------
 
