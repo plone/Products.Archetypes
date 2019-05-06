@@ -1,0 +1,1 @@
+Fixed ``UnicodeEncodeError`` when editing Archetypes rich text.  [maurits]

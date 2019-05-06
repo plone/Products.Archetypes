@@ -8,33 +8,45 @@ Changelog
 
 .. towncrier release notes start
 
-1.15.6 (2019-04-29)
+1.16.0 (2018-12-10)
 -------------------
 
 New features:
 
-
-- Move generateUniqueId script from CMFPlone here. 
-  It has no use outside Archetypes world. (#114)
-- Removed travis config. Jenkins is used instead. (#116)
-
+- Included ``__repr__`` changes from 1.15.5 again.  This change is only good for Plone 5.2.
+  See also https://github.com/plone/Products.Archetypes/issues/130
 
 Bug fixes:
 
+- Fix packaging issues for Plone 5.2.
+  [esteele]
 
-- Fix testlayer mess
 
-  [petschki] (#113)
+1.15.6 (2018-12-10)
+-------------------
+
+Bug fixes:
+
+- Reverted ``__repr__`` changes from 1.15.5.  That is only good for Plone 5.2.
+  The 1.16.0 release will contain that change.
+
+
+1.15.5 (2018-11-04)
+-------------------
+
+New features:
+
+- Move generateUniqueId script from CMFPlone here.
+  It has no use outside Archetypes world. (#114)
+- Removed travis config. Jenkins is used instead. (#116)
+
+Bug fixes:
+
+- Fix testlayer mess.  [petschki] (#113)
 - Use new utils.check_id from CMFPlone.  [maurits] (#118)
-- Problem: refactoring plone.app.widgets is not easy with too detailed expectations on the output of the pattern_options.
-  Its also outside the scope of this test.
-  Solution: check if there are pattern_options, but now what they are exactly.
-  [jensens] (#124)
-- Fixed slowness in ``unicodeTestIn`` script used by keyword template.
-  [maurits] (#125)
-- Add PathReprProvider as a baseclass of BaseContentMixin to restore the original __repr__ behavior instead of the new __repr__ from persistent.Persistent. See https://github.com/plone/Products.CMFPlone/issues/2590
+- Add ``PathReprProvider`` as a baseclass of ``BaseContentMixin`` to restore the original ``__repr__`` behavior instead of the new ``__repr__`` from ``persistent.Persistent``.
+  See `issue 2590 <https://github.com/plone/Products.CMFPlone/issues/2590>`_.
   [pbauer] (#212)
-- Fixed ``UnicodeEncodeError`` when editing Archetypes rich text.  [maurits] (#2832)
 
 
 1.15.4 (2018-09-30)
