@@ -15,16 +15,10 @@ under the same banner, and play nicely with WebDAV.
   >>> from plone.app.testing import setRoles
   >>> from plone.app.testing import TEST_USER_ID
   >>> setRoles(portal, TEST_USER_ID, ['Manager'])
-
-CMF 1.5 returns the id of the created object, CMF 1.4 doesn't ...
-
-  >>> portal.invokeFactory('SimpleFolder', 'simple_folder') in \
-  ...                           (None, 'simple_folder')
-  True
-
-  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder') \
-  ...                           in (None, 'simple_btree_folder')
-  True
+  >>> portal.invokeFactory('SimpleFolder', 'simple_folder')
+  'simple_folder'
+  >>> portal.invokeFactory('SimpleBTreeFolder', 'simple_btree_folder')
+  'simple_btree_folder'
 
 Make sure we've got some reasonable marshaller setup over there:
 
@@ -40,8 +34,8 @@ enable the new behaviour on folderish objects that have
 
   >>> folder = portal.simple_folder
 
-  >>> from Testing.ZopeTestCase.zopedoctest.functional import http 
-  >>> from Testing.ZopeTestCase.sandbox import AppZapper 
+  >>> from Testing.ZopeTestCase.zopedoctest.functional import http
+  >>> from Testing.ZopeTestCase.sandbox import AppZapper
   >>> AppZapper().set(layer['app'])
   >>> print http(r"""
   ... PUT /%s/simple_folder HTTP/1...
@@ -63,11 +57,11 @@ enable the new behaviour on folderish objects that have
   <BLANKLINE>
 
 Note that 'GET' will also result in the same response. We simulate a
-WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
+WebDAV 'GET' by appending 'manage_FTPget' to the target, which is just
 about what the 'WebDAVSrcHandler' does:
 
   >>> print http(r"""
-  ... GET /%s/simple_folder/manage_DAVget HTTP/1...
+  ... GET /%s/simple_folder/manage_FTPget HTTP/1...
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1... 405 Method Not Allowed
@@ -97,7 +91,7 @@ like a normal resource:
   True
 
   >>> print http(r"""
-  ... GET /%s/simple_folder/manage_DAVget HTTP/1...
+  ... GET /%s/simple_folder/manage_FTPget HTTP/1...
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1... 200 OK
@@ -141,11 +135,11 @@ The same for BTreeFolder:
   AttributeError: ...called_afterPUT_hook...
 
 Note that 'GET' will also result in the same response. We simulate a
-WebDAV 'GET' by appending 'manage_DAVget' to the target, which is just
+WebDAV 'GET' by appending 'manage_FTPget' to the target, which is just
 about what the 'WebDAVSrcHandler' does:
 
   >>> print http(r"""
-  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1...
+  ... GET /%s/simple_btree_folder/manage_FTPget HTTP/1...
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1... 405 Method Not Allowed
@@ -175,7 +169,7 @@ like a normal resource:
   True
 
   >>> print http(r"""
-  ... GET /%s/simple_btree_folder/manage_DAVget HTTP/1...
+  ... GET /%s/simple_btree_folder/manage_FTPget HTTP/1...
   ... Authorization: Basic %s:%s
   ... """ % (portal_name, user_name, user_password))
   HTTP/1... 200 OK
