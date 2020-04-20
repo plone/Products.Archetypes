@@ -8,6 +8,17 @@ Changelog
 
 .. towncrier release notes start
 
+1.16.2 (2020-04-20)
+-------------------
+
+Bug fixes:
+
+
+- Use manage_FTPget instead of manage_DAVget in marshall tests.
+  Adds compatibility with Zope 4.3.
+  [maurits] (#644)
+
+
 1.16.1 (2019-05-06)
 -------------------
 
