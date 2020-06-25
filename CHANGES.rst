@@ -8,6 +8,19 @@ Changelog
 
 .. towncrier release notes start
 
+1.9.21 (2020-06-25)
+-------------------
+
+Bug fixes:
+
+
+- textcount.js support for jquery>1.6.
+
+  make it impossible to enter text longer than ``maxlimit``
+  by replacing ``maxlimit alert()`` with highlighting textcountfield.
+  [vkarppinen] (#93)
+
+
 1.9.20 (2019-05-21)
 -------------------
 
