@@ -8,6 +8,17 @@ Changelog
 
 .. towncrier release notes start
 
+1.16.4 (2021-01-08)
+-------------------
+
+Bug fixes:
+
+
+- Lifted the ceiling for the maximum date from end of 2020 to 2051 in all places.
+  See `issue 133 <https://github.com/plone/Products.Archetypes/issues/133>`_.
+  [maurits] (#133)
+
+
 1.16.3 (2020-10-30)
 -------------------
 
