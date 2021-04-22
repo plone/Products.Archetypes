@@ -164,7 +164,8 @@ class SetFilenameTest(ATTestCase):
 class LargeFileTest(ATTestCase):
 
     def testSetFilenameOfLargeFile(self):
-        """Test for https://dev.plone.org/archetypes/ticket/635
+        """Test for https://web.archive.org/web/20070524030942/https://dev.plone.org/archetypes/ticket/635
+
         """
         self.folder.invokeFactory('SimpleFile', 'sf')
         obj = self.folder.sf
