@@ -354,7 +354,7 @@ class WidgetTests(ATTestCase):
         # key is in there, getting the value for the key, possibly
         # translate it if it is a message id or try to translate it
         # anyway if the value is a simple string.  This may be tricky,
-        # as can be seen in https://dev.plone.org/ticket/7627
+        # as can be seen in https://web.archive.org/web/20140426154820/https://dev.plone.org/ticket/7627
         #
         # Note that below you may see some really strange looking
         # results, but that is because during the tests a test
