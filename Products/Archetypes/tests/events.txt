@@ -9,7 +9,7 @@ that listens for object events for `IBaseObject`:
   >>> from StringIO import StringIO
   >>> from Products.Archetypes.tests.utils import makeContent, aputrequest
   >>> from Products.Archetypes.interfaces import IBaseObject
-  >>> from zope.component.interfaces import IObjectEvent
+  >>> from zope.interface.interfaces import IObjectEvent
 
   >>> class Handler:
   ...     def __init__(self):

@@ -1,7 +1,7 @@
 """Event-related interfaces
 """
 
-from zope.component.interfaces import IObjectEvent
+from zope.interface.interfaces import IObjectEvent
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 # Modification

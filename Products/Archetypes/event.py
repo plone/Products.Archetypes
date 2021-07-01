@@ -3,7 +3,7 @@
 
 from zope.interface import implementer
 
-from zope.component.interfaces import ObjectEvent
+from zope.interface.interfaces import ObjectEvent
 from zope.lifecycleevent import ObjectModifiedEvent
 
 from Products.Archetypes.interfaces import IObjectInitializedEvent

@@ -1,0 +1,3 @@
+Fixed incompatibility with ``zope.component`` 5.
+``zope.component.interfaces`` has long been a backwards compatibility import for ``zope.interface.interfaces``, but not anymore.
+[maurits]

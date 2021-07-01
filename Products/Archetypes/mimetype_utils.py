@@ -6,7 +6,7 @@ try:
     from Products.CMFPlone.interfaces import IMarkupSchema
     from plone.registry.interfaces import IRegistry
     from zope.component import getUtility
-    from zope.component.interfaces import ComponentLookupError
+    from zope.interface.interfaces import ComponentLookupError
 except ImportError:
     IMarkupSchema = None
 
