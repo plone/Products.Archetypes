@@ -8,6 +8,17 @@ Changelog
 
 .. towncrier release notes start
 
+1.16.5 (2021-07-28)
+-------------------
+
+Bug fixes:
+
+
+- Fixed incompatibility with ``zope.component`` 5.
+  ``zope.component.interfaces`` has long been a backwards compatibility import for ``zope.interface.interfaces``, but not anymore.
+  [maurits] (#462)
+
+
 1.16.4 (2021-01-08)
 -------------------
 
