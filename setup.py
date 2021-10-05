@@ -1,5 +1,12 @@
 from setuptools import setup, find_packages
 
+import sys
+
+
+if sys.version_info[0] != 2:
+    # Prevent creating or installing a distribution with Python 3.
+    raise ValueError("Archetypes is Python 2 only.")
+
 version = '1.16.6.dev0'
 
 setup(name='Products.Archetypes',
@@ -28,6 +35,7 @@ setup(name='Products.Archetypes',
       namespace_packages=['Products'],
       include_package_data=True,
       zip_safe=False,
+      python_requires="==2.7.*",
       extras_require=dict(
         test=[
             'zope.annotation',
