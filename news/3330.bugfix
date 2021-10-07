@@ -1,2 +1,0 @@
-Prevent installation on Python 3, as we know Archetypes does not work there.
-[maurits]

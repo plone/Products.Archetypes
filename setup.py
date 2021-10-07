@@ -7,7 +7,7 @@ if sys.version_info[0] != 2:
     # Prevent creating or installing a distribution with Python 3.
     raise ValueError("Archetypes is Python 2 only.")
 
-version = '1.16.6.dev0'
+version = '1.16.6'
 
 setup(name='Products.Archetypes',
       version=version,
